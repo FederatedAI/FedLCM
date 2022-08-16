@@ -1,0 +1,71 @@
+<br>
+<button class="btn btn-outline" (click)="showlocalDataList()"><cds-icon shape="add-text"></cds-icon>  {{'projectDetail.associateData' | translate}}</button>
+<clr-modal [(clrModalOpen)]="openModal" [clrModalClosable]="false">
+    <h3 class="modal-title">{{'projectDetail.associateLocalData' | translate}}</h3>
+    <div class="modal-body">
+        <div *ngIf="showLocalDataListFailed || (associateLocalDataSubmit && associateLocalDataFailed) || (associateLocalDataSubmit && noSelected)" class="alert alert-danger" role="alert">
+            <div class="alert-items">
+                <div class="alert-item static">
+                    <div class="alert-icon-wrapper">
+                        <cds-icon class="alert-icon" shape="exclamation-circle"></cds-icon>
+                    </div>
+                    <span class="alert-text">
+                        {{errorMessage}}
+                    </span>
+                </div>
+            </div>
+        </div>
+        <clr-datagrid>
+            <clr-dg-column [clrDgField]="'name'">{{'CommonlyUse.name' | translate}}</clr-dg-column>
+            <clr-dg-column [clrDgSortBy]="createTimeComparator">{{'CommonlyUse.createTime' | translate}}</clr-dg-column>
+            <clr-dg-column>{{'CommonlyUse.select' | translate}}</clr-dg-column>
+            <clr-dg-row *clrDgItems="let data of newLocalDataList">
+                <clr-dg-cell>{{data.name}}</clr-dg-cell>
+                <clr-dg-cell>{{data.creation_time  | dateFormatting}}</clr-dg-cell>
+                <clr-dg-cell>
+                    <clr-checkbox-wrapper>
+                        <input type="checkbox" clrCheckbox name="dataname" required value="option" [(ngModel)]="data.selected"/>
+                        </clr-checkbox-wrapper>     
+                </clr-dg-cell>
+            </clr-dg-row>
+            <clr-dg-footer>{{newLocalDataList ? newLocalDataList.length : 0}} item(s)</clr-dg-footer>
+        </clr-datagrid>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-outline" (click)="reloadCurrentRoute()">{{'CommonlyUse.cancel' | translate}}</button>
+        <button type="button" class="btn btn-primary" (click)="associateLocalData()" [disabled]="associateLocalDataSubmit">{{'CommonlyUse.ok' | translate}}</button>
+    </div>
+</clr-modal>
+<br>
+<div *ngIf="submitDeleteFailed || showAssociatedDataListFailed" class="alert alert-danger" role="alert">
+    <div class="alert-items">
+        <div class="alert-item static">
+            <div class="alert-icon-wrapper">
+                <cds-icon class="alert-icon" shape="exclamation-circle"></cds-icon>
+            </div>
+            <span class="alert-text">
+                {{errorMessage}}
+            </span>
+        </div>
+    </div>
+</div>
+<a href="javascript:;" class="refreshbtn" (click)="refresh()"><cds-icon shape="refresh"></cds-icon></a>
+<br>
+<clr-datagrid [clrDgLoading]="isPageLoading">
+    <clr-dg-column [clrDgField]="'name'">{{'CommonlyUse.name' | translate}}</clr-dg-column>
+    <clr-dg-column [clrDgSortBy]="partyComparator">{{'projectDetail.dataProvider' | translate}}</clr-dg-column>
+    <clr-dg-column>{{'projectDetail.providerPartyID' | translate}}</clr-dg-column>
+    <clr-dg-column [clrDgSortBy]="updateTimeComparator">{{'CommonlyUse.updateTime' | translate}}</clr-dg-column>
+    <clr-dg-column [clrDgSortBy]="createTimeComparator">{{'CommonlyUse.createTime' | translate}}</clr-dg-column>
+    <clr-dg-column>{{'CommonlyUse.action' | translate}}</clr-dg-column>
+    <clr-dg-row *clrDgItems="let data of associatedDataList">
+        <clr-dg-cell>{{data.name}}</clr-dg-cell>
+        <clr-dg-cell>{{data.providing_site_name}}</clr-dg-cell>
+        <clr-dg-cell>{{data.providing_site_party_id}}</clr-dg-cell>
+        <clr-dg-cell>{{data.update_time  | dateFormatting}}</clr-dg-cell>
+        <clr-dg-cell>{{data.creation_time | dateFormatting}}</clr-dg-cell>
+        <clr-dg-cell *ngIf="data.is_local"><a href="javascript:void(0)" (click)="deleteAssociatedLocalData(data.data_id)" class="alert-action">{{"projectDetail.cancelAssociation"| translate}}</a> </clr-dg-cell>
+        <clr-dg-cell *ngIf="!data.is_local"><a href="javascript:void(0)" class="alert-action"></a> </clr-dg-cell>
+    </clr-dg-row>
+    <clr-dg-footer>{{associatedDataList ? associatedDataList.length : 0}} {{'CommonlyUse.item' | translate}}</clr-dg-footer>
+</clr-datagrid>

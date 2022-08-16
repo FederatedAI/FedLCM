@@ -1,0 +1,153 @@
+.content-area {
+  position: relative;
+  &.hidden {
+    overflow: hidden;
+  }
+}
+.pageLoading-bac {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  background-color: rgba($color: rgb(255,255,255), $alpha: 1);
+  left: 0px;
+  top: 0px;
+  z-index: 99;
+}
+.card1 {
+  width: 100%;
+  min-width: 1200px;
+  ol {
+    h6 {
+      margin: 0px;
+    }
+  }
+  .list {
+      width: 100%;
+      li::ng-deep {
+        span:first-of-type {
+          b {
+            display: inline-block;
+            width: 300px;
+          }
+        }
+        .clr-form-control {
+            margin-top: 5px;
+            .clr-textarea-wrapper {
+              width: 600px;
+            }  
+            textarea {
+                width: 600px;
+                height: 300px;
+            }
+        }
+      }
+      &.ol {
+          li {
+              border-bottom: 1px solid #999;
+              padding-bottom: 10px;
+            }
+        }
+        &.ol-ul {
+          margin-left: 30px;
+          li {
+              border-bottom: none;
+              padding-bottom: 0px;
+              span {
+                  font-size: 12px;
+              }
+          }
+      }
+        input {
+          width: 100%;
+      }
+      select{
+          width: 150px;
+      }
+    &.none {
+        list-style: none;
+        li {
+          height: 800px;
+          width: 800px;
+        }
+        li::ng-deep {
+            textarea {
+                width: 600px;
+                height: 300px;
+            }
+          }
+    }
+    &.child {
+      font-size: 12px;
+    }
+
+  }
+  .t2{
+      width: 100%;
+      height: 60px;
+  }
+  span:first-of-type {
+      font-size: 15px;
+      display: inline-block;
+      width: 250px;
+      margin-right: 10px;
+      line-height: 36px;
+  }
+  .t3{
+      width: 1000px;
+      height: 500px;
+  }
+}
+.pageLoading {
+  position: absolute;
+  left: 50%;
+  top: 10%;
+  transform: translateX(-50%);
+  z-index: 100;
+}
+.card {
+  min-width: 1200px;
+    .alert {
+        width: 30%;
+    }
+    .list {
+        width: 100%;
+        li::ng-deep {
+          span:first-of-type {
+              display: inline-block;
+              // width: 200px;
+              &.bind-mode {
+                width: 115px;
+              }
+          }
+          .clr-form-control {
+              margin-top: 5px;
+              textarea {
+                  width: 600px;
+                  height: 300px;
+              }
+          }
+        }
+          input {
+            width: 100%;
+        }
+        select{
+            width: 150px;
+        }
+      &.none {
+          list-style: none;
+          li::ng-deep {
+              textarea {
+                  width: 600px;
+                  height: 300px;
+              }
+            }
+      }
+  
+    }
+}
+.deployment-yaml {
+  color: #333;
+}
+.statusLabel {
+  margin-bottom: 8px;
+}

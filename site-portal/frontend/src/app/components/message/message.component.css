@@ -1,0 +1,102 @@
+.upc-message {
+  position: fixed;
+  z-index: 1999;
+  width: 100%;
+  top: 36px;
+  left: 0;
+  pointer-events: none;
+  padding: 8px;
+  text-align: center;
+ }
+ .hide {
+   display: none;
+ }
+ .upc-message-content {
+   position: relative;
+   padding: 8px 16px;
+   padding-left: 40px;
+   min-width: 300px;
+   max-width: 800px;
+   text-align: left;
+   font-size: 0.65rem;
+   color: #333;
+   line-height: 24px;
+   -ms-border-radius: 4px;
+   border-radius: 4px;
+   -webkit-box-shadow: 0 2px 8px #000000;
+   -ms-box-shadow: 0 2px 8px #000000;
+   box-shadow: 0 2px 8px #000000;
+   box-shadow: 0 2px 8px rgba(0,0,0,.2);
+   background: #fff;
+   display: inline-block;
+   pointer-events: all;
+  }
+  .upc-message-content .content-msg {
+    margin: 0px;
+  }
+  .upc-message-content .content-icon {
+    position: absolute;
+    left: 16px;
+  }
+  .special {
+    height: 24px;
+    overflow: hidden;
+  }
+  .upc-message-success{
+   background: #DFF0D0;
+   border: 1px solid #306B00;
+  }
+  .upc-message-warning {
+    background: #FDF4C7;
+    border: 1px solid #AD7600;
+   }
+   .upc-message-error{
+    background: #FCDDD7;
+    border: 1px solid #991700;
+    color: #666;
+   }  
+   .upc-message-info{
+    background: #E3F5FC;
+    border: 1px solid #00567a;
+    color: #666;
+   }
+   .upc-message-hide{
+    display: block;
+   }
+.close {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  cursor: pointer;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid #00567a;
+  text-align: center;
+  margin: 0px;
+  line-height: 18px;
+  color: #00567a;
+  font-weight: bold;
+  background: #E3F5FC;
+  opacity: 1;
+}
+.close-success {
+  background: #DFF0D0;
+  border: 2px solid #306B00;
+  color: #306B00;
+}
+.close-warning {
+  background: #FDF4C7;
+  border: 2px solid #AD7600;
+  color: #AD7600;
+}
+.close-error {
+  background: #FCDDD7;
+  border: 2px solid #991700;
+  color: #991700;
+}
+.close-info {
+  background: #E3F5FC;
+  border: 2px solid #00567a;
+  color: #00567a;
+}

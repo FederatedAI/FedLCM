@@ -1,0 +1,3080 @@
+basePath: /api/v1
+definitions:
+  api.GeneralResponse:
+    properties:
+      code:
+        example: 0
+        type: integer
+      data:
+        type: object
+      message:
+        example: success
+        type: string
+    type: object
+  entity.CertificateAuthorityConfigurationStepCA:
+    properties:
+      provisioner_name:
+        type: string
+      provisioner_password:
+        type: string
+      service_cert_pem:
+        type: string
+      service_url:
+        type: string
+    type: object
+  entity.EventData:
+    properties:
+      description:
+        type: string
+      log_level:
+        type: string
+    type: object
+  entity.ParticipantComponentCertInfo:
+    properties:
+      binding_mode:
+        type: integer
+      common_name:
+        type: string
+      uuid:
+        type: string
+    type: object
+  entity.ParticipantFATEIngress:
+    properties:
+      addresses:
+        items:
+          type: string
+        type: array
+      hosts:
+        items:
+          type: string
+        type: array
+      tls:
+        type: boolean
+    type: object
+  entity.ParticipantFATEIngressMap:
+    additionalProperties:
+      $ref: '#/definitions/entity.ParticipantFATEIngress'
+    type: object
+  entity.ParticipantFATEModulesAccessMap:
+    additionalProperties:
+      $ref: '#/definitions/entity.ParticipantModulesAccess'
+    type: object
+  entity.ParticipantModulesAccess:
+    properties:
+      fqdn:
+        type: string
+      host:
+        type: string
+      port:
+        type: integer
+      service_type:
+        type: string
+      tls:
+        type: boolean
+    type: object
+  entity.ParticipantOpenFLModulesAccessMap:
+    additionalProperties:
+      $ref: '#/definitions/entity.ParticipantModulesAccess'
+    type: object
+  service.CertificateAuthorityDetail:
+    properties:
+      config:
+        additionalProperties: true
+        type: object
+      created_at:
+        type: string
+      description:
+        type: string
+      name:
+        type: string
+      status:
+        type: integer
+      status_message:
+        type: string
+      type:
+        type: integer
+      uuid:
+        type: string
+    type: object
+  service.CertificateAuthorityEditableItem:
+    properties:
+      config:
+        additionalProperties: true
+        type: object
+      description:
+        type: string
+      name:
+        type: string
+      type:
+        type: integer
+    type: object
+  service.CertificateBindingListItem:
+    properties:
+      federation_name:
+        type: string
+      federation_type:
+        type: string
+      federation_uuid:
+        type: string
+      participant_name:
+        type: string
+      participant_type:
+        type: string
+      participant_uuid:
+        type: string
+      service_description:
+        type: string
+      service_type:
+        type: integer
+    type: object
+  service.CertificateListItem:
+    properties:
+      bindings:
+        items:
+          $ref: '#/definitions/service.CertificateBindingListItem'
+        type: array
+      common_name:
+        type: string
+      expiration_date:
+        type: string
+      name:
+        type: string
+      serial_number:
+        type: string
+      uuid:
+        type: string
+    type: object
+  service.ChartDetail:
+    properties:
+      about:
+        type: string
+      chart_name:
+        type: string
+      contain_portal_services:
+        type: boolean
+      created_at:
+        type: string
+      description:
+        type: string
+      name:
+        type: string
+      type:
+        type: integer
+      uuid:
+        type: string
+      values:
+        type: string
+      values_template:
+        type: string
+      version:
+        type: string
+    type: object
+  service.ChartListItem:
+    properties:
+      chart_name:
+        type: string
+      contain_portal_services:
+        type: boolean
+      created_at:
+        type: string
+      description:
+        type: string
+      name:
+        type: string
+      type:
+        type: integer
+      uuid:
+        type: string
+      version:
+        type: string
+    type: object
+  service.EndpointCreationRequest:
+    properties:
+      description:
+        type: string
+      infra_provider_uuid:
+        type: string
+      ingress_controller_service_mode:
+        type: integer
+      install:
+        type: boolean
+      kubefate_deployment_yaml:
+        type: string
+      name:
+        type: string
+      type:
+        type: string
+    type: object
+  service.EndpointDetail:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      infra_provider_name:
+        type: string
+      infra_provider_uuid:
+        type: string
+      kubefate_address:
+        type: string
+      kubefate_deployment_yaml:
+        type: string
+      kubefate_host:
+        type: string
+      kubefate_version:
+        type: string
+      name:
+        type: string
+      status:
+        type: integer
+      type:
+        type: string
+      uuid:
+        type: string
+    type: object
+  service.EndpointListItem:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      infra_provider_name:
+        type: string
+      infra_provider_uuid:
+        type: string
+      kubefate_address:
+        type: string
+      kubefate_host:
+        type: string
+      kubefate_version:
+        type: string
+      name:
+        type: string
+      status:
+        type: integer
+      type:
+        type: string
+      uuid:
+        type: string
+    type: object
+  service.EndpointScanRequest:
+    properties:
+      infra_provider_uuid:
+        type: string
+      type:
+        type: string
+    type: object
+  service.EventListItem:
+    properties:
+      created_at:
+        type: string
+      data:
+        $ref: '#/definitions/entity.EventData'
+      entity_type:
+        type: integer
+      entity_uuid:
+        type: string
+      type:
+        type: integer
+      uuid:
+        type: string
+    type: object
+  service.FATEClusterDetail:
+    properties:
+      access_info:
+        $ref: '#/definitions/entity.ParticipantFATEModulesAccessMap'
+      chart_uuid:
+        type: string
+      cluster_uuid:
+        type: string
+      created_at:
+        type: string
+      deployment_yaml:
+        type: string
+      description:
+        type: string
+      endpoint_name:
+        type: string
+      endpoint_uuid:
+        type: string
+      infra_provider_name:
+        type: string
+      infra_provider_uuid:
+        type: string
+      ingress_info:
+        $ref: '#/definitions/entity.ParticipantFATEIngressMap'
+      is_managed:
+        type: boolean
+      name:
+        type: string
+      namespace:
+        type: string
+      party_id:
+        type: integer
+      pulsar_server_cert_info:
+        $ref: '#/definitions/entity.ParticipantComponentCertInfo'
+      site_portal_client_cert_info:
+        $ref: '#/definitions/entity.ParticipantComponentCertInfo'
+      site_portal_server_cert_info:
+        $ref: '#/definitions/entity.ParticipantComponentCertInfo'
+      status:
+        type: integer
+      type:
+        type: integer
+      uuid:
+        type: string
+    type: object
+  service.FATEExchangeDetail:
+    properties:
+      access_info:
+        $ref: '#/definitions/entity.ParticipantFATEModulesAccessMap'
+      chart_uuid:
+        type: string
+      cluster_uuid:
+        type: string
+      created_at:
+        type: string
+      deployment_yaml:
+        type: string
+      description:
+        type: string
+      endpoint_name:
+        type: string
+      endpoint_uuid:
+        type: string
+      fml_manager_client_cert_info:
+        $ref: '#/definitions/entity.ParticipantComponentCertInfo'
+      fml_manager_server_cert_info:
+        $ref: '#/definitions/entity.ParticipantComponentCertInfo'
+      infra_provider_name:
+        type: string
+      infra_provider_uuid:
+        type: string
+      is_managed:
+        type: boolean
+      name:
+        type: string
+      namespace:
+        type: string
+      party_id:
+        type: integer
+      proxy_server_cert_info:
+        $ref: '#/definitions/entity.ParticipantComponentCertInfo'
+      status:
+        type: integer
+      type:
+        type: integer
+      uuid:
+        type: string
+    type: object
+  service.FederationFATECreationRequest:
+    properties:
+      description:
+        type: string
+      domain:
+        type: string
+      name:
+        type: string
+    type: object
+  service.FederationFATEDetail:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      domain:
+        type: string
+      name:
+        type: string
+      type:
+        type: string
+      uuid:
+        type: string
+    type: object
+  service.FederationListItem:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      name:
+        type: string
+      type:
+        type: string
+      uuid:
+        type: string
+    type: object
+  service.FederationOpenFLCreationRequest:
+    properties:
+      description:
+        type: string
+      domain:
+        type: string
+      name:
+        type: string
+      shard_descriptor_config:
+        $ref: '#/definitions/valueobject.ShardDescriptorConfig'
+      use_customized_shard_descriptor:
+        type: boolean
+    type: object
+  service.FederationOpenFLDetail:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      domain:
+        type: string
+      name:
+        type: string
+      shard_descriptor_config:
+        $ref: '#/definitions/valueobject.ShardDescriptorConfig'
+      type:
+        type: string
+      use_customized_shard_descriptor:
+        type: boolean
+      uuid:
+        type: string
+    type: object
+  service.InfraProviderCreationRequest:
+    properties:
+      description:
+        type: string
+      kubernetes_provider_info:
+        $ref: '#/definitions/service.InfraProviderKubernetesConfig'
+      name:
+        type: string
+      type:
+        type: string
+    type: object
+  service.InfraProviderDetail:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      kubernetes_provider_info:
+        $ref: '#/definitions/service.InfraProviderInfoKubernetes'
+      name:
+        type: string
+      type:
+        type: string
+      uuid:
+        type: string
+    type: object
+  service.InfraProviderInfoKubernetes:
+    properties:
+      api_server:
+        type: string
+      kubeconfig_content:
+        type: string
+      registry_config_fate:
+        $ref: '#/definitions/valueobject.KubeRegistryConfig'
+    type: object
+  service.InfraProviderKubernetesConfig:
+    properties:
+      kubeconfig_content:
+        type: string
+      registry_config_fate:
+        $ref: '#/definitions/valueobject.KubeRegistryConfig'
+    type: object
+  service.InfraProviderListItem:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      kubernetes_provider_info:
+        $ref: '#/definitions/service.InfraProviderListItemKubernetes'
+      name:
+        type: string
+      type:
+        type: string
+      uuid:
+        type: string
+    type: object
+  service.InfraProviderListItemKubernetes:
+    properties:
+      api_server:
+        type: string
+    type: object
+  service.InfraProviderUpdateRequest:
+    properties:
+      description:
+        type: string
+      kubernetes_provider_info:
+        $ref: '#/definitions/service.InfraProviderKubernetesConfig'
+      name:
+        type: string
+      type:
+        type: string
+    type: object
+  service.LoginInfo:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+  service.OpenFLDirectorDetail:
+    properties:
+      access_info:
+        $ref: '#/definitions/entity.ParticipantOpenFLModulesAccessMap'
+      chart_uuid:
+        type: string
+      cluster_uuid:
+        type: string
+      created_at:
+        type: string
+      deployment_yaml:
+        type: string
+      description:
+        type: string
+      director_server_cert_info:
+        $ref: '#/definitions/entity.ParticipantComponentCertInfo'
+      endpoint_name:
+        type: string
+      endpoint_uuid:
+        type: string
+      infra_provider_name:
+        type: string
+      infra_provider_uuid:
+        type: string
+      jupyter_client_cert_info:
+        $ref: '#/definitions/entity.ParticipantComponentCertInfo'
+      labels:
+        $ref: '#/definitions/valueobject.Labels'
+      name:
+        type: string
+      namespace:
+        type: string
+      status:
+        type: integer
+      token_name:
+        type: string
+      token_str:
+        type: string
+      type:
+        type: integer
+      uuid:
+        type: string
+    type: object
+  service.OpenFLEnvoyDetail:
+    properties:
+      access_info:
+        $ref: '#/definitions/entity.ParticipantOpenFLModulesAccessMap'
+      chart_uuid:
+        type: string
+      cluster_uuid:
+        type: string
+      created_at:
+        type: string
+      description:
+        type: string
+      endpoint_name:
+        type: string
+      endpoint_uuid:
+        type: string
+      envoy_client_cert_info:
+        $ref: '#/definitions/entity.ParticipantComponentCertInfo'
+      infra_provider_name:
+        type: string
+      infra_provider_uuid:
+        type: string
+      labels:
+        $ref: '#/definitions/valueobject.Labels'
+      name:
+        type: string
+      namespace:
+        type: string
+      status:
+        type: integer
+      token_name:
+        type: string
+      token_str:
+        type: string
+      type:
+        type: integer
+      uuid:
+        type: string
+    type: object
+  service.ParticipantFATEClusterCreationRequest:
+    properties:
+      chart_uuid:
+        type: string
+      deployment_yaml:
+        type: string
+      description:
+        type: string
+      enable_persistence:
+        type: boolean
+      enable_psp:
+        type: boolean
+      endpoint_uuid:
+        type: string
+      federation_uuid:
+        type: string
+      name:
+        type: string
+      namespace:
+        type: string
+      party_id:
+        type: integer
+      pulsar_server_cert_info:
+        $ref: '#/definitions/entity.ParticipantComponentCertInfo'
+      registry_config:
+        $ref: '#/definitions/valueobject.KubeRegistryConfig'
+        description: RegistrySecretConfig in valueobject.KubeRegistryConfig is not
+          used for generating the yaml content
+      service_type:
+        type: integer
+      site_portal_client_cert_info:
+        $ref: '#/definitions/entity.ParticipantComponentCertInfo'
+      site_portal_server_cert_info:
+        $ref: '#/definitions/entity.ParticipantComponentCertInfo'
+      storage_class:
+        type: string
+    type: object
+  service.ParticipantFATEExchangeCreationRequest:
+    properties:
+      chart_uuid:
+        type: string
+      deployment_yaml:
+        type: string
+      description:
+        type: string
+      enable_psp:
+        type: boolean
+      endpoint_uuid:
+        type: string
+      federation_uuid:
+        type: string
+      fml_manager_client_cert_info:
+        $ref: '#/definitions/entity.ParticipantComponentCertInfo'
+      fml_manager_server_cert_info:
+        $ref: '#/definitions/entity.ParticipantComponentCertInfo'
+      name:
+        type: string
+      namespace:
+        type: string
+      proxy_server_cert_info:
+        $ref: '#/definitions/entity.ParticipantComponentCertInfo'
+      registry_config:
+        $ref: '#/definitions/valueobject.KubeRegistryConfig'
+        description: RegistrySecretConfig in valueobject.KubeRegistryConfig is not
+          used for generating the yaml content
+      service_type:
+        type: integer
+    type: object
+  service.ParticipantFATEExternalClusterCreationRequest:
+    properties:
+      description:
+        type: string
+      federation_uuid:
+        type: string
+      name:
+        type: string
+      nginx_access_info:
+        $ref: '#/definitions/entity.ParticipantModulesAccess'
+      party_id:
+        type: integer
+      pulsar_access_info:
+        $ref: '#/definitions/entity.ParticipantModulesAccess'
+    type: object
+  service.ParticipantFATEExternalExchangeCreationRequest:
+    properties:
+      description:
+        type: string
+      federation_uuid:
+        type: string
+      name:
+        type: string
+      nginx_access_info:
+        $ref: '#/definitions/entity.ParticipantModulesAccess'
+      traffic_server_access_info:
+        $ref: '#/definitions/entity.ParticipantModulesAccess'
+    type: object
+  service.ParticipantFATEListInFederation:
+    properties:
+      clusters:
+        items:
+          $ref: '#/definitions/service.ParticipantFATEListItem'
+        type: array
+      exchange:
+        $ref: '#/definitions/service.ParticipantFATEListItem'
+    type: object
+  service.ParticipantFATEListItem:
+    properties:
+      access_info:
+        $ref: '#/definitions/entity.ParticipantFATEModulesAccessMap'
+      chart_uuid:
+        type: string
+      cluster_uuid:
+        type: string
+      created_at:
+        type: string
+      description:
+        type: string
+      endpoint_name:
+        type: string
+      endpoint_uuid:
+        type: string
+      infra_provider_name:
+        type: string
+      infra_provider_uuid:
+        type: string
+      is_managed:
+        type: boolean
+      name:
+        type: string
+      namespace:
+        type: string
+      party_id:
+        type: integer
+      status:
+        type: integer
+      type:
+        type: integer
+      uuid:
+        type: string
+    type: object
+  service.ParticipantOpenFLDirectorCreationRequest:
+    properties:
+      chart_uuid:
+        type: string
+      deployment_yaml:
+        type: string
+      description:
+        type: string
+      director_server_cert_info:
+        $ref: '#/definitions/entity.ParticipantComponentCertInfo'
+      enable_psp:
+        type: boolean
+      endpoint_uuid:
+        type: string
+      federation_uuid:
+        type: string
+      jupyter_client_cert_info:
+        $ref: '#/definitions/entity.ParticipantComponentCertInfo'
+      jupyter_password:
+        type: string
+      name:
+        type: string
+      namespace:
+        type: string
+      registry_config:
+        $ref: '#/definitions/valueobject.KubeRegistryConfig'
+        description: for generating the yaml, RegistrySecretConfig is not used in
+          RegistryConfig
+      service_type:
+        type: integer
+    type: object
+  service.ParticipantOpenFLEnvoyRegistrationRequest:
+    properties:
+      chart_uuid:
+        type: string
+      config_yaml:
+        type: string
+      description:
+        type: string
+      enable_psp:
+        type: boolean
+      kubeconfig:
+        description: required
+        type: string
+      labels:
+        $ref: '#/definitions/valueobject.Labels'
+      name:
+        description: optional
+        type: string
+      namespace:
+        type: string
+      registry_config:
+        $ref: '#/definitions/valueobject.KubeRegistryConfig'
+      skip_common_python_files:
+        type: boolean
+      token:
+        type: string
+    type: object
+  service.ParticipantOpenFLListInFederation:
+    properties:
+      director:
+        $ref: '#/definitions/service.ParticipantOpenFLListItem'
+      envoy:
+        items:
+          $ref: '#/definitions/service.ParticipantOpenFLListItem'
+        type: array
+    type: object
+  service.ParticipantOpenFLListItem:
+    properties:
+      access_info:
+        $ref: '#/definitions/entity.ParticipantOpenFLModulesAccessMap'
+      cluster_uuid:
+        type: string
+      created_at:
+        type: string
+      description:
+        type: string
+      endpoint_name:
+        type: string
+      endpoint_uuid:
+        type: string
+      infra_provider_name:
+        type: string
+      infra_provider_uuid:
+        type: string
+      labels:
+        $ref: '#/definitions/valueobject.Labels'
+      name:
+        type: string
+      namespace:
+        type: string
+      status:
+        type: integer
+      token_name:
+        type: string
+      token_str:
+        type: string
+      type:
+        type: integer
+      uuid:
+        type: string
+    type: object
+  service.PwdChangeInfo:
+    properties:
+      cur_password:
+        type: string
+      new_password:
+        type: string
+    type: object
+  service.RegistrationTokenOpenFLBasicInfo:
+    properties:
+      description:
+        type: string
+      expired_at:
+        type: string
+      labels:
+        $ref: '#/definitions/valueobject.Labels'
+      limit:
+        type: integer
+      name:
+        type: string
+      used:
+        type: integer
+    type: object
+  service.RegistrationTokenOpenFLListItem:
+    properties:
+      description:
+        type: string
+      expired_at:
+        type: string
+      labels:
+        $ref: '#/definitions/valueobject.Labels'
+      limit:
+        type: integer
+      name:
+        type: string
+      token_str:
+        type: string
+      used:
+        type: integer
+      uuid:
+        type: string
+    type: object
+  valueobject.KubeConfig:
+    properties:
+      kubeconfig_content:
+        type: string
+    type: object
+  valueobject.KubeRegistryConfig:
+    properties:
+      registry:
+        type: string
+      registry_secret_config:
+        $ref: '#/definitions/valueobject.KubeRegistrySecretConfig'
+      use_registry:
+        type: boolean
+      use_registry_secret:
+        type: boolean
+    type: object
+  valueobject.KubeRegistrySecretConfig:
+    properties:
+      password:
+        type: string
+      server_url:
+        type: string
+      username:
+        type: string
+    type: object
+  valueobject.Labels:
+    additionalProperties:
+      type: string
+    type: object
+  valueobject.ShardDescriptorConfig:
+    properties:
+      envoy_config_yaml:
+        type: string
+      python_files:
+        additionalProperties:
+          type: string
+        type: object
+      sample_shape:
+        items:
+          type: string
+        type: array
+      target_shape:
+        items:
+          type: string
+        type: array
+    type: object
+info:
+  contact:
+    name: FedLCM team
+  description: backend APIs of lifecycle manager service
+  termsOfService: http://swagger.io/terms/
+  title: lifecycle manager API service
+  version: v1
+paths:
+  /certificate:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/service.CertificateListItem'
+                  type: array
+              type: object
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Return issued certificate list
+      tags:
+      - Certificate
+  /certificate-authority:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/service.CertificateAuthorityDetail'
+              type: object
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Return certificate authority info
+      tags:
+      - CertificateAuthority
+    post:
+      parameters:
+      - description: The CA information, currently for the type field only '1(StepCA)'  is  supported
+        in: body
+        name: certificateAuthority
+        required: true
+        schema:
+          $ref: '#/definitions/service.CertificateAuthorityEditableItem'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Create a new certificate authority
+      tags:
+      - CertificateAuthority
+  /certificate-authority/{uuid}:
+    put:
+      parameters:
+      - description: certificate authority UUID
+        in: path
+        name: uuid
+        required: true
+        type: string
+      - description: The updated CA information
+        in: body
+        name: certificateAuthority
+        required: true
+        schema:
+          $ref: '#/definitions/service.CertificateAuthorityEditableItem'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Updates the certificate authority
+      tags:
+      - CertificateAuthority
+  /certificate-authority/built-in-ca:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/entity.CertificateAuthorityConfigurationStepCA'
+              type: object
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Return the built-in certificate authority config
+      tags:
+      - CertificateAuthority
+  /certificate/{uuid}:
+    delete:
+      parameters:
+      - description: Certificate UUID
+        in: path
+        name: uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Delete the certificate  which has no participant bindings
+      tags:
+      - Certificate
+  /chart:
+    get:
+      parameters:
+      - description: if set, it should be the chart type
+        in: query
+        name: type
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/service.ChartListItem'
+                  type: array
+              type: object
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Return chart list, optionally with the specified type
+      tags:
+      - Chart
+  /chart/{uuid}:
+    get:
+      parameters:
+      - description: Chart UUID
+        in: path
+        name: uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/service.ChartDetail'
+              type: object
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Get chart's detailed info
+      tags:
+      - Chart
+  /endpoint:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/service.EndpointListItem'
+                  type: array
+              type: object
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Return endpoints list data
+      tags:
+      - Endpoint
+    post:
+      parameters:
+      - description: The endpoint information, currently for the type field only 'KubeFATE'
+          is supported
+        in: body
+        name: provider
+        required: true
+        schema:
+          $ref: '#/definitions/service.EndpointCreationRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success, the returned data contains the created endpoint
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Create a new endpoint by install a new one or add an existing one
+      tags:
+      - Endpoint
+  /endpoint/{uuid}:
+    delete:
+      parameters:
+      - description: Endpoint UUID
+        in: path
+        name: uuid
+        required: true
+        type: string
+      - description: if set to true, the endpoint installation will be removed too
+        in: query
+        name: uninstall
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Delete the endpoint
+      tags:
+      - Endpoint
+    get:
+      parameters:
+      - description: Endpoint UUID
+        in: path
+        name: uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/service.EndpointDetail'
+              type: object
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Get endpoint's detailed info
+      tags:
+      - Endpoint
+  /endpoint/{uuid}/kubefate/check:
+    post:
+      parameters:
+      - description: Endpoint UUID
+        in: path
+        name: uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Test connection to KubeFATE endpoint
+      tags:
+      - Endpoint
+  /endpoint/kubefate/yaml:
+    get:
+      parameters:
+      - description: username of the created KubeFATE service
+        in: query
+        name: service_username
+        required: true
+        type: string
+      - description: password of the created KubeFATE service
+        in: query
+        name: service_password
+        required: true
+        type: string
+      - description: hostname domain name for the KubeFATE ingress object
+        in: query
+        name: hostname
+        required: true
+        type: string
+      - description: use_registry is to choose to use registry or not
+        in: query
+        name: use_registry
+        required: true
+        type: boolean
+      - description: registry is registry address
+        in: query
+        name: registry
+        required: true
+        type: string
+      - description: use_registry_secret is to choose to use registry secret or not
+        in: query
+        name: use_registry_secret
+        required: true
+        type: boolean
+      - description: registry_server_url is registry's server url
+        in: query
+        name: registry_server_url
+        required: true
+        type: string
+      - description: registry_username is registry's username
+        in: query
+        name: registry_username
+        required: true
+        type: string
+      - description: registry_password is registry's password
+        in: query
+        name: registry_password
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                data:
+                  type: string
+              type: object
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Get KubeFATE installation YAML content
+      tags:
+      - Endpoint
+  /endpoint/scan:
+    post:
+      parameters:
+      - description: Provider UUID and endpoint type
+        in: body
+        name: provider
+        required: true
+        schema:
+          $ref: '#/definitions/service.EndpointScanRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/service.EndpointListItem'
+                  type: array
+              type: object
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Scan the endpoints in an infra provider
+      tags:
+      - Endpoint
+  /event/{entity_uuid}:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/service.EventListItem'
+                  type: array
+              type: object
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Return event list of related entity
+      tags:
+      - Event
+  /federation:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/service.FederationListItem'
+                  type: array
+              type: object
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Return federation list,
+      tags:
+      - Federation
+  /federation/fate:
+    post:
+      parameters:
+      - description: The federation info
+        in: body
+        name: federation
+        required: true
+        schema:
+          $ref: '#/definitions/service.FederationFATECreationRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success, the data field is the created federation's uuid
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Create a new FATE federation
+      tags:
+      - Federation
+  /federation/fate/:uuid/cluster:
+    post:
+      parameters:
+      - description: federation UUID
+        in: path
+        name: uuid
+        required: true
+        type: string
+      - description: The creation requests
+        in: body
+        name: creationRequest
+        required: true
+        schema:
+          $ref: '#/definitions/service.ParticipantFATEClusterCreationRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success, the data field is the created cluster's uuid
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Create a new FATE cluster
+      tags:
+      - Federation
+  /federation/fate/:uuid/cluster/external:
+    post:
+      parameters:
+      - description: federation UUID
+        in: path
+        name: uuid
+        required: true
+        type: string
+      - description: The creation requests
+        in: body
+        name: creationRequest
+        required: true
+        schema:
+          $ref: '#/definitions/service.ParticipantFATEExternalClusterCreationRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success, the data field is the created cluster's uuid
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Create an external FATE cluster
+      tags:
+      - Federation
+  /federation/fate/:uuid/exchange:
+    post:
+      parameters:
+      - description: federation UUID
+        in: path
+        name: uuid
+        required: true
+        type: string
+      - description: The creation requests
+        in: body
+        name: creationRequest
+        required: true
+        schema:
+          $ref: '#/definitions/service.ParticipantFATEExchangeCreationRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success, the data field is the created exchange's uuid
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Create a new FATE exchange
+      tags:
+      - Federation
+  /federation/fate/:uuid/exchange/external:
+    post:
+      parameters:
+      - description: federation UUID
+        in: path
+        name: uuid
+        required: true
+        type: string
+      - description: The creation requests
+        in: body
+        name: creationRequest
+        required: true
+        schema:
+          $ref: '#/definitions/service.ParticipantFATEExternalExchangeCreationRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success, the data field is the created exchange's uuid
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Create an external FATE exchange
+      tags:
+      - Federation
+  /federation/fate/:uuid/partyID/check:
+    post:
+      parameters:
+      - description: federation UUID
+        in: path
+        name: uuid
+        required: true
+        type: string
+      - description: party ID
+        in: query
+        name: party_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Check if the party ID is available
+      tags:
+      - Federation
+  /federation/fate/{uuid}:
+    delete:
+      parameters:
+      - description: federation UUID
+        in: path
+        name: uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Delete a FATE federation
+      tags:
+      - Federation
+    get:
+      parameters:
+      - description: federation UUID
+        in: path
+        name: uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/service.FederationFATEDetail'
+              type: object
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Get specific info of a FATE federation
+      tags:
+      - Federation
+  /federation/fate/{uuid}/cluster/{clusterUUID}:
+    delete:
+      parameters:
+      - description: federation UUID
+        in: path
+        name: uuid
+        required: true
+        type: string
+      - description: cluster UUID
+        in: path
+        name: clusterUUID
+        required: true
+        type: string
+      - description: if set to true, will try to remove the cluster forcefully
+        in: query
+        name: force
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Delete a FATE cluster
+      tags:
+      - Federation
+    get:
+      parameters:
+      - description: federation UUID
+        in: path
+        name: uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/service.FATEClusterDetail'
+              type: object
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Get specific info of FATE cluster
+      tags:
+      - Federation
+  /federation/fate/{uuid}/exchange/{exchangeUUID}:
+    delete:
+      parameters:
+      - description: federation UUID
+        in: path
+        name: uuid
+        required: true
+        type: string
+      - description: exchange UUID
+        in: path
+        name: exchangeUUID
+        required: true
+        type: string
+      - description: if set to true, will try to remove the exchange forcefully
+        in: query
+        name: force
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Delete a FATE exchange
+      tags:
+      - Federation
+    get:
+      parameters:
+      - description: federation UUID
+        in: path
+        name: uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/service.FATEExchangeDetail'
+              type: object
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Get specific info of FATE Exchange
+      tags:
+      - Federation
+  /federation/fate/{uuid}/participant:
+    get:
+      parameters:
+      - description: federation UUID
+        in: path
+        name: uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/service.ParticipantFATEListInFederation'
+              type: object
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Get participant list of the specified federation
+      tags:
+      - Federation
+  /federation/fate/cluster/yaml:
+    get:
+      parameters:
+      - description: the chart uuid
+        in: query
+        name: chart_uuid
+        required: true
+        type: string
+      - description: the federation uuid
+        in: query
+        name: federation_uuid
+        required: true
+        type: string
+      - description: party id
+        in: query
+        name: party_id
+        required: true
+        type: integer
+      - description: name of the deployment
+        in: query
+        name: name
+        required: true
+        type: string
+      - description: namespace of the deployment
+        in: query
+        name: namespace
+        required: true
+        type: string
+      - description: type of the service to be exposed
+        in: query
+        name: service_type
+        required: true
+        type: integer
+      - description: choose if use the FATE registry config saved in the infra provider
+        in: query
+        name: use_registry
+        required: true
+        type: boolean
+      - description: choose if use the FATE registry secret saved in the infra provider
+        in: query
+        name: use_registry_secret
+        required: true
+        type: boolean
+      - description: FATE registry config saved in the infra provider
+        in: query
+        name: registry
+        required: true
+        type: string
+      - description: choose if use the persistent volume
+        in: query
+        name: enable_persistence
+        required: true
+        type: boolean
+      - description: provide the name of StorageClass
+        in: query
+        name: storage_class
+        required: true
+        type: string
+      - description: choose if enable the podSecurityPolicy
+        in: query
+        name: enable_psp
+        required: true
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success, the data field is the yaml content
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                data:
+                  type: string
+              type: object
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Get FATE cluster deployment yaml
+      tags:
+      - Federation
+  /federation/fate/exchange/yaml:
+    get:
+      parameters:
+      - description: the chart uuid
+        in: query
+        name: chart_uuid
+        required: true
+        type: string
+      - description: name of the deployment
+        in: query
+        name: name
+        required: true
+        type: string
+      - description: namespace of the deployment
+        in: query
+        name: namespace
+        required: true
+        type: string
+      - description: 'type of the service to be exposed 1: LoadBalancer 2: NodePort'
+        in: query
+        name: service_type
+        required: true
+        type: integer
+      - description: FATE registry config saved in the infra provider
+        in: query
+        name: registry
+        required: true
+        type: string
+      - description: choose if use the customized registry config
+        in: query
+        name: use_registry
+        required: true
+        type: boolean
+      - description: choose if use the customized registry secret
+        in: query
+        name: use_registry_secret
+        required: true
+        type: boolean
+      - description: choose if enable the podSecurityPolicy
+        in: query
+        name: enable_psp
+        required: true
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success, the data field is the yaml content
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                data:
+                  type: string
+              type: object
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Get FATE exchange deployment yaml
+      tags:
+      - Federation
+  /federation/openfl:
+    post:
+      parameters:
+      - description: The federation info
+        in: body
+        name: federation
+        required: true
+        schema:
+          $ref: '#/definitions/service.FederationOpenFLCreationRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success, the data field is the created federation's uuid
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Create a new OpenFL federation
+      tags:
+      - Federation
+  /federation/openfl/{uuid}:
+    delete:
+      parameters:
+      - description: federation UUID
+        in: path
+        name: uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Delete an OpenFL federation
+      tags:
+      - Federation
+    get:
+      parameters:
+      - description: federation UUID
+        in: path
+        name: uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/service.FederationOpenFLDetail'
+              type: object
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Get specific info of an OpenFL federation
+      tags:
+      - Federation
+  /federation/openfl/{uuid}/director:
+    post:
+      parameters:
+      - description: federation UUID
+        in: path
+        name: uuid
+        required: true
+        type: string
+      - description: The creation requests
+        in: body
+        name: creationRequest
+        required: true
+        schema:
+          $ref: '#/definitions/service.ParticipantOpenFLDirectorCreationRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success, the data field is the created director's uuid
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Create a new OpenFL director
+      tags:
+      - Federation
+  /federation/openfl/{uuid}/director/{directorUUID}:
+    delete:
+      parameters:
+      - description: federation UUID
+        in: path
+        name: uuid
+        required: true
+        type: string
+      - description: director UUID
+        in: path
+        name: directorUUID
+        required: true
+        type: string
+      - description: if set to true, will try to remove the director forcefully
+        in: query
+        name: force
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Delete an OpenFL director
+      tags:
+      - Federation
+    get:
+      parameters:
+      - description: federation UUID
+        in: path
+        name: uuid
+        required: true
+        type: string
+      - description: director UUID
+        in: path
+        name: directorUUID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/service.OpenFLDirectorDetail'
+              type: object
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Get specific info of OpenFL director
+      tags:
+      - Federation
+  /federation/openfl/{uuid}/envoy/{envoyUUID}:
+    delete:
+      parameters:
+      - description: federation UUID
+        in: path
+        name: uuid
+        required: true
+        type: string
+      - description: envoy UUID
+        in: path
+        name: envoyUUID
+        required: true
+        type: string
+      - description: if set to true, will try to envoy the director forcefully
+        in: query
+        name: force
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Delete an OpenFL envoy
+      tags:
+      - Federation
+    get:
+      parameters:
+      - description: federation UUID
+        in: path
+        name: uuid
+        required: true
+        type: string
+      - description: envoy UUID
+        in: path
+        name: envoyUUID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/service.OpenFLEnvoyDetail'
+              type: object
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Get specific info of OpenFL envoy
+      tags:
+      - Federation
+  /federation/openfl/{uuid}/participant:
+    get:
+      parameters:
+      - description: federation UUID
+        in: path
+        name: uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/service.ParticipantOpenFLListInFederation'
+              type: object
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Get participant list of the specified OpenFL federation
+      tags:
+      - Federation
+  /federation/openfl/{uuid}/token:
+    get:
+      parameters:
+      - description: federation UUID
+        in: path
+        name: uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/service.RegistrationTokenOpenFLListItem'
+                  type: array
+              type: object
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Get registration token list of the specified OpenFL federation
+      tags:
+      - Federation
+    post:
+      parameters:
+      - description: federation UUID
+        in: path
+        name: uuid
+        required: true
+        type: string
+      - description: The federation info
+        in: body
+        name: token
+        required: true
+        schema:
+          $ref: '#/definitions/service.RegistrationTokenOpenFLBasicInfo'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Create a new registration token for an OpenFL federation
+      tags:
+      - Federation
+  /federation/openfl/{uuid}/token/{tokenUUID}:
+    delete:
+      parameters:
+      - description: federation UUID
+        in: path
+        name: uuid
+        required: true
+        type: string
+      - description: token UUID
+        in: path
+        name: tokenUUID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Delete an OpenFL federation registration token
+      tags:
+      - Federation
+  /federation/openfl/director/yaml:
+    get:
+      parameters:
+      - description: the chart uuid
+        in: query
+        name: chart_uuid
+        required: true
+        type: string
+      - description: the federation uuid
+        in: query
+        name: federation_uuid
+        required: true
+        type: string
+      - description: name of the deployment
+        in: query
+        name: name
+        required: true
+        type: string
+      - description: namespace of the deployment
+        in: query
+        name: namespace
+        required: true
+        type: string
+      - description: 'type of the service to be exposed 1: LoadBalancer 2: NodePort'
+        in: query
+        name: service_type
+        required: true
+        type: integer
+      - description: password to access the Jupyter Notebook
+        in: query
+        name: jupyter_password
+        required: true
+        type: string
+      - description: customized registry address
+        in: query
+        name: registry
+        required: true
+        type: string
+      - description: choose if use the customized registry config
+        in: query
+        name: use_registry
+        required: true
+        type: boolean
+      - description: choose if use the customized registry secret
+        in: query
+        name: use_registry_secret
+        required: true
+        type: boolean
+      - description: choose if enable the podSecurityPolicy
+        in: query
+        name: enable_psp
+        required: true
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success, the data field is the yaml content
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                data:
+                  type: string
+              type: object
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Get OpenFL director deployment yaml
+      tags:
+      - Federation
+  /federation/openfl/envoy/{uuid}:
+    get:
+      parameters:
+      - description: envoy UUID
+        in: path
+        name: uuid
+        required: true
+        type: string
+      - description: token string
+        in: query
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/service.OpenFLEnvoyDetail'
+              type: object
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Get specific info of OpenFL envoy, by providing the envoy uuid and
+        token string
+      tags:
+      - Federation
+  /federation/openfl/envoy/register:
+    post:
+      parameters:
+      - description: federation UUID
+        in: path
+        name: uuid
+        required: true
+        type: string
+      - description: The creation requests
+        in: body
+        name: registrationRequest
+        required: true
+        schema:
+          $ref: '#/definitions/service.ParticipantOpenFLEnvoyRegistrationRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success, the data field is the created director's uuid
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Process Envoy registration request
+      tags:
+      - Federation
+  /infra:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/service.InfraProviderListItem'
+                  type: array
+              type: object
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Return provider list data
+      tags:
+      - InfraProvider
+    post:
+      parameters:
+      - description: The provider information, currently for the type field only 'Kubernetes'
+          is supported
+        in: body
+        name: provider
+        required: true
+        schema:
+          $ref: '#/definitions/service.InfraProviderCreationRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Create a new infra provider
+      tags:
+      - InfraProvider
+  /infra/{uuid}:
+    delete:
+      parameters:
+      - description: Provider UUID
+        in: path
+        name: uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Delete the infra provider
+      tags:
+      - InfraProvider
+    get:
+      parameters:
+      - description: Provider UUID
+        in: path
+        name: uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/service.InfraProviderDetail'
+              type: object
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Get infra provider's detailed info
+      tags:
+      - InfraProvider
+    put:
+      parameters:
+      - description: Provider UUID
+        in: path
+        name: uuid
+        required: true
+        type: string
+      - description: The updated provider information
+        in: body
+        name: provider
+        required: true
+        schema:
+          $ref: '#/definitions/service.InfraProviderUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Updates the infra provider
+      tags:
+      - InfraProvider
+  /infra/kubernetes/connect:
+    post:
+      parameters:
+      - description: The kubeconfig content
+        in: body
+        name: permission
+        required: true
+        schema:
+          $ref: '#/definitions/valueobject.KubeConfig'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Test connection to a Kubernetes infra provider
+      tags:
+      - InfraProvider
+  /user/{userId}/password:
+    put:
+      parameters:
+      - description: current and new password
+        in: body
+        name: passwordChangeInfo
+        schema:
+          $ref: '#/definitions/service.PwdChangeInfo'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Update user password
+      tags:
+      - User
+  /user/current:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success, the name of current user
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                data:
+                  type: string
+              type: object
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Return current user in the jwt token
+      tags:
+      - User
+  /user/login:
+    post:
+      parameters:
+      - description: credentials for login
+        in: body
+        name: credentials
+        required: true
+        schema:
+          $ref: '#/definitions/service.LoginInfo'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+      summary: login to lifecycle manager
+      tags:
+      - User
+  /user/logout:
+    post:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: logout from the lifecycle manager
+      tags:
+      - User
+swagger: "2.0"

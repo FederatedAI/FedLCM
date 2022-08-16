@@ -1,0 +1,533 @@
+
+image:
+  registry: {{ .registry | default "" }}
+  pullPolicy: {{ .pullPolicy | default "IfNotPresent" }}
+  {{- with .imagePullSecrets }}
+  imagePullSecrets:
+{{ toYaml . | indent 2 }}
+  {{- end }}
+
+partyId: {{ .partyId | int64 | toString }}
+partyName: {{ .name }}
+
+{{- with .istio }}
+istio:
+  enabled: {{ .enabled | default false }}
+{{- end }}
+
+{{- with .podSecurityPolicy }}
+podSecurityPolicy:
+  enabled: {{ .enabled | default false }}
+{{- end }}
+
+{{- with .ingress }}
+ingress:
+  {{- with .fateboard }}
+  fateboard: 
+    {{- with .annotations }}
+    annotations: 
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    {{- with .hosts }}
+    hosts:
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    {{- with .tls }}
+    tls: 
+{{ toYaml . | indent 6 }}
+    {{- end }}
+  {{- end }}
+  
+  {{- with .client }}
+  client: 
+    {{- with .annotations }}
+    annotations: 
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    {{- with .hosts }}
+    hosts:
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    {{- with .tls }}
+    tls: 
+{{ toYaml . | indent 6 }}
+    {{- end }}
+  {{- end }}
+  
+  {{- with .spark }}
+  spark: 
+    {{- with .annotations }}
+    annotations: 
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    {{- with .hosts }}
+    hosts:
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    {{- with .tls }}
+    tls: 
+{{ toYaml . | indent 6 }}
+    {{- end }}
+  {{- end }}
+  
+  {{- with .pulsar }}
+  pulsar: 
+    {{- with .annotations }}
+    annotations: 
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    {{- with .hosts }}
+    hosts:
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    {{- with .tls }}
+    tls: 
+{{ toYaml . | indent 6 }}
+    {{- end }}
+  {{- end }}
+  
+  {{- if not .tlsEnabled}}
+  {{- with .frontend }}
+  frontend: 
+    {{- with .annotations }}
+    annotations: 
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    {{- with .hosts }}
+    hosts:
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    {{- with .tls }}
+    tls: 
+{{ toYaml . | indent 6 }}
+    {{- end }}
+  {{- end }}
+  {{- end }}
+{{- end }}
+
+persistence:
+  enabled: {{ .persistence | default "false" }}
+
+modules:
+
+
+  python: 
+    include: {{ has "python" .modules }}
+    backend: {{ default "spark" .backend }}
+    {{- with .python }}
+    image: {{ .image }}
+    imageTag: {{ .imageTag }}
+    {{- with .resources }}
+    resources:
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    type: {{ .type | default "ClusterIP" }}
+    httpNodePort: {{ .httpNodePort }}
+    grpcNodePort: {{ .grpcNodePort }}
+    loadBalancerIP: {{ .loadBalancerIP }}
+    serviceAccountName: {{ .serviceAccountName }}
+    {{- with .nodeSelector }}
+    nodeSelector: 
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    {{- with .tolerations }}
+    tolerations:
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    {{- with .affinity }}
+    affinity:
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    enabledNN: {{ .enabledNN | default false }}
+    existingClaim: {{ .existingClaim  }}
+    storageClass: {{ .storageClass | default "python" }}
+    accessMode: {{ .accessMode | default "ReadWriteOnce" }}
+    size: {{ .size | default "1Gi" }}
+    {{- with .clustermanager }}
+    clustermanager:
+      cores_per_node: {{ .cores_per_node }}
+      nodes: {{ .nodes }}
+    {{- end }}
+    {{- with .spark }}
+
+    spark: 
+{{ toYaml . | indent 6}}
+    {{- end }}
+    {{- with .hdfs }}
+    hdfs:
+      name_node: {{ .name_node }}
+      path_prefix: {{ .path_prefix }}
+    {{- end }}
+    {{- with .pulsar }}
+    pulsar:
+      host: {{ .host }}
+      mng_port: {{ .mng_port }}
+      port: {{ .port }}
+    {{- end }}
+    {{- with .rabbitmq }}
+    rabbitmq:
+      host: {{ .host }}
+      mng_port: {{ .mng_port }}
+      port: {{ .port }}
+      user: {{ .user }}
+      password: {{ .password }}
+    {{- end }}
+    {{- with .nginx }}
+    nginx:
+      host: {{ .host }}
+      http_port: {{ .http_port }}
+      grpc_port: {{ .grpc_port }}
+    {{- end }}
+    {{- end }}
+
+
+  fateboard:
+    include: {{ has "fateboard" .modules }}
+    {{- with .fateboard }}
+    image: {{ .image }}
+    imageTag: {{ .imageTag }}
+    type: {{ .type }}
+    username: {{ .username }}
+    password: {{ .password }}
+    {{- end}}
+
+
+  client: 
+    include: {{ has "client" .modules }}
+    {{- with .client }}
+    image: {{ .image }}
+    imageTag: {{ .imageTag }}
+    subPath: {{ .subPath }}
+    existingClaim: {{ .existingClaim }}
+    storageClass: {{ .storageClass  | default "client" }}
+    accessMode: {{ .accessMode  | default "ReadWriteOnce" }}
+    size: {{ .size  | default "1Gi" }}
+    {{- with .nodeSelector }}
+    nodeSelector: 
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    {{- with .tolerations }}
+    tolerations:
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    {{- with .affinity }}
+    affinity:
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    {{- end }}
+
+
+  mysql: 
+    include: {{ has "mysql" .modules }}
+    {{- with .mysql }}
+    image: {{ .image }}
+    imageTag: {{ .imageTag }}
+    type: {{ .type  | default "ClusterIP" }}
+    {{- with .nodeSelector }}
+    nodeSelector: 
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    {{- with .tolerations }}
+    tolerations:
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    {{- with .affinity }}
+    affinity:
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    ip: {{ .ip | default "mysql" }}
+    port: {{ .port | default "3306" }}
+    database: {{ .database | default "eggroll_meta" }}
+    user: {{ .user | default "fate" }}
+    password: {{ .password | default "fate_dev" }}
+    subPath: {{ .subPath }}
+    existingClaim: {{ .existingClaim }}
+    storageClass: {{ .storageClass }}
+    accessMode: {{ .accessMode | default "ReadWriteOnce" }}
+    size: {{ .size | default "1Gi" }}
+    {{- end }}
+
+  serving:
+    ip: {{ .servingIp }}
+    port: {{ .servingPort }}
+    {{- with .serving }}
+    useRegistry: {{ .useRegistry | default false }}
+    zookeeper:
+{{ toYaml .zookeeper | indent 6 }}
+    {{- end}}
+
+  spark:
+    include: {{ has "spark" .modules }}
+    {{- with .spark }}
+    {{- if .master }}
+    master:
+      image: "{{ .master.image }}"
+      imageTag: "{{ .master.imageTag }}"
+      replicas: {{ .master.replicas }}
+      {{- with .master.resources }}
+      resources:
+{{ toYaml . | indent 8 }}
+      {{- end }}
+      {{- with .master.nodeSelector }}
+      nodeSelector: 
+{{ toYaml . | indent 8 }}
+      {{- end }}
+      {{- with .master.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+      {{- end }}
+      {{- with .master.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+      {{- end }}
+      type: {{ .master.type | default "ClusterIP" }}
+    {{- end }}
+    {{- if .worker }}
+    worker:
+      image: "{{ .worker.image }}"
+      imageTag: "{{ .worker.imageTag }}"
+      replicas: {{ .worker.replicas }}
+      {{- with .worker.resources }}
+      resources:
+{{ toYaml . | indent 8 }}
+      {{- end }}
+      {{- with .worker.nodeSelector }}
+      nodeSelector: 
+{{ toYaml . | indent 8 }}
+      {{- end }}
+      {{- with .worker.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+      {{- end }}
+      {{- with .worker.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+      {{- end }}
+      type: {{ .worker.type | default "ClusterIP" }}
+    {{- end }}
+    {{- end }}
+
+
+  hdfs:
+    include: {{ has "hdfs" .modules }}
+    {{- with .hdfs }}
+    namenode:
+      image: {{ .namenode.image }}
+      imageTag: {{ .namenode.imageTag }}
+      {{- with .namenode.nodeSelector }}
+      nodeSelector: 
+{{ toYaml . | indent 8 }}
+      {{- end }}
+      {{- with .namenode.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+      {{- end }}
+      {{- with .namenode.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+      {{- end }}
+      type: {{ .namenode.type | default "ClusterIP" }}
+      nodePort: {{ .namenode.nodePort }}
+      existingClaim: {{ .namenode.existingClaim }}
+      storageClass: {{ .namenode.storageClass | default "" }}
+      accessMode: {{ .namenode.accessMode  | default "ReadWriteOnce"  }}
+      size: {{ .namenode.size | default "1Gi" }}
+    datanode:
+      image: {{ .datanode.image }}
+      imageTag: {{ .datanode.imageTag }}
+      {{- with .datanode.nodeSelector }}
+      nodeSelector: 
+{{ toYaml . | indent 8 }}
+      {{- end }}
+      {{- with .datanode.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+      {{- end }}
+      {{- with .datanode.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+      {{- end }}
+      type: {{ .datanode.type | default "ClusterIP" }}
+      existingClaim: {{ .datanode.existingClaim }}
+      storageClass: {{ .datanode.storageClass | default "" }}
+      accessMode: {{ .datanode.accessMode  | default "ReadWriteOnce"  }}
+      size: {{ .datanode.size | default "1Gi" }}
+    {{- end }}
+
+
+  nginx:
+    include: {{ has "nginx" .modules }}
+    {{- with .nginx }}
+    image: {{ .image }}
+    imageTag: {{ .imageTag }}
+    {{- with .nodeSelector }}
+    nodeSelector: 
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    {{- with .tolerations }}
+    tolerations:
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    {{- with .affinity }}
+    affinity:
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    type: {{ .type | default "ClusterIP" }}
+    httpNodePort:  {{ .httpNodePort }}
+    grpcNodePort:  {{ .grpcNodePort }}
+    loadBalancerIP: {{ .loadBalancerIP }}
+    {{- with .exchange }}
+    exchange:
+      ip: {{ .ip }}
+      httpPort: {{ .httpPort }}
+      grpcPort: {{ .grpcPort }}
+    {{- end }}
+    route_table: 
+      {{- range $key, $val := .route_table }}
+      {{ $key }}: 
+{{ toYaml $val | indent 8 }}
+      {{- end }}
+    {{- end }}
+
+
+  pulsar:
+    include: {{ has "pulsar" .modules }}
+    {{- with .pulsar }}
+    image: {{ .image }}
+    imageTag: {{ .imageTag }}
+    {{- with .nodeSelector }}
+    nodeSelector:
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    {{- with .tolerations }}
+    tolerations:
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    {{- with .affinity }}
+    affinity:
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    type: {{ .type | default "ClusterIP" }}
+    httpNodePort: {{ .httpNodePort }}
+    httpsNodePort: {{ .httpsNodePort }}
+    loadBalancerIP: {{ .loadBalancerIP }}
+    {{- with .publicLB}}
+    publicLB:
+      enabled: {{ .enabled | default false }}
+    {{- end }}
+    {{- with .exchange }}
+    exchange:
+      ip: {{ .ip }}
+      port: {{ .port }}
+      domain: {{ .domain | default "fate.org" }}
+    {{- end }}
+    route_table: 
+      {{- range $key, $val := .route_table }}
+      {{ $key }}: 
+{{ toYaml $val | indent 8 }}
+      {{- end }}
+    existingClaim: {{ .existingClaim }}
+    storageClass: {{ .storageClass | default "" }}
+    accessMode: {{ .accessMode  | default "ReadWriteOnce"  }}
+    size: {{ .size | default "1Gi" }}
+    {{- end }}
+
+
+  postgres:
+    include: {{ has "postgres" .modules }}
+    {{- with .postgres }}
+    image: {{ .image }}
+    imageTag: {{ .imageTag }}
+    {{- with .nodeSelector }}
+    nodeSelector:
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    {{- with .tolerations }}
+    tolerations:
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    {{- with .affinity }}
+    affinity:
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    type: {{ .type | default "ClusterIP" }}
+    nodePort: {{ .nodePort }}
+    loadBalancerIP: {{ .loadBalancerIP }}
+    user: {{ .user }}
+    password: {{ .password }}
+    db: {{ .db }}
+    subPath: {{ .subPath }}
+    existingClaim: {{ .existingClaim }}
+    storageClass: {{ .storageClass }}
+    accessMode: {{ .accessMode }}
+    size: {{ .size }}
+    {{- end }}
+  frontend:
+    include: {{ has "frontend" .modules }}
+    {{- with .frontend }}
+    image: {{ .image }}
+    imageTag: {{ .imageTag }}
+    {{- with .nodeSelector }}
+    nodeSelector:
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    {{- with .tolerations }}
+    tolerations:
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    {{- with .affinity }}
+    affinity:
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    type: {{ .type | default "ClusterIP" }}
+    nodePort: {{ .nodePort }}
+    loadBalancerIP: {{ .loadBalancerIP }}
+    {{- end }}
+    
+  sitePortalServer:
+    include: {{ has "sitePortalServer" .modules }}
+    {{- with .sitePortalServer }}
+    image: {{ .image }}
+    imageTag: {{ .imageTag }}
+    {{- with .nodeSelector }}
+    nodeSelector:
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    {{- with .tolerations }}
+    tolerations:
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    {{- with .affinity }}
+    affinity:
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    type: {{ .type | default "ClusterIP" }}
+    nodePort: {{ .nodePort }}
+    loadBalancerIP: {{ .loadBalancerIP }}
+    existingClaim: {{ .existingClaim }}
+    storageClass: {{ .storageClass }}
+    accessMode: {{ .accessMode | default "ReadWriteOnce"  }}
+    size: {{ .size  | default "1Gi" }}
+    postgresHost: {{ .postgresHost | default "postgres" }}
+    postgresPort: {{ .postgresPort | default "5432" }}
+    postgresDb: {{ .postgresDb | default "site_portal" }}
+    postgresUser: {{ .postgresUser | default "site_portal" }}
+    postgresPassword: {{ .postgresPassword | default "site_portal" }}
+    adminPassword: {{ .adminPassword | default "admin" }}
+    userPassword: {{ .userPassword | default "user" }}
+    serverCert: {{ .serverCert| default "/var/lib/site-portal/cert/server.crt" }}
+    serverKey: {{ .serverKey | default "/var/lib/site-portal/cert/server.key" }}
+    clientCert: {{ .clientCert | default "/var/lib/site-portal/cert/client.crt" }}
+    clientKey: {{ .clientKey | default "/var/lib/site-portal/cert/client.key" }}
+    caCert: {{ .caCert | default "/var/lib/site-portal/cert/ca.crt" }}
+    tlsEnabled: {{ .tlsEnabled | default "'true'" }}
+    tlsPort: {{ .tlsPort | default "8443" }}
+    tlsCommonName: {{ .tlsCommonName | default "site-1.server.example.com" }}
+    {{- end }}
+
+
+externalMysqlIp: {{ .externalMysqlIp }}
+externalMysqlPort: {{ .externalMysqlPort }}
+externalMysqlDatabase: {{ .externalMysqlDatabase }}
+externalMysqlUser: {{ .externalMysqlUser }}
+externalMysqlPassword: {{ .externalMysqlPassword }}

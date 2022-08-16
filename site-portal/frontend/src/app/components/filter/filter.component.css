@@ -1,0 +1,8 @@
+
+.searchinput {
+  width: 150px;
+}
+
+.clr-form.position.searchform .clr-row /deep/ .clr-form-control {
+  margin-top: 0px;
+}

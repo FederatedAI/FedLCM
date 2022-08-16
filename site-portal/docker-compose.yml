@@ -1,0 +1,40 @@
+version: '3.5'
+
+services:
+  server:
+    image: "${SERVER_IMG}"
+    depends_on:
+      - postgres
+    restart: always
+    volumes:
+      - ./output/data/server/uploaded:/var/lib/site-portal/data/uploaded
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: site_portal
+      POSTGRES_PASSWORD: site_portal
+      POSTGRES_DB: site_portal
+      SITEPORTAL_INITIAL_ADMIN_PASSWORD: admin
+      SITEPORTAL_INITIAL_USER_PASSWORD: user
+      SITEPORTAL_LOCALDATA_BASEDIR: /var/lib/site-portal/data/uploaded
+      SITEPORTAL_TLS_ENABLED: 'false'
+
+  postgres:
+    image: postgres:13.3
+    volumes:
+      - ./output/data/postgres:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: site_portal
+      POSTGRES_USER: site_portal
+      POSTGRES_DB: site_portal
+
+  frontend:
+    image: "${FRONTEND_IMG}"
+    restart: always
+    depends_on:
+      - server
+    ports:
+      - "8080:8080"

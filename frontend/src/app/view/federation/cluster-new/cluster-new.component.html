@@ -1,0 +1,441 @@
+<div class="content-area">
+  <a href="javascript:history.back()">&lt;&lt;{{'CommonlyUse.back'| translate}}</a>
+  <br>
+  <h2>{{'NewCluster.name'| translate}}</h2>
+  <br>
+  <form clrStepper [formGroup]="form">
+    <!-- Step 1 -->
+    <clr-stepper-panel formGroupName="info">
+      <clr-step-title>{{'NewCluster.basicInformation'| translate}}</clr-step-title>
+      <clr-step-description></clr-step-description>
+      <clr-step-content *clrIfExpanded>
+        <clr-radio-container clrInline class="no-warp">
+          <label>{{'CommonlyUse.type'| translate}}</label>
+          <clr-radio-wrapper>
+            <input type="radio" clrRadio name="clusterType" formControlName="clusterType" required value="new" />
+            <label>{{'NewCluster.new'|translate}}</label>
+          </clr-radio-wrapper>
+          <clr-radio-wrapper>
+            <input type="radio" clrRadio name="clusterType" formControlName="clusterType" required value="external" />
+            <label>{{'NewCluster.import'|translate}}</label>
+          </clr-radio-wrapper>
+        </clr-radio-container>
+        <clr-input-container class="no-warp">
+          <label>{{'CommonlyUse.name'| translate}}</label>
+          <input clrInput formControlName="name" required (ngModelChange)="selectChange($event)" />
+          <clr-control-error *clrIfError="'required'">{{'validator.empty'| translate}}</clr-control-error>
+        </clr-input-container>
+        <clr-textarea-container>
+          <label>{{'CommonlyUse.description'| translate}}</label>
+          <textarea clrTextarea class="t2" name="description" formControlName="description"></textarea>
+        </clr-textarea-container>
+        <button clrStepButton="next" [disabled]="!form.controls['info'].valid">{{'CommonlyUse.next'|
+          translate}}</button>
+      </clr-step-content>
+    </clr-stepper-panel>
+
+    <!-- If add an external one -->
+    <div *ngIf="isExternalCluster">
+      <!-- Step 2 -->
+      <clr-stepper-panel formGroupName="external">
+        <clr-step-title>{{'NewCluster.externalClusterAccessInfo'|translate}}</clr-step-title>
+        <clr-step-description></clr-step-description>
+        <clr-step-content *clrIfExpanded>
+          <clr-input-container class="no-warp">
+            <label style="font-size: 14px;">{{'FederationDetail.partyId'|translate}}</label>
+            <input clrInput formControlName="party_id" [attr.disabled]="partyId_valid ? true : null" />
+            <clr-control-error *ngIf="form.get('external')?.get('party_id')?.errors">{{'validator.number'| translate}}
+            </clr-control-error>
+          </clr-input-container>
+          <br>
+          <h5>{{'NewCluster.pulsar'|translate}}</h5>
+          <ul class="list">
+            <clr-input-container class="no-warp">
+              <label>{{'NewCluster.host'|translate}}</label>
+              <input clrInput name="pulsarHost" formControlName="pulsarHost" required />
+              <clr-control-error *ngIf="form.get('external')?.get('pulsarHost')?.errors">
+                {{form.get('external')?.get('pulsarHost')?.errors?.message | translate}}</clr-control-error>
+            </clr-input-container>
+            <clr-input-container class="no-warp">
+              <label>{{'NewCluster.port'|translate}}</label>
+              <input clrInput name="pulsarPort" formControlName="pulsarPort" required />
+              <clr-control-error *ngIf="form.get('external')?.get('pulsarPort')?.errors">
+                {{form.get('external')?.get('pulsarPort')?.errors?.message | translate}}</clr-control-error>
+            </clr-input-container>
+          </ul>
+          <br>
+          <h5>{{'NewCluster.nginx'|translate}}:</h5>
+          <ul class="list">
+            <clr-input-container class="no-warp">
+              <label>{{'NewCluster.host'|translate}}</label>
+              <input clrInput name="nginxHost" formControlName="nginxHost" required />
+              <clr-control-error *ngIf="form.get('external')?.get('nginxHost')?.errors">
+                {{form.get('external')?.get('nginxHost')?.errors?.message | translate}}</clr-control-error>
+            </clr-input-container>
+            <clr-input-container class="no-warp">
+              <label>{{'NewCluster.port'|translate}}</label>
+              <input clrInput name="nginxPort" formControlName="nginxPort" required />
+              <clr-control-error *ngIf="form.get('external')?.get('nginxPort')?.errors">
+                {{form.get('external')?.get('nginxPort')?.errors?.message | translate}}</clr-control-error>
+            </clr-input-container>
+          </ul>
+          <br>
+          <br>
+          <clr-alert [clrAlertClosable]='false' clrAlertType="danger"
+            *ngIf="isCreatedExternalSubmit && isCreatedExternalFailed">
+            <clr-alert-item>
+              {{errorMessage}}
+            </clr-alert-item>
+          </clr-alert>
+          <button class="btn btn-primary" [disabled]='submitExternalClusterDisable'
+            (click)="createExternalCluster()">{{'CommonlyUse.submit'
+            | translate}}</button>
+          <span *ngIf="isCreatedExternalSubmit && !isCreatedExternalFailed">{{'CommonlyUse.submitting' | translate}} ...
+          </span>
+          <clr-spinner [clrInline]="true" *ngIf="isCreatedExternalSubmit && !isCreatedExternalFailed"></clr-spinner>
+        </clr-step-content>
+      </clr-stepper-panel>
+    </div>
+
+    <!-- If create a new one -->
+    <div *ngIf="isNewCluster">
+      <!-- Step 2 -->
+      <clr-stepper-panel formGroupName="endpoint">
+        <clr-step-title>{{'NewCluster.selectEndpoint'| translate}}</clr-step-title>
+        <clr-step-description></clr-step-description>
+        <clr-step-content *clrIfExpanded>
+          <clr-alert [clrAlertClosable]='false' clrAlertType="danger" *ngIf="isShowEndpointFailed">
+            <clr-alert-item>
+              {{errorMessage}}
+            </clr-alert-item>
+          </clr-alert>
+          <h6 *ngIf="!noEndpoint"><b>{{'EndpointNew.currentSelection'|translate}}:</b>&nbsp;&nbsp;&nbsp;&nbsp;<span
+              style="color:#247bae;">{{selectedEndpoint?.name}}</span></h6>
+          <clr-alert [clrAlertClosable]='false' clrAlertType="info" *ngIf="noEndpoint">
+            <clr-alert-item>
+              <span>{{'NewCluster.noEndpoint'| translate}}<a href="javascript:void(0)"
+                  [routerLink]="['/endpoint']">{{'EndpointNew.clickHere'| translate}}</a></span>
+            </clr-alert-item>
+          </clr-alert>
+          <clr-datagrid [(clrDgSingleSelected)]="selectedEndpoint">
+            <clr-dg-column [clrDgField]="'name'">{{'CommonlyUse.name'| translate}}</clr-dg-column>
+            <clr-dg-column>{{'CommonlyUse.description'| translate}}</clr-dg-column>
+            <clr-dg-column>{{'CommonlyUse.type'| translate}}</clr-dg-column>
+            <clr-dg-column>{{'CommonlyUse.creationTime'| translate}}</clr-dg-column>
+            <clr-dg-column>{{'EndpointMg.infraName'|translate}}</clr-dg-column>
+            <clr-dg-column>{{'EndpointMg.endpointURL'|translate}}</clr-dg-column>
+            <clr-dg-column>{{'CommonlyUse.status'| translate}}</clr-dg-column>
+            <clr-dg-row *clrDgItems="let endpoint of endpointlist" [clrDgItem]="endpoint">
+              <clr-dg-cell>{{endpoint?.name}}</clr-dg-cell>
+              <clr-dg-cell>{{endpoint?.description}}</clr-dg-cell>
+              <clr-dg-cell>{{endpoint?.type}}</clr-dg-cell>
+              <clr-dg-cell>{{endpoint?.created_at | date : "medium"}}</clr-dg-cell>
+              <clr-dg-cell>{{endpoint?.infra_provider_name}}</clr-dg-cell>
+              <clr-dg-cell>{{endpoint?.kubefate_host}}</clr-dg-cell>
+              <clr-dg-cell>{{constantGather('endpointstatus', endpoint?.status).name | translate}}</clr-dg-cell>
+            </clr-dg-row>
+          </clr-datagrid>
+          <button clrStepButton="next" [disabled]="!endpointSelectOk">{{'CommonlyUse.next'| translate}}</button>
+        </clr-step-content>
+      </clr-stepper-panel>
+
+      <!-- Step 3 -->
+      <clr-stepper-panel formGroupName="chart">
+        <clr-step-title>{{'NewCluster.selectChart'| translate}}</clr-step-title>
+        <clr-step-description></clr-step-description>
+        <clr-step-content *clrIfExpanded>
+          <clr-alert [clrAlertClosable]='false' clrAlertType="danger" *ngIf="isShowChartFailed">
+            <clr-alert-item>
+              {{errorMessage}}
+            </clr-alert-item>
+          </clr-alert>
+          <clr-select-container class="no-warp">
+            <label>{{'Chart.name'| translate}}</label>
+            <select clrSelect name="chart" formControlName="chart_uuid" required
+              (ngModelChange)="onChartChange($event)">
+              <option *ngFor="let chart of chartlist" value="{{chart.uuid}}">{{chart.name}}</option>
+            </select>
+          </clr-select-container>
+          <button clrStepButton="next" [disabled]="!form.controls['chart'].valid">{{'CommonlyUse.next'|
+            translate}}</button>
+        </clr-step-content>
+      </clr-stepper-panel>
+
+      <!-- Step 4 -->
+      <clr-stepper-panel formGroupName="party">
+        <clr-step-title>{{'NewCluster.setPartyID'| translate}}</clr-step-title>
+        <clr-step-description></clr-step-description>
+        <clr-step-content *clrIfExpanded>
+          <clr-input-container class="no-warp">
+            <label>{{'FederationDetail.partyId'|translate}}</label>
+            <input clrInput formControlName="party_id" [attr.disabled]="partyId_valid ? true : null" />
+            <clr-control-error *ngIf="form.get('party')?.get('party_id')?.errors">{{'validator.number'| translate}}
+            </clr-control-error>
+          </clr-input-container>
+          <button class="btn btn-sm btn-primary partyIDbtn" (click)="checkPartyID()"
+            *ngIf="partyId_valid ? false : true"
+            [disabled]="!form.get('party')?.get('party_id')?.valid">{{'CommonlyUse.check'| translate}}</button>
+          <button class="btn btn-sm btn-primary partyIDbtn" (click)="editPartyID()"
+            *ngIf="partyId_valid ? true : false">{{'CommonlyUse.edit'| translate}}</button>
+          <cds-icon class="TestPassedIcon" shape="check-circle" style="color: green;" size="md"
+            *ngIf="isCheckSuccess && !isLoading"></cds-icon>
+          <clr-spinner [clrInline]="true" *ngIf="isLoading"></clr-spinner>
+          <clr-alert [clrAlertClosable]='false' clrAlertType="danger" *ngIf="isCheckFailed && !isLoading">
+            <clr-alert-item>
+              {{errorMessage}}
+            </clr-alert-item>
+          </clr-alert>
+          <button clrStepButton="next" [disabled]="!partyId_valid">{{'CommonlyUse.next'| translate}}</button>
+        </clr-step-content>
+      </clr-stepper-panel>
+
+      <!-- Step 5 -->
+      <clr-stepper-panel formGroupName="namespace">
+        <clr-step-title>{{'NewCluster.setNamespace'|translate}}</clr-step-title>
+        <clr-step-description></clr-step-description>
+        <clr-step-content *clrIfExpanded>
+          <clr-input-container class="no-warp">
+            <label>{{'NewCluster.namespace'|translate}}</label>
+            <input clrInput Placeholder="Default: fate-'Party Id'" formControlName="namespace"
+              (ngModelChange)="selectChange($event)" />
+          </clr-input-container>
+          <button clrStepButton="next">{{'CommonlyUse.next'| translate}}</button>
+        </clr-step-content>
+      </clr-stepper-panel>
+
+      <!-- Step 7 -->
+      <clr-stepper-panel formGroupName="certificate">
+        <clr-step-title>{{'NewCluster.selectCertificates'|translate}}</clr-step-title>
+        <clr-step-description></clr-step-description>
+        <clr-step-content *clrIfExpanded>
+          <clr-radio-container clrInline>
+            <clr-radio-wrapper>
+              <input type="radio" clrRadio name="cert" formControlName="cert" required value="use"
+                (ngModelChange)="setRadioDisplay($event)" />
+              <label>{{'NewCluster.useCertificates'|translate}}</label>
+            </clr-radio-wrapper>
+            <clr-radio-wrapper>
+              <input type="radio" clrRadio name="cert" formControlName="cert" required value="skip"
+                (ngModelChange)="setRadioDisplay($event)" />
+              <label>{{'NewCluster.skip'|translate}}</label>
+            </clr-radio-wrapper>
+          </clr-radio-container>
+          <div *ngIf="use_cert">
+            <h5>1. {{'NewCluster.pulsarServerCertificate'|translate}}:</h5>
+            <clr-radio-container clrInline class="no-warp">
+              <label>{{'NewCluster.server'|translate}}:</label>
+              <clr-radio-wrapper>
+                <input type="radio" clrRadio name="pulsar_server_cert_info" formControlName="pulsar_server_cert_info"
+                  required value=3>
+                <label>{{'NewCluster.addNew'|translate}}</label>
+              </clr-radio-wrapper>
+              <clr-radio-wrapper>
+                <input type="radio" clrRadio name="pulsar_server_cert_info" disabled required value=2 />
+                <label>{{'NewCluster.useExist'|translate}}</label>
+              </clr-radio-wrapper>
+            </clr-radio-container>
+            <br>
+            <div *ngIf="isChartContainsPortalservices">
+              <h5>2. {{'NewCluster.certificate'|translate}}:</h5>
+              <clr-radio-container clrInline class="no-warp">
+                <label>{{'NewCluster.server'|translate}}:</label>
+                <clr-radio-wrapper>
+                  <input type="radio" clrRadio name="site_portal_server_cert_mode"
+                    formControlName="site_portal_server_cert_mode" required value=3 />
+                  <label>{{'NewCluster.addNew'|translate}}</label>
+                </clr-radio-wrapper>
+                <clr-radio-wrapper>
+                  <input type="radio" clrRadio name="site_portal_server_cert_mode" disabled required value=2 />
+                  <label>{{'NewCluster.useExist'|translate}}</label>
+                </clr-radio-wrapper>
+              </clr-radio-container>
+              <clr-radio-container clrInline class="no-warp">
+                <label>{{'NewCluster.client'|translate}}:</label>
+                <clr-radio-wrapper>
+                  <input type="radio" clrRadio name="site_portal_client_cert_mode"
+                    formControlName="site_portal_client_cert_mode" required value=3 />
+                  <label>{{'NewCluster.addNew'|translate}}</label>
+                </clr-radio-wrapper>
+                <clr-radio-wrapper>
+                  <input type="radio" clrRadio name="site_portal_client_cert_mode" disabled required value=2 />
+                  <label>{{'NewCluster.useExist'|translate}}</label>
+                </clr-radio-wrapper>
+              </clr-radio-container>
+            </div>
+          </div>
+          <button clrStepButton="next" [disabled]="cert_disabled">{{'CommonlyUse.next'| translate}}</button>
+        </clr-step-content>
+      </clr-stepper-panel>
+
+      <!-- Step 8 -->
+      <clr-stepper-panel formGroupName="serviceType">
+        <clr-step-title>{{'ExchangeNew.chooseServiceType'|translate}}</clr-step-title>
+        <clr-step-description></clr-step-description>
+        <clr-step-content *clrIfExpanded>
+          <clr-radio-container clrInline class="no-warp">
+            <label>{{'ExchangeNew.serviceType'|translate}}: </label>
+            <clr-radio-wrapper>
+              <input type="radio" clrRadio name="serviceType" formControlName="serviceType" required value=1
+                (ngModelChange)="selectChange($event)" />
+              <label>{{'ExchangeNew.loadBalancer'|translate}}</label>
+            </clr-radio-wrapper>
+            <clr-radio-wrapper>
+              <input type="radio" clrRadio name="serviceType" formControlName="serviceType" required value=2
+                (ngModelChange)="selectChange($event)" />
+              <label>{{'ExchangeNew.nodePort'|translate}}</label>
+            </clr-radio-wrapper>
+          </clr-radio-container>
+        </clr-step-content>
+        <button clrStepButton="next" [disabled]="service_type_disabled">{{'CommonlyUse.next' | translate}}</button>
+      </clr-stepper-panel>
+
+      <!-- Step 9 -->
+      <clr-stepper-panel formGroupName="persistence">
+        <clr-step-title>{{'NewCluster.volumeConfig'|translate}}</clr-step-title>
+        <clr-step-description></clr-step-description>
+        <clr-step-content *clrIfExpanded>
+          <ul class="list">
+            <clr-toggle-container clrInline class="no-warp no-warp2">
+              <label>{{'NewCluster.enablePersistence'|translate}}:</label>
+              <clr-toggle-wrapper>
+                <input type="checkbox" clrToggle name="enablePersistence" value="enablePersistence"
+                  formControlName="enablePersistence" (ngModelChange)="onChange_enable_persistence($event)" />
+                <label>{{enablePersistence}}</label>
+              </clr-toggle-wrapper>
+            </clr-toggle-container>
+            <ul class="list" *ngIf="enablePersistence">
+              <li>
+                <clr-input-container class="no-warp no-warp2">
+                  <label>{{'NewCluster.storageClassName'|translate}}</label>
+                  <input clrInput name="storageClassName" formControlName="storageClassName" required
+                    (ngModelChange)="selectChange($event)" />
+                  <clr-control-error> {{ form.controls['persistence'].get('storageClassName')?.errors?.emptyMessage ||
+                    form.controls['persistence'].get('storageClassName')?.errors?.message | translate}}
+                  </clr-control-error>
+                </clr-input-container>
+              </li>
+            </ul>
+          </ul>
+        </clr-step-content>
+        <button clrStepButton="next" [disabled]="persistence_disabled">{{'CommonlyUse.next' | translate}}</button>
+      </clr-stepper-panel>
+
+      <!-- Step 10 -->
+      <clr-stepper-panel formGroupName="registry">
+        <clr-step-title>{{'InfraProvider.configuration' | translate}}</clr-step-title>
+        <clr-step-description></clr-step-description>
+        <clr-step-content *clrIfExpanded>
+          <ul class="list">
+            <clr-toggle-container clrInline class="no-warp no-warp2">
+              <label>{{'InfraProvider.useRegistryConfiguration'|translate}}:</label>
+              <clr-toggle-wrapper>
+                <input type="checkbox" clrToggle name="useRegistry" value="useRegistry" formControlName="useRegistry"
+                  (ngModelChange)="onChange_use_registry($event)" />
+                <label>{{useRegistry}}</label>
+              </clr-toggle-wrapper>
+            </clr-toggle-container>
+            <ul class="list" *ngIf="useRegistry">
+              <clr-input-container class="no-warp no-warp4">
+                <label>{{"InfraProvider.registry"|translate}}</label>
+                <input clrInput name="registryConfig" formControlName="registryConfig"
+                  placeholder="{{'InfraProvider.togglePlacerHolder'|translate}}" required
+                  (ngModelChange)="selectChange($event)" />
+                <clr-control-helper>{{'InfraProvider.imageName'|translate}}:&nbsp;&nbsp;&nbsp;
+                  <b style="color: #247bae;"><span>{{registryConfig}}</span>
+                    <span *ngIf="registryConfig===''">federatedai</span>/myimage:latest
+                  </b>
+                </clr-control-helper>
+                <clr-control-error>{{'validator.empty'| translate}} </clr-control-error>
+              </clr-input-container>
+            </ul>
+            <br>
+          </ul>
+          <ul class="list">
+            <clr-toggle-container clrInline class="no-warp no-warp2">
+              <label>{{'InfraProvider.useRegistrySecret'|translate}}:</label>
+              <clr-toggle-wrapper>
+                <input type="checkbox" clrToggle name="useRegistrySecret" value="useRegistrySecret"
+                  formControlName="useRegistrySecret" (ngModelChange)="onChange_use_registry_secret($event)" />
+                <label>{{useRegistrySecret}}</label>
+              </clr-toggle-wrapper>
+            </clr-toggle-container>
+            <ul class="list" *ngIf="useRegistrySecret">
+              <li>
+                <clr-input-container class="no-warp">
+                  <label>{{'InfraProvider.serverURL'|translate}}</label>
+                  <input clrInput name="server_url" formControlName="server_url" required />
+                  <clr-control-helper *ngIf="!valid_server_url">{{'InfraProvider.urlSuggestion'|translate}} <b
+                      style="color: #247bae;">{{server_url_suggestion}}</b></clr-control-helper>
+                  <clr-control-error>{{'validator.internet'| translate}}</clr-control-error>
+                  <clr-control-error>{{'InfraProvider.urlSuggestion'|translate}} <b>{{server_url_suggestion}}</b>
+                  </clr-control-error>
+                </clr-input-container>
+              </li>
+              <li>
+                <clr-input-container class="no-warp">
+                  <label>{{'InfraProvider.username'|translate}}</label>
+                  <input clrInput name="username" formControlName="username" required />
+                  <clr-control-error>{{'validator.empty'| translate}}
+                  </clr-control-error>
+                </clr-input-container>
+              </li>
+              <li>
+                <clr-password-container class="no-warp">
+                  <label>{{'InfraProvider.password' |translate}}</label>
+                  <input name="password" clrPassword formControlName="password" required />
+                  <clr-control-error>{{'validator.empty'| translate}}
+                  </clr-control-error>
+                </clr-password-container>
+              </li>
+            </ul>
+          </ul>
+        </clr-step-content>
+        <button clrStepButton="next" [disabled]="registry_disabled">{{'CommonlyUse.next' | translate}}</button>
+      </clr-stepper-panel>
+
+      <!-- Step 11 -->
+      <clr-stepper-panel formGroupName="psp" class="yaml-warp">
+        <clr-step-title>{{'PSP.pspConfigTitle' | translate}}</clr-step-title>
+        <clr-step-description></clr-step-description>
+        <clr-step-content *clrIfExpanded>
+          <clr-toggle-container clrInline class="no-warp no-warp2">
+            <label>{{'PSP.enablePSP' | translate}}</label>
+            <clr-toggle-wrapper>
+              <input type="checkbox" clrToggle name="enablePSP" value="enablePSP" formControlName="enablePSP"
+                (ngModelChange)="selectChange($event)" />
+              <label>{{enablePSP}}</label>
+            </clr-toggle-wrapper>
+          </clr-toggle-container>
+          <button clrStepButton="next" (click)="onClickNext()">{{'CommonlyUse.next'| translate}}</button>
+        </clr-step-content>
+      </clr-stepper-panel>
+
+      <!-- Step 12 -->
+      <clr-stepper-panel formGroupName="yaml" class="yaml-warp">
+        <clr-step-title>{{'NewCluster.checkYAML'|translate}}</clr-step-title>
+        <clr-step-description></clr-step-description>
+        <clr-step-content *clrIfExpanded>
+          <button class="btn btn-sm yamlbtn" (click)="generateClusterYaml()">{{'NewCluster.getYAML'|translate}}</button>
+          <br>
+          <clr-textarea-container>
+            <label>YAML</label>
+            <label style="color: #247bae; font-size: 11px;" *ngIf="editorModeHelperMessage">{{'CommonlyUse.editorModeHelperMessage'| translate}}</label>
+            <textarea clrTextarea (click)="initYAMLEditorByEvent($event)" class="t3" id="yaml" name="yaml" formControlName="yaml"
+              required></textarea>
+          </clr-textarea-container>
+          <clr-alert [clrAlertClosable]='false' clrAlertType="danger"
+            *ngIf="(isCreatedSubmit && isCreatedFailed) || (isGenerateSubmit && isGenerateFailed)">
+            <clr-alert-item>
+              {{errorMessage}}
+            </clr-alert-item>
+          </clr-alert>
+          <br>
+          <button class="btn btn-primary" [disabled]='submitDisable'
+            (click)="createNewCluster()">{{'CommonlyUse.submit'| translate}}</button>
+          <span *ngIf="isCreatedSubmit && !isCreatedFailed">{{'CommonlyUse.submitting' | translate}} ... </span>
+          <clr-spinner [clrInline]="true" *ngIf="isCreatedSubmit && !isCreatedFailed"></clr-spinner>
+        </clr-step-content>
+      </clr-stepper-panel>
+    </div>
+  </form>
+</div>

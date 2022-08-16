@@ -1,0 +1,113 @@
+
+clr-alert {
+    margin-top: 12px;
+    margin-bottom: 12px;
+}
+clr-tabs::ng-deep {
+    .tab-content {
+        .labels-filter {
+            position: relative;
+            height: 20px;
+            .search {
+                position: absolute;
+                top: 8px;
+                right: 14px;
+                cursor: pointer;
+                &.recycle {
+                    right: 30px;
+                }
+            }
+            .search-input {
+                position: absolute;
+                border: none;
+                border-bottom: 1px solid #ddd;
+                top: 2px;
+                right: 10px;
+                padding-right: 36px;
+                background-color: #FAFAFA;
+                &:focus-visible {
+                    border: 0;
+                    border-bottom: 1px solid #ddd;
+                    outline: none ;
+                }
+                &:focus {
+                    border: 0;
+                    border-bottom: 1px solid #ddd;
+                    outline: none;
+                }
+            }
+            ul  {
+                list-style: none;
+                position: absolute;
+                top: 35px;
+                right: 0px;
+                z-index: 9;
+                background: #ffff;
+                border: 1px solid #333;
+                li:first-of-type {
+                    height: 20px;
+                    .circle {
+                        float: right;
+                        margin-right: 10px;
+                        margin-top: 3px;
+                        cursor: pointer;
+                    }
+                }
+                li:last-of-type {
+                    height: 20px;
+                    button {
+                        float: right;
+                    }
+                }
+                .clr-label-content {
+                    border: 1px solid #eee;
+                    padding: 10px 5px;
+                    label {
+                        margin-right: 10px;
+                    }
+                    input {
+                        width: 108px;
+                        margin-right: 5px;
+                        outline: none;
+                        border: none;
+                        border-bottom: 1px solid #333;
+                    }
+                    .circle {
+                        width: 20px;
+                        height: 20px;
+                        color: #77BE53;
+                        cursor: pointer;
+                        &.times {
+                            width: 16px;
+                            height: 16px;    
+                            color: #BF0000;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    clr-datagrid {
+        clr-dg-column:last-of-type {
+            flex: none;
+            min-width: 100px;
+            width: 100px !important;
+        }
+        clr-dg-row {
+            clr-dg-cell:last-of-type {
+                flex: none;
+                min-width: 100px;
+                width: 100px !important;
+            }
+        }
+    }
+    .table {
+        tr {
+            th:last-of-type {
+                flex: none;
+                min-width: 100px;
+                width: 100px;
+            }
+        }
+    }
+}

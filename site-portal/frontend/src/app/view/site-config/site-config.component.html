@@ -1,0 +1,283 @@
+<div class="content-area">
+    <br>
+    <clr-modal *ngIf="isFormChanged && isRegisterToFMLManagerSubmitted" [(clrModalOpen)]="openModal"
+        [clrModalClosable]="false">
+        <h3 class="modal-title">{{'CommonlyUse.error' | translate}}</h3>
+        <div class="modal-body">
+            <div class="alert alert-danger modalalert" role="alert">
+                <div class="alert-items">
+                    <div class="alert-item static">
+                        <div class="alert-icon-wrapper">
+                            <cds-icon class="alert-icon" shape="exclamation-circle"></cds-icon>
+                        </div>
+                        <span class="alert-text">
+                            {{'site.saveAlertMessage' | translate}}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div *ngIf="(isUpdateSubmit && isUpdateFailed)" class="alert alert-danger" role="alert">
+                <div class="alert-items">
+                    <div class="alert-item static">
+                        <div class="alert-icon-wrapper">
+                            <cds-icon class="alert-icon" shape="exclamation-circle"></cds-icon>
+                        </div>
+                        <span class="alert-text">
+                            {{errorMessage}}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-outline" (click)="openModal=false">{{'CommonlyUse.cancel' |
+                translate}}</button>
+            <button type="submit" class="btn btn-primary" (click)="saveSiteConfigUpdate()">{{'CommonlyUse.save' |
+                translate}}</button>
+        </div>
+    </clr-modal>
+    <h2>{{'nav.siteConfiguration' | translate}}</h2>
+    <br>
+    <form [formGroup]="form" clrForm>
+        <clr-accordion [clrAccordionMultiPanel]="true">
+            <clr-accordion-panel [(clrAccordionPanelOpen)]="panelOpen1">
+                <clr-accordion-title style="font-size: 13px;">{{'nav.siteInfo' | translate}}</clr-accordion-title>
+                <clr-accordion-content *clrIfExpanded>
+                    <div *ngIf="(isRegisterToFMLManagerSubmitted && isConnectFailed)" class="alert alert-danger"
+                        role="alert">
+                        <div class="alert-items">
+                            <div class="alert-item static">
+                                <div class="alert-icon-wrapper">
+                                    <cds-icon class="alert-icon" shape="exclamation-circle"></cds-icon>
+                                </div>
+                                <span class="alert-text">
+                                    {{errorMessage}}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="clr-row">
+                        <clr-input-container class="clr-col-md-5">
+                            <label>{{'CommonlyUse.name' | translate}}</label>
+                            <input placeholder="{{'placeholder.name' | translate}}" clrInput [(ngModel)]="name"
+                                name="name" formControlName="name" />
+                            <clr-control-error
+                                *ngIf="!form.get('name')?.errors?.minlength && !form.get('name')?.errors?.maxlength">
+                                {{form.get('name')?.errors?.emptyMessage || form.get('name')?.errors?.message |
+                                translate}}</clr-control-error>
+                            <clr-control-error *ngIf="form.get('name')?.errors?.minlength">{{'CommonlyUse.few' |
+                                translate}}{{form.get('name')?.errors?.minlength.requiredLength}}{{'CommonlyUse.character'
+                                | translate}}</clr-control-error>
+                            <clr-control-error *ngIf="form.get('name')?.errors?.maxlength">{{'CommonlyUse.many' |
+                                translate}}{{form.get('name')?.errors?.maxlength.requiredLength}}{{'CommonlyUse.character'
+                                | translate}}</clr-control-error>
+                        </clr-input-container>
+                        <div class="site_address">
+                            <clr-select-container class="clr-col-md-7">
+                                <label class="clr-col-md-4" style="color: #454545;">{{'site.siteIP' |
+                                    translate}}</label>
+                                <select class="clr-col-md-3" clrSelect name="site_https_string"
+                                    [(ngModel)]="site_https_string" formControlName="site_https_string" required
+                                    style="color: black;">
+                                    <option value="http">http://</option>
+                                    <option value="https">https://</option>
+                                </select>
+                            </clr-select-container>
+                            <clr-input-container>
+                                <input placeholder="{{'placeholder.ip' | translate}}" clrInput [(ngModel)]="site_ip"
+                                    name="site_ip" formControlName="site_ip" style="color: black;" required/>
+                                <clr-control-error *ngIf="form.get('site_ip')?.errors">{{ form.get('site_ip')?.errors?.message | translate}}
+                                </clr-control-error>
+                            </clr-input-container>
+                        </div>
+                    </div>
+                    <div class="clr-row">
+                        <clr-input-container class="clr-col-md-5">
+                            <label>{{'site.partyId' | translate}}</label>
+                            <input placeholder="{{'placeholder.id' | translate}}" clrInput [(ngModel)]="party_id"
+                                name="party_id" formControlName="party_id" required />
+                            <clr-control-error *ngIf="form.get('party_id')?.errors">{{form.get('party_id')?.errors?.message |
+                                translate}}</clr-control-error>
+                        </clr-input-container>
+                        <clr-input-container class="clr-col-md-5">
+                            <label style="color: #454545;">{{'site.sitePort' | translate}}</label>
+                            <input placeholder="{{'placeholder.port' | translate}}" clrInput [(ngModel)]="site_port"
+                                name="site_port" formControlName="site_port" style="color: black;" />
+                            <clr-control-error *ngIf="form.get('site_port')?.errors">{{'validator.number' |
+                                translate}}</clr-control-error>
+                        </clr-input-container>
+                        <clr-textarea-container class="clr-col-md-5">
+                            <label>{{'CommonlyUse.description' | translate}}</label>
+                            <textarea clrTextarea class="t1" name="desc" formControlName="desc"
+                                [(ngModel)]="desc"></textarea>
+                        </clr-textarea-container>
+                    </div>
+                    <br>
+                    <div class="clr-row fml_manager_endpoint">
+                        <clr-select-container class="clr-col-md-7">
+                            <label class="clr-col-md-3">{{'site.fmlEndPoint' | translate}}
+                                <cds-icon class="check_circle" shape="check-circle" style="color:darkgreen;"
+                                    *ngIf="fml_manager_connected"></cds-icon>
+                                <cds-icon shape="error-standard" style="color: brown;" *ngIf="!fml_manager_connected">
+                                </cds-icon>
+                            </label>
+                            <select class="clr-col-md-3" clrSelect name="fml_https_string"
+                                [(ngModel)]="fml_https_string" formControlName="fml_https_string" 
+                                style="color: black;">
+                                <option value="http">http://</option>
+                                <option value="https">https://</option>
+                            </select>
+                        </clr-select-container>
+                        <clr-input-container>
+                            <input placeholder="" clrInput name="endpoint" [(ngModel)]="endpoint"
+                                formControlName="endpoint" />
+                            <clr-control-error *ngIf="form.get('endpoint')?.errors">
+                                {{form.get('endpoint')?.errors?.message | translate}}</clr-control-error>
+                        </clr-input-container>
+                    </div>
+                    <clr-input-container *ngIf="enableFMLManagerServerName" class="server_name_container">
+                        <label>{{'site.fmlManagerServerName' | translate}}<clr-signpost>
+                                <clr-signpost-content *clrIfOpen>
+                                    <span>{{'site.fmlManagerServerNameHelper1' | translate}}</span>&nbsp;&nbsp;
+                                    <span>{{'site.fmlManagerServerNameHelper2' | translate}}</span>
+                                </clr-signpost-content>
+                            </clr-signpost></label>
+                        <input clrInput name="fml_manager_server_name" [(ngModel)]="fml_manager_server_name"
+                            formControlName="fml_manager_server_name" placeholder="(Optional)" />
+                        <clr-control-helper *ngIf="fmlManagerEndpointIsIP" style="color: #454545;">
+                            {{'site.fmlManagerServerNameIPHelper' | translate}}</clr-control-helper>
+                        <clr-control-error *ngIf="form.get('fml_manager_server_name')?.errors">
+                            {{form.get('fml_manager_server_name')?.errors?.message | translate}}</clr-control-error>
+                    </clr-input-container>
+                    <br>
+                    <button *ngIf="!fml_manager_connected" (click)="registerToFMLManager()"
+                        class="btn btn-sm btn-outline">
+                        {{'CommonlyUse.register' | translate}} </button>
+                </clr-accordion-content>
+            </clr-accordion-panel>
+            <clr-accordion-panel [(clrAccordionPanelOpen)]="panelOpen2">
+                <clr-accordion-title style="font-size: 13px;">{{'site.fateFlow' | translate}}</clr-accordion-title>
+                <clr-accordion-content *clrIfExpanded>
+                    <div *ngIf="isTestFATEFlowFailed" class="alert alert-danger" role="alert">
+                        <div class="alert-items">
+                            <div class="alert-item static">
+                                <div class="alert-icon-wrapper">
+                                    <cds-icon class="alert-icon" shape="exclamation-circle"></cds-icon>
+                                </div>
+                                <span class="alert-text">
+                                    {{errorMessage}}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <clr-input-container>
+                        <label>{{'CommonlyUse.ip' | translate}}</label>
+                        <input placeholder="" clrInput [(ngModel)]="fate_flow_host_ip" name="fate_flow_host_ip"
+                            formControlName="fate_flow_host_ip" />
+                        <clr-control-error *ngIf="form.get('fate_flow_host_ip')?.errors">{{form.get('fate_flow_host_ip')?.errors?.message | translate}}
+                        </clr-control-error>
+                    </clr-input-container>
+
+                    <clr-input-container>
+                        <label>{{'CommonlyUse.port' | translate}}</label>
+                        <input placeholder="" clrInput [(ngModel)]="http_port" name="http_port"
+                            formControlName="http_port" />
+                        <clr-control-error *ngIf="form.get('http_port')?.errors">{{'validator.number' | translate}}
+                        </clr-control-error>
+                    </clr-input-container>
+                    <br>
+                    <button (click)="testFATEFlow()" class="btn btn-sm btn-outline">{{'CommonlyUse.test' |
+                        translate}}</button>
+                    <clr-spinner [clrInline]="true" *ngIf="isTestFATEFlowSubmit"></clr-spinner>
+                    <cds-icon shape="error-standard" *ngIf="isTestFATEFlowFailed"
+                        style="color: brown;">
+                    </cds-icon>
+                    <cds-icon class="check_circle" shape="check-circle" style="color:darkgreen;"
+                        *ngIf="testFATEFlowSuccess"></cds-icon>
+                </clr-accordion-content>
+            </clr-accordion-panel>
+            <clr-accordion-panel [(clrAccordionPanelOpen)]="panelOpen3">
+                <clr-accordion-title style="font-size: 13px;">{{'site.kubeflow' | translate}}</clr-accordion-title>
+                <clr-accordion-content *clrIfExpanded>
+                    <div *ngIf="isTestKubeFlowFailed" class="alert alert-danger" role="alert">
+                        <div class="alert-items">
+                            <div class="alert-item static">
+                                <div class="alert-icon-wrapper">
+                                    <cds-icon class="alert-icon" shape="exclamation-circle"></cds-icon>
+                                </div>
+                                <span class="alert-text">
+                                    {{errorMessage}}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline"
+                                (click)="openModal=false">{{'CommonlyUse.cancel' | translate}}</button>
+                            <button type="submit" class="btn btn-primary"
+                                (click)="saveSiteConfigUpdate()">{{'CommonlyUse.save' |
+                                translate}}</button>
+                        </div>
+                    </div>
+                    <div>
+                        <clr-input-container>
+                            <label>{{'site.endpoint' | translate}}</label>
+                            <input class="kubeinput" placeholder="" clrInput name="minio_endpoint"
+                                formControlName="minio_endpoint" [(ngModel)]="minio_endpoint" />
+                            <clr-control-error *ngIf="form.get('minio_endpoint')?.errors">{{
+                                form.get('minio_endpoint')?.errors?.message | translate}}</clr-control-error>
+                        </clr-input-container>
+                        <clr-input-container>
+                            <label>{{'site.access' | translate}}</label>
+                            <input class="kubeinput" placeholder="" clrInput [(ngModel)]="access_key" name="access_key"
+                                formControlName="access_key" />
+                        </clr-input-container>
+                        <clr-password-container>
+                            <label>{{'site.secret' | translate}}</label>
+                            <input class="kubepwdinput" clrPassword [(ngModel)]="secret_key" name="secret_key"
+                                formControlName="secret_key" />
+                        </clr-password-container>
+                        <clr-checkbox-container clrInline>
+                            <label>{{'site.enableSSL' | translate}}</label>
+                            <clr-checkbox-wrapper>
+                                <input type="checkbox" clrCheckbox name="minio_ssl_enabled" value="minio_ssl_enabled"
+                                    [(ngModel)]="minio_ssl_enabled" formControlName="minio_ssl_enabled" />
+                            </clr-checkbox-wrapper>
+                        </clr-checkbox-container>
+                        <clr-textarea-container>
+                            <label>{{'site.kubeConfig' | translate}}</label>
+                            <textarea clrTextarea class="t2" [(ngModel)]="kubeconfig" name="kubeconfig"
+                                formControlName="kubeconfig"></textarea>
+                        </clr-textarea-container>
+                    </div>
+                    <br>
+                    <button (click)="testKubeFlow()" class="btn btn-sm btn-outline">{{'CommonlyUse.test' |
+                        translate}}</button>
+                    <clr-spinner [clrInline]="true" *ngIf="isTestKubeFlowSubmit"></clr-spinner>
+                    <cds-icon shape="error-standard" *ngIf="isTestKubeFlowFailed"
+                        style="color: brown;">
+                    </cds-icon>
+                    <cds-icon class="check_circle" shape="check-circle" style="color:darkgreen;"
+                        *ngIf="isTestKubeFlowSuccess"></cds-icon>
+                    <br>
+                </clr-accordion-content>
+            </clr-accordion-panel>
+        </clr-accordion>
+        <br>
+        <div *ngIf="(isUpdateSubmit && isUpdateFailed)" class="alert alert-danger" role="alert">
+            <div class="alert-items">
+                <div class="alert-item static">
+                    <div class="alert-icon-wrapper">
+                        <cds-icon class="alert-icon" shape="exclamation-circle"></cds-icon>
+                    </div>
+                    <span class="alert-text">
+                        {{errorMessage}}
+                    </span>
+                </div>
+            </div>
+        </div>
+        <button class="btn" routerLink='/home'>{{'CommonlyUse.cancel' | translate}}</button>
+        <button class="btn btn-primary" (click)="saveSiteConfigUpdate()">{{'CommonlyUse.save' | translate}}</button>
+        <span *ngIf="isUpdateSubmit && !isUpdateFailed">{{'CommonlyUse.saving' | translate}} ... </span>
+        <clr-spinner [clrInline]="true" *ngIf="isUpdateSubmit && !isUpdateFailed"></clr-spinner>
+    </form>
+</div>

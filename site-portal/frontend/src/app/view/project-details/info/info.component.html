@@ -1,0 +1,85 @@
+<br>
+<clr-spinner class="pageLoading" *ngIf="isPageLoading"></clr-spinner>
+<div class="card card1" *ngIf="!isPageLoading">
+    <ul class="list">
+      <li *ngIf="projectDetail.managed_by_this_site">
+        <span><b>{{'projectDetail.role'| translate}}:</b></span>
+        <span>{{'projectDetail.creator'| translate}}</span>
+      </li>
+      <li *ngIf="!projectDetail.managed_by_this_site">
+        <span><b>{{'projectDetail.role'| translate}}:</b></span>
+        <span>{{'projectDetail.participant'| translate}}</span>
+      </li>
+      <li>
+        <span><b>{{'CommonlyUse.name'| translate}}:</b></span>
+        <span>{{projectDetail.name}}</span>
+      </li>
+      <li>
+        <span><b>{{'CommonlyUse.description'| translate}}:</b></span>
+        <span>{{projectDetail.description}}</span>
+      </li>
+      <li>
+        <span><b>{{'CommonlyUse.createTime'| translate}}:</b></span>
+        <span>{{projectDetail.creation_time | dateFormatting}}</span>
+      </li>
+      <li>
+        <span><b>{{'projectMg.projectManager'| translate}}:</b></span>
+        <span>{{projectDetail.manager}}</span>
+      </li>
+      <li *ngIf="!projectDetail.managed_by_this_site">
+        <span><b>{{'projectMg.managingSiteName'| translate}}:</b></span>
+        <span>{{projectDetail.managing_site_name}}</span>
+      </li>
+      <li *ngIf="!projectDetail.managed_by_this_site">
+        <span><b>{{'projectMg.managingSitePartyID'| translate}}:</b></span>
+        <span>{{projectDetail.managing_site_party_id}}</span>
+      </li>
+      <li class='infotog'>
+        <p class='info tog'>
+            <b>{{'projectMg.autoApprovalOfJobs'| translate}}:</b>
+            <input type="checkbox" clrToggle name="options" required value="option1" [(ngModel)]="options" (ngModelChange)="updateAutoApprove()"/>    
+        </p>
+    </li> 
+    </ul>
+  </div>
+<br>
+<br>
+<button class="btn btn-outline" *ngIf="projectDetail.managed_by_this_site && !isPageLoading" (click)="openCloseProjectModal(projectDetail.uuid)">{{'projectDetail.closeProject'| translate}}</button>
+<button class="btn btn-outline" *ngIf="!projectDetail.managed_by_this_site && !isPageLoading" (click)="openLeaveProjectModal(projectDetail.uuid)">{{'projectDetail.leaveProject'| translate}}</button>
+<clr-modal [(clrModalOpen)]="isOpenLeaveModal || isOpenCloseModal" [clrModalClosable]="false">
+  <h3 class="modal-title" *ngIf="isOpenLeaveModal">{{'projectDetail.leaveProject' | translate}}</h3>
+  <h3 class="modal-title" *ngIf="isOpenCloseModal">{{'projectMg.close' | translate}}</h3>
+  <div class="modal-body">
+    <div *ngIf="(isLeaveProjectSubmit && isLeaveProjectFailed) || (isCloseProjectSubmit && isCloseProjectFailed)" class="alert alert-danger" role="alert">
+      <div class="alert-items">
+          <div class="alert-item static">
+              <div class="alert-icon-wrapper">
+                  <cds-icon class="alert-icon" shape="exclamation-circle"></cds-icon>
+              </div>
+              <span class="alert-text" *ngIf="(isLeaveProjectSubmit && isLeaveProjectFailed) || (isCloseProjectSubmit && isCloseProjectFailed)">
+                  {{errorMessage}}
+                  <a href="javascript:;" *ngIf="associatedDataExistWhenLeave && isLeaveProjectSubmit && isLeaveProjectFailed" (click)="redirectToData(leaveProjectUUID)">{{'projectMg.leaveProjectDataError'| translate}}</a>
+              </span>
+          </div>
+      </div>
+    </div>
+    <p *ngIf="isOpenLeaveModal">{{'projectMg.leaveProjectMessage' | translate}}</p>
+    <p *ngIf="isOpenCloseModal">{{'projectMg.closeProjectMessage' | translate}}</p>
+  </div>
+  <div class="modal-footer"  *ngIf="isOpenLeaveModal">
+    <div *ngIf="isLeaveProjectSubmit && !isLeaveProjectFailed">
+      <span>{{'CommonlyUse.leaving' | translate}} ... </span>
+      <clr-spinner [clrInline]="true"></clr-spinner>
+    </div>
+    <button type="button" class="btn btn-outline" (click)="reloadCurrentRoute()">{{'CommonlyUse.cancel' | translate}}</button>
+    <button type="submit" class="btn btn-primary" (click)='leaveProject(leaveProjectUUID)'>{{'projectMg.leave' | translate}}</button>
+  </div>
+  <div class="modal-footer"  *ngIf="isOpenCloseModal">
+    <div *ngIf="isCloseProjectSubmit && !isCloseProjectFailed">
+      <span>{{'CommonlyUse.pleasewait' | translate}} ... </span>
+      <clr-spinner [clrInline]="true"></clr-spinner>
+    </div>
+    <button type="button" class="btn btn-outline" (click)="reloadCurrentRoute()">{{'CommonlyUse.cancel' | translate}}</button>
+    <button type="submit" class="btn btn-primary" (click)='closeProject(closeProjectUUID)'>{{'projectMg.close' | translate}}</button>
+  </div>               
+</clr-modal> 

@@ -1,0 +1,27 @@
+<br>
+<clr-alert [clrAlertClosable]='false' clrAlertType="danger" *ngIf="isShowEventlistFailed">
+  <clr-alert-item>
+    {{errorMessage}}
+  </clr-alert-item>
+</clr-alert>
+<a href="javascript:;" class="refreshbtn" (click)="refresh()">
+  <cds-icon shape="refresh"></cds-icon>
+</a>
+<br>
+<clr-datagrid [clrDgLoading]="isPageLoading">
+  <clr-dg-column [clrDgField]="'type'">{{'CommonlyUse.type'| translate}}</clr-dg-column>
+  <clr-dg-column [clrDgField]="'created_at'">{{'CommonlyUse.creationTime'| translate}}</clr-dg-column>
+  <clr-dg-column>{{'Event.logLevel'| translate}}</clr-dg-column>
+  <clr-dg-column>{{'CommonlyUse.description'| translate}}</clr-dg-column>
+
+
+  <clr-dg-row *ngFor="let event of eventList">
+    <clr-dg-cell>{{constantGather('eventType', event.type).name | translate}}</clr-dg-cell>
+    <clr-dg-cell>{{event.created_at | date : "medium"}}</clr-dg-cell>
+    <clr-dg-cell><span class="label" [class.label-info]="event.data.log_level==='Info'"
+        [class.label-danger]="event.data.log_level==='Error'">{{event.data.log_level}}</span></clr-dg-cell>
+    <clr-dg-cell>{{event.data.description}}</clr-dg-cell>
+  </clr-dg-row>
+
+  <clr-dg-footer>{{eventList.length}} {{'CommonlyUse.item'| translate}}</clr-dg-footer>
+</clr-datagrid>

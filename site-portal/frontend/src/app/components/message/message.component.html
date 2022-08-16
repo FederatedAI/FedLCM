@@ -1,0 +1,17 @@
+<div #msg class="upc-message ">
+  <div class="upc-message-content" [ngClass]="classType">
+    <p class="close" (click)="distory()" [ngClass]="classCloseType">X</p>
+    <cds-icon class="content-icon" *ngIf="messageType === 'success'" size="md" shape="exclamation-circle" status="success">
+    </cds-icon>
+    <cds-icon class="content-icon" *ngIf="messageType === 'warning'" size="md" shape="exclamation-triangle"
+      status="warning"></cds-icon>
+    <cds-icon class="content-icon" *ngIf="messageType === 'error'" size="md" shape="exclamation-circle" status="danger">
+    </cds-icon>
+    <cds-icon class="content-icon" *ngIf="messageType === 'info'" size="md" shape="info-circle" status="info"></cds-icon>
+    <div class="special">
+      <div class="content-msg">{{messageContent | translate}}</div>
+      <div class="content-msg" *ngIf="app.lang === 'zh_CN'">用户信息已失效，请重新登录</div>
+      <div class="content-msg" *ngIf="app.lang !== 'zh_CN'">Invaild authentication. Please log in.</div>
+    </div>
+  </div>
+</div>

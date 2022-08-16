@@ -1,0 +1,79 @@
+.content-area{
+    width: 100%;
+    min-width: 1080px;
+}
+.alert {
+    padding-left: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    padding-right: 0;
+    margin-top:10px;
+    margin-bottom: 0;
+    width: 50%;
+}
+.check_circle{
+    width:23px;
+    height: 23px;
+}
+.btn1 {
+    padding-right: 2px;
+}
+.t1 {
+    width: 70%;
+    height: 60px;
+}
+.t2 {
+    width: 400px;
+    height: 100px;
+}
+.kubeinput {
+    width: 400px;
+}
+.kubepwdinput {
+    width: 365px;
+}
+
+.modalalert {
+    width: 100%;
+    padding: 10px;
+}
+.refreshbtn {
+    float: right;
+    margin-right: 10px;
+}
+clr-accordion {
+    min-width: 1600px;
+}
+.site_address{
+    display: flex;
+}
+.site_address select {
+    flex: 1;
+    margin-top: 1px;
+}
+.site_address clr-select-container {
+    min-width: 400px;
+}
+.site_address clr-input-container {
+    margin-left: -230px;
+}
+.fml_manager_endpoint {
+    display: flex;
+}
+.fml_manager_endpoint select {
+    flex: 1;
+    margin-top: 1px;
+}
+.fml_manager_endpoint clr-select-container {
+    min-width: 400px;
+}
+.fml_manager_endpoint clr-input-container {
+    margin-left: -640px;
+}
+.server_name_container input {
+    width:265px;
+    margin-left: -36px;
+}
+.server_name_container clr-control-helper {
+    margin-left: -36px;
+}

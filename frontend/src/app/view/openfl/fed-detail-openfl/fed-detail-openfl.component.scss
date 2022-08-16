@@ -1,0 +1,182 @@
+.ellipsis {
+    cursor: pointer;
+}
+.card {
+    width: 700px;
+    &.card-width-auto {
+        width: auto;
+        padding: 10px;
+        margin: 0px;
+    }
+    .list {
+        input {
+            width: 100%;
+        }
+        select{
+            width: 150px;
+        }
+    }
+    .t2{
+        width: 100%;
+        height: 60px;
+    }
+    span:first-of-type {
+        font-size: 15px;
+        display: inline-block;
+        width: 150px;
+        margin-right: 10px;
+        line-height: 36px;
+    }
+    .list {
+        &.list-hide {
+            padding-top: 0px;
+        }
+        &.list-show {
+            padding-bottom: 0px;
+            margin-bottom: 0px;
+        }
+    }
+}
+.pageLoading {
+    margin-top: 10%;
+    margin-left: 45%;
+}
+.exchangealert {
+    width: 500px;
+}
+.selectedEnvoy {
+    margin-right: 12px;
+    margin-top: 12px;
+}
+clr-toggle-container {
+    margin-top: 3px;
+}
+.sub {
+    margin-bottom: 12px;
+}
+table {
+    margin-top: 12px;
+    min-width: 800px;
+    thead {
+        border-bottom: 1px solid #ccc;
+        tr {
+            background-color: #fafafa;
+            border-bottom: 1px solid #999;
+            th {
+                flex: 1;
+                border: none;
+                padding: 8px 0px 8px 12px;
+                min-width: 120px;
+                &.checkbox-item {
+                    width: 40px;
+                    min-width: 40px;
+                    padding: 0px;
+                    margin: 0px;
+                    flex: 0;
+                    input {
+                        width: 40px;
+                    }
+                }
+                span {
+                    display: flex;
+                    flex: 1;
+                    padding: 3px 0;
+                    border-right: 1px solid #999;
+                }
+                &:last-of-type {
+                    span {
+                        border-right: none;
+                    }
+                }
+            }
+        }
+    }
+    tbody {
+        tr{
+            border-bottom: 1px solid #999;
+            td::ng-deep {
+                flex: 1;
+                border: none;
+                padding: 8px 12px;
+                min-width: 120px;
+                text-align: left;
+                .signpost {
+                    .signpost-content-body {
+                        padding: 20px 0px 0 0px;
+                    }
+                }
+            }
+            td {
+                position: relative;
+                &.checkbox-item {
+                    width: 40px;
+                    min-width: 40px;
+                    padding: 0px;
+                    margin: 0px;
+                    flex: 0;
+                    input {
+                        width: 40px;
+                    }
+                }
+                .label-list {
+                    position: absolute;
+                    width: 202px;
+                    top: -35px;
+                    left: -88px;
+                    background: #ffff;
+                    border: 1px solid #ddd;
+                    border-radius: 10px 10px 0 10px;
+                    padding: 10px;
+                    z-index: 1111;
+                    margin-bottom: 17px;
+                }
+                .label-list::after {
+                    content: '';
+                    display: block;
+                    height: 0;
+                    width: 0;
+                    border-top: 16px solid #fff;
+                    border-left: 6px solid transparent;
+                    border-right: 6px solid transparent;
+                    position: absolute;
+                    bottom: -12px;
+                    right: -4px;
+                    transform: rotate(-21deg)
+                }
+                .label-list::before {
+                    content: '';
+                    display: block;
+                    height: 0;
+                    width: 0;
+                    border-top: 17px solid #ddd;
+                    border-left: 8px solid transparent;
+                    border-right: 8px solid transparent;
+                    position: absolute;
+                    bottom: -14px;
+                    right: -5px;
+                    transform: rotate(-21deg);
+                }
+            }
+
+        }
+    }
+}
+tr  {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    &.none {
+        display: block;
+        text-align: center;
+        padding-bottom: 20px;
+    }
+}
+.access_info {
+    width: 300px;
+    height: 150px;
+    border: none;
+}
+
+clr-datagrid {
+    min-width: 1500px;
+}

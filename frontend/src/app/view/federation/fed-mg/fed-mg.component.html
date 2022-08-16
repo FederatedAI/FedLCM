@@ -1,0 +1,128 @@
+<div class="content-area">
+    <br>
+    <h2>{{'Federation.name'|translate}}</h2>
+    <clr-alert [clrAlertClosable]='false' clrAlertType="danger" *ngIf="isShowFedFailed">
+        <clr-alert-item>
+          {{errorMessage}}
+        </clr-alert-item>
+    </clr-alert>
+    <br>
+    <button class="btn btn-outline" (click)="onOpenModal()" [disabled]="isShowFedFailed">
+        <cds-icon shape="add-text"></cds-icon> {{'CommonlyUse.new'|translate}}
+    </button>
+    <a href="javascript:;" class="refreshbtn" (click)="refresh()">
+        <cds-icon shape="refresh"></cds-icon>
+    </a>
+    <br>
+    <clr-datagrid [clrDgLoading]="isPageLoading">
+        <clr-dg-column [clrDgField]="'name'">{{'Federation.federationName'| translate}}</clr-dg-column>
+        <clr-dg-column>{{'CommonlyUse.description'|translate}}</clr-dg-column>
+        <clr-dg-column>{{'CommonlyUse.type'|translate}}</clr-dg-column>
+        <clr-dg-column [clrDgField]="'created_at'">{{'CommonlyUse.creationTime'|translate}}</clr-dg-column>
+        <clr-dg-column>{{'CommonlyUse.action'|translate}}</clr-dg-column>
+        <clr-dg-row *clrDgItems="let fed of federationList">
+            <clr-dg-cell><a [routerLink]="['/federation', fed.type==='FATE'?'fate':'openfl', fed.uuid]">{{fed.name}}</a>
+            </clr-dg-cell>
+            <clr-dg-cell>{{fed.description}}</clr-dg-cell>
+            <clr-dg-cell>{{fed.type}}</clr-dg-cell>
+            <clr-dg-cell>{{fed.created_at | dateFormat}}</clr-dg-cell>
+            <clr-dg-cell><a href="javascript:void(0)"
+                    (click)="openDeleteConfrimModal(fed.uuid, fed.type)">{{'CommonlyUse.delete'|translate}}</a>
+            </clr-dg-cell>
+        </clr-dg-row>
+        <clr-dg-footer>{{federationList ? federationList.length : 0}} item(s)</clr-dg-footer>
+    </clr-datagrid>
+</div>
+<clr-modal [(clrModalOpen)]="openModal" [clrModalClosable]="false">
+    <h3 class="modal-title">{{'Federation.add'| translate}}</h3>
+    <div class="modal-body">
+        <clr-radio-container class="federation-type" clrInline>
+            <label class="radio-title">{{'CommonlyUse.type'|translate}}</label>
+            <clr-radio-wrapper>
+                <input type="radio" clrRadio name="type" [(ngModel)]="federationType" required value="fate"
+                    (ngModelChange)="setRadioDisplay($event)" />
+                <label>FATE</label>
+            </clr-radio-wrapper>
+            <clr-radio-wrapper *ngIf="experimentEnabled">
+                <input type="radio" clrRadio name="type" [(ngModel)]="federationType" required value="openfl"
+                    (ngModelChange)="setRadioDisplay($event)" [disabled]="false" />
+                <label>OpenFL</label>
+            </clr-radio-wrapper>
+        </clr-radio-container>
+        <app-create-openfl #create_openfl *ngIf="federationType==='openfl'"></app-create-openfl>
+        <form clrForm clrLayout="horizontal" *ngIf="federationType==='fate'" [formGroup]="fedInformationForm">
+            <clr-input-container class="margin-top-10">
+                <label>{{'CommonlyUse.name'|translate}}</label>
+                <input clrInput name="fedname" formControlName="fedname" />
+                <clr-control-error
+                    *ngIf="!fedInformationForm.get('fedname')?.errors?.minlength && !fedInformationForm.get('fedname')?.errors?.maxlength">
+                    {{fedInformationForm.get('fedname')?.errors?.emptyMessage ||
+                    fedInformationForm.get('fedname')?.errors?.message | translate}}</clr-control-error>
+                <clr-control-error *ngIf="fedInformationForm.get('fedname')?.errors?.minlength">{{'CommonlyUse.few' |
+                    translate}}{{fedInformationForm.get('fedname')?.errors?.minlength.requiredLength}}{{'CommonlyUse.character'
+                    | translate}}</clr-control-error>
+                <clr-control-error *ngIf="fedInformationForm.get('fedname')?.errors?.maxlength">{{'CommonlyUse.many' |
+                    translate}}{{fedInformationForm.get('fedname')?.errors?.maxlength.requiredLength}}{{'CommonlyUse.character'
+                    | translate}}</clr-control-error>
+            </clr-input-container>
+            <clr-textarea-container>
+                <label>{{'CommonlyUse.description'|translate}}</label>
+                <textarea clrTextarea class="t2" name="description" formControlName="description"></textarea>
+            </clr-textarea-container>
+            <clr-input-container>
+                <label>{{'Federation.domain'| translate}}
+                    <a role="tooltip" aria-haspopup="false" class="tooltip tooltip-lg tooltip-top-right tooltip-icon">
+                        <cds-icon shape="info-circle" style="color: #0072a3;"></cds-icon>
+                        <span class="tooltip-content">{{'Federation.domainExplain'|translate}}</span>
+                    </a>
+                </label>
+                <input clrInput name="domain" formControlName="domain" />
+                <clr-control-error *ngIf="fedInformationForm.get('domain')?.errors">
+                    {{fedInformationForm.get('domain')?.errors?.emptyMessage ||
+                    fedInformationForm.get('domain')?.errors?.message | translate}}</clr-control-error>
+            </clr-input-container>
+        </form>
+        <br>
+        <clr-alert [clrAlertClosable]='false' clrAlertType="danger" *ngIf="isCreatedSubmit && isCreatedFailed">
+            <clr-alert-item>
+                {{errorMessage}}
+            </clr-alert-item>
+        </clr-alert>
+    </div>
+    <div class="modal-footer">
+        <div *ngIf="isCreatedSubmit && !isCreatedFailed">
+            <span>{{'CommonlyUse.submitting'|translate}} ... </span>
+            <clr-spinner [clrInline]="true"></clr-spinner>
+        </div>
+        <button type="button" class="btn btn-outline" (click)="resetModal()">{{'CommonlyUse.cancel'|translate}}</button>
+        <button type="button" class="btn btn-primary" [disabled]="submitDisable"
+            (click)="createNewFed()">{{'CommonlyUse.submit'|translate}}</button>
+    </div>
+</clr-modal>
+<clr-modal [(clrModalOpen)]="openDeleteModal" [clrModalClosable]="false">
+    <h3 class="modal-title">{{'CommonlyUse.delete'| translate}}</h3>
+    <div class="modal-body">
+        <div *ngIf="(isDeleteSubmit && isDeleteFailed)" class="alert alert-danger" role="alert">
+            <div class="alert-items">
+                <div class="alert-item static">
+                    <div class="alert-icon-wrapper">
+                        <cds-icon class="alert-icon" shape="exclamation-circle"></cds-icon>
+                    </div>
+                    <span class="alert-text">
+                        {{errorMessage}}
+                    </span>
+                </div>
+            </div>
+        </div>
+        <h5>{{'Federation.isDelete'|translate}}</h5>
+    </div>
+    <div class="modal-footer">
+        <div *ngIf="isDeleteSubmit && !isDeleteFailed">
+            <span>{{'CommonlyUse.deleting'| translate}} ... </span>
+            <clr-spinner [clrInline]="true"></clr-spinner>
+        </div>
+        <button type="button" class="btn btn-outline" (click)="openDeleteModal=false">{{'CommonlyUse.cancel'|
+            translate}}</button>
+        <button type="submit" class="btn btn-primary" (click)="deleteFed()">{{'CommonlyUse.delete'| translate}}</button>
+    </div>
+</clr-modal>

@@ -1,0 +1,104 @@
+<header class="header header-4">
+  <div class="branding">
+    <a href="javascript:void(0)" routerLink="">
+      <img src="assets/lifecycle.png" class="image iconImage" type="image/x-icon">
+      <span style="font-size: 150%" class="title">{{'Header.lifecycleManager'|translate}}</span>
+    </a>
+  </div>
+  <div class="header-btn-wrap">
+    <div [ngClass]="['language-dropdown','dropdown', 'right', langFlag ? 'open' : 'closed']" (click)="langDropdown()">
+      <cds-icon class="usericon" shape="world" style="color: #fff;"></cds-icon>
+      <a class="dropdown-toggle" style="color: #fff; font-size: 15px">{{i18.lang | translate}}
+        <cds-icon class="angleicon" shape="angle" direction="down" size="sm"></cds-icon>
+      </a>
+      <div class="dropdown-menu" ng-click="toggleDropdown()">
+        <div class="dropdown-item" style="font-size: 14px; padding: 0px; text-align: center;"
+          *ngFor="let lang of i18.langList" (click)="i18.changeLanguage(lang)">{{lang | translate}}</div>
+      </div>
+    </div>
+
+    <div [ngClass]="['dropdown', 'bottom-right', condition ? 'open' : 'closed']" (click)="toggleDropdown()">
+      <cds-icon class="usericon" shape="user" solid style="color: #fff;"></cds-icon>
+      <a class="dropdown-toggle" style="color: #fff; font-size: 15px">
+        {{username}}
+        <cds-icon class="angleicon" shape="angle" direction="down" size="sm"></cds-icon>
+      </a>
+
+      <div class="dropdown-menu" ng-click="toggleDropdown()">
+        <div class="dropdown-item" style="font-size: 14px" (click)="openModal=true">
+          {{'Header.changePassword'|translate}}</div>
+        <div class="dropdown-divider" role="separator"></div>
+        <div class="dropdown-item" style="font-size: 14px" (click)="logout()">{{'Header.logOut'|translate}}</div>
+      </div>
+    </div>
+  </div>
+</header>
+<clr-modal [(clrModalOpen)]="openModal" [clrModalClosable]="false">
+  <h3 class="modal-title">{{'Header.changePassword'| translate}}</h3>
+  <div class="modal-body">
+    <div *ngIf="(isChangePwdSubmit && isChangePwdFailed)" class="alert alert-danger" role="alert">
+      <div class="alert-items">
+        <div class="alert-item static">
+          <div class="alert-icon-wrapper">
+            <cds-icon class="alert-icon" shape="exclamation-circle"></cds-icon>
+          </div>
+          <span class="alert-text">
+            {{errorMessage}}
+          </span>
+        </div>
+      </div>
+    </div>
+    <div *ngIf="(isChangePwdSubmit && isChangePwdSuccessed)" class="alert alert-success" role="alert">
+      <div class="alert-items">
+        <div class="alert-item static">
+          <div class="alert-icon-wrapper">
+            <cds-icon class="alert-icon" shape="check-circle"></cds-icon>
+          </div>
+          <span class="alert-text">
+            {{'serverMessage.update_password_success'| translate}}
+          </span>
+        </div>
+      </div>
+    </div>
+    <div *ngIf="(isChangePwdSubmit && isChangePwdSuccessed)" class="alert alert-warning" role="alert">
+      <div class="alert-items">
+        <div class="alert-item static">
+          <div class="alert-icon-wrapper">
+            <cds-icon class="alert-icon" shape="exclamation-triangle"></cds-icon>
+          </div>
+          <div class="alert-text">
+            {{'serverMessage.login_again_alert'| translate}}
+          </div>
+        </div>
+      </div>
+    </div>
+    <form clrForm [formGroup]="form">
+      <clr-password-container>
+        <label class="clr-col-sm-4 clr-col-md-4">{{'Header.curPassword'| translate}}</label>
+        <input class="clr-col-sm-8 clr-col-md-8" clrPassword [(ngModel)]="curPassword" name="curPassword"
+          formControlName="curPassword" required />
+        <clr-control-error *clrIfError="'required'">{{'validator.empty'| translate}}</clr-control-error>
+      </clr-password-container>
+      <clr-password-container>
+        <label class="clr-col-sm-4 clr-col-md-4">{{'Header.newPassword'| translate}}</label>
+        <input class="clr-col-sm-8 clr-col-md-8" clrPassword [(ngModel)]="newPassword" name="newPassword"
+          formControlName="newPassword" required pattern="^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?!.*\s).{8,128}$" />
+        <clr-control-error> {{'validator.password'| translate}}</clr-control-error>
+      </clr-password-container>
+      <clr-password-container>
+        <label class="clr-col-sm-4 clr-col-md-4">{{'Header.confirmPassword'| translate}}</label>
+        <input class="clr-col-sm-8 clr-col-md-8" clrPassword [(ngModel)]="confirmPassword" name="confirmPassword"
+          formControlName="confirmPassword" required />
+        <clr-control-error *clrIfError="'required'">{{'validator.empty'| translate}}</clr-control-error>
+        <clr-control-error *ngIf="form.get('confirmPassword')?.errors?.confirmedValidator">{{'validator.match'|
+          translate}}</clr-control-error>
+      </clr-password-container>
+      <br>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline" (click)="resetModal()">{{'CommonlyUse.cancel' | translate}}</button>
+    <button type="button" class="btn btn-primary" (click)="changePassword()"
+      [disabled]='!form.valid'>{{'CommonlyUse.submit' | translate}}</button>
+  </div>
+</clr-modal>

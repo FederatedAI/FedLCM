@@ -1,0 +1,49 @@
+name: openfl-director
+namespace: openfl-director
+chartName: openfl-director
+chartVersion: v0.1.0
+registry: "federatedai"
+imageTag: "v0.1.0"
+pullPolicy: IfNotPresent
+# imagePullSecrets:
+#   - name: myregistrykey
+podSecurityPolicy:
+  enabled: false
+modules:
+  - director
+  - notebook
+
+# ingress:
+  # notebook:
+    # annotations:
+    # hosts:
+    # - name:  notebook.openfl.example.com
+      # path: /
+    # tls:
+    # - secretName: notebook-cert
+      # hosts:
+        # - notebook.openfl.example.com
+
+#director:
+#  image: fedlcm-openfl
+#  imageTag: v0.1.0
+#  sampleShape: "['784']"
+#  targetShape: "['1']"
+#  envoyHealthCheckPeriod: 60
+#  nodeSelector:
+#  tolerations:
+#  affinity:
+#  type: NodePort
+#  nodePort:
+#  loadBalancerIp:
+
+#notebook:
+#  image: fedlcm-openfl
+#  imageTag: v0.1.0
+#  password: argon2:$argon2id$v=19$m=10240,t=10,p=8$TmW50aM7Fey2lNrU7kpOhQ$s4SY7l8QItxgR9iwVA+DTc2uwGnawh1p1dB42bbLH48
+#  nodeSelector:
+#  tolerations:
+#  affinity:
+#  type: NodePort
+#  nodePort:
+#  loadBalancerIp:

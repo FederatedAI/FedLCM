@@ -1,0 +1,5040 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "backend APIs of lifecycle manager service",
+        "title": "lifecycle manager API service",
+        "termsOfService": "http://swagger.io/terms/",
+        "contact": {
+            "name": "FedLCM team"
+        },
+        "version": "v1"
+    },
+    "basePath": "/api/v1",
+    "paths": {
+        "/certificate": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Certificate"
+                ],
+                "summary": "Return issued certificate list",
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/service.CertificateListItem"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized operation",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/certificate-authority": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "CertificateAuthority"
+                ],
+                "summary": "Return certificate authority info",
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/service.CertificateAuthorityDetail"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized operation",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "CertificateAuthority"
+                ],
+                "summary": "Create a new certificate authority",
+                "parameters": [
+                    {
+                        "description": "The CA information, currently for the type field only '1(StepCA)'  is  supported",
+                        "name": "certificateAuthority",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/service.CertificateAuthorityEditableItem"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized operation",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/certificate-authority/built-in-ca": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "CertificateAuthority"
+                ],
+                "summary": "Return the built-in certificate authority config",
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/entity.CertificateAuthorityConfigurationStepCA"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized operation",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/certificate-authority/{uuid}": {
+            "put": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "CertificateAuthority"
+                ],
+                "summary": "Updates the certificate authority",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "certificate authority UUID",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "The updated CA information",
+                        "name": "certificateAuthority",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/service.CertificateAuthorityEditableItem"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized operation",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/certificate/{uuid}": {
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Certificate"
+                ],
+                "summary": "Delete the certificate  which has no participant bindings",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Certificate UUID",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized operation",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/chart": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Chart"
+                ],
+                "summary": "Return chart list, optionally with the specified type",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "if set, it should be the chart type",
+                        "name": "type",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/service.ChartListItem"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized operation",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/chart/{uuid}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Chart"
+                ],
+                "summary": "Get chart's detailed info",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Chart UUID",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/service.ChartDetail"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized operation",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/endpoint": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Endpoint"
+                ],
+                "summary": "Return endpoints list data",
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/service.EndpointListItem"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized operation",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Endpoint"
+                ],
+                "summary": "Create a new endpoint by install a new one or add an existing one",
+                "parameters": [
+                    {
+                        "description": "The endpoint information, currently for the type field only 'KubeFATE' is supported",
+                        "name": "provider",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/service.EndpointCreationRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success, the returned data contains the created endpoint",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized operation",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/endpoint/kubefate/yaml": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Endpoint"
+                ],
+                "summary": "Get KubeFATE installation YAML content",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "username of the created KubeFATE service",
+                        "name": "service_username",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "password of the created KubeFATE service",
+                        "name": "service_password",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "hostname domain name for the KubeFATE ingress object",
+                        "name": "hostname",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "use_registry is to choose to use registry or not",
+                        "name": "use_registry",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "registry is registry address",
+                        "name": "registry",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "use_registry_secret is to choose to use registry secret or not",
+                        "name": "use_registry_secret",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "registry_server_url is registry's server url",
+                        "name": "registry_server_url",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "registry_username is registry's username",
+                        "name": "registry_username",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "registry_password is registry's password",
+                        "name": "registry_password",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized operation",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/endpoint/scan": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Endpoint"
+                ],
+                "summary": "Scan the endpoints in an infra provider",
+                "parameters": [
+                    {
+                        "description": "Provider UUID and endpoint type",
+                        "name": "provider",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/service.EndpointScanRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/service.EndpointListItem"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized operation",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/endpoint/{uuid}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Endpoint"
+                ],
+                "summary": "Get endpoint's detailed info",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Endpoint UUID",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/service.EndpointDetail"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized operation",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Endpoint"
+                ],
+                "summary": "Delete the endpoint",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Endpoint UUID",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "if set to true, the endpoint installation will be removed too",
+                        "name": "uninstall",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized operation",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/endpoint/{uuid}/kubefate/check": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Endpoint"
+                ],
+                "summary": "Test connection to KubeFATE endpoint",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Endpoint UUID",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized operation",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/event/{entity_uuid}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Event"
+                ],
+                "summary": "Return event list of related entity",
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/service.EventListItem"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized operation",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/federation": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Federation"
+                ],
+                "summary": "Return federation list,",
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/service.FederationListItem"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized operation",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/federation/fate": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Federation"
+                ],
+                "summary": "Create a new FATE federation",
+                "parameters": [
+                    {
+                        "description": "The federation info",
+                        "name": "federation",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/service.FederationFATECreationRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success, the data field is the created federation's uuid",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized operation",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/federation/fate/:uuid/cluster": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Federation"
+                ],
+                "summary": "Create a new FATE cluster",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "federation UUID",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "The creation requests",
+                        "name": "creationRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/service.ParticipantFATEClusterCreationRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success, the data field is the created cluster's uuid",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized operation",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/federation/fate/:uuid/cluster/external": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Federation"
+                ],
+                "summary": "Create an external FATE cluster",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "federation UUID",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "The creation requests",
+                        "name": "creationRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/service.ParticipantFATEExternalClusterCreationRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success, the data field is the created cluster's uuid",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized operation",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/federation/fate/:uuid/exchange": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Federation"
+                ],
+                "summary": "Create a new FATE exchange",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "federation UUID",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "The creation requests",
+                        "name": "creationRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/service.ParticipantFATEExchangeCreationRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success, the data field is the created exchange's uuid",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized operation",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/federation/fate/:uuid/exchange/external": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Federation"
+                ],
+                "summary": "Create an external FATE exchange",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "federation UUID",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "The creation requests",
+                        "name": "creationRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/service.ParticipantFATEExternalExchangeCreationRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success, the data field is the created exchange's uuid",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized operation",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/federation/fate/:uuid/partyID/check": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Federation"
+                ],
+                "summary": "Check if the party ID is available",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "federation UUID",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "party ID",
+                        "name": "party_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized operation",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/federation/fate/cluster/yaml": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Federation"
+                ],
+                "summary": "Get FATE cluster deployment yaml",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "the chart uuid",
+                        "name": "chart_uuid",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "the federation uuid",
+                        "name": "federation_uuid",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "party id",
+                        "name": "party_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "name of the deployment",
+                        "name": "name",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "namespace of the deployment",
+                        "name": "namespace",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "type of the service to be exposed",
+                        "name": "service_type",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "choose if use the FATE registry config saved in the infra provider",
+                        "name": "use_registry",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "choose if use the FATE registry secret saved in the infra provider",
+                        "name": "use_registry_secret",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "FATE registry config saved in the infra provider",
+                        "name": "registry",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "choose if use the persistent volume",
+                        "name": "enable_persistence",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "provide the name of StorageClass",
+                        "name": "storage_class",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "choose if enable the podSecurityPolicy",
+                        "name": "enable_psp",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success, the data field is the yaml content",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized operation",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/federation/fate/exchange/yaml": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Federation"
+                ],
+                "summary": "Get FATE exchange deployment yaml",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "the chart uuid",
+                        "name": "chart_uuid",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "name of the deployment",
+                        "name": "name",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "namespace of the deployment",
+                        "name": "namespace",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "type of the service to be exposed 1: LoadBalancer 2: NodePort",
+                        "name": "service_type",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "FATE registry config saved in the infra provider",
+                        "name": "registry",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "choose if use the customized registry config",
+                        "name": "use_registry",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "choose if use the customized registry secret",
+                        "name": "use_registry_secret",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "choose if enable the podSecurityPolicy",
+                        "name": "enable_psp",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success, the data field is the yaml content",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized operation",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/federation/fate/{uuid}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Federation"
+                ],
+                "summary": "Get specific info of a FATE federation",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "federation UUID",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/service.FederationFATEDetail"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized operation",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Federation"
+                ],
+                "summary": "Delete a FATE federation",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "federation UUID",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized operation",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/federation/fate/{uuid}/cluster/{clusterUUID}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Federation"
+                ],
+                "summary": "Get specific info of FATE cluster",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "federation UUID",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/service.FATEClusterDetail"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized operation",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Federation"
+                ],
+                "summary": "Delete a FATE cluster",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "federation UUID",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "cluster UUID",
+                        "name": "clusterUUID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "if set to true, will try to remove the cluster forcefully",
+                        "name": "force",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized operation",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/federation/fate/{uuid}/exchange/{exchangeUUID}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Federation"
+                ],
+                "summary": "Get specific info of FATE Exchange",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "federation UUID",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/service.FATEExchangeDetail"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized operation",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Federation"
+                ],
+                "summary": "Delete a FATE exchange",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "federation UUID",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "exchange UUID",
+                        "name": "exchangeUUID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "if set to true, will try to remove the exchange forcefully",
+                        "name": "force",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized operation",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/federation/fate/{uuid}/participant": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Federation"
+                ],
+                "summary": "Get participant list of the specified federation",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "federation UUID",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/service.ParticipantFATEListInFederation"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized operation",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/federation/openfl": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Federation"
+                ],
+                "summary": "Create a new OpenFL federation",
+                "parameters": [
+                    {
+                        "description": "The federation info",
+                        "name": "federation",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/service.FederationOpenFLCreationRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success, the data field is the created federation's uuid",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized operation",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/federation/openfl/director/yaml": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Federation"
+                ],
+                "summary": "Get OpenFL director deployment yaml",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "the chart uuid",
+                        "name": "chart_uuid",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "the federation uuid",
+                        "name": "federation_uuid",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "name of the deployment",
+                        "name": "name",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "namespace of the deployment",
+                        "name": "namespace",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "type of the service to be exposed 1: LoadBalancer 2: NodePort",
+                        "name": "service_type",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "password to access the Jupyter Notebook",
+                        "name": "jupyter_password",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "customized registry address",
+                        "name": "registry",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "choose if use the customized registry config",
+                        "name": "use_registry",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "choose if use the customized registry secret",
+                        "name": "use_registry_secret",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "choose if enable the podSecurityPolicy",
+                        "name": "enable_psp",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success, the data field is the yaml content",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized operation",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/federation/openfl/envoy/register": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Federation"
+                ],
+                "summary": "Process Envoy registration request",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "federation UUID",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "The creation requests",
+                        "name": "registrationRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/service.ParticipantOpenFLEnvoyRegistrationRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success, the data field is the created director's uuid",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized operation",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/federation/openfl/envoy/{uuid}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Federation"
+                ],
+                "summary": "Get specific info of OpenFL envoy, by providing the envoy uuid and token string",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "envoy UUID",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "token string",
+                        "name": "token",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/service.OpenFLEnvoyDetail"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized operation",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/federation/openfl/{uuid}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Federation"
+                ],
+                "summary": "Get specific info of an OpenFL federation",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "federation UUID",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/service.FederationOpenFLDetail"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized operation",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Federation"
+                ],
+                "summary": "Delete an OpenFL federation",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "federation UUID",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized operation",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/federation/openfl/{uuid}/director": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Federation"
+                ],
+                "summary": "Create a new OpenFL director",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "federation UUID",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "The creation requests",
+                        "name": "creationRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/service.ParticipantOpenFLDirectorCreationRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success, the data field is the created director's uuid",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized operation",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/federation/openfl/{uuid}/director/{directorUUID}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Federation"
+                ],
+                "summary": "Get specific info of OpenFL director",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "federation UUID",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "director UUID",
+                        "name": "directorUUID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/service.OpenFLDirectorDetail"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized operation",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Federation"
+                ],
+                "summary": "Delete an OpenFL director",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "federation UUID",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "director UUID",
+                        "name": "directorUUID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "if set to true, will try to remove the director forcefully",
+                        "name": "force",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized operation",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/federation/openfl/{uuid}/envoy/{envoyUUID}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Federation"
+                ],
+                "summary": "Get specific info of OpenFL envoy",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "federation UUID",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "envoy UUID",
+                        "name": "envoyUUID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/service.OpenFLEnvoyDetail"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized operation",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Federation"
+                ],
+                "summary": "Delete an OpenFL envoy",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "federation UUID",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "envoy UUID",
+                        "name": "envoyUUID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "if set to true, will try to envoy the director forcefully",
+                        "name": "force",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized operation",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/federation/openfl/{uuid}/participant": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Federation"
+                ],
+                "summary": "Get participant list of the specified OpenFL federation",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "federation UUID",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/service.ParticipantOpenFLListInFederation"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized operation",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/federation/openfl/{uuid}/token": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Federation"
+                ],
+                "summary": "Get registration token list of the specified OpenFL federation",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "federation UUID",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/service.RegistrationTokenOpenFLListItem"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized operation",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Federation"
+                ],
+                "summary": "Create a new registration token for an OpenFL federation",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "federation UUID",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "The federation info",
+                        "name": "token",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/service.RegistrationTokenOpenFLBasicInfo"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized operation",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/federation/openfl/{uuid}/token/{tokenUUID}": {
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Federation"
+                ],
+                "summary": "Delete an OpenFL federation registration token",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "federation UUID",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "token UUID",
+                        "name": "tokenUUID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized operation",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/infra": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "InfraProvider"
+                ],
+                "summary": "Return provider list data",
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/service.InfraProviderListItem"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized operation",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "InfraProvider"
+                ],
+                "summary": "Create a new infra provider",
+                "parameters": [
+                    {
+                        "description": "The provider information, currently for the type field only 'Kubernetes' is supported",
+                        "name": "provider",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/service.InfraProviderCreationRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized operation",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/infra/kubernetes/connect": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "InfraProvider"
+                ],
+                "summary": "Test connection to a Kubernetes infra provider",
+                "parameters": [
+                    {
+                        "description": "The kubeconfig content",
+                        "name": "permission",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/valueobject.KubeConfig"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized operation",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/infra/{uuid}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "InfraProvider"
+                ],
+                "summary": "Get infra provider's detailed info",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Provider UUID",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/service.InfraProviderDetail"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized operation",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "put": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "InfraProvider"
+                ],
+                "summary": "Updates the infra provider",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Provider UUID",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "The updated provider information",
+                        "name": "provider",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/service.InfraProviderUpdateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized operation",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "InfraProvider"
+                ],
+                "summary": "Delete the infra provider",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Provider UUID",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized operation",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/user/current": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Return current user in the jwt token",
+                "responses": {
+                    "200": {
+                        "description": "Success, the name of current user",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized operation",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/user/login": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "login to lifecycle manager",
+                "parameters": [
+                    {
+                        "description": "credentials for login",
+                        "name": "credentials",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/service.LoginInfo"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized operation",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/logout": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "logout from the lifecycle manager",
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/user/{userId}/password": {
+            "put": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Update user password",
+                "parameters": [
+                    {
+                        "description": "current and new password",
+                        "name": "passwordChangeInfo",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/service.PwdChangeInfo"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized operation",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "api.GeneralResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 0
+                },
+                "data": {
+                    "type": "object"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "success"
+                }
+            }
+        },
+        "entity.CertificateAuthorityConfigurationStepCA": {
+            "type": "object",
+            "properties": {
+                "provisioner_name": {
+                    "type": "string"
+                },
+                "provisioner_password": {
+                    "type": "string"
+                },
+                "service_cert_pem": {
+                    "type": "string"
+                },
+                "service_url": {
+                    "type": "string"
+                }
+            }
+        },
+        "entity.EventData": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "log_level": {
+                    "type": "string"
+                }
+            }
+        },
+        "entity.ParticipantComponentCertInfo": {
+            "type": "object",
+            "properties": {
+                "binding_mode": {
+                    "type": "integer"
+                },
+                "common_name": {
+                    "type": "string"
+                },
+                "uuid": {
+                    "type": "string"
+                }
+            }
+        },
+        "entity.ParticipantFATEIngress": {
+            "type": "object",
+            "properties": {
+                "addresses": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "hosts": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "tls": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "entity.ParticipantFATEIngressMap": {
+            "type": "object",
+            "additionalProperties": {
+                "$ref": "#/definitions/entity.ParticipantFATEIngress"
+            }
+        },
+        "entity.ParticipantFATEModulesAccessMap": {
+            "type": "object",
+            "additionalProperties": {
+                "$ref": "#/definitions/entity.ParticipantModulesAccess"
+            }
+        },
+        "entity.ParticipantModulesAccess": {
+            "type": "object",
+            "properties": {
+                "fqdn": {
+                    "type": "string"
+                },
+                "host": {
+                    "type": "string"
+                },
+                "port": {
+                    "type": "integer"
+                },
+                "service_type": {
+                    "type": "string"
+                },
+                "tls": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "entity.ParticipantOpenFLModulesAccessMap": {
+            "type": "object",
+            "additionalProperties": {
+                "$ref": "#/definitions/entity.ParticipantModulesAccess"
+            }
+        },
+        "service.CertificateAuthorityDetail": {
+            "type": "object",
+            "properties": {
+                "config": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "integer"
+                },
+                "status_message": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "integer"
+                },
+                "uuid": {
+                    "type": "string"
+                }
+            }
+        },
+        "service.CertificateAuthorityEditableItem": {
+            "type": "object",
+            "properties": {
+                "config": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "integer"
+                }
+            }
+        },
+        "service.CertificateBindingListItem": {
+            "type": "object",
+            "properties": {
+                "federation_name": {
+                    "type": "string"
+                },
+                "federation_type": {
+                    "type": "string"
+                },
+                "federation_uuid": {
+                    "type": "string"
+                },
+                "participant_name": {
+                    "type": "string"
+                },
+                "participant_type": {
+                    "type": "string"
+                },
+                "participant_uuid": {
+                    "type": "string"
+                },
+                "service_description": {
+                    "type": "string"
+                },
+                "service_type": {
+                    "type": "integer"
+                }
+            }
+        },
+        "service.CertificateListItem": {
+            "type": "object",
+            "properties": {
+                "bindings": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/service.CertificateBindingListItem"
+                    }
+                },
+                "common_name": {
+                    "type": "string"
+                },
+                "expiration_date": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "serial_number": {
+                    "type": "string"
+                },
+                "uuid": {
+                    "type": "string"
+                }
+            }
+        },
+        "service.ChartDetail": {
+            "type": "object",
+            "properties": {
+                "about": {
+                    "type": "string"
+                },
+                "chart_name": {
+                    "type": "string"
+                },
+                "contain_portal_services": {
+                    "type": "boolean"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "integer"
+                },
+                "uuid": {
+                    "type": "string"
+                },
+                "values": {
+                    "type": "string"
+                },
+                "values_template": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "string"
+                }
+            }
+        },
+        "service.ChartListItem": {
+            "type": "object",
+            "properties": {
+                "chart_name": {
+                    "type": "string"
+                },
+                "contain_portal_services": {
+                    "type": "boolean"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "integer"
+                },
+                "uuid": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "string"
+                }
+            }
+        },
+        "service.EndpointCreationRequest": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "infra_provider_uuid": {
+                    "type": "string"
+                },
+                "ingress_controller_service_mode": {
+                    "type": "integer"
+                },
+                "install": {
+                    "type": "boolean"
+                },
+                "kubefate_deployment_yaml": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "service.EndpointDetail": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "infra_provider_name": {
+                    "type": "string"
+                },
+                "infra_provider_uuid": {
+                    "type": "string"
+                },
+                "kubefate_address": {
+                    "type": "string"
+                },
+                "kubefate_deployment_yaml": {
+                    "type": "string"
+                },
+                "kubefate_host": {
+                    "type": "string"
+                },
+                "kubefate_version": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "integer"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "uuid": {
+                    "type": "string"
+                }
+            }
+        },
+        "service.EndpointListItem": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "infra_provider_name": {
+                    "type": "string"
+                },
+                "infra_provider_uuid": {
+                    "type": "string"
+                },
+                "kubefate_address": {
+                    "type": "string"
+                },
+                "kubefate_host": {
+                    "type": "string"
+                },
+                "kubefate_version": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "integer"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "uuid": {
+                    "type": "string"
+                }
+            }
+        },
+        "service.EndpointScanRequest": {
+            "type": "object",
+            "properties": {
+                "infra_provider_uuid": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "service.EventListItem": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "data": {
+                    "$ref": "#/definitions/entity.EventData"
+                },
+                "entity_type": {
+                    "type": "integer"
+                },
+                "entity_uuid": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "integer"
+                },
+                "uuid": {
+                    "type": "string"
+                }
+            }
+        },
+        "service.FATEClusterDetail": {
+            "type": "object",
+            "properties": {
+                "access_info": {
+                    "$ref": "#/definitions/entity.ParticipantFATEModulesAccessMap"
+                },
+                "chart_uuid": {
+                    "type": "string"
+                },
+                "cluster_uuid": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "deployment_yaml": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "endpoint_name": {
+                    "type": "string"
+                },
+                "endpoint_uuid": {
+                    "type": "string"
+                },
+                "infra_provider_name": {
+                    "type": "string"
+                },
+                "infra_provider_uuid": {
+                    "type": "string"
+                },
+                "ingress_info": {
+                    "$ref": "#/definitions/entity.ParticipantFATEIngressMap"
+                },
+                "is_managed": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "namespace": {
+                    "type": "string"
+                },
+                "party_id": {
+                    "type": "integer"
+                },
+                "pulsar_server_cert_info": {
+                    "$ref": "#/definitions/entity.ParticipantComponentCertInfo"
+                },
+                "site_portal_client_cert_info": {
+                    "$ref": "#/definitions/entity.ParticipantComponentCertInfo"
+                },
+                "site_portal_server_cert_info": {
+                    "$ref": "#/definitions/entity.ParticipantComponentCertInfo"
+                },
+                "status": {
+                    "type": "integer"
+                },
+                "type": {
+                    "type": "integer"
+                },
+                "uuid": {
+                    "type": "string"
+                }
+            }
+        },
+        "service.FATEExchangeDetail": {
+            "type": "object",
+            "properties": {
+                "access_info": {
+                    "$ref": "#/definitions/entity.ParticipantFATEModulesAccessMap"
+                },
+                "chart_uuid": {
+                    "type": "string"
+                },
+                "cluster_uuid": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "deployment_yaml": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "endpoint_name": {
+                    "type": "string"
+                },
+                "endpoint_uuid": {
+                    "type": "string"
+                },
+                "fml_manager_client_cert_info": {
+                    "$ref": "#/definitions/entity.ParticipantComponentCertInfo"
+                },
+                "fml_manager_server_cert_info": {
+                    "$ref": "#/definitions/entity.ParticipantComponentCertInfo"
+                },
+                "infra_provider_name": {
+                    "type": "string"
+                },
+                "infra_provider_uuid": {
+                    "type": "string"
+                },
+                "is_managed": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "namespace": {
+                    "type": "string"
+                },
+                "party_id": {
+                    "type": "integer"
+                },
+                "proxy_server_cert_info": {
+                    "$ref": "#/definitions/entity.ParticipantComponentCertInfo"
+                },
+                "status": {
+                    "type": "integer"
+                },
+                "type": {
+                    "type": "integer"
+                },
+                "uuid": {
+                    "type": "string"
+                }
+            }
+        },
+        "service.FederationFATECreationRequest": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "domain": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "service.FederationFATEDetail": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "domain": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "uuid": {
+                    "type": "string"
+                }
+            }
+        },
+        "service.FederationListItem": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "uuid": {
+                    "type": "string"
+                }
+            }
+        },
+        "service.FederationOpenFLCreationRequest": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "domain": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "shard_descriptor_config": {
+                    "$ref": "#/definitions/valueobject.ShardDescriptorConfig"
+                },
+                "use_customized_shard_descriptor": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "service.FederationOpenFLDetail": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "domain": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "shard_descriptor_config": {
+                    "$ref": "#/definitions/valueobject.ShardDescriptorConfig"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "use_customized_shard_descriptor": {
+                    "type": "boolean"
+                },
+                "uuid": {
+                    "type": "string"
+                }
+            }
+        },
+        "service.InfraProviderCreationRequest": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "kubernetes_provider_info": {
+                    "$ref": "#/definitions/service.InfraProviderKubernetesConfig"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "service.InfraProviderDetail": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "kubernetes_provider_info": {
+                    "$ref": "#/definitions/service.InfraProviderInfoKubernetes"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "uuid": {
+                    "type": "string"
+                }
+            }
+        },
+        "service.InfraProviderInfoKubernetes": {
+            "type": "object",
+            "properties": {
+                "api_server": {
+                    "type": "string"
+                },
+                "kubeconfig_content": {
+                    "type": "string"
+                },
+                "registry_config_fate": {
+                    "$ref": "#/definitions/valueobject.KubeRegistryConfig"
+                }
+            }
+        },
+        "service.InfraProviderKubernetesConfig": {
+            "type": "object",
+            "properties": {
+                "kubeconfig_content": {
+                    "type": "string"
+                },
+                "registry_config_fate": {
+                    "$ref": "#/definitions/valueobject.KubeRegistryConfig"
+                }
+            }
+        },
+        "service.InfraProviderListItem": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "kubernetes_provider_info": {
+                    "$ref": "#/definitions/service.InfraProviderListItemKubernetes"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "uuid": {
+                    "type": "string"
+                }
+            }
+        },
+        "service.InfraProviderListItemKubernetes": {
+            "type": "object",
+            "properties": {
+                "api_server": {
+                    "type": "string"
+                }
+            }
+        },
+        "service.InfraProviderUpdateRequest": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "kubernetes_provider_info": {
+                    "$ref": "#/definitions/service.InfraProviderKubernetesConfig"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "service.LoginInfo": {
+            "type": "object",
+            "properties": {
+                "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "service.OpenFLDirectorDetail": {
+            "type": "object",
+            "properties": {
+                "access_info": {
+                    "$ref": "#/definitions/entity.ParticipantOpenFLModulesAccessMap"
+                },
+                "chart_uuid": {
+                    "type": "string"
+                },
+                "cluster_uuid": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "deployment_yaml": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "director_server_cert_info": {
+                    "$ref": "#/definitions/entity.ParticipantComponentCertInfo"
+                },
+                "endpoint_name": {
+                    "type": "string"
+                },
+                "endpoint_uuid": {
+                    "type": "string"
+                },
+                "infra_provider_name": {
+                    "type": "string"
+                },
+                "infra_provider_uuid": {
+                    "type": "string"
+                },
+                "jupyter_client_cert_info": {
+                    "$ref": "#/definitions/entity.ParticipantComponentCertInfo"
+                },
+                "labels": {
+                    "$ref": "#/definitions/valueobject.Labels"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "namespace": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "integer"
+                },
+                "token_name": {
+                    "type": "string"
+                },
+                "token_str": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "integer"
+                },
+                "uuid": {
+                    "type": "string"
+                }
+            }
+        },
+        "service.OpenFLEnvoyDetail": {
+            "type": "object",
+            "properties": {
+                "access_info": {
+                    "$ref": "#/definitions/entity.ParticipantOpenFLModulesAccessMap"
+                },
+                "chart_uuid": {
+                    "type": "string"
+                },
+                "cluster_uuid": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "endpoint_name": {
+                    "type": "string"
+                },
+                "endpoint_uuid": {
+                    "type": "string"
+                },
+                "envoy_client_cert_info": {
+                    "$ref": "#/definitions/entity.ParticipantComponentCertInfo"
+                },
+                "infra_provider_name": {
+                    "type": "string"
+                },
+                "infra_provider_uuid": {
+                    "type": "string"
+                },
+                "labels": {
+                    "$ref": "#/definitions/valueobject.Labels"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "namespace": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "integer"
+                },
+                "token_name": {
+                    "type": "string"
+                },
+                "token_str": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "integer"
+                },
+                "uuid": {
+                    "type": "string"
+                }
+            }
+        },
+        "service.ParticipantFATEClusterCreationRequest": {
+            "type": "object",
+            "properties": {
+                "chart_uuid": {
+                    "type": "string"
+                },
+                "deployment_yaml": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "enable_persistence": {
+                    "type": "boolean"
+                },
+                "enable_psp": {
+                    "type": "boolean"
+                },
+                "endpoint_uuid": {
+                    "type": "string"
+                },
+                "federation_uuid": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "namespace": {
+                    "type": "string"
+                },
+                "party_id": {
+                    "type": "integer"
+                },
+                "pulsar_server_cert_info": {
+                    "$ref": "#/definitions/entity.ParticipantComponentCertInfo"
+                },
+                "registry_config": {
+                    "description": "RegistrySecretConfig in valueobject.KubeRegistryConfig is not used for generating the yaml content",
+                    "$ref": "#/definitions/valueobject.KubeRegistryConfig"
+                },
+                "service_type": {
+                    "type": "integer"
+                },
+                "site_portal_client_cert_info": {
+                    "$ref": "#/definitions/entity.ParticipantComponentCertInfo"
+                },
+                "site_portal_server_cert_info": {
+                    "$ref": "#/definitions/entity.ParticipantComponentCertInfo"
+                },
+                "storage_class": {
+                    "type": "string"
+                }
+            }
+        },
+        "service.ParticipantFATEExchangeCreationRequest": {
+            "type": "object",
+            "properties": {
+                "chart_uuid": {
+                    "type": "string"
+                },
+                "deployment_yaml": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "enable_psp": {
+                    "type": "boolean"
+                },
+                "endpoint_uuid": {
+                    "type": "string"
+                },
+                "federation_uuid": {
+                    "type": "string"
+                },
+                "fml_manager_client_cert_info": {
+                    "$ref": "#/definitions/entity.ParticipantComponentCertInfo"
+                },
+                "fml_manager_server_cert_info": {
+                    "$ref": "#/definitions/entity.ParticipantComponentCertInfo"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "namespace": {
+                    "type": "string"
+                },
+                "proxy_server_cert_info": {
+                    "$ref": "#/definitions/entity.ParticipantComponentCertInfo"
+                },
+                "registry_config": {
+                    "description": "RegistrySecretConfig in valueobject.KubeRegistryConfig is not used for generating the yaml content",
+                    "$ref": "#/definitions/valueobject.KubeRegistryConfig"
+                },
+                "service_type": {
+                    "type": "integer"
+                }
+            }
+        },
+        "service.ParticipantFATEExternalClusterCreationRequest": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "federation_uuid": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "nginx_access_info": {
+                    "$ref": "#/definitions/entity.ParticipantModulesAccess"
+                },
+                "party_id": {
+                    "type": "integer"
+                },
+                "pulsar_access_info": {
+                    "$ref": "#/definitions/entity.ParticipantModulesAccess"
+                }
+            }
+        },
+        "service.ParticipantFATEExternalExchangeCreationRequest": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "federation_uuid": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "nginx_access_info": {
+                    "$ref": "#/definitions/entity.ParticipantModulesAccess"
+                },
+                "traffic_server_access_info": {
+                    "$ref": "#/definitions/entity.ParticipantModulesAccess"
+                }
+            }
+        },
+        "service.ParticipantFATEListInFederation": {
+            "type": "object",
+            "properties": {
+                "clusters": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/service.ParticipantFATEListItem"
+                    }
+                },
+                "exchange": {
+                    "$ref": "#/definitions/service.ParticipantFATEListItem"
+                }
+            }
+        },
+        "service.ParticipantFATEListItem": {
+            "type": "object",
+            "properties": {
+                "access_info": {
+                    "$ref": "#/definitions/entity.ParticipantFATEModulesAccessMap"
+                },
+                "chart_uuid": {
+                    "type": "string"
+                },
+                "cluster_uuid": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "endpoint_name": {
+                    "type": "string"
+                },
+                "endpoint_uuid": {
+                    "type": "string"
+                },
+                "infra_provider_name": {
+                    "type": "string"
+                },
+                "infra_provider_uuid": {
+                    "type": "string"
+                },
+                "is_managed": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "namespace": {
+                    "type": "string"
+                },
+                "party_id": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "integer"
+                },
+                "type": {
+                    "type": "integer"
+                },
+                "uuid": {
+                    "type": "string"
+                }
+            }
+        },
+        "service.ParticipantOpenFLDirectorCreationRequest": {
+            "type": "object",
+            "properties": {
+                "chart_uuid": {
+                    "type": "string"
+                },
+                "deployment_yaml": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "director_server_cert_info": {
+                    "$ref": "#/definitions/entity.ParticipantComponentCertInfo"
+                },
+                "enable_psp": {
+                    "type": "boolean"
+                },
+                "endpoint_uuid": {
+                    "type": "string"
+                },
+                "federation_uuid": {
+                    "type": "string"
+                },
+                "jupyter_client_cert_info": {
+                    "$ref": "#/definitions/entity.ParticipantComponentCertInfo"
+                },
+                "jupyter_password": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "namespace": {
+                    "type": "string"
+                },
+                "registry_config": {
+                    "description": "for generating the yaml, RegistrySecretConfig is not used in RegistryConfig",
+                    "$ref": "#/definitions/valueobject.KubeRegistryConfig"
+                },
+                "service_type": {
+                    "type": "integer"
+                }
+            }
+        },
+        "service.ParticipantOpenFLEnvoyRegistrationRequest": {
+            "type": "object",
+            "properties": {
+                "chart_uuid": {
+                    "type": "string"
+                },
+                "config_yaml": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "enable_psp": {
+                    "type": "boolean"
+                },
+                "kubeconfig": {
+                    "description": "required",
+                    "type": "string"
+                },
+                "labels": {
+                    "$ref": "#/definitions/valueobject.Labels"
+                },
+                "name": {
+                    "description": "optional",
+                    "type": "string"
+                },
+                "namespace": {
+                    "type": "string"
+                },
+                "registry_config": {
+                    "$ref": "#/definitions/valueobject.KubeRegistryConfig"
+                },
+                "skip_common_python_files": {
+                    "type": "boolean"
+                },
+                "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "service.ParticipantOpenFLListInFederation": {
+            "type": "object",
+            "properties": {
+                "director": {
+                    "$ref": "#/definitions/service.ParticipantOpenFLListItem"
+                },
+                "envoy": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/service.ParticipantOpenFLListItem"
+                    }
+                }
+            }
+        },
+        "service.ParticipantOpenFLListItem": {
+            "type": "object",
+            "properties": {
+                "access_info": {
+                    "$ref": "#/definitions/entity.ParticipantOpenFLModulesAccessMap"
+                },
+                "cluster_uuid": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "endpoint_name": {
+                    "type": "string"
+                },
+                "endpoint_uuid": {
+                    "type": "string"
+                },
+                "infra_provider_name": {
+                    "type": "string"
+                },
+                "infra_provider_uuid": {
+                    "type": "string"
+                },
+                "labels": {
+                    "$ref": "#/definitions/valueobject.Labels"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "namespace": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "integer"
+                },
+                "token_name": {
+                    "type": "string"
+                },
+                "token_str": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "integer"
+                },
+                "uuid": {
+                    "type": "string"
+                }
+            }
+        },
+        "service.PwdChangeInfo": {
+            "type": "object",
+            "properties": {
+                "cur_password": {
+                    "type": "string"
+                },
+                "new_password": {
+                    "type": "string"
+                }
+            }
+        },
+        "service.RegistrationTokenOpenFLBasicInfo": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "expired_at": {
+                    "type": "string"
+                },
+                "labels": {
+                    "$ref": "#/definitions/valueobject.Labels"
+                },
+                "limit": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "used": {
+                    "type": "integer"
+                }
+            }
+        },
+        "service.RegistrationTokenOpenFLListItem": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "expired_at": {
+                    "type": "string"
+                },
+                "labels": {
+                    "$ref": "#/definitions/valueobject.Labels"
+                },
+                "limit": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "token_str": {
+                    "type": "string"
+                },
+                "used": {
+                    "type": "integer"
+                },
+                "uuid": {
+                    "type": "string"
+                }
+            }
+        },
+        "valueobject.KubeConfig": {
+            "type": "object",
+            "properties": {
+                "kubeconfig_content": {
+                    "type": "string"
+                }
+            }
+        },
+        "valueobject.KubeRegistryConfig": {
+            "type": "object",
+            "properties": {
+                "registry": {
+                    "type": "string"
+                },
+                "registry_secret_config": {
+                    "$ref": "#/definitions/valueobject.KubeRegistrySecretConfig"
+                },
+                "use_registry": {
+                    "type": "boolean"
+                },
+                "use_registry_secret": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "valueobject.KubeRegistrySecretConfig": {
+            "type": "object",
+            "properties": {
+                "password": {
+                    "type": "string"
+                },
+                "server_url": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "valueobject.Labels": {
+            "type": "object",
+            "additionalProperties": {
+                "type": "string"
+            }
+        },
+        "valueobject.ShardDescriptorConfig": {
+            "type": "object",
+            "properties": {
+                "envoy_config_yaml": {
+                    "type": "string"
+                },
+                "python_files": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "sample_shape": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "target_shape": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    }
+}

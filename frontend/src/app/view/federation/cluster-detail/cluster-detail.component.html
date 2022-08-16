@@ -1,0 +1,235 @@
+<div class="content-area" [ngClass]="{'hide': isShowDetailFailed && isPageLoading}">
+  <a href="javascript:history.back()">&lt;&lt;{{'CommonlyUse.back'|translate}}</a>
+  <h2>{{'ClusterDetail.detail'|translate}}</h2>
+  <div *ngIf="isShowDetailFailed" class="alert alert-danger" role="alert">
+    <div class="alert-items">
+      <div class="alert-item static">
+        <div class="alert-icon-wrapper">
+          <cds-icon class="alert-icon" shape="exclamation-circle"></cds-icon>
+        </div>
+        <span class="alert-text">
+          {{errorMessage}}
+        </span>
+      </div>
+    </div>
+  </div>
+  <div *ngIf="isPageLoading" class="pageLoading-bac"></div>
+  <clr-spinner class="pageLoading" *ngIf="isPageLoading"></clr-spinner>
+  <div *ngIf="!isShowDetailFailed">
+    <br>
+    <clr-tabs>
+      <clr-tab>
+        <button clrTabLink>{{'CommonlyUse.overview'| translate}}</button>
+        <ng-template [(clrIfActive)]="isOverview">
+          <clr-tab-content>
+            <br>
+            <div class="btn-group btn-sm">
+              <button class="btn" (click)="refresh()">
+                <cds-icon shape="refresh"></cds-icon> {{'CommonlyUse.refresh'|translate}}
+              </button>
+              <button class="btn" (click)="openDeleteConfrimModal()">
+                <cds-icon shape="trash"></cds-icon> {{'CommonlyUse.delete'|translate}}
+              </button>
+            </div>
+            <div class="card card1">
+              <ul class="list">
+                <li>
+                  <span><b>{{'CommonlyUse.name'|translate}}:</b></span>
+                  <span>{{clusterDetail.name}}</span>
+                </li>
+                <li>
+                  <span><b>{{'CommonlyUse.description'|translate}}:</b></span>
+                  <span>{{clusterDetail.description}}</span>
+                </li>
+                <li>
+                  <span><b>{{'CommonlyUse.creationTime'|translate}}:</b></span>
+                  <span>{{clusterDetail.created_at | dateFormat}}</span>
+                </li>
+                <li>
+                  <span><b>UUID:</b></span>
+                  <span>{{clusterDetail.uuid}}</span>
+                </li>
+                <li *ngIf="isManagedCluster">
+                  <span><b>{{'NewCluster.namespace'|translate}}:</b></span>
+                  <span>{{clusterDetail.namespace}}</span>
+                </li>
+                <li>
+                  <span><b>{{'ClusterDetail.partyId'|translate}}:</b></span>
+                  <span>{{clusterDetail.party_id}}</span>
+                </li>
+                <li>
+                  <span><b>{{'CommonlyUse.status'|translate}}:</b></span>
+                  <span class="label statusLabel" [class.label-info]="clusterDetail.status===2"
+                    [class.label-success]="clusterDetail.status===1" [class.label-danger]="clusterDetail.status===5"
+                    [class.label-warning]="clusterDetail.status===3||clusterDetail.status===4">{{constantGather('participantFATEstatus',
+                    clusterDetail.status).name | translate}}</span>
+                </li>
+                <li *ngIf="isManagedCluster">
+                  <span><b>{{'ExchangeDetail.infraProviderName'|translate}}:</b></span>
+                  <span><a [routerLink]="[ '/infra-detail', clusterDetail.infra_provider_uuid ]"
+                      *ngIf="clusterDetail.infra_provider_name != 'Unknown'">{{clusterDetail.infra_provider_name}}</a><span
+                      *ngIf="clusterDetail.infra_provider_name === 'Unknown'">{{clusterDetail.infra_provider_name}}</span></span>
+                </li>
+                <li *ngIf="isManagedCluster">
+                  <span><b>{{'ExchangeDetail.endpointName'|translate}}:</b></span>
+                  <span><a [routerLink]="[ '/endpoint-detail', clusterDetail.endpoint_uuid ]"
+                      *ngIf="clusterDetail.endpoint_name != 'Unknown'">{{clusterDetail.endpoint_name}}</a><span
+                      *ngIf="clusterDetail.endpoint_name === 'Unknown'">{{clusterDetail.endpoint_name}}</span></span>
+                </li>
+                <li *ngIf="isManagedCluster">
+                  <span><b>{{'ExchangeDetail.clusterUuid'|translate}}:</b></span>
+                  <span>{{clusterDetail.cluster_uuid}}</span>
+                </li>
+              </ul>
+            </div>
+            <div class="card" *ngIf="accessInfoList.length > 0">
+              <div class="card-block">
+                <h6 class="card-title">{{'ExchangeDetail.accessInfo'|translate}}:</h6>
+              </div>
+              <clr-datagrid>
+                <clr-dg-column [clrDgField]="'name'">{{'CommonlyUse.name'|translate}}</clr-dg-column>
+                <clr-dg-column>{{'EndpointDetail.host'|translate}}</clr-dg-column>
+                <clr-dg-column>{{'CommonlyUse.Port'|translate}}</clr-dg-column>
+                <clr-dg-column>{{'ExchangeNew.serviceType'|translate}}</clr-dg-column>
+                <clr-dg-column>FQDN</clr-dg-column>
+                <clr-dg-column>TLS</clr-dg-column>
+
+                <clr-dg-row *clrDgItems="let acces of accessInfoList" [clrDgItem]="acces">
+                  <clr-dg-cell>
+                    <a style="color:#247bae; cursor: pointer;" (click)="toSitePortal(acces)"
+                      *ngIf="acces.name === 'frontend'">
+                      <cds-icon shape="pop-out"></cds-icon>
+                      Site Portal
+                    </a>
+                    <span *ngIf="acces.name !== 'frontend'">{{acces.name}}</span>
+                  </clr-dg-cell>
+                  <clr-dg-cell>{{acces.host}}</clr-dg-cell>
+                  <clr-dg-cell>{{acces.port}}</clr-dg-cell>
+                  <clr-dg-cell>{{acces.service_type ? acces.service_type : 'N/A'}}</clr-dg-cell>
+                  <clr-dg-cell>{{acces.fqdn ? acces.fqdn : 'N/A'}}</clr-dg-cell>
+                  <clr-dg-cell>{{acces.tls}}</clr-dg-cell>
+                </clr-dg-row>
+              </clr-datagrid>
+              <br>
+            </div>
+            <div class="card" *ngIf="ingressInfoList.length > 0">
+              <div class="card-block">
+                <h6 class="card-title">{{'ClusterDetail.ingressInfo'|translate}}:</h6>
+              </div>
+              <clr-datagrid>
+                <clr-dg-column [clrDgField]="'name'">{{'CommonlyUse.name'|translate}}</clr-dg-column>
+                <clr-dg-column>{{'EndpointDetail.host'|translate}}</clr-dg-column>
+                <clr-dg-column>{{'ClusterDetail.addresses'|translate}}</clr-dg-column>
+                <clr-dg-column>TLS</clr-dg-column>
+
+                <clr-dg-row *clrDgItems="let ingress of ingressInfoList" [clrDgItem]="ingress">
+                  <clr-dg-cell *ngIf="ingress.name !== 'frontend'">
+                    {{ingress.name}}
+                  </clr-dg-cell>
+                  <clr-dg-cell *ngIf="ingress.name === 'frontend'">
+                    Site Portal
+                  </clr-dg-cell>
+                  <clr-dg-cell>{{ingress.hosts}}</clr-dg-cell>
+                  <clr-dg-cell>{{ingress.addresses}}</clr-dg-cell>
+                  <clr-dg-cell>{{ingress.tls}}</clr-dg-cell>
+                </clr-dg-row>
+              </clr-datagrid>
+              <br>
+            </div>
+            <div class="card card1" *ngIf="isManagedCluster">
+              <div class="card-block">
+                <h6 class="card-title">{{'ExchangeDetail.certificateInformation'|translate}}:</h6>
+              </div>
+              <clr-datagrid>
+                <clr-dg-column [clrDgField]="'name'">{{'CommonlyUse.name'|translate}}</clr-dg-column>
+                <clr-dg-column>{{'ExchangeDetail.bindingMode'|translate}}</clr-dg-column>
+                <clr-dg-column>{{'ExchangeDetail.commonName'|translate}}</clr-dg-column>
+                <clr-dg-column>UUID</clr-dg-column>
+
+                <clr-dg-row>
+                  <clr-dg-cell>{{'ClusterDetail.pulsarServerCertInfo'|translate}}</clr-dg-cell>
+                  <clr-dg-cell>{{constantGather('bindType', clusterDetail.pulsar_server_cert_info?.binding_mode).name |
+                    translate}}</clr-dg-cell>
+                  <clr-dg-cell>{{clusterDetail.pulsar_server_cert_info?.common_name ?
+                    clusterDetail.pulsar_server_cert_info?.common_name : 'N/A'}}</clr-dg-cell>
+                  <clr-dg-cell>{{clusterDetail.pulsar_server_cert_info?.uuid ?
+                    clusterDetail.pulsar_server_cert_info?.uuid : 'N/A'}}</clr-dg-cell>
+                </clr-dg-row>
+                <clr-dg-row *ngIf="isChartContainsPortalservices">
+                  <clr-dg-cell>{{'ClusterDetail.sitePortalServerCertInfo'|translate}}</clr-dg-cell>
+                  <clr-dg-cell>{{constantGather('bindType',
+                    clusterDetail.site_portal_server_cert_info?.binding_mode).name |
+                    translate}}</clr-dg-cell>
+                  <clr-dg-cell>{{clusterDetail.site_portal_server_cert_info?.common_name ?
+                    clusterDetail.site_portal_server_cert_info?.common_name : 'N/A'}}</clr-dg-cell>
+                  <clr-dg-cell>{{clusterDetail.site_portal_server_cert_info?.uuid ?
+                    clusterDetail.site_portal_server_cert_info?.uuid : 'N/A'}}</clr-dg-cell>
+                </clr-dg-row>
+                <clr-dg-row *ngIf="isChartContainsPortalservices">
+                  <clr-dg-cell>{{'ClusterDetail.sitePortalClientCertInfo'|translate}}</clr-dg-cell>
+                  <clr-dg-cell>{{constantGather('bindType', clusterDetail.pulsar_server_cert_info?.binding_mode).name |
+                    translate}}</clr-dg-cell>
+                  <clr-dg-cell>{{clusterDetail.site_portal_client_cert_info?.common_name ?
+                    clusterDetail.site_portal_client_cert_info?.common_name : 'N/A'}}</clr-dg-cell>
+                  <clr-dg-cell>{{clusterDetail.site_portal_client_cert_info?.uuid ?
+                    clusterDetail.site_portal_client_cert_info?.uuid : 'N/A'}}</clr-dg-cell>
+                </clr-dg-row>
+              </clr-datagrid>
+            </div>
+            <div class="card card1" [hidden]="!isManagedCluster">
+              <div class="card-block">
+                <h6 class="card-title">{{'ExchangeDetail.deploymentYaml'|translate}}:</h6>
+              </div>
+              <ul class="list none">
+                <li>
+                  <textarea class="deployment-yaml" clrTextarea id="yaml" name="description" disabled></textarea>
+                </li>
+              </ul>
+              <br>
+            </div>
+          </clr-tab-content>
+        </ng-template>
+      </clr-tab>
+      <clr-tab>
+        <button clrTabLink>{{'Event.event'| translate}}</button>
+        <clr-tab-content *clrIfActive>
+          <app-events-list [entity-uuid]="cluster_uuid"></app-events-list>
+        </clr-tab-content>
+      </clr-tab>
+
+    </clr-tabs>
+  </div>
+  <clr-modal [(clrModalOpen)]="openDeleteModal" [clrModalClosable]="false">
+    <h3 class="modal-title">{{'CommonlyUse.delete'| translate}}</h3>
+    <div class="modal-body">
+      <div *ngIf="(isDeleteSubmit && isDeleteFailed)" class="alert alert-danger" role="alert">
+        <div class="alert-items">
+          <div class="alert-item static">
+            <div class="alert-icon-wrapper">
+              <cds-icon class="alert-icon" shape="exclamation-circle"></cds-icon>
+            </div>
+            <span class="alert-text">
+              {{errorMessage}}
+            </span>
+          </div>
+        </div>
+      </div>
+      <h5>{{'FederationDetail.isDelete'|translate}} {{deleteType}}?</h5>
+      <clr-toggle-container class="clr-toggle-right" *ngIf="deleteType!='federation'">
+        <clr-toggle-wrapper>
+          <input type="checkbox" clrToggle name="options" required value="forceRemove" [(ngModel)]="forceRemove" />
+          <label>{{'FederationDetail.forceRemove'|translate}}</label>
+        </clr-toggle-wrapper>
+      </clr-toggle-container>
+    </div>
+    <div class="modal-footer">
+      <div *ngIf="isDeleteSubmit && !isDeleteFailed">
+        <span>{{'CommonlyUse.deleting'| translate}} ... </span>
+        <clr-spinner [clrInline]="true"></clr-spinner>
+      </div>
+      <button type="button" class="btn btn-outline" (click)="openDeleteModal=false">{{'CommonlyUse.cancel'|
+        translate}}</button>
+      <button type="submit" class="btn btn-primary" (click)="confirmDelete()">{{'CommonlyUse.delete'|
+        translate}}</button>
+    </div>
+  </clr-modal>

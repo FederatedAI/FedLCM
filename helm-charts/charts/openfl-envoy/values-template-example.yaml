@@ -1,0 +1,31 @@
+name: envoy-1
+namespace: openfl-envoy-1
+chartName: openfl-envoy
+chartVersion: v0.1.0
+registry: "federatedai"
+pullPolicy: IfNotPresent
+imagePullSecrets:
+  - name: myregistrykey
+podSecurityPolicy:
+  enabled: false
+modules:
+  - envoy
+
+#envoy:
+#  image: fedlcm-openfl
+#  imageTag: v0.1.0
+#  directorFqdn: director.openfl.example.com
+#  directorIp: 192.168.1.1.
+#  directorPort: 50051
+#  aggPort: 50052
+#  envoyConfigs:
+#    params:
+#      cuda_devices: []
+#    optional_plugin_components: {}
+#    shard_descriptor:
+#      template: mnist_shard_descriptor.MnistShardDescriptor
+#      params:
+#        rank_worldsize: 1, 2
+#  nodeSelector:
+#  tolerations:
+#  affinity:

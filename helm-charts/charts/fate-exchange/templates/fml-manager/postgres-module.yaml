@@ -1,0 +1,128 @@
+# Copyright 2022 VMware, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+{{ if .Values.modules.postgres.include }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+  labels:
+    fateMoudle: postgres
+{{ include "fate.labels" . | indent 4 }}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      fateMoudle: postgres
+{{ include "fate.matchLabels" . | indent 6 }}
+  template:
+    metadata:
+      labels:
+        fateMoudle: postgres
+{{ include "fate.labels" . | indent 8 }}
+    spec:
+      containers:
+        - name: postgres
+          image: {{ with .Values.image.registry }}{{ printf "%s/" . }}{{ end }}{{ .Values.modules.postgres.image | default "postgres" }}:{{ .Values.modules.postgres.imageTag | default "13.3"}}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+          - name: POSTGRES_USER
+            value: {{ .Values.modules.postgres.user | quote }}
+          - name: POSTGRES_PASSWORD
+            value: {{ .Values.modules.postgres.password | quote }}
+          - name: POSTGRES_DB
+            value: {{ .Values.modules.postgres.db | quote }}
+          ports:
+            - containerPort: 5432
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: postgres-data
+              subPath: data
+      {{- with .Values.modules.postgres.nodeSelector }}
+      nodeSelector: 
+{{ toYaml . | indent 8 }}
+      {{- end }}
+      {{- with .Values.modules.postgres.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+      {{- end }}
+      {{- with .Values.modules.postgres.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+      {{- end }}
+      {{- with .Values.image.imagePullSecrets }}
+      imagePullSecrets:
+{{ toYaml . | indent 6 }}
+      {{- end }}
+      serviceAccountName: {{ template "serviceAccountName" . }}
+      restartPolicy: Always
+      volumes:
+        {{- if not .Values.persistence.enabled }}
+        - name: postgres-data
+          emptyDir: {}
+        {{- else }}
+        - name: postgres-data
+          persistentVolumeClaim:
+            claimName: {{ .Values.modules.postgres.existingClaim | default  "postgres-data" }}
+        {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  labels:
+    fateMoudle: postgres
+{{ include "fate.labels" . | indent 4 }}
+spec:
+  ports:
+    - name: "tcp-postgres"
+      port: 5432
+      targetPort: 5432
+      {{- if eq .Values.modules.postgres.type "NodePort" "LoadBalancer" }}
+      nodePort: {{ .Values.modules.postgres.nodePort }}
+      {{- end }}
+      protocol: TCP
+  type: {{ .Values.modules.postgres.type }}
+  {{- if .Values.modules.postgres.loadBalancerIP }}
+  loadBalancerIP: "{{ .Values.modules.postgres.loadBalancerIP }}"
+  {{- end }}
+  selector:
+    fateMoudle: postgres
+{{ include "fate.matchLabels" . | indent 4 }}
+---
+{{- if and .Values.persistence.enabled (not .Values.modules.postgres.existingClaim) }}
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: postgres-data
+  labels:
+    fateMoudle: postgres
+{{ include "fate.labels" . | indent 4 }}
+spec:
+  accessModes: 
+    - {{ .Values.modules.postgres.accessMode }}
+  resources:
+    requests:
+      storage: {{ .Values.modules.postgres.size }}
+  {{- if .Values.modules.postgres.storageClass }}
+    {{- if eq "-" .Values.modules.postgres.storageClass }}
+  storageClassName: ""
+    {{- else }}
+  storageClassName: {{ .Values.modules.postgres.storageClass }}
+    {{- end }}
+  {{- end }}
+{{- end }}
+{{ end }}

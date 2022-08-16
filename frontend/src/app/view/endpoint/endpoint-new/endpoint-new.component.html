@@ -1,0 +1,255 @@
+<div class="content-area">
+  <a href="javascript:history.back()">&lt;&lt;{{'CommonlyUse.back'| translate}}</a>
+  <br>
+  <h2>{{'EndpointNew.newEndpoint'| translate}}</h2>
+  <br>
+  <app-alert *ngIf="questResultFalg" [message]="message" [type]='type' untreatedMargin='0,0,10px,0'></app-alert>
+  <form clrStepper [formGroup]="form">
+    <!-- Step 1 -->
+    <clr-stepper-panel formGroupName="infra">
+      <clr-step-title>{{'EndpointNew.selectInfra'| translate}}</clr-step-title>
+      <clr-step-description></clr-step-description>
+      <clr-step-content *clrIfExpanded>
+        <clr-alert [clrAlertClosable]='false' clrAlertType="info" *ngIf="noInfra">
+          <clr-alert-item>
+            <span>{{'EndpointNew.noIinfra'| translate}} <a href="javascript:void(0)"
+                [routerLink]="['/infra']">{{'EndpointNew.clickHere'| translate}}</a></span>
+          </clr-alert-item>
+        </clr-alert>
+        <h6 *ngIf="!noInfra"><b>{{'EndpointNew.currentInfra'| translate}}:</b>&nbsp;&nbsp;&nbsp;&nbsp;<span
+            style="color:#247bae;">{{selectedInfra?.name}}</span></h6>
+        <clr-datagrid [(clrDgSingleSelected)]="selectedInfra">
+          <clr-dg-column [clrDgField]="'name'">{{'CommonlyUse.name'| translate}}</clr-dg-column>
+          <clr-dg-column>{{'CommonlyUse.description'| translate}}</clr-dg-column>
+          <clr-dg-column>{{'CommonlyUse.type'| translate}}</clr-dg-column>
+          <clr-dg-column>{{'CommonlyUse.creationTime'|translate}}</clr-dg-column>
+          <clr-dg-row *clrDgItems="let infra of infralist" [clrDgItem]="infra">
+            <clr-dg-cell>{{infra.name}}</clr-dg-cell>
+            <clr-dg-cell>{{infra.description}}</clr-dg-cell>
+            <clr-dg-cell>{{infra.type}}</clr-dg-cell>
+            <clr-dg-cell>{{infra.created_at|dateFormat}}</clr-dg-cell>
+          </clr-dg-row>
+        </clr-datagrid>
+        <br>
+        <button clrStepButton="next" [disabled]="!infraSelectOk">{{'CommonlyUse.next'| translate}}</button>
+      </clr-step-content>
+    </clr-stepper-panel>
+
+    <!-- Step 2 -->
+    <clr-stepper-panel formGroupName="endpoint">
+      <clr-step-title>{{'EndpointNew.endpointConfiguration'| translate}}</clr-step-title>
+      <clr-step-description></clr-step-description>
+      <clr-step-content *clrIfExpanded>
+        <clr-select-container class="no-warp">
+          <label>{{'EndpointNew.endpointType'| translate}}</label>
+          <select clrSelect name="endpoint_type" formControlName="endpoint_type" (change)="postEndpointScan($event)"
+            required>
+            <option value="KubeFATE">{{'KubeFATE' | translate}}</option>
+          </select>
+        </clr-select-container>
+        <br>
+        <clr-spinner [clrMedium]="true" *ngIf="scanLoading"></clr-spinner>
+        <clr-datagrid [(clrDgSingleSelected)]="selectedEndpoint" *ngIf="scanList.length > 0">
+          <clr-dg-column [clrDgField]="'name'">{{'CommonlyUse.name'| translate}}</clr-dg-column>
+          <clr-dg-column>{{'CommonlyUse.description'| translate}}</clr-dg-column>
+          <clr-dg-column>{{'CommonlyUse.type'| translate}}</clr-dg-column>
+          <clr-dg-column>{{'CommonlyUse.creationTime'|translate}}</clr-dg-column>
+          <clr-dg-row *clrDgItems="let endpoint of scanList" [clrDgItem]="endpoint">
+            <clr-dg-cell>{{endpoint.name}}</clr-dg-cell>
+            <clr-dg-cell>{{endpoint.description}}</clr-dg-cell>
+            <clr-dg-cell>{{endpoint.type}}</clr-dg-cell>
+            <clr-dg-cell>{{endpoint.created_at| dateFormat}}</clr-dg-cell>
+          </clr-dg-row>
+        </clr-datagrid>
+        <br>
+        <div class="alert alert-info" role="alert" *ngIf="selectedInfra && selectedEndpoint">
+          <div class="alert-items">
+            <div class="alert-item static">
+              <div class="alert-icon-wrapper">
+                <cds-icon class="alert-icon" shape="info-circle"></cds-icon>
+              </div>
+              <span class="alert-text" *ngIf="!selectedEndpoint.is_managed && selectedEndpoint.is_compatible">
+                {{'EndpointNew.notHasBeenlifecycleManager'| translate | templateReplacement:selectedInfra!.name}}
+                <br>
+                {{'EndpointNew.youWantAdd'| translate}}
+              </span>
+              <span class="alert-text" *ngIf="selectedEndpoint.is_managed && selectedEndpoint.is_compatible">
+                {{'EndpointNew.hasBeenlifecycleManager'| translate | templateReplacement:selectedInfra!.name}}
+              </span>
+              <span class="alert-text" *ngIf="!selectedEndpoint.is_compatible">
+                {{'EndpointNew.notCompatible'| translate | templateReplacement:selectedInfra!.name}}
+              </span>
+            </div>
+          </div>
+        </div>
+        <button clrStepButton="next" [disabled]="!needAdd && !needInstall" *ngIf="!selectedEndpoint?.is_managed" (click)="onClickNext()"><span
+            *ngIf="needAdd">{{'CommonlyUse.add'| translate}}</span><span *ngIf="!needAdd">{{'CommonlyUse.next'|
+            translate}}</span></button>
+        <button class="btn btn-primary" *ngIf="selectedEndpoint?.is_managed"
+          [routerLink]="['/endpoint-detail', selectedEndpoint?.uuid]">{{'CommonlyUse.finish'| translate}}</button>
+      </clr-step-content>
+    </clr-stepper-panel>
+
+    <!-- Step 3 -->
+    <clr-stepper-panel class="yaml-warp" formGroupName="install" *ngIf="!selectedEndpoint?.is_managed">
+      <clr-step-title *ngIf="!needAdd">{{'CommonlyUse.installation'| translate}}</clr-step-title>
+      <clr-step-title *ngIf="needAdd">{{'EndpointNew.addEndpoint' | translate}}</clr-step-title>
+      <clr-step-description></clr-step-description>
+      <clr-step-content *clrIfExpanded>
+        <!-- Need add or intallation -->
+        <clr-input-container class="no-warp no-warp2">
+          <label>{{'CommonlyUse.name'| translate}}</label>
+          <input clrInput name="name" formControlName="name" />
+          <clr-control-error
+            *ngIf="!form.get('install')?.get('name')?.errors?.minlength && !form.get('install')?.get('name')?.errors?.maxlength">
+            {{form.get('install')?.get('name')?.errors?.emptyMessage ||
+            form.get('install')?.get('name')?.errors?.message | translate}}</clr-control-error>
+          <clr-control-error *ngIf="form.get('install')?.get('name')?.errors?.minlength">{{'CommonlyUse.few' |
+            translate}}{{form.get('infraname')?.get('name')?.errors?.minlength.requiredLength}}{{'CommonlyUse.character'
+            | translate}}</clr-control-error>
+          <clr-control-error *ngIf="form.get('install')?.get('name')?.errors?.maxlength">{{'CommonlyUse.many' |
+            translate}}{{form.get('infraname')?.get('name')?.errors?.maxlength.requiredLength}}{{'CommonlyUse.character'
+            | translate}}</clr-control-error>
+        </clr-input-container>
+        <clr-textarea-container>
+          <label>{{'CommonlyUse.description'| translate}}</label>
+          <textarea clrTextarea class="t2" name="description" formControlName="description"></textarea>
+        </clr-textarea-container>
+        
+        <!-- Only need intallation -->
+        <h5 *ngIf="!needAdd"><b>{{'EndpointNew.serviceConfiguration'| translate}}</b></h5>
+        <ul class="list">
+          <clr-input-container class="no-warp no-warp2" *ngIf="!needAdd">
+            <label>{{'EndpointNew.serviceUsername'| translate}}</label>
+            <input clrInput name="service_username" formControlName="service_username" required
+              (ngModelChange)="selectChange($event)" />
+            <clr-control-error>{{ 'validator.empty' | translate}}</clr-control-error>
+          </clr-input-container>
+          <clr-input-container class="no-warp no-warp2" *ngIf="!needAdd">
+            <label>{{'EndpointNew.servicePassword'| translate}}</label>
+            <input clrInput name="service_password" formControlName="service_password" required
+              (ngModelChange)="selectChange($event)" />
+            <clr-control-error>{{ 'validator.empty' | translate}}</clr-control-error>
+          </clr-input-container>
+          <clr-input-container class="no-warp no-warp2" *ngIf="!needAdd">
+            <label>{{'EndpointNew.hostname'| translate}}</label>
+            <input clrInput name="hostname" formControlName="hostname" required
+              (ngModelChange)="selectChange($event)" />
+            <clr-control-error>{{ 'validator.empty' | translate}}</clr-control-error>
+          </clr-input-container>
+        </ul>
+        <br>
+        <h5 *ngIf="!needAdd"><b>{{'EndpointNew.registryConfiguration'| translate}}</b></h5>
+        <ul class="list" *ngIf="!needAdd">
+          <clr-toggle-container clrInline class="no-warp no-warp3">
+            <label>{{'InfraProvider.useRegistryConfiguration'|translate}}:</label>
+            <clr-toggle-wrapper>
+              <input type="checkbox" clrToggle name="useRegistry" value="useRegistry" formControlName="useRegistry"
+                (ngModelChange)="onChange_use_registry($event)" />
+              <label>{{useRegistry}}</label>
+            </clr-toggle-wrapper>
+          </clr-toggle-container>
+          <ul class="list" *ngIf="useRegistry">
+            <clr-input-container class="no-warp no-warp4">
+              <label>{{"InfraProvider.registry"|translate}}</label>
+              <input clrInput name="registryConfig" formControlName="registryConfig"
+                placeholder="{{'InfraProvider.togglePlacerHolder'|translate}}" required
+                (ngModelChange)="selectChange($event)" />
+              <clr-control-helper>{{'InfraProvider.imageName'|translate}}:&nbsp;&nbsp;&nbsp;
+                <b style="color: #247bae;"><span>{{registryConfig}}</span>
+                  <span *ngIf="registryConfig===''">federatedai</span>/myimage:latest
+                </b>
+              </clr-control-helper>
+              <clr-control-error>{{'validator.empty'| translate}} </clr-control-error>
+            </clr-input-container>
+          </ul>
+          <br>
+        </ul>
+        <ul class="list" *ngIf="!needAdd">
+          <clr-toggle-container clrInline class="no-warp no-warp3">
+            <label>{{'InfraProvider.useRegistrySecret'|translate}}:</label>
+            <clr-toggle-wrapper>
+              <input type="checkbox" clrToggle name="useRegistrySecret" value="useRegistrySecret"
+                formControlName="useRegistrySecret" (ngModelChange)="onChange_use_registry_secret($event)" />
+              <label>{{useRegistrySecret}}</label>
+            </clr-toggle-wrapper>
+          </clr-toggle-container>
+          <ul class="list" *ngIf="useRegistrySecret">
+            <li>
+              <clr-input-container class="no-warp no-warp4">
+                <label>{{'InfraProvider.serverURL'|translate}}</label>
+                <input clrInput name="server_url" formControlName="server_url" required />
+                <clr-control-helper *ngIf="!valid_server_url">{{'InfraProvider.urlSuggestion'|translate}} <b
+                    style="color: #247bae;">{{server_url_suggestion}}</b></clr-control-helper>
+                <clr-control-error>{{'validator.internet'| translate}}</clr-control-error>
+                <clr-control-error>{{'InfraProvider.urlSuggestion'|translate}} <b>{{server_url_suggestion}}</b>
+                </clr-control-error>
+              </clr-input-container>
+            </li>
+            <li>
+              <clr-input-container class="no-warp no-warp2">
+                <label>{{'InfraProvider.username'|translate}}</label>
+                <input clrInput name="username" formControlName="username" required />
+                <clr-control-error>{{'validator.empty'| translate}}
+                </clr-control-error>
+              </clr-input-container>
+            </li>
+            <li>
+              <clr-password-container class="no-warp no-warp5">
+                <label>{{'InfraProvider.password' |translate}}</label>
+                <input name="password" clrPassword formControlName="password" required />
+                <clr-control-error>{{'validator.empty'| translate}}
+                </clr-control-error>
+              </clr-password-container>
+            </li>
+          </ul>
+        </ul>
+        <br>
+        <br>
+        <button class="btn btn-sm yamlbtn" (click)="generateYaml()" *ngIf="!needAdd"
+          [disabled]='generateYamlDisabled'>{{'EndpointNew.getKubeFATEInstallation' | translate}}</button>
+        <br>
+        <clr-textarea-container *ngIf="!needAdd">
+          <label>YAML</label>
+          <label style="color: #247bae; font-size: 11px;" *ngIf="editorModeHelperMessage">{{'CommonlyUse.editorModeHelperMessage'| translate}}</label>
+          <textarea clrTextarea (click)="initYAMLEditorByEvent($event)" class="t3" id="yaml" name="yaml" formControlName="yaml"
+            required></textarea>
+        </clr-textarea-container>
+        <br>
+        <clr-checkbox-container *ngIf="!needAdd" class="no-warp no-warp3">
+          <label>{{'EndpointNew.ingressControllerService' | translate}}:</label>
+          <clr-checkbox-wrapper>
+            <input type="checkbox" clrCheckbox value="need_ingress" name="need_ingress" formControlName="need_ingress"
+              (ngModelChange)="onSeclectIngress()" />
+          </clr-checkbox-wrapper>
+        </clr-checkbox-container>
+        <clr-radio-container clrInline class="no-warp no-warp2" *ngIf="needIngress">
+          <label>{{'ExchangeNew.serviceType'|translate}}</label>
+          <clr-radio-wrapper>
+            <input type="radio" clrRadio name="ingress_controller_service_mode"
+              formControlName="ingress_controller_service_mode" required value=1 />
+            <label>{{'ExchangeNew.loadBalancer'|translate}}</label>
+          </clr-radio-wrapper>
+          <clr-radio-wrapper>
+            <input type="radio" clrRadio name="ingress_controller_service_mode"
+              formControlName="ingress_controller_service_mode" required value=2 />
+            <label>{{'ExchangeNew.nodePort'|translate}}</label>
+          </clr-radio-wrapper>
+        </clr-radio-container>
+        <br>
+        <clr-alert [clrAlertClosable]='false' clrAlertType="danger"
+          *ngIf="(isCreateEndpointSubmit && isCreateEndpointFailed) || (isGenerateSubmit && isGenerateFailed)">
+          <clr-alert-item>
+            {{message}}
+          </clr-alert-item>
+        </clr-alert>
+
+        <button class="btn btn-primary" [disabled]="createDisabled" (click)="createEndpoint()">{{'CommonlyUse.submit'|
+          translate}}</button>
+        <span *ngIf="isCreateEndpointSubmit && !isCreateEndpointFailed">{{'CommonlyUse.submitting' | translate}} ...
+        </span>
+        <clr-spinner [clrInline]="true" *ngIf="isCreateEndpointSubmit && !isCreateEndpointFailed"></clr-spinner>
+      </clr-step-content>
+    </clr-stepper-panel>
+  </form>
+</div>

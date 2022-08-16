@@ -1,0 +1,7 @@
+.sidenav1{
+    width: 250px;
+    height: 100%
+}
+.nav-active {
+    background-color: #ccc;
+}

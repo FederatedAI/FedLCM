@@ -1,0 +1,23 @@
+name: envoy-1
+
+image:
+  registry: federatedai
+  pullPolicy: IfNotPresent
+  imagePullSecrets:
+#  - name:
+
+podSecurityPolicy:
+  enabled: false
+
+modules:
+  envoy:
+    image: fedlcm-openfl
+    imageTag: v0.1.0
+    directorFqdn: director
+    directorIp: 192.168.1.1
+    directorPort: 50051
+    aggPort: 50052
+    envoyConfigs:
+    # nodeSelector:
+    # tolerations:
+    # affinity:

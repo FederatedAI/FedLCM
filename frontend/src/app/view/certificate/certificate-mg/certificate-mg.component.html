@@ -1,0 +1,234 @@
+<div class="content-area">
+    <br>
+    <h2>{{'Certificate.name'|translate}}</h2>
+    <clr-spinner class="pageLoading" *ngIf="isPageLoading"></clr-spinner>
+    <clr-alert [clrAlertClosable]='false' clrAlertType="danger" *ngIf="getCertificateListFailed || getCAFailed">
+        <clr-alert-item>
+            {{errorMessage}}
+        </clr-alert-item>
+    </clr-alert>
+    <div *ngIf="!isPageLoading">
+        <button type="button" class="btn btn-sm" [routerLink]="['/certificate/authority', 'new']" *ngIf="!ca && !getCAFailed">
+            <cds-icon solid shape="plus-circle"></cds-icon> {{'CommonlyUse.new'|translate}}
+        </button>
+        <clr-alert clrAlertType="info" [clrAlertClosable]='false' *ngIf="!ca && !getCAFailed">
+            {{'Certificate.noCertificateAuthority'|
+            translate}}</clr-alert>
+        <div class="card card1" *ngIf="ca">
+            <div class="card-header">
+                {{'Certificate.authority'| translate}}
+            </div>
+            <div class="card-block">
+                <ul class="list">
+                    <li>
+                        <span><b>{{'CommonlyUse.name'|translate}}:</b></span>
+                        <span>{{ca.name}}</span>
+                    </li>
+                    <li>
+                        <span><b>{{'CommonlyUse.description'|translate}}:</b></span>
+                        <span>{{ca.description}}</span>
+                    </li>
+                    <li>
+                        <span><b>{{'CommonlyUse.type'|translate}}:</b></span>
+                        <span>{{constantGather('caType', ca.type).name | translate}}</span>
+                    </li>
+                    <li>
+                        <span><b>{{'CertificateDetail.serviceURL'|translate}}:</b></span>
+                        <span>{{ca.config.service_url}}</span>
+                    </li>
+                    <li>
+                        <span><b>{{'CertificateDetail.provisionerName'|translate}}:</b></span>
+                        <span>{{ca.config.provisioner_name}}</span>
+                    </li>
+                    <li>
+                        <span><b>{{'CommonlyUse.status'|translate}}:</b></span>
+                        <span class="label statusLabel" [class.label-success]="ca.status===2"
+                            [class.label-danger]="ca.status==1"
+                            [class.label-warning]="ca.status===0">{{constantGather('caStatus',
+                            ca.status).name | translate}}</span>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-footer">
+                <button class="btn btn-sm btn-link" (click)="toDetail(ca.uuid)">
+                    {{'CommonlyUse.viewDetail'|translate}}
+                </button>
+                <button class="btn btn-sm btn-link" (click)="getCAinfo()">
+                    {{'CommonlyUse.refresh'|translate}}
+                </button>
+            </div>
+        </div>
+        <br>
+
+        <h3 class="sub">
+            <cds-icon shape="certificate"></cds-icon> {{'Certificate.names'|translate}}
+        </h3>
+        <!-- TODO: Currently, "Add a new certificate" is not supported. -->
+        <!-- <button type="button" class="btn btn-sm" (click)="onOpenModal()" disabled>
+            <cds-icon solid shape="plus-circle"></cds-icon> {{'CommonlyUse.new'|translate}}
+        </button> -->
+        <button type="button" class="btn btn-sm" (click)='openDeleteConfrimModal()' [disabled]="deleteBtnDisabled">
+            <cds-icon shape="trash"></cds-icon> {{'CommonlyUse.delete'| translate}}
+        </button>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th class="checkbox-item">
+                        <input [(ngModel)]='allSelect' type="checkbox" checked *ngIf="!disableAllSelect" />
+                    </th>
+                    <th class="left">
+                        <span>
+                            {{'CommonlyUse.name'|translate}}
+                            <cds-icon shape="arrow" class="sort" [ngClass]='{down: nameSortFlag}'
+                                (click)='nameSort("name")'></cds-icon>
+                        </span>
+                    </th>
+                    <th><span>{{'Certificate.commonName'|translate}}</span></th>
+                    <th><span>{{'Certificate.expirationDate'| translate}}</span></th>
+                    <th><span>{{'Certificate.serialNumber'|translate}}</span></th>
+                    <th><span>{{'Certificate.bindings'| translate}}</span></th>
+                </tr>
+            </thead>
+            <tbody *ngIf="certificatelist && certificatelist.length > 0">
+                <tr *ngFor="let certificate of certificatelist">
+                    <td class="checkbox-item">
+                        <input [(ngModel)]='certificate.select' type="checkbox" checked
+                            *ngIf="checkCertificateBindings(certificate)" />
+                    </td>
+                    <td class="left" (click)="toDetail(certificate.uuid, true)"><a
+                            href="javascript:void(0)">{{certificate.name}}</a></td>
+                    <td>{{certificate.common_name}}</td>
+                    <td>{{certificate.expiration_date | dateFormat}}</td>
+                    <td style="word-break: break-all;">{{certificate.serial_number}}</td>
+                    <td>
+                        <clr-signpost *ngIf="certificate.bindings.length > 0">
+                            <clr-signpost-content *clrIfOpen clrPosition='top-left'>
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th class="title">
+                                                {{'CertificateDetail.federationName'|translate}}
+                                            </th>
+                                            <th class="title">
+                                                {{'CertificateDetail.participantUuid'|translate}}
+                                            </th>
+                                            <th class="title">
+                                                {{'CertificateDetail.serviceDescription'|translate}}
+                                            </th>
+                                            <th class="title">
+                                                {{'CertificateDetail.serviceType'|translate}}
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let bind of certificate.bindings">
+                                            <td>{{bind.participant_name}}</td>
+                                            <td>{{bind.participant_uuid}}</td>
+                                            <td>{{bind.service_description}}</td>
+                                            <td>{{constantGather('cerificateType', bind.service_type).name}}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </clr-signpost-content>
+                        </clr-signpost>
+                    </td>
+                </tr>
+            </tbody>
+            <tbody *ngIf="!certificatelist || certificatelist.length < 1">
+                <tr class="none">
+                    <img src="assets/none.jpg">
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<!-- TODO: Currently, "Add a new certificate" is not supported. -->
+<!-- <clr-modal [(clrModalOpen)]="openModal" [clrModalClosable]="false">
+    <h3 class="modal-title">{{"Certificate.add"| translate}}</h3>
+    <div class="modal-body">
+        <form clrForm clrLayout="horizontal" [formGroup]="newCertificateForm">
+            <clr-input-container>
+                <label class="clr-col-md-4">{{'CommonlyUse.name'| translate}}</label>
+                <input class="clr-col-md-8" clrInput name="name" formControlName="name" />
+            </clr-input-container>
+            <clr-textarea-container>
+                <label class="clr-col-md-4">{{'CommonlyUse.description'| translate}}</label>
+                <textarea clrTextarea class="clr-col-md-8" [(ngModel)]="note" name="note"
+                    formControlName="note"></textarea>
+            </clr-textarea-container>
+            <clr-select-container>
+                <label class="clr-col-md-4">Certificate Type</label>
+                <select clrSelect class="clr-col-md-4" name="type" [(ngModel)]="type" formControlName="type">
+                    <option value=""></option>
+                </select>
+            </clr-select-container>
+            <clr-date-container>
+                <label class="clr-col-md-4">{{"Certificate.startDate"| translate}}</label>
+                <input class="clr-col-md-8" type="date" clrDate name="startdate" [(ngModel)]="startdate"
+                    min="{{today| date: 'YYYY-MM-dd'}}" formControlName="startdate" />
+            </clr-date-container>
+            <clr-date-container>
+                <label class="clr-col-md-4">{{"Certificate.endDate"| translate}}</label>
+                <input class="clr-col-md-8" type="date" clrDate name="enddate" [(ngModel)]="enddate"
+                    min="{{startdate| date: 'YYYY-MM-dd'}}" formControlName="enddate" />
+            </clr-date-container>
+            <clr-input-container>
+                <label class="clr-col-md-4">{{'Certificate.seriesNumber'| translate}}</label>
+                <input class="clr-col-md-8" clrInput name="seriesNumber" formControlName="seriesNumber" />
+            </clr-input-container>
+            <clr-input-container>
+                <label class="clr-col-md-4">{{'Certificate.bindingServer'| translate}}</label>
+                <input class="clr-col-md-8" clrInput name="server" formControlName="server" />
+            </clr-input-container>
+            <clr-select-container>
+                <label class="clr-col-md-4">Site Authority</label>
+                <select clrSelect class="clr-col-md-4" name="authority" [(ngModel)]="authority" formControlName="authority">
+                    <option value=""></option>
+                </select>
+            </clr-select-container>
+        </form>
+        <br>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-outline" (click)="resetModal()">{{'CommonlyUse.cancel'|
+            translate}}</button>
+        <button type="button" class="btn btn-primary" (click)="resetModal()">{{'CommonlyUse.submit'|
+            translate}}</button>
+    </div>
+</clr-modal> -->
+<clr-modal [(clrModalOpen)]="openDeleteModal" [clrModalClosable]="false">
+    <h3 class="modal-title">{{'CommonlyUse.delete'| translate}}</h3>
+    <div class="modal-body">
+        <h5 *ngIf="!isDeleteCertificateAllSuccess">{{'Certificate.isDelete'|translate}}</h5>
+        <li *ngFor="let certificate of selectedCertificateList">
+            <span class="selectedCertificate"><b style="color: #247bae;">{{certificate.name}}</b></span>
+            <div *ngIf="certificate.deleteSubmit && !certificate.deleteFailed && !certificate.deleteSuccess">
+                <clr-spinner [clrInline]="true"></clr-spinner>
+                <span>{{'CommonlyUse.deleting'| translate}} ... </span>
+            </div>
+            <cds-icon shape="check-circle" style="color: green;" size="md"
+                *ngIf="certificate.deleteSubmit && certificate.deleteSuccess"></cds-icon>
+            <cds-icon shape="exclamation-circle" style="color: red;" size="md"
+                *ngIf="certificate.deleteSubmit && certificate.deleteFailed"></cds-icon>
+            <div class="alert alert-danger" role="alert" *ngIf="certificate.deleteFailed && certificate.deleteSubmit">
+                <div class="alert-items">
+                    <div class="alert-item static">
+                        <div class="alert-icon-wrapper">
+                            <cds-icon class="alert-icon" shape="exclamation-circle"></cds-icon>
+                        </div>
+                        <span class="alert-text">
+                            {{certificate.errorMessage}}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </li>
+        <br>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-outline" (click)="reloadCurrentRoute()">{{'CommonlyUse.close'|
+            translate}}</button>
+        <button type="submit" class="btn btn-primary" (click)="deleteSelectedCertificate()"
+            *ngIf="!isDeleteCertificateAllSuccess">{{'CommonlyUse.delete'| translate}}</button>
+    </div>
+</clr-modal>

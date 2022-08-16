@@ -1,0 +1,45 @@
+.file-wrap {
+  margin-top: 15px;
+}
+.progress {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1px;
+}
+.browse {
+  border: 1px solid  #2779AD;
+  border-radius: 4px;
+  padding: 0 10px;
+  color: #2779AD;
+}
+.folder-icon {
+  position: relative;
+  top: -2px;
+}
+.browse span {
+  display: inline-block;
+  margin-left: 5px;
+}
+.closeBtn::after {
+  content: 'X';
+  color: #333;
+  font-size: 20px;
+  position: relative;
+  left: 30px;
+  line-height: 1;
+}
+.close-x {
+  font-size: 20px;
+  color: #999;
+  border-bottom: none;
+}
+.close-x:focus {
+  border: none;
+  background-size: 0 0;
+}
+.close-text {
+  line-height: 24px;
+  font-size: 12px;
+  border: none;
+  color: #42800E;
+}

@@ -1,0 +1,174 @@
+# Copyright 2022 VMware, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+{{ if .Values.modules.sitePortalServer.include }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: site-portal-server
+  labels:
+    fateMoudle: site-portal-server
+{{ include "fate.labels" . | indent 4 }}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      fateMoudle: site-portal-server
+{{ include "fate.matchLabels" . | indent 6 }}
+  template:
+    metadata:
+      labels:
+        fateMoudle: site-portal-server
+{{ include "fate.labels" . | indent 8 }}
+    spec:
+      containers:
+        - name: site-portal-server
+          image: {{ with .Values.image.registry }}{{ printf "%s/" . }}{{ end }}{{ .Values.modules.sitePortalServer.image | default "site-portal-server" }}:{{ .Values.modules.sitePortalServer.imageTag | default "latest"}}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+          {{ if .Values.modules.sitePortalServer.tlsEnabled }}
+            - containerPort: {{ .Values.modules.sitePortalServer.tlsPort }}
+          {{ else }}
+            - containerPort: 8080
+          {{ end }}
+          env:
+          - name: POSTGRES_HOST
+            value: {{ .Values.modules.sitePortalServer.postgresHost | quote }}
+          - name: POSTGRES_PORT
+            value: {{ .Values.modules.sitePortalServer.postgresPort | quote }}
+          - name: POSTGRES_USER
+            value: {{ .Values.modules.sitePortalServer.postgresUser | quote }}
+          - name: POSTGRES_DB
+            value: {{ .Values.modules.sitePortalServer.postgresDb | quote }}
+          - name: POSTGRES_PASSWORD
+            value: {{ .Values.modules.sitePortalServer.postgresPassword | quote }}
+          - name: SITEPORTAL_INITIAL_ADMIN_PASSWORD
+            value: {{ .Values.modules.sitePortalServer.adminPassword | quote }}
+          - name: SITEPORTAL_INITIAL_USER_PASSWORD
+            value: {{ .Values.modules.sitePortalServer.userPassword | quote }}
+          - name: SITEPORTAL_LOCALDATA_BASEDIR
+            value: /var/lib/site-portal/data/uploaded
+          - name: SITEPORTAL_TLS_ENABLED
+            value: {{ .Values.modules.sitePortalServer.tlsEnabled | quote }}
+          {{ if .Values.modules.sitePortalServer.tlsEnabled }}
+          - name: SITEPORTAL_TLS_SERVER_CERT
+            value: {{ .Values.modules.sitePortalServer.serverCert | quote }}
+          - name: SITEPORTAL_TLS_SERVER_KEY
+            value: {{ .Values.modules.sitePortalServer.serverKey | quote }}
+          - name: SITEPORTAL_TLS_CLIENT_CERT
+            value: {{ .Values.modules.sitePortalServer.clientCert | quote }}
+          - name: SITEPORTAL_TLS_CLIENT_KEY
+            value: {{ .Values.modules.sitePortalServer.clientKey | quote }}
+          - name: SITEPORTAL_TLS_CA_CERT
+            value: {{ .Values.modules.sitePortalServer.caCert | quote }}
+          - name: SITEPORTAL_TLS_PORT
+            value: {{ .Values.modules.sitePortalServer.tlsPort | quote }}
+          - name: SITEPORTAL_TLS_COMMON_NAME
+            value: {{ .Values.modules.sitePortalServer.tlsCommonName | quote }}
+          {{ end }}
+          volumeMounts:
+            - mountPath: /var/lib/site-portal/data/uploaded
+              name: uploaded
+            {{ if .Values.modules.sitePortalServer.tlsEnabled }}
+            - mountPath: /var/lib/site-portal/cert
+              name: site-portal-cert
+            {{ end }}
+      {{- with .Values.modules.sitePortalServer.nodeSelector }}
+      nodeSelector: 
+{{ toYaml . | indent 8 }}
+      {{- end }}
+      {{- with .Values.modules.sitePortalServer.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+      {{- end }}
+      {{- with .Values.modules.sitePortalServer.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+      {{- end }}
+      {{- with .Values.image.imagePullSecrets }}
+      imagePullSecrets:
+{{ toYaml . | indent 6 }}
+      {{- end }}
+      serviceAccountName: {{ template "serviceAccountName" . }}
+      restartPolicy: Always
+      volumes:
+        - name: uploaded
+          {{ if .Values.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.modules.sitePortalServer.existingClaim | default  "site-portal-server-uploaded-data" }}
+        {{ else }}
+          emptyDir: {}
+        {{ end }}
+        {{ if .Values.modules.sitePortalServer.tlsEnabled }}
+        - name: site-portal-cert
+          secret:
+            secretName: site-portal-cert
+        {{ end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: site-portal-server
+  labels:
+    fateMoudle: site-portal-server
+{{ include "fate.labels" . | indent 4 }}
+spec:
+  ports:
+    - name: "tcp-site-portal-server"
+      port: 8080
+      targetPort: 8080
+      {{- if eq .Values.modules.sitePortalServer.type "NodePort" "LoadBalancer" }}
+      nodePort: {{ .Values.modules.sitePortalServer.nodePort }}
+      {{- end }}
+      protocol: TCP
+    - name: "https-site-portal-server"
+      port: 8443
+      targetPort: {{ .Values.modules.sitePortalServer.tlsPort }}
+      {{- if eq .Values.modules.sitePortalServer.type "NodePort" "LoadBalancer" }}
+      nodePort: {{ .Values.modules.sitePortalServer.nodePort }}
+      {{- end }}
+      protocol: TCP
+  type: {{ .Values.modules.sitePortalServer.type }}
+  {{- if .Values.modules.sitePortalServer.loadBalancerIP }}
+  loadBalancerIP: "{{ .Values.modules.sitePortalServer.loadBalancerIP }}"
+  {{- end }}
+  selector:
+    fateMoudle: site-portal-server
+{{ include "fate.matchLabels" . | indent 4 }}
+---
+{{ if and .Values.persistence.enabled (not .Values.modules.sitePortalServer.existingClaim) }}
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: site-portal-server-uploaded-data
+  labels:
+    fateMoudle: sitePortalServer
+{{ include "fate.labels" . | indent 4 }}
+spec:
+  accessModes:
+    - {{ .Values.modules.sitePortalServer.accessMode }}
+  resources:
+    requests:
+      storage: {{ .Values.modules.sitePortalServer.size }}
+  {{ if .Values.modules.sitePortalServer.storageClass }}
+    {{ if eq "-" .Values.modules.sitePortalServer.storageClass }}
+  storageClassName: ""
+    {{ else }}
+  storageClassName: {{ .Values.modules.sitePortalServer.storageClass }}
+    {{ end }}
+  {{ end }}
+{{ end }}
+{{ end }}

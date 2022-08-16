@@ -1,0 +1,65 @@
+<div class="content-area">
+    <br>
+    <h2>{{'nav.userMg'|translate}}</h2>
+    <br>
+    <br>
+    <br>
+    <a href="javascript:;" class="refreshbtn" (click)="refresh()">
+        <cds-icon shape="refresh"></cds-icon>
+    </a>
+    <br>
+    <clr-datagrid [clrDgLoading]="isPageLoading">
+        <clr-dg-column [clrDgField]="'id'">{{'userMg.userId'|translate}}</clr-dg-column>
+        <clr-dg-column [clrDgField]="'name'">{{'userMg.userName'|translate}}</clr-dg-column>
+        <clr-dg-column>{{'userMg.sitePortal'|translate}}</clr-dg-column>
+        <clr-dg-column>{{'userMg.FATEboard'|translate}}</clr-dg-column>
+        <clr-dg-column>{{'userMg.jupyterNotebook'|translate}}</clr-dg-column>
+        <clr-dg-row *clrDgItems="let user of userList">
+            <clr-dg-cell>{{user.id}}</clr-dg-cell>
+            <clr-dg-cell>{{user.name}}</clr-dg-cell>
+            <clr-dg-cell>
+                <clr-checkbox-container>
+                    <clr-checkbox-wrapper>
+                        <input type="checkbox" clrCheckbox name="site_portal_access" value="site_portal_access"
+                            [(ngModel)]="user.site_portal_access" [disabled]="user.id===1"/>
+                    </clr-checkbox-wrapper>
+                </clr-checkbox-container>
+            </clr-dg-cell>
+            <clr-dg-cell>
+                <clr-checkbox-container>
+                    <clr-checkbox-wrapper>
+                        <input type="checkbox" clrCheckbox name="fateboard_access" value="fateboard_access"
+                            [(ngModel)]="user.fateboard_access" />
+                    </clr-checkbox-wrapper>
+                </clr-checkbox-container>
+            </clr-dg-cell>
+            <clr-dg-cell>
+                <clr-checkbox-container>
+                    <clr-checkbox-wrapper>
+                        <input type="checkbox" clrCheckbox name="notebook_access" value="notebook_access"
+                            [(ngModel)]="user.notebook_access" />
+                    </clr-checkbox-wrapper>
+                </clr-checkbox-container>
+            </clr-dg-cell>
+        </clr-dg-row>
+        <clr-dg-footer>{{userList ? userList.length : 0}} {{'CommonlyUse.item' | translate}}</clr-dg-footer>
+    </clr-datagrid>
+    <br>
+    <br>
+    <div *ngIf="(isUpdateSubmit && isUpdateFailed) || isGetUserListFailed" class="alert alert-danger" role="alert">
+        <div class="alert-items">
+            <div class="alert-item static">
+                <div class="alert-icon-wrapper">
+                    <cds-icon class="alert-icon" shape="exclamation-circle"></cds-icon>
+                </div>
+                <span class="alert-text">
+                    {{errorMessage}}
+                </span>
+            </div>
+        </div>
+    </div>
+    <button class="btn" routerLink=''>{{'CommonlyUse.cancel' | translate}}</button>
+    <button class="btn btn-primary" (click)='updateUserPermission()'>{{'CommonlyUse.save' | translate}}</button>
+    <span *ngIf="isUpdateSubmit && !isUpdateFailed"> {{'userMg.saving' | translate}}... </span>
+    <clr-spinner *ngIf="isUpdateSubmit && !isUpdateFailed" [clrInline]="true"></clr-spinner>
+</div>

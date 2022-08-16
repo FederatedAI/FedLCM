@@ -1,0 +1,121 @@
+.content-area {
+    width: 100%;
+    min-width: 1080px;
+}
+.info {
+    line-height: 100%;
+    display: flex;
+}
+.table{
+    width: 100%;
+}
+.table th td{
+    text-align: start;
+}
+.evaltable{
+    width: 20%;
+}
+.info {
+    display: flex;
+}
+.content-area h4 {
+    border-bottom: 1px solid #ccc;
+    border-top: 1px solid #ccc;
+    height: 40px;
+    font-size: 22px;
+    line-height: 40px;
+    margin-top: 0px;
+    padding-left: 15px;
+}
+.content-area .first{
+    border-top: none;
+}
+.content-area .list {
+    padding: 12px 15px;
+    position: relative;
+}
+.content-area .list span:first-of-type {
+    font-size: 15px;
+    display: inline-block;
+    width: 180px;
+    margin-right: 10px;
+}
+.content-area .list .list-table p {
+    font-size: 15px;
+    margin-top: 8px;
+}
+.content-area .list .list-table .table {
+    min-width: 800px;
+}
+.content-area .model-cnf span:first-of-type{
+    width: 260px;
+}
+.content-area .predict-cnf span:first-of-type{
+    width: 270px;
+}
+.list .last-li {
+    list-style: none;
+    display: inline-block;
+    min-width: 800px;
+}
+.clr-form-control {
+    margin-top: 0px;
+}
+.clr-form-control label {
+    font-size: 15px;
+    font-weight: normal;
+    color: #666;
+}
+.clr-form-control .clr-textarea  {
+    width: 400px;
+    height: 200px;
+    position: relative;
+    left: 30px;
+    margin-bottom: 5px;
+}
+.psi-cnf .list li span:first-of-type {
+    width: 180px;
+}
+.model-eva .evaltable,  .predict-cnf .table{
+    width: 100%;
+}
+.m-detail {
+    text-align: right;
+}
+
+.alert-danger {
+    padding: 0px;
+    width: 500px;
+}
+.alert-warning {
+    padding: 0px;
+    width: 500px;
+}
+.alert-info {
+    padding: 0px;
+    width: 500px;
+}
+.predict_result{
+    height:500px
+}
+.pageLoading {
+    margin-top: 24px;
+    margin-left: 12px;
+}
+.downloadbtn {
+    font-size:x-small;
+}
+.pageLoading {
+    margin-top: 10%;
+    margin-left: 45%;
+}
+.program  {
+    list-style-type: none;
+    height: 400px;
+    width: 300px;
+    padding-left: 50px;
+    position: absolute;
+    bottom: 60px;
+    left: 700px;
+    z-index: 99;
+}

@@ -1,0 +1,301 @@
+<div class="content-area" [ngClass]="{'hide': isShowInfraDetailFailed && isPageLoading}">
+    <a href="javascript:history.back()">&lt;&lt;{{'CommonlyUse.back'|translate}}</a>
+    <h2>{{'InfraProvider.detail'|translate}}</h2>
+    <br>
+    <div class="btn-group btn-sm" *ngIf="!isShowInfraDetailFailed">
+        <button class="btn" (click)="refresh()">
+            <cds-icon shape="refresh"></cds-icon> {{'CommonlyUse.refresh'|translate}}
+        </button>
+        <button class="btn" (click)="openDeleteConfrimModal()" [disabled]="isShowInfraDetailFailed">
+            <cds-icon shape="trash"></cds-icon> {{'CommonlyUse.delete'|translate}}
+        </button>
+        <button class="btn" (click)="onOpenModal()" [disabled]="isShowInfraDetailFailed">
+            <cds-icon shape="update"></cds-icon> {{'CommonlyUse.update'|translate}}
+        </button>
+        <button class="btn" (click)="testConnection(true)" [disabled]="isShowInfraDetailFailed">
+            <cds-icon shape="check-circle" style="color: green;" *ngIf="testPassed && !isTestLoading"></cds-icon>
+            <cds-icon shape="exclamation-circle" *ngIf="isTestFailed && !isTestLoading" style="color:crimson">
+            </cds-icon>
+            <clr-spinner [clrInline]="true" *ngIf="isTestLoading"></clr-spinner>
+            {{'CommonlyUse.test'|translate}}
+        </button>
+    </div>
+    <div *ngIf="isShowInfraDetailFailed || isTestFailed" class="alert alert-danger" role="alert">
+        <div class="alert-items">
+            <div class="alert-item static">
+                <div class="alert-icon-wrapper">
+                    <cds-icon class="alert-icon" shape="exclamation-circle"></cds-icon>
+                </div>
+                <span class="alert-text">
+                    {{errorMessage}}
+                </span>
+            </div>
+        </div>
+    </div>
+    <div *ngIf="!isShowInfraDetailFailed">
+        <div class="card card1">
+            <ul class="list" *ngIf="infraDetail">
+                <li>
+                    <span><b>{{'CommonlyUse.name'|translate}}:</b></span>
+                    <span>{{infraDetail.name}}</span>
+                </li>
+                <li>
+                    <span><b>{{'CommonlyUse.description'|translate}}:</b></span>
+                    <span>{{infraDetail.description}}</span>
+                </li>
+                <li>
+                    <span><b>{{'CommonlyUse.type'|translate}}:</b></span>
+                    <span>{{infraDetail.type}}</span>
+                </li>
+                <li>
+                    <span><b>{{'CommonlyUse.creationTime'|translate}}:</b></span>
+                    <span>{{infraDetail.created_at | dateFormat}}</span>
+                </li>
+            </ul>
+        </div>
+        <div class="card card1">
+            <div class="card-block">
+                <h6 class="card-title">{{'InfraProvider.information'|translate}}:</h6>
+            </div>
+            <ul class="list">
+                <li *ngIf="infraDetail">
+                    <span><b>{{'InfraProvider.APIServer'|translate}}:</b></span>
+                    <span>{{infraDetail.kubernetes_provider_info.api_server}}</span>
+                </li>
+                <li class="codemirror">
+                    <p><b>{{'InfraProvider.kubeconfig'|translate}}:</b></p>
+                    <textarea clrTextarea class="t3" name="kubeconfig" [attr.disabled]="true" style="color: black"
+                        id="yaml"></textarea>
+                </li>
+            </ul>
+            <br>
+        </div>
+        <div class="card card1">
+            <div class="card-block">
+                <h6 class="card-title">{{'InfraProvider.configuration' | translate}}:</h6>
+            </div>
+            <ul class="list">
+                <li *ngIf="!infraDetail?.kubernetes_provider_info.registry_config_fate.use_registry">
+                    <span><b>{{'InfraProvider.configureRegistry' | translate}}:</b></span>
+                    <span>False</span>
+                </li>
+                <li *ngIf="infraDetail?.kubernetes_provider_info.registry_config_fate.use_registry">
+                    <span><b>{{"InfraProvider.registry"|translate}}:</b></span>
+                    <span>{{infraDetail.kubernetes_provider_info.registry_config_fate.registry}}</span>
+                </li>
+                <li *ngIf="!infraDetail?.kubernetes_provider_info.registry_config_fate.use_registry_secret">
+                    <span><b>{{'InfraProvider.useRegistrySecret'|translate}}:</b></span>
+                    <span>False</span>
+                </li>
+                <div *ngIf="infraDetail?.kubernetes_provider_info.registry_config_fate.use_registry_secret">
+                    <li>
+                        <span><b>{{'InfraProvider.serverURL'|translate}}:</b></span>
+                        <span>{{infraDetail.kubernetes_provider_info.registry_config_fate.registry_secret_config.server_url}}</span>
+                    </li>
+                    <li>
+                        <span><b>{{'InfraProvider.username'|translate}}:</b></span>
+                        <span>{{infraDetail.kubernetes_provider_info.registry_config_fate.registry_secret_config.username}}</span>
+                    </li>
+                    <li>
+                        <span><b>{{'InfraProvider.password'|translate}}:</b></span>
+                        <span>*******</span>
+                    </li>
+                </div>
+            </ul>
+            <br>
+        </div>
+        <br>
+        <br>
+    </div>
+    <div *ngIf="isPageLoading" class="pageLoading-bac"></div>
+    <clr-spinner class="pageLoading" *ngIf="isPageLoading"></clr-spinner>
+</div>
+
+<clr-modal [(clrModalOpen)]="openDeleteModal" [clrModalClosable]="false">
+    <h3 class="modal-title">{{'CommonlyUse.delete'|translate}}</h3>
+    <div class="modal-body">
+        <div *ngIf="(isDeleteSubmit && isDeleteFailed)" class="alert alert-danger" role="alert">
+            <div class="alert-items">
+                <div class="alert-item static">
+                    <div class="alert-icon-wrapper">
+                        <cds-icon class="alert-icon" shape="exclamation-circle"></cds-icon>
+                    </div>
+                    <span class="alert-text">
+                        {{errorMessage}}
+                    </span>
+                </div>
+            </div>
+        </div>
+        <h5>{{'InfraProvider.isDelete'|translate}}</h5>
+    </div>
+    <div class="modal-footer">
+        <div *ngIf="isDeleteSubmit && !isDeleteFailed">
+            <span>{{'CommonlyUse.deleting'|translate}} ... </span>
+            <clr-spinner [clrInline]="true"></clr-spinner>
+        </div>
+        <button type="button" class="btn btn-outline"
+            (click)="openDeleteModal=false">{{'CommonlyUse.cancel'|translate}}</button>
+        <button type="submit" class="btn btn-primary"
+            (click)="deleteInfra()">{{'CommonlyUse.delete'|translate}}</button>
+    </div>
+</clr-modal>
+
+<clr-modal [(clrModalOpen)]="openModal" [clrModalClosable]="false" [clrModalSize]="'xl'">
+    <h3 class="modal-title">{{'InfraProvider.update'|translate}}</h3>
+    <div class="modal-body">
+        <form clrForm clrLayout="horizontal" [formGroup]="updateInfraForm">
+            <div class="card card3">
+                <ul class="list">
+                    <clr-select-container>
+                        <label>{{'CommonlyUse.type'|translate}}</label>
+                        <select clrSelect name="type" formControlName="type">
+                            <option value="Kubernetes">K8s Cluster</option>
+                        </select>
+                        <clr-control-error *ngIf="updateInfraForm.get('type')?.errors">
+                            {{updateInfraForm.get('type')?.errors?.emptyMessage | translate}}</clr-control-error>
+                    </clr-select-container>
+                    <clr-input-container>
+                        <label>{{'CommonlyUse.name'|translate}}</label>
+                        <input clrInput name="infraname" formControlName="infraname" />
+                        <clr-control-error
+                            *ngIf="!updateInfraForm.get('infraname')?.errors?.minlength && !updateInfraForm.get('infraname')?.errors?.maxlength">
+                            {{updateInfraForm.get('infraname')?.errors?.emptyMessage ||
+                            updateInfraForm.get('infraname')?.errors?.message | translate}}</clr-control-error>
+                        <clr-control-error *ngIf="updateInfraForm.get('infraname')?.errors?.minlength">
+                            {{'CommonlyUse.few' |
+                            translate}}{{updateInfraForm.get('infraname')?.errors?.minlength.requiredLength}}{{'CommonlyUse.character'
+                            | translate}}</clr-control-error>
+                        <clr-control-error *ngIf="updateInfraForm.get('infraname')?.errors?.maxlength">
+                            {{'CommonlyUse.many' |
+                            translate}}{{updateInfraForm.get('infraname')?.errors?.maxlength.requiredLength}}{{'CommonlyUse.character'
+                            | translate}}</clr-control-error>
+                    </clr-input-container>
+                    <clr-textarea-container>
+                        <label>{{'CommonlyUse.description'|translate}}</label>
+                        <textarea clrTextarea class="t2" name="description" formControlName="description"></textarea>
+                    </clr-textarea-container>
+                    <clr-textarea-container>
+                        <label>{{'InfraProvider.kubeconfig' |translate}}</label>
+                        <textarea clrTextarea class="t3" name="kubeconfig" formControlName="kubeconfig"
+                            (ngModelChange)="onKubeconfigChange($event)"></textarea>
+                        <clr-control-error *ngIf="updateInfraForm.get('kubeconfig')?.errors">
+                            {{updateInfraForm.get('kubeconfig')?.errors?.emptyMessage | translate}}</clr-control-error>
+                    </clr-textarea-container>
+                    <button class="btn btn-sm btnTest" (click)="testConnection(false)"
+                        [disabled]="!this.updateInfraForm.get('kubeconfig')?.valid">{{'CommonlyUse.test'|translate}}</button>
+                    <cds-icon class="TestPassedIcon" shape="check-circle" style="color: green;" size="md"
+                        *ngIf="testPassedModal && !isTestLoadingModal"></cds-icon>
+                    <clr-spinner class="TestPassedIcon" [clrInline]="true" *ngIf="isTestLoadingModal"></clr-spinner>
+                    <cds-icon class="TestPassedIcon" shape="exclamation-circle" size="md"
+                        *ngIf="isTestFailedModal && !isTestLoadingModal" style="color:crimson"></cds-icon>
+                    <br>
+                    <br>
+                    <div *ngIf="isTestFailedModal && errorMessageModal!==''" class="alert alert-danger" role="alert">
+                        <div class="alert-items">
+                            <div class="alert-item static">
+                                <div class="alert-icon-wrapper">
+                                    <cds-icon class="alert-icon" shape="exclamation-circle"></cds-icon>
+                                </div>
+                                <span class="alert-text">
+                                    {{errorMessageModal}}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </ul>
+            </div>
+            <div class="card card4">
+                <div class="card-block">
+                    <h6 class="card-title">{{'InfraProvider.configuration' | translate}}:</h6>
+                </div>
+                <ul class="list">
+                    <clr-toggle-container clrInline>
+                        <label>{{'InfraProvider.configureRegistry' | translate}}</label>
+                        <clr-toggle-wrapper>
+                            <input type="checkbox" clrToggle name="use_registry" required value="use_registry"
+                                formControlName="use_registry" (ngModelChange)="onChange_use_registry()" />
+                            <label>{{use_registry}}</label>
+                        </clr-toggle-wrapper>
+                    </clr-toggle-container>
+                    <ul class="list" *ngIf="use_registry">
+                        <li>
+                            <clr-input-container>
+                                <label>{{"InfraProvider.registry"|translate}}</label>
+                                <input clrInput name="registry" formControlName="registry"
+                                    placeholder="{{'InfraProvider.togglePlacerHolder'|translate}}" required />
+                                <clr-control-helper>{{'InfraProvider.imageName'|translate}}:&nbsp;&nbsp;&nbsp;
+                                    <b style="color: #247bae;"><span>{{registry}}</span>
+                                        <span *ngIf="registry===''">federatedai</span>/myimage:latest
+                                    </b>
+                                </clr-control-helper>
+                                <clr-control-error *clrIfError="'required'">{{'validator.empty'| translate}}
+                                </clr-control-error>
+                            </clr-input-container>
+                        </li>
+                    </ul>
+                    <clr-toggle-container clrInline>
+                        <label>{{'InfraProvider.useRegistrySecret'|translate}}</label>
+                        <clr-toggle-wrapper>
+                            <input type="checkbox" clrToggle name="use_registry_secret" required
+                                value="use_registry_secret" formControlName="use_registry_secret"
+                                (ngModelChange)="onChange_use_registry_secret()" />
+                            <label>{{use_registry_secret}}</label>
+                        </clr-toggle-wrapper>
+                    </clr-toggle-container>
+                    <ul class="list" *ngIf="use_registry_secret">
+                        <li>
+                            <clr-input-container>
+                                <label>{{'InfraProvider.serverURL'|translate}}</label>
+                                <input clrInput name="server_url" formControlName="server_url" required />
+                                <clr-control-helper *ngIf="!valid_server_url">
+                                    {{'InfraProvider.urlSuggestion'|translate}} <b
+                                        style="color: #247bae;">{{server_url_suggestion}}</b></clr-control-helper>
+                                <clr-control-error>{{'validator.internet'| translate}}</clr-control-error>
+                                <clr-control-error>{{'InfraProvider.urlSuggestion'|translate}}
+                                    <b>{{server_url_suggestion}}</b>
+                                </clr-control-error>
+                            </clr-input-container>
+                        </li>
+                        <li>
+                            <clr-input-container>
+                                <label>{{'InfraProvider.username'|translate}}</label>
+                                <input clrInput name="username" formControlName="username" required />
+                                <clr-control-error *clrIfError="'required'">{{'validator.empty'| translate}}
+                                </clr-control-error>
+                            </clr-input-container>
+                        </li>
+                        <li>
+                            <clr-password-container>
+                                <label>{{'InfraProvider.password' |translate}}</label>
+                                <input name="password" clrPassword formControlName="password" required />
+                                <clr-control-error *clrIfError="'required'">{{'validator.empty'| translate}}
+                                </clr-control-error>
+                            </clr-password-container>
+                        </li>
+                    </ul>
+                </ul>
+                <br>
+            </div>
+        </form>
+        <div *ngIf="isUpdateFailed" class="alert alert-danger" role="alert">
+            <div class="alert-items">
+                <div class="alert-item static">
+                    <div class="alert-icon-wrapper">
+                        <cds-icon class="alert-icon" shape="exclamation-circle"></cds-icon>
+                    </div>
+                    <span class="alert-text">
+                        {{errorMessageModal}}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-outline" (click)="resetModal()">{{'CommonlyUse.cancel'|translate}}</button>
+        <a href="javascript:void(0)" role="tooltip" aria-haspopup="false" class="tooltip tooltip-md tooltip-top-left">
+            <button type="button" class="btn btn-primary" (click)="updateInfra()"
+                [disabled]="submitDisable">{{'CommonlyUse.submit'|translate}}</button>
+            <span class="tooltip-content" *ngIf="!testPassed">{{'InfraProvider.toSubmit'|translate}}</span>
+        </a>
+    </div>
+</clr-modal>

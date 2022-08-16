@@ -1,0 +1,60 @@
+.content-area {
+    position: relative;
+    &.hidden {
+      overflow: hidden;
+    }
+  }
+  .pageLoading-bac {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    background-color: rgba($color: rgb(255,255,255), $alpha: 1);
+    left: 0px;
+    top: 0px;
+    z-index: 99;
+  }
+
+
+.card {
+    width: 100%;
+    min-width: 900px;
+    .list {
+        width: 100%;
+        input {
+            width: 100%;
+        }
+        select{
+            width: 150px;
+        }
+        li {
+            &.codemirror::ng-deep {
+                .clr-textarea-wrapper {
+                    height: 600px;
+                    width: 600px;
+                }
+            }
+        }
+    }
+    .t2{
+        width: 100%;
+        height: 60px;
+    }
+    span:first-of-type {
+        font-size: 15px;
+        display: inline-block;
+        width: 200px;
+        margin-right: 10px;
+        line-height: 36px;
+    }
+    .t3{
+        width: 800px;
+        height: 600px;
+    }
+}
+.pageLoading {
+    position: absolute;
+    left: 50%;
+    top: 10%;
+    transform: translateX(-50%);
+    z-index: 100;
+}

@@ -1,0 +1,75 @@
+li span:first-of-type {
+    font-size: 15px;
+    display: inline-block;
+    width: 150px;
+    margin-right: 10px;
+    line-height: 36px;
+}
+.t2{
+    width: 500px;
+    height: 100px;
+}
+.t3{
+    width: 600px;
+    height: 600px;
+}
+.nextbtn {
+    display: inline-block;
+    width: 100%;
+    height: 100%;
+    border: 1px solid #0072a3;
+}
+.btnnext {
+    margin: 0;
+    padding: 0;
+}
+.yamlbtn {
+    display: flex;
+    float: left;
+    margin-bottom: 0;
+    margin-right: 100%;
+}
+.no-warp::ng-deep {
+    width: 224px;
+    label {
+        line-height: 24px;
+    }
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+.no-warp2 {
+    width: 350px;
+    input {
+        width: 180px;
+    }
+}
+.no-warp3 {
+    width: 280px
+}
+.no-warp4 {
+    width: 520px;
+    input {
+        width: 345px;
+    }
+}
+.no-warp5 {
+    width: 367px
+}
+.btn-group {
+    margin-top: 10px;
+}
+.loading {
+    margin-top: 10px;
+}
+.yaml {
+    font-weight: 700;
+    margin: 10px 0;
+}
+.yaml-warp::ng-deep {
+    .clr-form-control {
+        .clr-textarea-wrapper {
+          width: 600px;
+        }  
+    }
+}

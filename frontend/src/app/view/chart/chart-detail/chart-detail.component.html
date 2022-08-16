@@ -1,0 +1,98 @@
+<div class="content-area" [ngClass]="{'hide': isShowChartDetailFailed && isPageLoading}">
+  <a href="javascript:history.back()">&lt;&lt;{{'CommonlyUse.back'| translate}}</a>
+  <h2>{{'ChartDetail.name'|translate}}</h2>
+  <clr-alert [clrAlertClosable]='false' clrAlertType="danger" *ngIf="isShowChartDetailFailed">
+    <clr-alert-item>
+      {{errorMessage}}
+    </clr-alert-item>
+  </clr-alert>
+  <div *ngIf="!isShowChartDetailFailed">
+    <br>
+    <div class="btn-group btn-sm">
+      <button class="btn" disabled>
+        <cds-icon shape="trash"></cds-icon> {{'CommonlyUse.delete'| translate}}
+      </button>
+    </div>
+    <div class="card card1">
+      <ul class="list" *ngIf="chartDetail">
+        <li>
+          <span><b>{{'CommonlyUse.name'| translate}}:</b></span>
+          <span> {{chartDetail.name}}</span>
+        </li>
+        <li>
+          <span><b>{{'Chart.helmChartName'|translate}}:</b></span>
+          <span>{{chartDetail.chart_name}}</span>
+        </li>
+        <li>
+          <span><b>{{'CommonlyUse.description'| translate}}:</b></span>
+          <span>{{chartDetail.description}}</span>
+        </li>
+        <li>
+          <span><b>{{'CommonlyUse.type'| translate}}:</b></span>
+          <span>{{constantGather('charttype', chartDetail.type).name | translate}}</span>
+        </li>
+        <li>
+          <span><b>{{'CommonlyUse.creationTime'| translate}}:</b></span>
+          <span>{{chartDetail.created_at | dateFormat}}</span>
+        </li>
+        <li>
+          <span><b>{{'Chart.helmChartVersion'| translate}}:</b></span>
+          <span>{{chartDetail.version}}</span>
+        </li>
+      </ul>
+    </div>
+    <div class="card card2">
+      <ul class="list none">
+        <li class="codemirror">
+          <p><b>Chart.yaml:</b></p>
+          <textarea clrTextarea class="t3" name="yaml" id="about" [attr.disabled]="true"
+            style="color: black;"></textarea>
+        </li>
+        <li class="codemirror">
+          <p><b>{{'ChartDetail.values'| translate}}:</b></p>
+          <textarea clrTextarea class="t3" name="yaml" id="values" [attr.disabled]="true"
+            style="color: black;"></textarea>
+        </li>
+        <br>
+        <li class="codemirror">
+          <p><b>{{'ChartDetail.template'| translate}}:</b></p>
+          <textarea clrTextarea class="t3" name="yaml" id="values_template" [attr.disabled]="true"
+            style="color: black;"></textarea>
+        </li>
+      </ul>
+      <br>
+    </div>
+    <br>
+    <br>
+  </div>
+  <div *ngIf="isPageLoading" class="pageLoading-bac"></div>
+  <clr-spinner class="pageLoading" *ngIf="isPageLoading"></clr-spinner>
+</div>
+
+<!-- Currently, "Delete the chart" is not supported -->
+<!-- <clr-modal [(clrModalOpen)]="openDeleteModal" [clrModalClosable]="false">
+    <h3 class="modal-title">{{'CommonlyUse.delete'| translate}}</h3>
+    <div class="modal-body">
+      <div *ngIf="(isDeleteSubmit && isDeleteFailed)" class="alert alert-danger" role="alert">
+        <div class="alert-items">
+            <div class="alert-item static">
+                <div class="alert-icon-wrapper">
+                    <cds-icon class="alert-icon" shape="exclamation-circle"></cds-icon>
+                </div>
+                <span class="alert-text">
+                    {{errorMessage}}
+                </span>
+            </div>
+        </div>
+      </div>
+      <h5>{{'EndpointMg.deleteEndpoint'| translate}}</h5>
+    </div>
+    <div class="modal-footer">
+      <div *ngIf="isDeleteSubmit && !isDeleteFailed">
+        <span>{{'CommonlyUse.deleting'| translate}} ... </span>
+        <clr-spinner [clrInline]="true"></clr-spinner>
+      </div>
+      <button type="button" class="btn btn-outline" (click)="openDeleteModal=false">{{'CommonlyUse.cancel'| translate}}</button>
+      <button type="submit" class="btn btn-primary" (click)="deleteEndpoint()">{{'CommonlyUse.delete'| translate}}</button>
+    </div>            
+</clr-modal>  -->

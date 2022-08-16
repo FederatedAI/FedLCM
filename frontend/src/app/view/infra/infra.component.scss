@@ -1,0 +1,36 @@
+.card {
+    .list {
+        &.card1 {
+            margin-top: -24px;
+        }
+        input {
+            width: 99%;
+        }
+        select{
+            width: 130px;
+        }
+    }
+    .t2{
+        width: 100%;
+        height: 60px;
+    }
+    .t3{
+        width: 100%;
+        height: 200px;
+    }
+    .btnTest {
+        float: right;
+        margin-right: 10px;
+    }
+    .TestPassedIcon{
+        float: right;
+        margin-right: 6px;
+        margin-top: 6px;
+    }
+}
+
+.refreshbtn {
+    float: right;
+    margin-right: 12px;
+    margin-top: 12px;
+}

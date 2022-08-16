@@ -1,0 +1,372 @@
+<div class="content-area">
+  <a href="javascript:history.back()">&lt;&lt;{{'CommonlyUse.back' | translate}}</a>
+  <br>
+  <h2>{{'jobDetail.jobDetail'|translate}}</h2>
+  <br>
+  <div *ngIf="getJobDetailFailed || approveJobFailed" class="alert alert-danger" role="alert">
+    <div class="alert-items">
+      <div class="alert-item static">
+        <div class="alert-icon-wrapper">
+          <cds-icon class="alert-icon" shape="exclamation-circle"></cds-icon>
+        </div>
+        <span class="alert-text">
+          {{errorMessage}}
+        </span>
+      </div>
+    </div>
+  </div>
+  <div *ngIf="!getJobDetailFailed">
+    <div class="btn-group btn-sm">
+      <button class="btn" (click)="refresh(job.uuid)">
+        <cds-icon shape="refresh"></cds-icon> {{'CommonlyUse.refresh' | translate}}
+      </button>
+      <button class="btn" (click)="openDeleteModal=true" *ngIf="!pageLoading">
+        <cds-icon shape="trash"></cds-icon> {{'CommonlyUse.delete' | translate}}
+      </button>
+      <button class="btn" *ngIf="job.pending_on_this_site" (click)="approve(job.uuid)">
+        <cds-icon shape="check"></cds-icon> {{'jobDetail.accept' | translate}}
+      </button>
+      <button class="btn" *ngIf="job.pending_on_this_site" (click)="openRejectModal=true">
+        <cds-icon shape="times"></cds-icon> {{'jobDetail.decline' | translate}}
+      </button>
+    </div>
+    <br>
+    <clr-modal [(clrModalOpen)]="openDeleteModal || openRejectModal" [clrModalClosable]="false">
+      <h3 class="modal-title" *ngIf="openDeleteModal">{{'jobDetail.deleteJob' | translate}}</h3>
+      <h3 class="modal-title" *ngIf="openRejectModal">{{'CommonlyUse.decline' | translate}}</h3>
+      <div class="modal-body">
+        <div *ngIf="(deleteJobSubmit && submitDeleteFailed) || (rejectJobsSubmit && rejectJobFailed)"
+          class="alert alert-danger" role="alert">
+          <div class="alert-items">
+            <div class="alert-item static">
+              <div class="alert-icon-wrapper">
+                <cds-icon class="alert-icon" shape="exclamation-circle"></cds-icon>
+              </div>
+              <span class="alert-text" *ngIf="(deleteJobSubmit && submitDeleteFailed)">
+                {{deleteerrorMessage}}
+              </span>
+              <span class="alert-text" *ngIf="(rejectJobsSubmit && rejectJobFailed)">
+                {{rejectErrorMessage}}???
+              </span>
+            </div>
+          </div>
+        </div>
+        <p *ngIf="openRejectModal">{{'projectDetail.rejectMessage'| translate}}</p>
+      </div>
+      <div class="modal-footer">
+        <div *ngIf="(deleteJobSubmit && !submitDeleteFailed) || (rejectJobsSubmit && !rejectJobFailed)">
+          <span>{{'CommonlyUse.pleasewait' | translate}} ... </span>
+          <clr-spinner [clrInline]="true"></clr-spinner>
+        </div>
+        <button type="button" class="btn btn-outline" (click)="reloadCurrentRoute()">{{'CommonlyUse.cancel' |
+          translate}}</button>
+        <button type="submit" class="btn btn-primary" *ngIf="openDeleteModal"
+          (click)="deleteJob(job.uuid)">{{'CommonlyUse.delete' | translate}}</button>
+        <button type="submit" class="btn btn-primary" *ngIf="job.pending_on_this_site && openRejectModal"
+          (click)="reject(job.uuid)">{{'jobDetail.decline' | translate}}</button>
+      </div>
+    </clr-modal>
+    <clr-spinner class="pageLoading" *ngIf="pageLoading"></clr-spinner>
+    <clr-accordion [clrAccordionMultiPanel]="true" *ngIf="!pageLoading">
+      <clr-accordion-panel [(clrAccordionPanelOpen)]="panelOpen1">
+        <clr-accordion-title style="font-size: 16px;">{{'newJob.jobInformation' | translate}}</clr-accordion-title>
+        <clr-accordion-content *clrIfExpanded>
+          <ul class="list">
+            <form clrForm>
+              <li>
+                <span>{{'projectDetail.initiator' | translate}}:</span>
+                <span>{{job.initiating_site_name}}</span>
+              </li>
+              <li>
+                <span>{{'jobDetail.jobName' | translate}}:</span>
+                <span>{{job.name}}</span>
+              </li>
+              <li>
+                <span>{{'jobDetail.jobDescription' | translate}}:</span>
+                <span>{{job.description}}</span>
+              </li>
+              <li>
+                <span>{{'jobDetail.jobID' | translate}}:</span>
+                <span>{{job.uuid}}</span>
+              </li>
+              <li>
+                <span>{{'newJob.type' | translate}}:</span>
+                <span>{{constantGather('jobtype', job.type).name | translate}}</span>
+              </li>
+              <li>
+                <span>{{'CommonlyUse.createTime' | translate}}:</span>
+                <span>{{job.creation_time | dateFormatting}}</span>
+              </li>
+              <li>
+                <span>{{'projectDetail.finishTime' | translate}}:</span>
+                <span *ngIf="job.status===jobStatus.Succeeded">{{job.finish_time | dateFormatting}}</span>
+                <span *ngIf="job.status!=jobStatus.Succeeded">{{'CommonlyUse.null'| translate}}</span>
+              </li>
+              <li>
+                <span>{{'jobDetail.FATEJobID' | translate}}:</span>
+                <span *ngIf="job.fate_job_id !=''">{{job.fate_job_id}}</span>
+                <span *ngIf="job.fate_job_id ===''">{{'CommonlyUse.null'|translate}}</span>
+              </li>
+              <li *ngIf="job.type === jobType.Modeling">
+                <span>{{'jobDetail.FATEModelName' | translate}}:</span>
+                <span *ngIf="job.fate_job_id !=''">{{job.fate_model_name}}</span>
+                <span *ngIf="job.fate_job_id ===''">{{'CommonlyUse.null'|translate}}</span>
+              </li>
+              <li>
+                <span>{{'CommonlyUse.status' | translate}}:</span>
+                <span class="label label-info" [class.label-success]="job.status===jobStatus.Succeeded"
+                  [class.label-danger]="job.status===jobStatus.Failed || job.status===jobStatus.Rejected"
+                  [class.label-warning]="job.status===jobStatus.Pending">{{constantGather('jobstatus', job.status).name
+                  |
+                  translate}}</span>
+              </li>
+              <li
+                *ngIf="job.status===jobStatus.Pending || job.status===jobStatus.Failed || job.status===jobStatus.Running || job.status===jobStatus.Deploying">
+                <span>{{'jobDetail.statusMessage' | translate}}:</span>
+                <span>{{job.status_message}}</span>
+              </li>
+            </form>
+          </ul>
+        </clr-accordion-content>
+      </clr-accordion-panel>
+      <clr-accordion-panel [(clrAccordionPanelOpen)]="panelOpen2">
+        <clr-accordion-title style="font-size: 16px;">{{'newJob.dataConfiguration' | translate}}</clr-accordion-title>
+        <clr-accordion-content *clrIfExpanded>
+          <ul class="list">
+            <span><b>{{'jobDetail.initiatorData' | translate}}:</b></span>
+            <form clrForm>
+              <li>
+                <span>{{'jobDetail.initiatorSite' | translate}}:</span>
+                <span *ngIf="!job.is_initiator">{{job.initiator_data.providing_site_name}}
+                  ({{job.initiator_data.providing_site_party_id}}) </span>
+                <span *ngIf="job.is_initiator">{{job.initiator_data.providing_site_name}} ({{'newJob.self'|translate}})
+                </span>
+              </li>
+              <li>
+                <span>{{'CommonlyUse.status' | translate}}:</span>
+                <span>{{constantGather('partyStatus', job.initiator_data.site_status).name | translate}}</span>
+              </li>
+              <li>
+                <span>{{'jobDetail.dataName' | translate}}:</span>
+                <span>{{job.initiator_data.name}}</span>
+              </li>
+              <li>
+                <span>{{'jobDetail.dataDescription' | translate}}:</span>
+                <span>{{job.initiator_data.description}}</span>
+              </li>
+              <li>
+                <span>{{'dataMg.dataID' | translate}}:</span>
+                <span>{{job.initiator_data.data_uuid}}</span>
+              </li>
+              <li *ngIf="job.type === jobType.Modeling">
+                <span>{{'jobDetail.dataLabel' | translate}}:</span>
+                <span>{{job.initiator_data.label_name}}</span>
+              </li>
+              <p><b>{{'jobDetail.collaborativeDataFromOtherParticipant' | translate}}:</b></p>
+              <div class="alert alert-info" *ngIf="job.other_site_data ===null" role="alert">
+                <div class="alert-items">
+                  <div class="alert-item static">
+                    <div class="alert-icon-wrapper">
+                      <cds-icon class="alert-icon" shape="info-circle"></cds-icon>
+                    </div>
+                    <span class="alert-text">
+                      {{'jobDetail.noData' | translate}}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <table class="table" *ngIf='job.other_site_data!=null'>
+                <thead>
+                  <tr>
+                    <th>{{'projectDetail.participant' | translate}}</th>
+                    <th>{{'site.partyId' | translate}}</th>
+                    <th>{{'CommonlyUse.status' | translate}}</th>
+                    <th>{{'jobDetail.dataName' | translate}}</th>
+                    <th>{{'dataMg.dataID' | translate}}</th>
+                    <th>{{'jobDetail.dataDescription' | translate}}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let item of job.other_site_data">
+                    <td *ngIf="!item.is_local">{{item.providing_site_name}}</td>
+                    <td *ngIf="item.is_local">{{item.providing_site_name}} ({{'newJob.self'|translate}})</td>
+                    <td>{{item.providing_site_party_id}}</td>
+                    <td>{{constantGather('partyStatus', item.site_status).name | translate}}</td>
+                    <td>{{item.name}}</td>
+                    <td>{{item.data_uuid}}</td>
+                    <td>{{item.description}}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </form>
+          </ul>
+        </clr-accordion-content>
+      </clr-accordion-panel>
+      <clr-accordion-panel [(clrAccordionPanelOpen)]="panelOpen3"
+        *ngIf="job.type === jobType.Modeling || job.type === jobType.Predict">
+        <clr-accordion-title style="font-size: 16px;">{{'newJob.modelConfiguration'|translate}}</clr-accordion-title>
+        <clr-accordion-content *clrIfExpanded>
+          <div class="model-cnf" *ngIf="job.type === jobType.Modeling">
+            <ul class="list">
+              <form clrForm>
+                <li>
+                  <span>{{'jobDetail.algorithmModuleName'| translate}}:</span>
+                  <span>{{job.training_model_name}}</span>
+                </li>
+                <li>
+                  <span>{{'jobDetail.enableValidation'|translate}}:</span>
+                  <span *ngIf="job.training_validation_enabled">{{ 'CommonlyUse.true'| translate}}</span>
+                  <span *ngIf="!job.training_validation_enabled">{{ 'CommonlyUse.false' | translate}}</span>
+                </li>
+                <li *ngIf="job.training_validation_enabled">
+                  <span>{{'jobDetail.validationDataSize'|translate}}:</span>
+                  <span>{{'jobDetail.validationSize'|translate | templateReplacement :
+                    job.training_validation_percent}}</span>
+                </li>
+                <li>
+                  <span>{{'jobDetail.algorithmType'|translate}}:</span>
+                  <span>{{constantGather('jobtrainingtype', job.training_algorithm_type).name | translate}}</span>
+                </li>
+                <br>
+                <li>
+                  <clr-textarea-container>
+                    <label class='info'>{{'newJob.algorithmConfiguration' |translate}}:</label>
+                    <textarea clrTextarea class="t1" [(ngModel)]="job.conf_json" name="alogoconfig"
+                      disabled> </textarea>
+                  </clr-textarea-container>
+                </li>
+                <br>
+                <li>
+                  <clr-textarea-container>
+                    <label class='info'>{{'newJob.workflowDSL'| translate}}:</label>
+                    <textarea clrTextarea class="t2" [(ngModel)]="job.dsl_json" name="dsl" disabled></textarea>
+                  </clr-textarea-container>
+                </li>
+                <li class="program">
+                  <div id="canvas_div" class="card-block clr-col-3">
+                    <svg id="svg-canvas" width="600" height="600"></svg>
+                  </div>
+                  <div id="component_info" class="card-block clr-col-3"></div>
+                </li>
+              </form>
+            </ul>
+          </div>
+          <div class="predict-cnf" *ngIf="job.type === jobType.Predict">
+            <ul class="list">
+              <li>
+                <span>{{'jobDetail.model'|translate}}:</span>
+                <span>{{job.predicting_model_uuid}}</span>
+              </li>
+              <li>
+                <span>{{'jobDetail.FATEModelName'|translate}}</span>
+                <span *ngIf="job.fate_job_id !=''">{{job.fate_model_name}}</span>
+                <span *ngIf="job.fate_job_id ===''">{{'CommonlyUse.null'|translate}}</span>
+              </li>
+            </ul>
+          </div>
+        </clr-accordion-content>
+      </clr-accordion-panel>
+      <clr-accordion-panel [(clrAccordionPanelOpen)]="panelOpen4">
+        <clr-accordion-title style="font-size: 16px;">{{'jobDetail.jobResult'|translate}}</clr-accordion-title>
+        <clr-accordion-content *clrIfExpanded>
+          <ul class="list" *ngIf="job.status ===jobStatus.Succeeded">
+            <li *ngIf="job.type === jobType.Modeling">
+              <span>{{'jobDetail.modelEvaluation'|translate}}:</span>
+              <span></span>
+              <clr-datagrid class="evaltable">
+                <clr-dg-column>{{'jobDetail.index'|translate}}</clr-dg-column>
+                <clr-dg-column>{{'jobDetail.metric'|translate}}</clr-dg-column>
+
+                <clr-dg-row *ngFor="let key of metrics_key">
+                  <clr-dg-cell>{{key}}</clr-dg-cell>
+                  <clr-dg-cell>{{job.result_info.training_result[key]}}</clr-dg-cell>
+                </clr-dg-row>
+              </clr-datagrid>
+            </li>
+
+            <li *ngIf="job.type === jobType.Predict">
+              <span>{{'jobDetail.predictResult'|translate}}:</span>
+              <span>{{'jobDetail.output'| translate | templateReplacement :
+                job.result_info.predicting_result.count}}</span>
+            </li>
+            <!-- psi -->
+            <li *ngIf="job.type === jobType.PSI">
+              <span>{{'jobDetail.intersectRate'|translate}}:</span>
+              <span>{{job.result_info.intersection_result.intersect_rate > 0 ?
+                job.result_info.intersection_result.intersect_rate.toFixed(2) :
+                job.result_info.intersection_result.intersect_rate}}</span>
+            </li>
+            <li *ngIf="job.type === jobType.PSI">
+              <span>{{'jobDetail.intersectNumber'|translate}}:</span>
+              <span>{{job.result_info.intersection_result.intersect_number}} {{'jobDetail.only100'|translate}}}</span>
+            </li>
+            <clr-datagrid class="predict_result" *ngIf="job.type === jobType.Predict">
+              <clr-dg-column>{{'jobDetail.index'|translate}}</clr-dg-column>
+              <clr-dg-column *clrDgItems="let keyvalue of job.result_info.predicting_result.header">{{keyvalue}}
+              </clr-dg-column>
+              <clr-dg-row *ngFor="let sample of predicting_result_list; let sample_index = index;">
+                <clr-dg-cell>{{sample_index}}</clr-dg-cell>
+                <clr-dg-cell *ngFor="let data of sample">{{data}}</clr-dg-cell>
+              </clr-dg-row>
+            </clr-datagrid>
+            <clr-datagrid class="predict_result" *ngIf="job.type === jobType.PSI">
+              <clr-dg-column>{{'jobDetail.index'|translate}}</clr-dg-column>
+              <clr-dg-column *clrDgItems="let keyvalue of job.result_info.intersection_result.header">{{keyvalue}}
+              </clr-dg-column>
+              <clr-dg-row *ngFor="let sample of job.result_info.intersection_result.data; let sample_index = index;">
+                <clr-dg-cell>{{sample_index}}</clr-dg-cell>
+                <clr-dg-cell *ngFor="let data of sample">{{data}}</clr-dg-cell>
+              </clr-dg-row>
+            </clr-datagrid>
+            <button *ngIf="job.type === jobType.Predict || job.type === jobType.PSI"
+              class="btn btn-sm btn-outline downloadbtn"
+              (click)="downloadPredictResult(job.uuid,job.name)">{{'CommonlyUse.download' | translate}}<cds-icon
+                class="downloadicon" shape="download"></cds-icon></button>
+          </ul>
+          <div *ngIf="job.status===jobStatus.Pending" class="alert alert-warning" role="alert">
+            <div class="alert-items">
+              <div class="alert-item static">
+                <div class="alert-icon-wrapper">
+                  <cds-icon class="alert-icon" shape="exclamation-triangle"></cds-icon>
+                </div>
+                <span>
+                  {{'jobDetail.jobIs'|translate}}{{constantGather('jobstatus', job.status).name | translate}}
+                  <br>
+                  <span>{{'jobDetail.statusMessage' | translate}}: {{job.status_message}}</span>
+                </span>
+              </div>
+            </div>
+          </div>
+          <div *ngIf="job.status===jobStatus.Failed || job.status===jobStatus.Rejected" class="alert alert-danger"
+            role="alert">
+            <div class="alert-items">
+              <div class="alert-item static">
+                <div class="alert-icon-wrapper">
+                  <cds-icon class="alert-icon" shape="exclamation-circle"></cds-icon>
+                </div>
+                <span>
+                  {{'jobDetail.jobIs'|translate}}{{constantGather('jobstatus', job.status).name | translate}}
+                  <br>
+                  <span>{{'jobDetail.statusMessage' | translate}}: {{job.status_message}}</span>
+                </span>
+              </div>
+            </div>
+          </div>
+          <div *ngIf="job.status===jobStatus.Deploying || job.status===jobStatus.Running" class="alert alert-info"
+            role="alert">
+            <div class="alert-items">
+              <div class="alert-item static">
+                <div class="alert-icon-wrapper">
+                  <cds-icon class="alert-icon" shape="info-circle"></cds-icon>
+                </div>
+                <span class="alert-text">
+                  {{'jobDetail.jobIs'|translate}}{{constantGather('jobstatus', job.status).name | translate}}
+                </span>
+              </div>
+            </div>
+          </div>
+        </clr-accordion-content>
+      </clr-accordion-panel>
+    </clr-accordion>
+  </div>
+</div>

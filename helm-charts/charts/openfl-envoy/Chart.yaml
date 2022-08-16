@@ -1,0 +1,7 @@
+apiVersion: v1
+appVersion: "openfl-envoy-v0.1.0"
+description: A Helm chart for openfl envoy
+name: openfl-envoy
+version: v0.1.0
+sources:
+  - https://github.com/FederatedAI/KubeFATE.git

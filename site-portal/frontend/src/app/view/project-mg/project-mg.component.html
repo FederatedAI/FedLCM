@@ -1,0 +1,305 @@
+<div class="content-area">
+  <br>
+  <h2>{{'nav.projectMg'| translate}}</h2>
+  <br>
+  <div class="newprojbtn">
+    <button class="btn btn-outline" (click)="newProjectAuthentication()">
+      <cds-icon shape="add-text"></cds-icon> {{'projectMg.newProject' | translate}}
+    </button>
+  </div>
+  <!-- create new project modal -->
+  <clr-modal [(clrModalOpen)]="openModal" [clrModalClosable]="false">
+    <h3 class="modal-title">{{'projectMg.createNewProject' | translate}} </h3>
+    <div class="modal-body">
+      <div *ngIf="(isCreateSubmitted && isCreatedFailed) " class="alert alert-danger" role="alert">
+        <div class="alert-items">
+          <div class="alert-item static">
+            <div class="alert-icon-wrapper">
+              <cds-icon class="alert-icon" shape="exclamation-circle"></cds-icon>
+            </div>
+            <span class="alert-text">
+              {{errorMessage}}
+            </span>
+          </div>
+        </div>
+      </div>
+      <form clrForm [formGroup]="form">
+        <clr-input-container>
+          <label>{{'CommonlyUse.name' | translate}}</label>
+          <input clrInput class="t1" [(ngModel)]="projName" name="projName" formControlName="projName" />
+          <clr-control-error
+            *ngIf="!form.get('projName')?.errors?.minlength && !form.get('projName')?.errors?.maxlength">
+            {{form.get('projName')?.errors?.emptyMessage || form.get('projName')?.errors?.message | translate}}
+          </clr-control-error>
+          <clr-control-error *ngIf="form.get('projName')?.errors?.minlength">{{'CommonlyUse.few' |
+            translate}}{{form.get('projName')?.errors?.minlength.requiredLength}}{{'CommonlyUse.character' |
+            translate}}</clr-control-error>
+          <clr-control-error *ngIf="form.get('projName')?.errors?.maxlength">{{'CommonlyUse.many' |
+            translate}}{{form.get('projName')?.errors?.maxlength.requiredLength}}{{'CommonlyUse.character' |
+            translate}}</clr-control-error>
+        </clr-input-container>
+        <clr-textarea-container>
+          <label>{{'CommonlyUse.description' | translate}}</label>
+          <textarea clrTextarea class="t2" name="desc" formControlName="desc" [(ngModel)]="desc"></textarea>
+        </clr-textarea-container>
+        <div>
+          <clr-toggle-container>
+            <label class="clr-col-6">{{'projectMg.autoApprovalOfJobs' | translate}}</label>
+            <clr-toggle-wrapper class="toggle">
+              <input type="checkbox" clrToggle name="options" value="options" formControlName="options"
+                [(ngModel)]="options" />
+            </clr-toggle-wrapper>
+          </clr-toggle-container>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <div *ngIf="isCreateSubmitted && !isCreatedFailed">
+        <span>{{'CommonlyUse.creating' | translate}} ... </span>
+        <clr-spinner [clrInline]="true"></clr-spinner>
+      </div>
+      <button type="button" class="btn btn-outline" (click)="reloadCurrentRoute()">{{'CommonlyUse.Cancel' |
+        translate}}</button>
+      <button type="button" class="btn btn-primary" (click)="createNewProject()">{{'CommonlyUse.Create' |
+        translate}}</button>
+    </div>
+  </clr-modal>
+  <br>
+  <clr-tabs>
+    <clr-tab>
+      <!-- project list -->
+      <button clrTabLink class="tabbtn">{{'projectMg.projectList' | translate}}</button>
+      <clr-tab-content *clrIfActive="true">
+        <br>
+        <a href="javascript://" class="label label-blue clickable"
+          (click)="selectOptions='all'">{{'projectMg.allProject' | translate}}<span class="badge"
+            *ngIf="selectOptions==='all'">{{joinedProjectList ? joinedProjectList.length : 0}}</span></a>
+        <a href="javascript://" class="label label-blue clickable"
+          (click)="selectOptions='owned'">{{'projectMg.ownedProject' | translate}}<span class="badge"
+            *ngIf="selectOptions==='owned'">{{myProjectList.length}}</span></a>
+        <a href="javascript://" class="label label-blue clickable"
+          (click)="selectOptions='joined'">{{'projectMg.joinedProject' | translate}}<span class="badge"
+            *ngIf="selectOptions==='joined'">{{othersProjectList.length}}</span></a>
+        <a href="javascript://" class="label label-blue clickable"
+          (click)="selectOptions='closed'">{{'projectMg.closedProject' | translate}}<span class="badge"
+            *ngIf="selectOptions==='closed'">{{closedProjectList.length}}</span></a>
+        <a href="javascript:;" class="refreshbtn" (click)="refresh()">
+          <cds-icon shape="refresh"></cds-icon>
+        </a>
+        <clr-alert [clrAlertType]="'danger'" *ngIf="acceptProjectInvitationSubmit && acceptProjectInvitationFailed">
+          <clr-alert-item>
+            <span class="alert-text">
+              {{errorMessage}}
+            </span>
+          </clr-alert-item>
+        </clr-alert>
+        <!-- all project list -->
+        <div *ngIf="selectOptions==='all'">
+          <clr-datagrid [clrDgLoading]="isPageLoading">
+            <clr-dg-column [clrDgField]="'name'">{{'projectMg.projectName' | translate}}</clr-dg-column>
+            <clr-dg-column>{{'CommonlyUse.description' | translate}}</clr-dg-column>
+            <clr-dg-column [clrDgSortBy]="timeComparator">{{'CommonlyUse.createTime' | translate}}</clr-dg-column>
+            <clr-dg-column>{{'projectMg.projectManager' | translate}}</clr-dg-column>
+            <clr-dg-column [clrDgSortBy]="managingSiteComparator">{{'projectMg.managingSiteName' | translate}}</clr-dg-column>
+            <clr-dg-column>{{'projectMg.managingSitePartyID' | translate}}</clr-dg-column>
+            <clr-dg-column [clrDgSortBy]="participantComparator">{{'projectMg.paticipant' | translate}}</clr-dg-column>
+            <clr-dg-column>{{'projectMg.job' | translate}}</clr-dg-column>
+            <clr-dg-column>{{'CommonlyUse.action' | translate}}</clr-dg-column>
+            <clr-dg-row *clrDgItems="let project of joinedProjectList; let i = index;">
+              <clr-dg-cell><a [routerLink]="['/project-management/project-detail', project.uuid]">{{project.name}}
+                  <cds-icon shape="new" style="color: brown;" size="md" *ngIf="project.pending_job_exist"></cds-icon>
+                </a></clr-dg-cell>
+              <clr-dg-cell>{{project.description}}</clr-dg-cell>
+              <clr-dg-cell>{{project.creation_time | dateFormatting}}</clr-dg-cell>
+              <clr-dg-cell>{{project.manager}}</clr-dg-cell>
+              <clr-dg-cell>{{project.managing_site_name}}</clr-dg-cell>
+              <clr-dg-cell>{{project.managing_site_party_id}}</clr-dg-cell>
+              <clr-dg-cell>{{project.participants_num}}</clr-dg-cell>
+              <clr-dg-cell>{{'Running' | translate}}: {{project.running_job_num}}<br>{{'Succeeded' | translate}}:
+                {{project.success_job_num}}</clr-dg-cell>
+              <clr-dg-cell *ngIf="project.managed_by_this_site"><a href="javascript:void(0)" class="alert-action"
+                  (click)="openCloseProjectModal(project.uuid)">{{'projectMg.close' | translate}}</a></clr-dg-cell>
+              <clr-dg-cell *ngIf="!project.managed_by_this_site"><a href="javascript:void(0)" class="alert-action"
+                  (click)="openLeaveProjectModal(project.uuid)">{{'projectMg.leave' | translate}}</a></clr-dg-cell>
+            </clr-dg-row>
+            <clr-dg-footer>{{joinedProjectList ? joinedProjectList.length : 0}} {{'CommonlyUse.item' | translate}}
+            </clr-dg-footer>
+          </clr-datagrid>
+        </div>
+        <!-- owned project -->
+        <div *ngIf="selectOptions==='owned'">
+          <clr-datagrid [clrDgLoading]="isPageLoading">
+            <clr-dg-column [clrDgField]="'name'">{{'projectMg.projectName' | translate}}</clr-dg-column>
+            <clr-dg-column>{{'CommonlyUse.description' | translate}}</clr-dg-column>
+            <clr-dg-column [clrDgSortBy]="timeComparator">{{'CommonlyUse.createTime' | translate}}</clr-dg-column>
+            <clr-dg-column>{{'projectMg.projectManager' | translate}}</clr-dg-column>
+            <clr-dg-column [clrDgSortBy]="participantComparator">{{'projectMg.paticipant' | translate}}</clr-dg-column>
+            <clr-dg-column>{{'projectMg.job' | translate}}</clr-dg-column>
+            <clr-dg-column>{{'CommonlyUse.action' | translate}}</clr-dg-column>
+            <clr-dg-row *clrDgItems="let project of myProjectList; let i = index;">
+              <clr-dg-cell><a [routerLink]="['/project-management/project-detail', project.uuid]">{{project.name}}
+                  <cds-icon shape="new" style="color: brown;" size="md" *ngIf="project.pending_job_exist"></cds-icon>
+                </a></clr-dg-cell>
+              <clr-dg-cell>{{project.description}}</clr-dg-cell>
+              <clr-dg-cell>{{project.creation_time | dateFormatting}}</clr-dg-cell>
+              <clr-dg-cell>{{project.manager}}</clr-dg-cell>
+              <clr-dg-cell>{{project.participants_num}}</clr-dg-cell>
+              <clr-dg-cell>{{'Running' | translate}}: {{project.running_job_num}}<br>{{'Succeeded' | translate}}:
+                {{project.success_job_num}}</clr-dg-cell>
+              <clr-dg-cell><a href="javascript:void(0)" class="alert-action"
+                  (click)="openCloseProjectModal(project.uuid)">{{'projectMg.close' | translate}}</a></clr-dg-cell>
+            </clr-dg-row>
+            <clr-dg-footer>{{myProjectList.length}} {{'CommonlyUse.item' | translate}}</clr-dg-footer>
+          </clr-datagrid>
+        </div>
+        <!-- joined project list -->
+        <div *ngIf="selectOptions==='joined'">
+          <clr-datagrid [clrDgLoading]="isPageLoading">
+            <clr-dg-column [clrDgField]="'name'">{{'projectMg.projectName' | translate}}</clr-dg-column>
+            <clr-dg-column>{{'CommonlyUse.description' | translate}}</clr-dg-column>
+            <clr-dg-column [clrDgSortBy]="timeComparator">{{'CommonlyUse.createTime' | translate}}</clr-dg-column>
+            <clr-dg-column>{{'projectMg.projectManager' | translate}}</clr-dg-column>
+            <clr-dg-column [clrDgSortBy]="managingSiteComparator">{{'projectMg.managingSiteName' | translate}}
+            </clr-dg-column>
+            <clr-dg-column>{{'projectMg.managingSitePartyID' | translate}}</clr-dg-column>
+            <clr-dg-column [clrDgSortBy]="participantComparator">{{'projectMg.paticipant' | translate}}</clr-dg-column>
+            <clr-dg-column>{{'projectMg.job' | translate}}</clr-dg-column>
+            <clr-dg-column>{{'CommonlyUse.action' | translate}}</clr-dg-column>
+            <clr-dg-row *clrDgItems="let project of othersProjectList; let i = index;">
+              <clr-dg-cell><a [routerLink]="['/project-management/project-detail', project.uuid]">{{project.name}}
+                  <cds-icon shape="new" style="color: brown;" size="md" *ngIf="project.pending_job_exist"></cds-icon>
+                </a></clr-dg-cell>
+              <clr-dg-cell>{{project.description}}</clr-dg-cell>
+              <clr-dg-cell>{{project.creation_time | dateFormatting}}</clr-dg-cell>
+              <clr-dg-cell>{{project.manager}}</clr-dg-cell>
+              <clr-dg-cell>{{project.managing_site_name}}</clr-dg-cell>
+              <clr-dg-cell>{{project.managing_site_party_id}}</clr-dg-cell>
+              <clr-dg-cell>{{project.participants_num}}</clr-dg-cell>
+              <clr-dg-cell>{{'Running' | translate}}: {{project.running_job_num}}<br>{{'Succeeded' | translate}}:
+                {{project.success_job_num}}</clr-dg-cell>
+              <clr-dg-cell><a href="javascript:void(0)" class="alert-action"
+                  (click)="openLeaveProjectModal(project.uuid)">{{'projectMg.leave' | translate}}</a></clr-dg-cell>
+            </clr-dg-row>
+            <clr-dg-footer>{{othersProjectList.length}} {{'CommonlyUse.item' | translate}}</clr-dg-footer>
+          </clr-datagrid>
+        </div>
+        <!-- close project list -->
+        <div *ngIf="selectOptions==='closed'">
+          <clr-datagrid [clrDgLoading]="isPageLoading">
+            <clr-dg-column [clrDgField]="'name'">{{'projectMg.projectName' | translate}}</clr-dg-column>
+            <clr-dg-column>{{'CommonlyUse.description' | translate}}</clr-dg-column>
+            <clr-dg-column [clrDgSortBy]="timeComparator">{{'CommonlyUse.createTime' | translate}}</clr-dg-column>
+            <clr-dg-column>{{'projectMg.projectManager' | translate}}</clr-dg-column>
+            <clr-dg-column [clrDgSortBy]="managingSiteComparator">{{'projectMg.managingSiteName' | translate}}
+            </clr-dg-column>
+            <clr-dg-column>{{'projectMg.managingSitePartyID' | translate}}</clr-dg-column>
+            <clr-dg-column>{{'CommonlyUse.status' | translate}}</clr-dg-column>
+            <clr-dg-row *clrDgItems="let project of closedProjectList; let i = index;">
+              <clr-dg-cell>{{project.name}}</clr-dg-cell>
+              <clr-dg-cell>{{project.description}}</clr-dg-cell>
+              <clr-dg-cell>{{project.creation_time | dateFormatting}}</clr-dg-cell>
+              <clr-dg-cell>{{project.manager}}</clr-dg-cell>
+              <clr-dg-cell>{{project.managing_site_name}}</clr-dg-cell>
+              <clr-dg-cell>{{project.managing_site_party_id}}</clr-dg-cell>
+              <clr-dg-cell>{{project.closing_status}}</clr-dg-cell>
+            </clr-dg-row>
+            <clr-dg-footer>{{closedProjectList.length}} {{'CommonlyUse.item' | translate}}</clr-dg-footer>
+          </clr-datagrid>
+        </div>
+      </clr-tab-content>
+    </clr-tab>
+    <clr-tab>
+      <!-- project invitation list -->
+      <button clrTabLink class="tabbtn">{{'projectMg.projectInvitation' | translate}} <span class="badge badge-danger"
+          *ngIf="invitedProjectList?.length != 0">{{invitedProjectList.length}}</span></button>
+      <clr-tab-content *clrIfActive>
+        <div class="clr-row">
+          <div class="clr-col-lg-4 clr-col-md-12 clr-col-sm-12"
+            *ngFor="let project of invitedProjectList; let i = index;">
+            <div class="card">
+              <div class="card-header">
+                {{project.name}}
+              </div>
+              <div class="card-block">
+                <div class="card-text">
+                  <ul class="list">
+                    <li>
+                      <span><b>{{'CommonlyUse.description' | translate}}:</b></span>
+                      <span>{{project.description}}</span>
+                    </li>
+                    <li>
+                      <span><b>{{'CommonlyUse.createTime' | translate}}:</b></span>
+                      <span>{{project.creation_time | dateFormatting}}</span>
+                    </li>
+                    <li>
+                      <span><b>{{'projectMg.projectManager' | translate}}:</b></span>
+                      <span>{{project.manager}}</span>
+                    </li>
+                    <li>
+                      <span><b>{{'CommonlyUse.siteName' | translate}}:</b></span>
+                      <span>{{project.managing_site_name}}</span>
+                    </li>
+                    <li>
+                      <span><b>{{'site.partyId'| translate}}:</b></span>
+                      <span>{{project.managing_site_party_id}}</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <div class="card-footer">
+                <button class="btn btn-sm btn-link" (click)="acceptInvitation(project.uuid)">{{'CommonlyUse.accept' |
+                  translate}}</button>
+                <button class="btn btn-sm btn-link" (click)="openRejectModal(project.uuid)">{{'CommonlyUse.decline' |
+                  translate}}</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </clr-tab-content>
+    </clr-tab>
+  </clr-tabs>
+  <!-- confrimation modal when close/ leave/ reject project -->
+  <clr-modal [(clrModalOpen)]="isOpenRejectModal || isOpenLeaveModal || isOpenCloseModal" [clrModalClosable]="false">
+    <h3 class="modal-title" *ngIf="isOpenRejectModal">{{'CommonlyUse.decline' | translate}}</h3>
+    <h3 class="modal-title" *ngIf="isOpenLeaveModal">{{'projectDetail.leaveProject' | translate}}</h3>
+    <h3 class="modal-title" *ngIf="isOpenCloseModal">{{'projectMg.close' | translate}}</h3>
+    <div class="modal-body">
+      <div class="alert alert-danger" role="alert"
+        *ngIf="(isLeaveProjectSubmit && isLeaveProjectFailed) || (rejectProjectInvitationSubmit && rejectProjectInvitationFailed) || (isCloseProjectSubmit && isCloseProjectFailed)">
+        <div class="alert-items">
+          <div class="alert-item static">
+            <div class="alert-icon-wrapper">
+              <cds-icon class="alert-icon" shape="exclamation-circle"></cds-icon>
+            </div>
+            <span class="alert-text" *ngIf="isLeaveProjectSubmit && isLeaveProjectFailed">
+              {{errorMessage}}
+              <a href="javascript:;" *ngIf="associatedDataExistWhenLeave"
+                (click)="redirectToData(leaveProjectUUID)">{{'projectMg.leaveProjectDataError'| translate}}</a>
+            </span>
+            <span class="alert-text" *ngIf="rejectProjectInvitationSubmit && rejectProjectInvitationFailed">
+              {{rejectErrorMessage}}
+            </span>
+          </div>
+        </div>
+      </div>
+      <p *ngIf="isOpenRejectModal">{{'projectMg.rejectProjectMessage'| translate}}</p>
+      <p *ngIf="isOpenLeaveModal">{{'projectMg.leaveProjectMessage' | translate}}</p>
+      <p *ngIf="isOpenCloseModal">{{'projectMg.closeProjectMessage' | translate}}</p>
+    </div>
+    <div class="modal-footer">
+      <div
+        *ngIf="(rejectProjectInvitationSubmit && !rejectProjectInvitationFailed) || (isLeaveProjectSubmit && !isLeaveProjectFailed) || (isCloseProjectSubmit && !isCloseProjectFailed)">
+        <span>{{'CommonlyUse.pleasewait' | translate}} ... </span>
+        <clr-spinner [clrInline]="true"></clr-spinner>
+      </div>
+      <button type="button" class="btn btn-outline" (click)="reloadCurrentRoute()">{{'CommonlyUse.cancel' |
+        translate}}</button>
+      <button type="submit" class="btn btn-primary" *ngIf="isOpenRejectModal"
+        (click)="rejectInvitation(rejectProjectUUID)">{{'CommonlyUse.decline' | translate}}</button>
+      <button type="submit" class="btn btn-primary" *ngIf="isOpenLeaveModal"
+        (click)='leaveProject(leaveProjectUUID)'>{{'projectMg.leave' | translate}}</button>
+      <button type="submit" class="btn btn-primary" *ngIf="isOpenCloseModal"
+        (click)='closeProject(closeProjectUUID)'>{{'projectMg.close' | translate}}</button>
+    </div>
+  </clr-modal>
+</div>

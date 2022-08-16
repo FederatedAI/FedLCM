@@ -1,0 +1,195 @@
+# Copyright 2022 VMware, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+{{ if .Values.modules.frontend.include }}
+{{ if .Values.modules.sitePortalServer.tlsEnabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-conf-https
+data:   
+  nginx.conf.template: |    
+    worker_processes auto;
+    pid /tmp/nginx.pid;
+
+    events {
+        worker_connections  1024;
+    }
+
+    http {
+
+        client_body_temp_path /tmp/client_body_temp;
+        proxy_temp_path /tmp/proxy_temp;
+        fastcgi_temp_path /tmp/fastcgi_temp;
+        uwsgi_temp_path /tmp/uwsgi_temp;
+        scgi_temp_path /tmp/scgi_temp;
+
+        upstream server {
+            server ${SITEPORTAL_SERVER_HOST}:8443;
+        }
+
+        server {
+            listen 8443 ssl;
+            server_name  localhost;
+
+            ssl_certificate  /var/lib/site-portal/cert/server.crt;
+          ssl_certificate_key  /var/lib/site-portal/cert/server.key;
+            ssl_client_certificate /var/lib/site-portal/cert/ca.crt;
+            ssl_verify_client optional;
+
+            ssl_protocols TLSv1.2;
+            ssl_ciphers '!aNULL:kECDH+AESGCM:ECDH+AESGCM:RSA+AESGCM:kECDH+AES:ECDH+AES:RSA+AES:';
+            ssl_prefer_server_ciphers on;
+            ssl_session_cache shared:SSL:10m;
+
+            root   /usr/share/nginx/html;
+            index  index.html index.htm;
+            include /etc/nginx/mime.types;
+
+            gzip on;
+            gzip_min_length 1000;
+            gzip_proxied expired no-cache no-store private auth;
+            gzip_types text/plain text/css application/json application/javascript application/x-javascript text/xml application/xml application/xml+rss text/javascript;
+
+            location / {
+                try_files $uri $uri/ /index.html;
+            }
+
+            location = /index.html {
+                add_header Cache-Control "no-store, no-cache, must-revalidate";
+            }
+
+            location /api/ {
+                  proxy_pass https://server/api/;
+
+                  proxy_ssl_certificate /var/lib/site-portal/cert/client.crt;
+                  proxy_ssl_certificate_key /var/lib/site-portal/cert/client.key;
+                  
+                  proxy_set_header Host $host;
+                  proxy_set_header X-Real-IP $remote_addr;
+                  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+
+                  proxy_buffering off;
+                  proxy_request_buffering off;
+
+                  proxy_set_header X-SP-CLIENT-CERT $ssl_client_escaped_cert;
+                  proxy_set_header X-SP-CLIENT-SDN $ssl_client_s_dn;
+                  proxy_set_header X-SP-CLIENT-VERIFY $ssl_client_verify;
+            }
+        }
+    }
+---
+{{ end }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  labels:
+    fateMoudle: frontend
+{{ include "fate.labels" . | indent 4 }}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      fateMoudle: frontend
+{{ include "fate.matchLabels" . | indent 6 }}
+  template:
+    metadata:
+      labels:
+        fateMoudle: frontend
+{{ include "fate.labels" . | indent 8 }}
+    spec:
+      containers:
+        - name: frontend
+          image: {{ with .Values.image.registry }}{{ printf "%s/" . }}{{ end }}{{ .Values.modules.frontend.image | default "site-portal-frontend" }}:{{ .Values.modules.frontend.imageTag | default "latest"}}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+          {{ if .Values.modules.sitePortalServer.tlsEnabled }}
+            - containerPort: 8443
+          {{ else }}
+            - containerPort: 8080
+          {{ end }}
+          {{ if .Values.modules.sitePortalServer.tlsEnabled }}
+          volumeMounts:
+            - mountPath: /var/lib/site-portal/cert
+              name: site-portal-cert
+            - mountPath: /etc/nginx/conf.d/nginx.conf.template
+              name: nginx-conf-https
+              subPath: nginx.conf.template
+          {{ end }}
+          env:
+          - name: SITEPORTAL_SERVER_HOST
+            value: site-portal-server
+      {{- with .Values.modules.frontend.nodeSelector }}
+      nodeSelector: 
+{{ toYaml . | indent 8 }}
+      {{- end }}
+      {{- with .Values.modules.frontend.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+      {{- end }}
+      {{- with .Values.modules.frontend.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+      {{- end }}
+      {{- with .Values.image.imagePullSecrets }}
+      imagePullSecrets:
+{{ toYaml . | indent 6 }}
+      {{- end }}
+      serviceAccountName: {{ template "serviceAccountName" . }}
+      restartPolicy: Always
+      {{ if .Values.modules.sitePortalServer.tlsEnabled }}
+      volumes:
+        - name: site-portal-cert
+          secret:
+            secretName: site-portal-cert
+        - name: nginx-conf-https
+          configMap:
+            name: nginx-conf-https
+      {{ end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+  labels:
+    fateMoudle: frontend
+{{ include "fate.labels" . | indent 4 }}
+spec:
+  ports:
+    - name: "http-frontend"
+      port: 8080
+      targetPort: 8080
+      {{- if eq .Values.modules.frontend.type "NodePort" "LoadBalancer" }}
+      nodePort: {{ .Values.modules.frontend.nodePort }}
+      {{- end }}
+      protocol: TCP
+    - name: "https-frontend"
+      port: 8443
+      targetPort: 8443
+      {{- if eq .Values.modules.frontend.type "NodePort" "LoadBalancer" }}
+      nodePort: {{ .Values.modules.frontend.nodePort }}
+      {{- end }}
+      protocol: TCP
+  type: {{ .Values.modules.frontend.type }}
+  {{- if .Values.modules.frontend.loadBalancerIP }}
+  loadBalancerIP: "{{ .Values.modules.frontend.loadBalancerIP }}"
+  {{- end }}
+  selector:
+    fateMoudle: frontend
+{{ include "fate.matchLabels" . | indent 4 }}
+---
+{{ end }}

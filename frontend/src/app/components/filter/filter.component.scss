@@ -1,0 +1,23 @@
+
+.searchinput {
+  width: 150px;
+}
+
+.clr-form{
+  position: relative;
+  margin-bottom: 30px;
+  .searchbtn {
+    position: absolute;
+    .search {
+      position: absolute;
+      right: 0px;
+    }
+  }
+  &.position {
+    .clr-row::ng-deep {
+      .clr-form-control {
+        margin-top: 0px;
+      }
+    }
+  }
+}

@@ -1,0 +1,60 @@
+version: '3.5'
+
+services:
+  server:
+    image: "${SERVER_IMG}"
+    user: root
+    volumes:
+        - ./output/stepca:/home/step
+    depends_on:
+      - postgres
+      - stepca
+    links:
+      - stepca
+    restart: always
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: lifecycle_manager
+      POSTGRES_PASSWORD: lifecycle_manager
+      POSTGRES_DB: lifecycle_manager
+      LIFECYCLEMANAGER_INITIAL_ADMIN_PASSWORD: admin
+      LIFECYCLEMANAGER_SECRETKEY: passphrase123456
+      LIFECYCLEMANAGER_DEBUG: 'false'
+      LIFECYCLEMANAGER_BUILTINCA_HOST: stepca
+      LIFECYCLEMANAGER_BUILTINCA_PROVISIONER_NAME: stepca
+      LIFECYCLEMANAGER_BUILTINCA_PROVISIONER_PASSWORD: stepca
+      LIFECYCLEMANAGER_BUILTINCA_DATADIR: ./home/step
+
+  postgres:
+    image: postgres:13.3
+    volumes:
+      - ./output/data/postgres:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: lifecycle_manager
+      POSTGRES_USER: lifecycle_manager
+      POSTGRES_DB: lifecycle_manager
+
+  frontend:
+    image: "${FRONTEND_IMG}"
+    restart: always
+    depends_on:
+      - server
+    ports:
+      - "9080:8080"
+  
+  stepca:
+    image: smallstep/step-ca:0.18.2
+    user: root
+    volumes:
+      - ./output/stepca:/home/step
+      - ./make/stepca/entrypoint.sh:/entrypoint.sh
+    restart: always
+    environment:
+      DOCKER_STEPCA_INIT_NAME: stepca
+      DOCKER_STEPCA_INIT_DNS_NAMES: stepca
+      DOCKER_STEPCA_INIT_PASSWORD: stepca
+      DOCKER_STEPCA_INIT_PROVISIONER_NAME: stepca

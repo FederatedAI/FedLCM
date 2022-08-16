@@ -1,0 +1,65 @@
+.alert {
+    width: 30%;
+}
+li span:first-of-type {
+    font-size: 13px;
+    display: inline-block;
+    width: 150px;
+    margin-right: 10px;
+    line-height: 36px;
+}
+.t2{
+    width: 300px;
+    height: 100px;
+}
+.yamlbtn {
+    display: flex;
+    float: left;
+    margin-bottom: 0;
+    margin-right: 100%;
+}
+.t2{
+    width: 500px;
+    height: 100px;
+}
+.t3{
+    width: 500px;
+    height: 400px;
+}
+// mark changes
+.no-warp::ng-deep {
+    label {
+        margin-right: 25px;
+        line-height: 24px;
+    }
+    input {
+        width:300px;
+    }
+    flex-direction: row;
+    align-items: center;
+}
+
+.no-warp2::ng-deep {
+    input {
+        width:400px;
+    }
+}
+// mark changes
+.yaml {
+    font-weight: 700;
+    margin: 10px 0;
+}
+.yaml-warp::ng-deep {
+    .clr-form-control {
+        .clr-textarea-wrapper {
+          width: 600px;
+        }  
+    }
+    .clr-accordion-status {
+        display: flex;
+    }
+}
+
+.externalPartyIDLabel {
+    margin-bottom: 0px;
+}

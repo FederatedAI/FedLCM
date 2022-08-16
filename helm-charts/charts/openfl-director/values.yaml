@@ -1,0 +1,41 @@
+image:
+  registry: federatedai
+  pullPolicy: IfNotPresent
+  imagePullSecrets:
+#  - name:
+
+podSecurityPolicy:
+  enabled: false
+
+ingress:
+  notebook:
+    # annotations:
+    hosts:
+      - name: notebook.openfl.example.com
+        path: /
+    tls: []
+
+modules:
+  director:
+    image: fedlcm-openfl
+    imageTag: v0.1.0
+    sampleShape: "['1']"
+    targetShape: "['1']"
+    envoyHealthCheckPeriod: 60
+    # nodeSelector:
+    # tolerations:
+    # affinity:
+    type: NodePort
+    # nodePort:
+    # loadBalancerIP:
+
+  notebook:
+    image: fedlcm-openfl
+    imageTag: v0.1.0
+    # password:
+    # nodeSelector:
+    # tolerations:
+    # affinity:
+    type: NodePort
+    # nodePort:
+    # loadBalancerIP:

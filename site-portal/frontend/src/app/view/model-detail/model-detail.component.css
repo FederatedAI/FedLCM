@@ -1,0 +1,47 @@
+.content-area{
+    width: 100%;
+    min-width: 1080px;
+}
+.clr-input-wrapper  {
+    margin-top: -11%;
+}
+.content-area .card1 .list span:first-of-type {
+    font-size: 15px;
+    display: inline-block;
+    width: 200px;
+    margin-right: 10px;
+}
+.content-area .card3 .list span:first-of-type {
+    font-size: 15px;
+    display: inline-block;
+    width: 200px;
+    margin-right: 10px;
+}
+.content-area .card2 .list span:first-of-type {
+    font-size: 15px;
+    display: inline-block;
+    width: 130px;
+    margin-right: 10px;
+}
+.evaltable {
+    width: 30%;
+}
+clr-datagrid {
+    margin: 0px;
+    margin-top: -12px;
+}
+.card1 {
+    margin-top: 12px;
+}
+.pageLoading {
+    margin-top: 10%;
+    margin-left: 45%;
+}
+textarea {
+    resize: none;
+}
+.t2{
+    width: 100%;
+    height:100px;
+}
+

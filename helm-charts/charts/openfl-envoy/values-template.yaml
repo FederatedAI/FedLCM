@@ -1,0 +1,39 @@
+name: {{ .name }}
+
+image:
+  registry: {{ .registry | default "federatedai" }}
+  pullPolicy: {{ .pullPolicy | default "IfNotPresent" }}
+  {{- with .imagePullSecrets }}
+  imagePullSecrets:
+{{ toYaml . | indent 2 }}
+  {{- end }}
+
+{{- with .podSecurityPolicy }}
+podSecurityPolicy:
+  enabled: {{ .enabled | default false }}
+{{- end }}
+
+modules:
+  envoy:
+    {{- with .envoy }}
+    image: {{ .image }}
+    imageTag: {{ .imageTag }}
+    directorFqdn: {{ .directorFqdn }}
+    directorIp: {{ .directorIp }}
+    directorPort: {{ .directorPort }}
+    aggPort: {{ .aggPort }}
+    envoyConfigs:
+{{ toYaml .envoyConfigs | indent 6 }}
+    {{- with .nodeSelector }}
+    nodeSelector:
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    {{- with .tolerations }}
+    tolerations:
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    {{- with .affinity }}
+    affinity:
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    {{- end }}

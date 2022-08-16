@@ -1,0 +1,7 @@
+apiVersion: v1
+appVersion: "openfl-director-v0.1.0"
+description: A Helm chart for openfl director, based on official OpenFL container image
+name: openfl-director
+version: v0.1.0
+sources:
+  - https://github.com/FederatedAI/KubeFATE.git

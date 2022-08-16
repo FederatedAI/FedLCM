@@ -1,0 +1,114 @@
+<br>
+<button class="btn btn-outline" [routerLink]="['/project-management/project-detail', uuid, 'job', 'new-job']">
+  <cds-icon shape="add-text"></cds-icon> {{'projectDetail.newJob'| translate}}
+</button>
+<br>
+<div *ngIf="(refreshJobsSubmit && refreshJobFailed) || isShowjobFailed || approveJobFailed" class="alert alert-danger" role="alert">
+  <div class="alert-items">
+    <div class="alert-item static">
+      <div class="alert-icon-wrapper">
+        <cds-icon class="alert-icon" shape="exclamation-circle"></cds-icon>
+      </div>
+      <span class="alert-text">
+        {{errorMessage}}
+      </span>
+    </div>
+  </div>
+</div>
+<a href="javascript:;" class="refreshbtn" (click)="refresh()">
+  <cds-icon shape="refresh"></cds-icon>
+</a>
+<br>
+<clr-datagrid [clrDgLoading]="isPageLoading">
+  <clr-dg-column [clrDgField]="'name'">{{'CommonlyUse.name'| translate}}</clr-dg-column>
+  <clr-dg-column [clrDgSortBy]="createTimeComparator">{{'CommonlyUse.createTime'| translate}}</clr-dg-column>
+  <clr-dg-column>{{'projectDetail.finishTime'| translate}}</clr-dg-column>
+  <clr-dg-column>{{'CommonlyUse.id'| translate}}</clr-dg-column>
+  <clr-dg-column [clrDgSortBy]="typeComparator">{{'projectDetail.jobType'| translate}}</clr-dg-column>
+  <clr-dg-column [clrDgSortBy]="partyComparator">{{'projectDetail.initiator'| translate}}</clr-dg-column>
+  <clr-dg-column [clrDgSortBy]="statusComparator">{{'CommonlyUse.status'| translate}}</clr-dg-column>
+  <clr-dg-column>{{'CommonlyUse.action'| translate}}</clr-dg-column>
+  <clr-dg-row *clrDgItems="let job of jobList">
+    <clr-dg-cell [routerLink]="['/project-management/project-detail', job.project_uuid, 'job', 'job-detail', job.uuid]">
+      <a href="javascript:void(0)">{{job.name}}</a></clr-dg-cell>
+    <clr-dg-cell>{{job.creation_time | dateFormatting}}</clr-dg-cell>
+    <clr-dg-cell *ngIf="job.status===jobStatus.Succeeded">{{job.finish_time | dateFormatting}}</clr-dg-cell>
+    <clr-dg-cell *ngIf="job.status!=jobStatus.Succeeded">{{'CommonlyUse.null'| translate}}</clr-dg-cell>
+    <clr-dg-cell>{{job.uuid}}</clr-dg-cell>
+    <clr-dg-cell>
+      <span class="label" [class.label-blue]="job.type===jobType.Modeling"
+        [class.label-purple]="job.type===jobType.Predict"
+        [class.label-orange]="job.type===jobType.PSI">{{constantGather('jobtype', job.type).name | translate}}</span>
+    </clr-dg-cell>
+    <clr-dg-cell>{{job.initiating_site_name}}</clr-dg-cell>
+    <clr-dg-cell>
+      <span class="label label-info" [class.label-success]="job.status===jobStatus.Succeeded"
+        [class.label-danger]="job.status===jobStatus.Failed || job.status===jobStatus.Rejected"
+        [class.label-warning]="job.status===jobStatus.Pending">{{constantGather('jobstatus', job.status).name |
+        translate}}</span>
+    </clr-dg-cell>
+    <clr-dg-cell>
+      <a href="javascript:void(0)" class="alert-action" (click)="openConfirmModal(job.uuid)">{{'CommonlyUse.delete'|
+        translate}}</a>&nbsp;&nbsp;<a href="javascript:void(0)" class="alert-action" *ngIf="job.pending_on_this_site"
+        (click)="approve(job.uuid)">{{'jobDetail.accept'| translate}}</a>&nbsp;&nbsp;<a href="javascript:void(0)"
+        class="alert-action" *ngIf="job.pending_on_this_site" (click)="openRejectModal(job.uuid)">{{'jobDetail.decline'|
+        translate}}</a>
+    </clr-dg-cell>
+  </clr-dg-row>
+  <clr-dg-footer>{{jobList ? jobList.length : 0}} {{'CommonlyUse.item' | translate}}</clr-dg-footer>
+</clr-datagrid>
+<clr-modal [(clrModalOpen)]="openDeleteModal" [clrModalClosable]="false">
+  <h3 class="modal-title">{{'jobDetail.deleteJob' | translate}}</h3>
+  <div class="modal-body">
+    <div *ngIf="(deleteJobSubmit && submitDeleteFailed)" class="alert alert-danger" role="alert">
+      <div class="alert-items">
+        <div class="alert-item static">
+          <div class="alert-icon-wrapper">
+            <cds-icon class="alert-icon" shape="exclamation-circle"></cds-icon>
+          </div>
+          <span class="alert-text">
+            {{deleteerrorMessage}}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <div *ngIf="deleteJobSubmit && !submitDeleteFailed">
+      <span>{{'CommonlyUse.deleting' | translate}} ... </span>
+      <clr-spinner [clrInline]="true"></clr-spinner>
+    </div>
+    <button type="button" class="btn btn-outline" (click)="reloadCurrentRoute()">{{'CommonlyUse.cancel' |
+      translate}}</button>
+    <button type="submit" class="btn btn-primary" (click)="deleteJob(pendingJobId)">{{'CommonlyUse.delete' |
+      translate}}</button>
+  </div>
+</clr-modal>
+<clr-modal [(clrModalOpen)]="isOpenRejectModal" [clrModalClosable]="false">
+  <h3 class="modal-title">{{'CommonlyUse.decline' | translate}}</h3>
+  <div class="modal-body">
+    <div *ngIf="(rejectJobsSubmit && rejectJobFailed)" class="alert alert-danger" role="alert">
+      <div class="alert-items">
+        <div class="alert-item static">
+          <div class="alert-icon-wrapper">
+            <cds-icon class="alert-icon" shape="exclamation-circle"></cds-icon>
+          </div>
+          <span class="alert-text">
+            {{rejectErrorMessage}}
+          </span>
+        </div>
+      </div>
+    </div>
+    <p>{{'projectDetail.rejectMessage'| translate}}</p>
+  </div>
+  <div class="modal-footer">
+    <div *ngIf="rejectJobsSubmit && !rejectJobFailed">
+      <span>{{'CommonlyUse.pleasewait' | translate}} ... </span>
+      <clr-spinner [clrInline]="true"></clr-spinner>
+    </div>
+    <button type="button" class="btn btn-outline" (click)="reloadCurrentRoute()">{{'CommonlyUse.cancel' |
+      translate}}</button>
+    <button type="submit" class="btn btn-primary" (click)="reject(reject_job_uuid)">{{'CommonlyUse.decline' |
+      translate}}</button>
+  </div>
+</clr-modal>

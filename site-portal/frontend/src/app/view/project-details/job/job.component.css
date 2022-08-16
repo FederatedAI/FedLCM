@@ -1,0 +1,14 @@
+.alert{
+    padding-left: 0%;
+    padding-right: 0%;
+    padding-top: 0%;
+    padding-bottom: 0%;
+}
+.refreshbtn {
+    float: right;
+    margin-right: 12px;
+}
+.pageLoading {
+    margin-top: 10%;
+    margin-left: 45%;
+}

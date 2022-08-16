@@ -1,0 +1,74 @@
+# Copyright 2022 VMware, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    openfl: envoy
+{{ include "openfl-envoy.labels" . | indent 4 }}
+  name: envoy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      openfl: envoy
+  template:
+    metadata:
+      labels:
+        openfl: envoy
+    spec:
+      containers:
+        - command:
+            - /bin/bash
+            - -c
+            - "pip install -r python/requirements.txt; PYTHONPATH=${PYTHONPATH}:`pwd`/python fx envoy start --shard-name \"$ENVOY_NAME\" --director-host \"$DIRECTOR_FQDN\" --director-port \"$DIRECTOR_PORT\" --root-cert-path cert/root_ca.crt --private-key-path cert/priv.key --public-cert-path cert/envoy.crt --envoy-config-path envoy_config.yaml"
+          env:
+            - name: ENVOY_NAME
+              value: {{ .Values.name }}
+            - name: DIRECTOR_FQDN
+              value: {{ .Values.modules.envoy.directorFqdn }}
+            - name: DIRECTOR_PORT
+              value: "{{ .Values.modules.envoy.directorPort }}"
+            - name: AGG_PORT
+              value: "{{ .Values.modules.envoy.aggPort }}"
+          image: {{ with .Values.image.registry }}{{ printf "%s/" . }}{{ end }}{{ .Values.modules.envoy.image | default "fedlcm-openfl" }}:{{ .Values.modules.envoy.imageTag | default "latest"}}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          name: envoy
+          volumeMounts:
+            - mountPath: /openfl/workspace/envoy_config.yaml
+              name: envoy-config
+              readOnly: true
+              subPath: envoy_config.yaml
+            - mountPath: /openfl/workspace/python/
+              name: envoy-python-configs
+              readOnly: true
+            - mountPath: /openfl/workspace/cert/
+              name: envoy-cert
+          workingDir: /openfl/workspace
+      hostAliases:
+        - hostnames:
+            - {{ .Values.modules.envoy.directorFqdn }}
+          ip: {{ .Values.modules.envoy.directorIp }}
+      restartPolicy: Always
+      volumes:
+        - configMap:
+            name: envoy-config
+          name: envoy-config
+        - configMap:
+            name: envoy-python-configs
+          name: envoy-python-configs
+        - name: envoy-cert
+          secret:
+            secretName: envoy-cert

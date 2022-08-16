@@ -1,0 +1,24 @@
+<div class="login-wrapper">
+  <form class="login" *ngIf="!isLoggedIn" name="form" (ngSubmit)="submitLogin()" novalidate>
+    <section class="title">
+      <h3 class="welcome">{{'login.welcome'| translate}}</h3>
+      {{'home.sitePortal'| translate}}
+    </section>
+    <div class="login-group">
+      <clr-input-container>
+        <label class="clr-sr-only">{{'login.username'| translate}}</label>
+        <input type="text" class="form-control" name="username" clrInput value=username
+          placeholder="{{'login.username'|translate}}" [(ngModel)]="form.username" required />
+      </clr-input-container>
+      <clr-password-container>
+        <label class="clr-sr-only">{{'login.password'| translate}}</label>
+        <input type="password" class="form-control" name="password" clrPassword value=password
+          placeholder="{{'login.password'|translate}}" [(ngModel)]="form.password" required />
+      </clr-password-container>
+      <clr-control-error *ngIf="submitted && isLoginFailed" style="color: brown;">{{errorMessage}}</clr-control-error>
+      <div class="login-group">
+        <button type="submit" class="btn btn-primary">{{'login.logIn'| translate}}</button>
+      </div>
+    </div>
+  </form>
+</div>

@@ -1,0 +1,120 @@
+<div class="content-area">
+  <a href="javascript:void(0)" [routerLink]="['/certificate']">&lt;&lt;{{'CommonlyUse.back'| translate}}</a>
+  <h2>{{'Certificate.authority'| translate}}
+    <span *ngIf="!isAdd && isUpdateBtn && !isPageLoading" class="label statusLabel" [class.label-success]="caStatus===2"
+      [class.label-danger]="caStatus==1" [class.label-warning]="caStatus===0">{{constantGather('caStatus',
+      caStatus).name | translate}}</span>
+  </h2>
+  <clr-alert clrAlertType="danger" [clrAlertClosable]="false"
+    *ngIf="(!isAdd && isUpdateBtn && caStatus==1) || getCaDetailFailed">
+    <b>{{'CertificateDetail.statusErrorAlert'|translate}}</b> <br>{{caStatusMessage}}
+  </clr-alert>
+  <br>
+  <div *ngIf="!isPageLoading">
+    <button class="btn btn-sm updatebtn" type="button" *ngIf="!isAdd && isUpdateBtn"
+      (click)="updateFlag = true;isUpdateBtn=false">{{'CommonlyUse.update'|translate}}</button>
+    <button class="btn btn-sm updatebtn" type="button" *ngIf="!isAdd && isUpdateBtn"
+      (click)="getCAConfig()">{{'CommonlyUse.refresh'|translate}}</button>
+    <div class="card">
+      <form clrForm [formGroup]="form">
+        <ul class="list">
+          <li>
+            <clr-input-container>
+              <label>{{'CommonlyUse.name'|translate}} :</label>
+              <input clrInput name="name" formControlName="name" style="color: black" />
+              <clr-control-error
+                *ngIf="!form.get('name')?.errors?.minlength && !form.get('name')?.errors?.maxlength">
+                {{form.get('name')?.errors?.emptyMessage || form.get('name')?.errors?.message | translate}}
+              </clr-control-error>
+              <clr-control-error *ngIf="form.get('name')?.errors?.minlength">{{'CommonlyUse.few' |
+                translate}}{{form.get('name')?.errors?.minlength.requiredLength}}{{'CommonlyUse.character' |
+                translate}}</clr-control-error>
+              <clr-control-error *ngIf="form.get('name')?.errors?.maxlength">{{'CommonlyUse.many' |
+                translate}}{{form.get('name')?.errors?.maxlength.requiredLength}}{{'CommonlyUse.character' |
+                translate}}</clr-control-error>
+            </clr-input-container>
+          </li>
+          <li class="textarea-li">
+            <clr-textarea-container>
+              <label>{{'CommonlyUse.description'|translate}} :</label>
+              <textarea clrTextarea class="t2" name="description" formControlName="description"
+                style="color: black"></textarea>
+            </clr-textarea-container>
+          </li>
+          <clr-radio-container>
+            <label>{{'CommonlyUse.type'|translate}} :</label>
+            <clr-radio-wrapper>
+              <input type="radio" clrRadio name="type" formControlName="type" required value="1" style="color: black" />
+              <label>{{'CertificateDetail.stepCA'|translate}}</label>
+            </clr-radio-wrapper>
+            <clr-control-error *ngIf="form.get('type')?.errors">{{'validator.empty' | translate}}
+            </clr-control-error>
+          </clr-radio-container>
+
+          <clr-alert class="embeddingalert" clrAlertType="info" *ngIf="(isAdd || !isUpdateBtn) && useStepCAType"
+            [clrAlertClosable]="false">
+            <span><b style="font-size: 14px;">{{'CertificateDetail.choose'|translate}}</b></span>
+            <clr-radio-container clrInline>
+              <clr-radio-wrapper>
+                <input type="radio" clrRadio name="embedding" formControlName="embedding" required value="external"
+                  style="color: black" (ngModelChange)="onEmbeddingChange()" required />
+                <label>{{'CertificateDetail.manually'|translate}}</label>
+              </clr-radio-wrapper>
+              <clr-radio-wrapper>
+                <input type="radio" clrRadio name="embedding" formControlName="embedding" required value="embedding"
+                  style="color: black" (ngModelChange)="onEmbeddingChange()" required />
+                <label>{{'CertificateDetail.autoFill'|translate}}</label>
+              </clr-radio-wrapper>
+            </clr-radio-container>
+            <span style="color: brown;" *ngIf="isGetEmbeddingCAConfigFailed">
+              <cds-icon class="alert-icon" shape="exclamation-circle" style="color: brown;"></cds-icon>{{errorMessage}}
+            </span>
+          </clr-alert>
+
+          <clr-input-container>
+            <label>{{'CertificateDetail.serviceURL'|translate}} :</label>
+            <input clrInput name="serviceURL" formControlName="url" style="color: black" />
+            <clr-control-error *ngIf="form.get('url')?.errors">{{'validator.internet' | translate}}
+            </clr-control-error>
+          </clr-input-container>
+          <clr-input-container>
+            <label>{{'CertificateDetail.provisionerName'|translate}} :</label>
+            <input clrInput name="provisionerName" formControlName="provisionerName" style="color: black" required />
+            <clr-control-error>{{'validator.empty' | translate}}</clr-control-error>
+          </clr-input-container>
+          <clr-password-container>
+            <label>{{'CertificateDetail.provisionerPassword'|translate}} :</label>
+            <input clrPassword name="password" class="passwd clr-col-md-6" formControlName="provisionerPassword"
+              style="color: black" required />
+            <clr-control-error>{{'validator.empty' | translate}}</clr-control-error>
+          </clr-password-container>
+          <clr-textarea-container class="clr-textarea-block">
+            <label class="pemlabel">{{'CertificateDetail.pem'|translate}} :</label>
+            <textarea clrTextarea name="pem" formControlName="pem" style="color: black" required></textarea>
+            <clr-control-error *ngIf="form.get('pem')?.errors">{{'validator.empty' | translate}}</clr-control-error>
+          </clr-textarea-container>
+        </ul>
+      </form>
+    </div>
+    <br>
+    <div *ngIf="isShowDetailFailed" class="alert alert-danger" role="alert">
+      <div class="alert-items">
+        <div class="alert-item static">
+          <div class="alert-icon-wrapper">
+            <cds-icon class="alert-icon" shape="exclamation-circle"></cds-icon>
+          </div>
+          <span class="alert-text">
+            {{errorMessage}}
+          </span>
+        </div>
+      </div>
+    </div>
+    <button type="button" *ngIf="!isUpdateBtn || isAdd" class="btn btn-outline"
+      (click)="reloadCurrentRoute()">{{'CommonlyUse.cancel'| translate}}</button>
+    <button type="submit" (click)="submitCAConfig(form.value)" *ngIf="!isUpdateBtn || isAdd"
+      class="btn btn-primary" [disabled]="!submit || isGetEmbeddingCAConfigFailed">{{'CommonlyUse.submit'|
+      translate}}</button>
+    <clr-spinner *ngIf="(!isUpdateBtn || isAdd) && submiting" [clrInline]="true"></clr-spinner>
+  </div>
+</div>
+<clr-spinner class="pageLoading" *ngIf="isPageLoading"></clr-spinner>

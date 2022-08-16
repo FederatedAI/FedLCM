@@ -1,0 +1,111 @@
+.t2{
+  width: 100%;
+  height: 100px;
+}
+.suffixHelper {
+  margin-top: 13px;
+  margin-left: -0.3px;
+}
+
+input {
+  width: 97%;
+}
+select{
+  width: 150px;
+}
+.refreshbtn {
+  float: right;
+  margin-right: 12px;
+  margin-top: 24px;   
+}
+ol {
+  &.file-list {
+      margin-left: 110px;
+  }
+}
+.clr-input-contaner{
+  position: relative;
+  align-items: flex-start;
+  box-sizing: border-box;
+  color: rgb(102, 102, 102);
+  display: flex;
+  flex-direction: row;
+  flex-wrap :wrap;
+  font-family: Metropolis, "Avenir Next", "Helvetica Neue", Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: normal;
+  line-height: 24px;
+  margin-left: -12px;
+  margin-right: -12px;
+  margin-top: 24px;
+  text-size-adjust: 100%;
+  width: 534px;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  label {
+      display: block;
+      color: var(--clr-forms-label-color, #454545);
+      font-size: .65rem;
+      font-weight: var(--clr-forms-label-font-weight, 600);
+      line-height: .9rem;
+  }
+  input {
+      border: 0;
+      border-bottom: 1px solid #b3b3b3;
+      width: 70%;
+      padding-right: 30px;
+      box-sizing: border-box;
+      &:focus-visible {
+          border: 0;
+          border-bottom: 1px solid #0072a3;
+          outline: none ;
+      }
+      &:focus {
+          border: 0;
+          border-bottom: 1px solid #0072a3;
+          outline: none;
+      }
+      &.error {
+          border-bottom: 1px solid #c21d00;
+      }
+  }
+  .file {
+      // width: 200px;
+      flex: 1;
+      position: relative;
+      top: -10px;
+      left: 15px;
+  }
+  .error-standard {
+      color: #c21d00;
+      top: 4px;
+      right: 25px;
+      position: absolute;
+  }
+  .valid-errot{
+      margin-top: 0px;
+      font-size: 0.55rem;
+      color: #c21d00;
+      margin-left: 100px;
+      position: absolute;
+      bottom: -24px;
+  }
+}
+.clr-textrea::ng-deep {
+  width: 490px;
+  // .clr-control-container [
+  //     margin-left: 60px;
+      
+  // ]
+  .t3 {
+      margin-left: 104px;
+      border: 1px solid #b3b3b3;
+      padding: 0;
+      height: 150px;
+      overflow: auto;
+      border-radius: 0.15rem;
+  }
+}
+.tooltip-icon {
+  float: right;
+}

@@ -1,0 +1,82 @@
+# Copyright 2022 VMware, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    openfl: director
+{{ include "openfl-director.labels" . | indent 4 }}
+  name: director
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      openfl: director
+{{ include "openfl-director.matchLabels" . | indent 6 }}
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        openfl: director
+{{ include "openfl-director.labels" . | indent 8 }}
+    spec:
+      containers:
+        - command:
+            - /bin/bash
+            - -c
+            - |
+              mkdir -p workspace/logs
+              cd workspace
+              fx director start --director-config-path director_config.yaml --root-cert-path cert/root_ca.crt --private-key-path cert/priv.key --public-cert-path cert/director.crt
+          image: {{ with .Values.image.registry }}{{ printf "%s/" . }}{{ end }}{{ .Values.modules.director.image | default "fedlcm-openfl" }}:{{ .Values.modules.director.imageTag | default "latest"}}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          name: director
+          ports:
+            - containerPort: 50051
+              name: listen-port
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /openfl/workspace/director_config.yaml
+              name: director-config
+              readOnly: true
+              subPath: director_config.yaml
+            - mountPath: /openfl/workspace/cert/
+              name: director-cert
+          workingDir: /openfl
+      {{- with .Values.modules.director.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+      {{- end }}
+      {{- with .Values.modules.director.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+      {{- end }}
+      {{- with .Values.modules.director.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+      {{- end }}
+      {{- with .Values.image.imagePullSecrets }}
+      imagePullSecrets:
+{{ toYaml . | indent 8 }}
+      {{- end }}
+      serviceAccountName: {{ template "serviceAccountName" . }}
+      volumes:
+        - configMap:
+            name: director-config
+          name: director-config
+        - name: director-cert
+          secret:
+            secretName: director-cert

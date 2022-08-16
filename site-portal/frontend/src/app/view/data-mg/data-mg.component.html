@@ -1,0 +1,119 @@
+<div class="content-area">
+  <br>
+  <h2>{{'nav.dataMg'| translate}}</h2>
+  <br>
+  <div class="btn2">
+    <button class="btn btn-outline" (click)="openUploadDataModal()">
+      <cds-icon shape="upload"></cds-icon> {{'dataMg.uploadLocalData' | translate}}
+    </button>
+  </div>
+  <clr-modal [(clrModalOpen)]="openModal" [clrModalClosable]="false">
+    <h3 class="modal-title">{{'dataMg.uploadLocalData' | translate}}</h3>
+    <div class="modal-body">
+      <div *ngIf="(submitted && isUploadFailed) || (isDownloadSubmit && isDownloadFailed)" class="alert alert-danger"
+        role="alert">
+        <div class="alert-items">
+          <div class="alert-item static">
+            <div class="alert-icon-wrapper">
+              <cds-icon class="alert-icon" shape="exclamation-circle"></cds-icon>
+            </div>
+            <span class="alert-text">
+              {{errorMessage}}
+            </span>
+          </div>
+        </div>
+      </div>
+      <form clrForm [formGroup]="form" enctype="multipart/form-data" (ngSubmit)="uploadData()">
+        <clr-input-container>
+          <label>{{'CommonlyUse.name' | translate}}</label>
+          <input clrInput class="t1" [(ngModel)]="name" name="name" formControlName="name" required />
+          <clr-control-error *ngIf="!form.get('name')?.errors?.minlength && !form.get('projName')?.errors?.maxlength">
+            {{form.get('name')?.errors?.emptyMessage || form.get('name')?.errors?.message | translate}}
+          </clr-control-error>
+          <clr-control-error *ngIf="form.get('name')?.errors?.minlength">{{'CommonlyUse.few' |
+            translate}}{{form.get('name')?.errors?.minlength.requiredLength}}{{'CommonlyUse.character' | translate}}
+          </clr-control-error>
+          <clr-control-error *ngIf="form.get('name')?.errors?.maxlength">{{'CommonlyUse.many' |
+            translate}}{{form.get('name')?.errors?.maxlength.requiredLength}}{{'CommonlyUse.character' | translate}}
+          </clr-control-error>
+        </clr-input-container>
+        <clr-textarea-container>
+          <label>{{'CommonlyUse.description' | translate}}</label>
+          <textarea clrTextarea class="t2" [(ngModel)]="description" name="description"
+            formControlName="description"></textarea>
+        </clr-textarea-container>
+        <app-upload-file [progress]='progress' #file></app-upload-file>
+        <div class="modal-footer">
+          <div *ngIf="submitted && !isUploadFailed">
+            <span>{{'CommonlyUse.uploading' | translate}} ... </span>
+            <clr-spinner [clrInline]="true"></clr-spinner>
+          </div>
+          <button type="button" class="btn btn-outline" (click)="reloadCurrentRoute();">{{'CommonlyUse.cancel' |
+            translate}}</button>
+          <button type="submit" class="btn btn-primary">{{'CommonlyUse.upload' | translate}}</button>
+        </div>
+      </form>
+    </div>
+  </clr-modal>
+  <div class="cusbtn">
+    <app-filter *ngIf='isShowfilter' [dataList]="storageDataList" searchKey='name' searchKey2='data_id'
+      (filterDataList)="filterDataList($event)"></app-filter>
+    <a href="javascript:;" class="refreshbtn" (click)="showFilter()">
+      <cds-icon shape="search"></cds-icon>
+    </a>
+    <a href="javascript:;" class="refreshbtn" (click)="refresh()">
+      <cds-icon shape="refresh"></cds-icon>
+    </a>
+  </div>
+  <br>
+  <clr-datagrid [clrDgLoading]="isPageLoading">
+    <clr-dg-column [clrDgField]="'name'">{{'CommonlyUse.name' | translate}}</clr-dg-column>
+    <clr-dg-column>{{'dataMg.dataID' | translate}}</clr-dg-column>
+    <clr-dg-column [clrDgSortBy]="timeComparator">{{'CommonlyUse.createTime' | translate}}</clr-dg-column>
+    <clr-dg-column>{{'dataMg.profile' | translate}}</clr-dg-column>
+    <clr-dg-column>{{'dataMg.uploadJobStatus' | translate}}</clr-dg-column>
+    <clr-dg-column>{{'CommonlyUse.action' | translate}}</clr-dg-column>
+    <clr-dg-row *clrDgItems="let element of datalist">
+      <clr-dg-cell><a [routerLink]="['/data-detail', element.data_id]">{{element.name}}</a></clr-dg-cell>
+      <clr-dg-cell>{{element.data_id}} </clr-dg-cell>
+      <clr-dg-cell>{{element.creation_time | dateFormatting}}</clr-dg-cell>
+      <clr-dg-cell>{{'dataMg.Featuresize' | translate}}: {{element.feature_size}} &nbsp;&nbsp; {{'dataMg.Samplesize' |
+        translate}}: {{element.sample_size}}</clr-dg-cell>
+      <clr-dg-cell> <span class="label label-info" [class.label-success]="element.upload_job_status==='Succeeded'"
+          [class.label-danger]="element.upload_job_status==='Failed'">{{element.upload_job_status | translate}}</span>
+      </clr-dg-cell>
+      <clr-dg-cell><a href="javascript:void(0)" class="alert-action"
+          (click)=" downloadData(element.data_id, element.name)">{{'CommonlyUse.download' | translate}}</a> &nbsp; <a
+          href="javascript:void(0)" class="alert-action"
+          (click)="openConfirmModal(element.data_id)">{{'CommonlyUse.delete'| translate}}</a> </clr-dg-cell>
+    </clr-dg-row>
+    <clr-dg-footer>{{datalist ? datalist.length : 0}} {{'CommonlyUse.item' | translate}}</clr-dg-footer>
+  </clr-datagrid>
+  <clr-modal [(clrModalOpen)]="openDeleteModal" [clrModalClosable]="false">
+    <h3 class="modal-title">{{'dataMg.isDeleteData' | translate}}</h3>
+    <div class="modal-body">
+      <div *ngIf="(isDeleteSubmit && isDeleteFailed)" class="alert alert-danger" role="alert">
+        <div class="alert-items">
+          <div class="alert-item static">
+            <div class="alert-icon-wrapper">
+              <cds-icon class="alert-icon" shape="exclamation-circle"></cds-icon>
+            </div>
+            <span class="alert-text">
+              {{errorMessage}}
+            </span>
+          </div>
+        </div>
+      </div>
+      <p>{{'dataMg.DataCanNotBeRecoveredAfterDeletion'| translate}}</p>
+    </div>
+    <div class="modal-footer">
+      <div *ngIf="isDeleteSubmit && !isDeleteFailed">
+        <span>{{'CommonlyUse.deleting' | translate}} ... </span>
+        <clr-spinner [clrInline]="true"></clr-spinner>
+      </div>
+      <button type="button" class="btn btn-outline" (click)="reloadCurrentRoute()">{{'CommonlyUse.cancel' |
+        translate}}</button>
+      <button type="submit" class="btn btn-primary" (click)="deleteData()">{{'CommonlyUse.delete' | translate}}</button>
+    </div>
+  </clr-modal>
+</div>

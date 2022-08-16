@@ -1,0 +1,135 @@
+# Copyright 2022 VMware, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+{{ if .Values.modules.fmlManagerServer.include }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fml-manager-server
+  labels:
+    fateMoudle: fml-manager-server
+{{ include "fate.labels" . | indent 4 }}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      fateMoudle: fml-manager-server
+{{ include "fate.matchLabels" . | indent 6 }}
+  template:
+    metadata:
+      labels:
+        fateMoudle: fml-manager-server
+{{ include "fate.labels" . | indent 8 }}
+    spec:
+      containers:
+        - name: fml-manager-server
+          image: {{ with .Values.image.registry }}{{ printf "%s/" . }}{{ end }}{{ .Values.modules.fmlManagerServer.image | default "fml-manager-server" }}:{{ .Values.modules.fmlManagerServer.imageTag | default "latest"}}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+          {{ if .Values.modules.fmlManagerServer.tlsEnabled }}
+            - containerPort: {{ .Values.modules.fmlManagerServer.tlsPort }}
+          {{ else }}
+            - containerPort: 8080
+          {{ end }} 
+          {{ if .Values.modules.fmlManagerServer.tlsEnabled }}
+          volumeMounts:
+            - mountPath: /var/lib/fml_manager/cert
+              name: fml-manager-cert
+          {{ end }}
+          env:
+          - name: POSTGRES_HOST
+            value: {{ .Values.modules.fmlManagerServer.postgresHost | quote }}
+          - name: POSTGRES_PORT
+            value: {{ .Values.modules.fmlManagerServer.postgresPort | quote }}
+          - name: POSTGRES_USER
+            value: {{ .Values.modules.fmlManagerServer.postgresUser | quote }}
+          - name: POSTGRES_DB
+            value: {{ .Values.modules.fmlManagerServer.postgresDb | quote }}
+          - name: POSTGRES_PASSWORD
+            value: {{ .Values.modules.fmlManagerServer.postgresPassword | quote }}
+          - name: FMLMANAGER_TLS_ENABLED
+            value: {{ .Values.modules.fmlManagerServer.tlsEnabled | quote }}
+          {{ if .Values.modules.fmlManagerServer.tlsEnabled }}
+          - name: FMLMANAGER_TLS_SERVER_CERT
+            value: {{ .Values.modules.fmlManagerServer.serverCert | quote }}
+          - name: FMLMANAGER_TLS_SERVER_KEY
+            value: {{ .Values.modules.fmlManagerServer.serverKey | quote }}
+          - name: FMLMANAGER_TLS_CLIENT_CERT
+            value: {{ .Values.modules.fmlManagerServer.clientCert | quote }}
+          - name: FMLMANAGER_TLS_CLIENT_KEY
+            value: {{ .Values.modules.fmlManagerServer.clientKey | quote }}
+          - name: FMLMANAGER_TLS_CA_CERT
+            value: {{ .Values.modules.fmlManagerServer.caCert | quote }}
+          - name: FMLMANAGER_TLS_PORT
+            value: {{ .Values.modules.fmlManagerServer.tlsPort | quote }}
+          {{ end }}
+      {{- with .Values.modules.fmlManagerServer.nodeSelector }}
+      nodeSelector: 
+{{ toYaml . | indent 8 }}
+      {{- end }}
+      {{- with .Values.modules.fmlManagerServer.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+      {{- end }}
+      {{- with .Values.modules.fmlManagerServer.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+      {{- end }}
+      {{- with .Values.image.imagePullSecrets }}
+      imagePullSecrets:
+{{ toYaml . | indent 6 }}
+      {{- end }}
+      serviceAccountName: {{ template "serviceAccountName" . }}
+      restartPolicy: Always
+      {{ if .Values.modules.fmlManagerServer.tlsEnabled }}
+      volumes:
+        - name: fml-manager-cert
+          secret:
+            secretName: fml-manager-cert
+      {{ end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fml-manager-server
+  labels:
+    fateMoudle: fml-manager-server
+{{ include "fate.labels" . | indent 4 }}
+spec:
+  ports:
+    - name: "http-fml-manager-server"
+      port: 8080
+      targetPort: 8080
+      {{- if eq .Values.modules.fmlManagerServer.type "NodePort" "LoadBalancer" }}
+      nodePort: {{ .Values.modules.fmlManagerServer.nodePort }}
+      {{- end }}
+      protocol: TCP
+    - name: "https-fml-manager-server"
+      port: 8443
+      targetPort: {{ .Values.modules.fmlManagerServer.tlsPort }}
+      {{- if eq .Values.modules.fmlManagerServer.type "NodePort" "LoadBalancer" }}
+      nodePort: {{ .Values.modules.fmlManagerServer.nodePort }}
+      {{- end }}
+      protocol: TCP
+  type: {{ .Values.modules.fmlManagerServer.type }}
+  {{- if .Values.modules.fmlManagerServer.loadBalancerIP }}
+  loadBalancerIP: "{{ .Values.modules.fmlManagerServer.loadBalancerIP }}"
+  {{- end }}
+  selector:
+    fateMoudle: fml-manager-server
+{{ include "fate.matchLabels" . | indent 4 }}
+---
+{{ end }}

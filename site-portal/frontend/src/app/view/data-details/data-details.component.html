@@ -1,0 +1,177 @@
+<div class="content-area">
+  <a href="javascript:history.back()">&lt;&lt;{{'CommonlyUse.back' | translate}}</a>
+  <h2>{{'dataDetail.dataDetail' | translate}}</h2>  
+  <div *ngIf="(isUpdateSubmit && isUpdateFailed) || isShowDataDetailFailed" class="alert alert-danger" role="alert">
+    <div class="alert-items">
+        <div class="alert-item static">
+            <div class="alert-icon-wrapper">
+                <cds-icon class="alert-icon" shape="exclamation-circle"></cds-icon>
+            </div>
+            <span class="alert-text">
+                {{errorMessage}}
+            </span>
+        </div>
+    </div>
+  </div>
+  <clr-spinner class="pageLoading"  *ngIf="isPageLoading"></clr-spinner>
+  <div *ngIf="!isPageLoading && !isShowDataDetailFailed">
+    <br>
+    <div class="btn-group btn-sm">
+      <button class="btn" (click)="downloadData(datadetail.data_id, datadetail.filename)"><cds-icon class="downloadicon" shape="download"></cds-icon> {{'CommonlyUse.download' | translate}}</button>
+      <button class="btn" (click)="openModal=true"><cds-icon shape="trash"></cds-icon> {{'CommonlyUse.delete' | translate}}</button>
+    </div> 
+    <div class="card card1">
+      <ul class="list">
+        <li>
+          <span><b>{{'CommonlyUse.name' | translate}}:</b></span>
+          <span>{{datadetail.name}}</span>
+        </li>
+        <li>
+          <span><b>{{'CommonlyUse.id' | translate}}:</b></span>
+          <span>{{datadetail.data_id}}</span>
+        </li>
+        <li>
+          <span><b>{{'CommonlyUse.description' | translate}}:</b></span>
+          <span>{{datadetail.description}}</span>
+        </li>
+        <li>
+          <span><b>{{'dataDetail.dataFile' | translate}}:</b></span>
+          <span><a href="javascript:void(0)" (click)="downloadData(datadetail.data_id, datadetail.filename)">{{datadetail.filename}}<cds-icon class="downloadicon" shape="download"></cds-icon></a></span>
+        </li>
+        <li>
+          <span><b>{{'dataDetail.tableName' | translate}}:</b></span>
+          <span>{{datadetail.table_name}}</span>
+        </li>
+        <li>
+          <span><b>{{'dataMg.uploadJobStatus' | translate}}:</b></span>
+          <span class="label label-info" [class.label-success]="datadetail.upload_job_status==='Succeeded'"
+            [class.label-danger]="datadetail.upload_job_status==='Failed'">{{datadetail.upload_job_status | translate}}</span>
+        </li>
+      </ul>
+    </div>
+    <div class="card card2">
+      <div class="card-block">
+        <h6 class="card-title">{{'dataDetail.dataOverview' | translate}}:</h6>
+      </div>
+      <div *ngIf="(stopPut && errorpop) " class="alert alert-danger metaalert" role="alert">
+        <div class="alert-items">
+            <div class="alert-item static">
+                <div class="alert-icon-wrapper">
+                    <cds-icon class="alert-icon" shape="exclamation-circle"></cds-icon>
+                </div>
+                <span class="alert-text">
+                    {{selecterrorMessage}}
+                </span>
+            </div>
+        </div>
+      </div>
+      <ul class="list">
+        <li>
+          <span><b>{{'dataDetail.sampleSize' | translate}}:</b></span>
+          <span>{{datadetail.sample_size}}</span>
+        </li>
+        <li>
+          <b>{{'dataDetail.idMetadata' | translate}}:</b>
+          <span class="togglebtn">
+            <input type="checkbox" clrToggle name="options" required value="options" [(ngModel)]="options" (ngModelChange)="selectionOnChange($event)" />
+          </span>
+        </li>
+        <div *ngIf="options" class="selectarea">
+          <form clrForm class="clr-col-sm-8 clr-col-md-8">
+            <clr-radio-container clrInline class="radio1">
+              <label>{{'dataDetail.idType' | translate}}</label>
+              <clr-radio-wrapper>
+                <input type="radio" clrRadio name="options" required value="option1" [(ngModel)]="selectoption1" (ngModelChange)="selectionOnChange($event)"/>
+                <label>{{'dataDetail.cellphone' | translate}}</label>
+              </clr-radio-wrapper>
+              <clr-radio-wrapper>
+                <input type="radio" clrRadio name="options" required value="option2" [(ngModel)]="selectoption1" (ngModelChange)="selectionOnChange($event)"/>
+                <label>{{'dataDetail.device' | translate}}</label>                    
+              </clr-radio-wrapper>
+              <clr-radio-wrapper>
+                <input type="radio" clrRadio name="options" required value="option3" [(ngModel)]="selectoption1" (ngModelChange)="selectionOnChange($event)"/>
+                <label>{{'dataDetail.other' | translate}}</label>
+              </clr-radio-wrapper>
+            </clr-radio-container>
+
+            <clr-select-container class="selector1" *ngIf="option2">
+              <label *ngIf="option2">{{'dataDetail.deviceType' | translate}} </label>
+              <select clrSelect class="selector1" *ngIf="option2" id="select-basic" name="option4" [(ngModel)]="option4" (ngModelChange)="selectionOnChange($event)" required>
+                <option value="IMEI">{{'dataDetail.IMEI' | translate}}</option>
+                <option value="IDFA">{{'dataDetail.IDFA' | translate}}</option>
+                <option value="IDFV">{{'dataDetail.IDFV' | translate}}</option>
+              </select>
+            </clr-select-container>
+
+            <clr-radio-container clrInline class="radio2">
+              <label>{{'dataDetail.encryption' | translate}}</label>
+              <clr-radio-wrapper>
+                <input type="radio" clrRadio name="options2" required value="option5" [(ngModel)]="selectoption2" (ngModelChange)="selectionOnChange($event)"/>
+                <label>{{'dataDetail.plaintext' | translate}}</label>
+              </clr-radio-wrapper>
+              <clr-radio-wrapper>
+                <input type="radio" clrRadio name="options2" required value="option6" [(ngModel)]="selectoption2" (ngModelChange)="selectionOnChange($event)"/>
+                <label>{{'dataDetail.ciphertext' | translate}}</label>                    
+              </clr-radio-wrapper>
+            </clr-radio-container>
+            <clr-select-container *ngIf="option6">
+              <label>{{'dataDetail.ciphertextType' | translate}} </label>
+              <select clrSelect *ngIf="option6" name="option7" [(ngModel)]="option7" (ngModelChange)="selectionOnChange($event)" required>
+                <option value="MD5">MD5</option>
+                <option value="SHA25">SHA25</option>
+              </select>
+            </clr-select-container>
+          </form>
+          <button *ngIf="metaOnChange"class="btn btn-sm btn-outline resetbtn" (click)="resetMeta()">{{'CommonlyUse.reset'| translate}}</button> 
+          <button *ngIf="metaOnChange" class="btn btn-sm btn-primary savebtn" (click)='putIDmetaUpdate(datadetail.data_id)'>{{'CommonlyUse.save'| translate}}</button> 
+        </div>
+        <button *ngIf="!options && toggleOnChange" class="btn btn-sm btn-primary resetbtn" (click)='putIDmetaUpdate(datadetail.data_id)'>{{'CommonlyUse.save'| translate}}</button>
+        <button *ngIf="!options && toggleOnChange"class="btn btn-sm btn-outline resetbtn" (click)="resetMeta()">{{'CommonlyUse.reset'| translate}}</button>
+        <li>
+          <p class="feature_info"><b>{{'dataDetail.featureDimensions' | translate}}:</b></p>
+          <textarea clrTextarea [ngModel]="featureDimensions" name="featureDimensions" disabled required></textarea>
+        </li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-block">
+        <h6 class="card-title">{{'dataDetail.dataPreview' | translate}}:</h6>
+      </div>
+      <clr-datagrid>
+        <clr-dg-column *clrDgItems="let keyvalue of key" >{{keyvalue}}</clr-dg-column>
+        <clr-dg-row *ngFor="let sample of previewArray">
+          <clr-dg-cell *ngFor="let keyvalue of key">{{sample[keyvalue]}}</clr-dg-cell>
+        </clr-dg-row> 
+      </clr-datagrid>        
+    </div>
+    <br>
+    <!-- <button class="btn" (click)="openModal=true">{{'dataDetail.deleteData' | translate}}</button> -->
+    <!-- <button *ngIf="metaOnChange" class="btn" (click)='putIDmetaUpdate(datadetail.data_id)'>Save ID Metadata</button>  -->
+    <clr-modal [(clrModalOpen)]="openModal" [clrModalClosable]="false">
+      <h3 class="modal-title">{{'dataMg.isDeleteData' | translate}}</h3>
+      <div class="modal-body">
+        <div *ngIf="(isDeleteSubmit && isDeleteFailed)" class="alert alert-danger" role="alert">
+          <div class="alert-items">
+              <div class="alert-item static">
+                  <div class="alert-icon-wrapper">
+                      <cds-icon class="alert-icon" shape="exclamation-circle"></cds-icon>
+                  </div>
+                  <span class="alert-text">
+                      {{errorMessage}}
+                  </span>
+              </div>
+          </div>
+        </div>
+        <p>{{'dataMg.DataCanNotBeRecoveredAfterDeletion' | translate}}</p>
+      </div>
+      <div class="modal-footer">
+        <div *ngIf="isDeleteSubmit && !isDeleteFailed">
+          <span>{{'CommonlyUse.deleting'| translate}} ... </span>
+          <clr-spinner [clrInline]="true"></clr-spinner>
+        </div>
+        <button type="button" class="btn btn-outline" (click)="openModal=false">{{'CommonlyUse.cancel'| translate}}</button>
+        <button type="submit" class="btn btn-primary" (click)="deleteData(datadetail.data_id)">{{'CommonlyUse.delete'| translate}}</button>
+      </div>            
+    </clr-modal> 
+  </div>
+</div>

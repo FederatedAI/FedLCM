@@ -1,0 +1,69 @@
+.content-area{
+    width: 100%;
+}
+.btn3 {    
+    margin-left: 80%;
+    margin:88*16;
+    display: flex;
+    margin-top:-10%;
+}
+.t1{
+    width: 98%;
+}
+.t2{
+    width: 100%;
+    height:100px;
+}
+.t3{
+    width: 70%;
+    line-height: 50%;
+    display: flex;
+}
+.toggle{
+    margin-left: 40%;
+    margin-top:-22px;
+}
+.tabbtn{
+    font-size: 120%;
+}
+.card-text{
+    text-align: left;
+    margin-top:-3%;
+}
+.ctt{
+    text-align: left;
+    line-height: 13px;
+}
+.alert{
+    padding-left: 0%;
+    padding-right: 0%;
+    padding-top: 0%;
+    padding-bottom: 0%;
+}
+textarea {
+    resize: none;
+}
+
+.verticaltab /deep/ .nav{
+    width:100px;
+    margin:0;
+}
+.verticaltab /deep/ section{
+    width: 100%;
+}
+.pageLoading {
+    margin-top: 10%;
+    margin-left: 45%;
+}
+.card .card-block .card-text .list span:first-of-type {
+    font-size: 15px;
+    display: inline-block;
+    width: 150px;
+    margin-right: 12px;
+    line-height: 36px;
+}
+.refreshbtn {
+    float: right;
+    margin-right: 12px;
+}
+

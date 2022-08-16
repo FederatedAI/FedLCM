@@ -1,0 +1,89 @@
+
+.modal-xl {
+    .clr-label-container {
+        margin-top: 24px;
+        label {
+            padding: 0px;
+        }
+        .clr-label-title {
+            .circle {
+                cursor: pointer;
+                margin-right: 5px;
+            }
+            i {
+                font-style: normal;
+                position: relative;
+                .times {
+                    position: relative;
+                    color: #bf0000;
+                    right: -10px;
+                }
+            }
+        }
+        .clr-label-content {
+            margin-left: 122px;
+            border: 1px solid #eee;
+            padding: 10px 5px;
+            label {
+                margin-right: 10px;
+            }
+            input {
+                width: 108px;
+                margin-right: 5px;
+                outline: none;
+                border: none;
+                border-bottom: 1px solid #333;
+            }
+            .circle {
+                width: 20px;
+                height: 20px;
+                color: #77BE53;
+                cursor: pointer;
+                &.times {
+                    width: 16px;
+                    height: 16px;    
+                    color: #BF0000;
+                }
+            }
+        }
+        .clr-label-title {
+            display: flex;
+            align-items: center;
+        }
+    }
+}
+.customize {
+    display: flex;
+    align-items: center;
+    span {
+        display: inline-block;
+    }
+    &::ng-deep {
+        .clr-toggle-wrapper {
+            .clr-control-label {
+                &.true::before {
+                    border-color: #5aa220 !important;
+                    background-color: #5aa220;
+                }
+                &.false::before {
+                    background-color: #8c8c8c;
+                    color: #8c8c8c;
+                }
+            }
+        }
+    }
+}
+.yaml-wrap {
+    width: 600px;
+    height: 150px;
+    &::ng-deep {
+        .clr-form-control {
+            margin-top: 0px;
+        }
+    }
+}
+clr-password-container::ng-deep {
+    .clr-input-wrapper {
+        max-width: 7rem;
+    }
+}

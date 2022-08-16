@@ -1,0 +1,573 @@
+<div class="content-area">
+    <a href="javascript:history.back()">&lt;&lt;{{'CommonlyUse.back' | translate}}</a>
+    <h3>{{'newJob.createNewJob' | translate}}</h3>
+    <br>
+    <div class="info_container">
+        <form clrForm class="formclass" [formGroup]="form">
+            <div class="card">
+                <div class="card-block">
+                    <h4 class="card-title">{{'newJob.jobInformation' | translate}}</h4>
+                </div>
+                <ul class="list-group">
+                    <li class="list-group-item">
+                        <clr-radio-container clrInline>
+                            <label class='type'>{{'newJob.type' | translate}}</label>
+                            <clr-radio-wrapper>
+                                <input type="radio" clrRadio name="newJobType" required value="modeling"
+                                    [(ngModel)]="newJobType" formControlName="newJobType"
+                                    (ngModelChange)="selectionOnChange($event)" />
+                                <label class="radio">{{'newJob.Modeling' | translate}}</label>
+                            </clr-radio-wrapper>
+                            <clr-radio-wrapper>
+                                <input type="radio" clrRadio name="newJobType" required value="predict"
+                                    [(ngModel)]="newJobType" formControlName="newJobType"
+                                    (ngModelChange)="selectionOnChange($event)" />
+                                <label class="radio">{{'newJob.Prediction' | translate}}</label>
+                            </clr-radio-wrapper>
+                            <clr-radio-wrapper>
+                                <input class="radio" type="radio" clrRadio name="newJobType" required value="psi"
+                                    [(ngModel)]="newJobType" formControlName="newJobType"
+                                    (ngModelChange)="selectionOnChange($event)" />
+                                <label class="radio">PSI</label>
+                            </clr-radio-wrapper>
+                        </clr-radio-container>
+                    </li>
+                    <li class="list-group-item">
+                        <clr-input-container>
+                            <label>{{'CommonlyUse.name' | translate}}&nbsp;</label>
+                            <input clrInput [(ngModel)]="name" name="name" formControlName="name" required />
+                            <clr-control-error
+                                *ngIf="!form.get('name')?.errors?.minlength && !form.get('name')?.errors?.maxlength">
+                                {{form.get('name')?.errors?.emptyMessage || form.get('name')?.errors?.message |
+                                translate}}</clr-control-error>
+                            <clr-control-error *ngIf="form.get('name')?.errors?.minlength">{{'CommonlyUse.few' |
+                                translate}}{{form.get('name')?.errors?.minlength.requiredLength}}{{'CommonlyUse.character'
+                                | translate}}</clr-control-error>
+                            <clr-control-error *ngIf="form.get('name')?.errors?.maxlength">{{'CommonlyUse.many' |
+                                translate}}{{form.get('name')?.errors?.maxlength.requiredLength}}{{'CommonlyUse.character'
+                                | translate}}</clr-control-error>
+                        </clr-input-container>
+                    </li>
+                    <li class="list-group-item">
+                        <clr-textarea-container>
+                            <label class='info'>{{'CommonlyUse.description' | translate}}&nbsp;</label>
+                            <textarea clrTextarea class='cardtextarea' [(ngModel)]="desc" name="desc"
+                                formControlName="desc"></textarea>
+                        </clr-textarea-container>
+                    </li>
+                </ul>
+            </div>
+            <div *ngIf="predict">
+                <div class="card">
+                    <div class="card-block">
+                        <h4 class="card-title">{{'newJob.modelConfiguration' | translate}}</h4>
+                    </div>
+                    <ul class="list-group">
+                        <li class="list-group-item" *ngIf="modelList != null">
+                            <clr-select-container>
+                                <label>{{'newJob.selectModel' | translate}}</label>
+                                <select class="predict_selector" clrSelect name="predictModel"
+                                    [(ngModel)]="predictModel" formControlName="predictModel"
+                                    (ngModelChange)='onSelectedModelChange()' required>
+                                    <option value="">{{'newJob.noSelection' | translate}}</option>
+                                    <option *ngFor="let model of modelList" value="{{model.uuid}}">{{model.name}}
+                                        ({{model.model_id}}#{{model.model_version}})</option>
+                                </select>
+                                <clr-control-error>{{'validator.empty' | translate}}</clr-control-error>
+                            </clr-select-container>
+                        </li>
+                        <li class="list-group-item" *ngIf="modelList===null">
+                            <div class="alert alert-danger" role="alert">
+                                <div class="alert-items">
+                                    <div class="alert-item static">
+                                        <div class="alert-icon-wrapper">
+                                            <cds-icon class="alert-icon" shape="exclamation-circle"></cds-icon>
+                                        </div>
+                                        <span class="alert-text">
+                                            {{'newJob.noModel' | translate}}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-block">
+                    <h4 class="card-title">{{'newJob.dataConfiguration' | translate}}</h4>
+                </div>
+                <div class="card-block" *ngIf="!predict">
+                    <a href="javascript:void(0)" (click)="checkAssociatedData()"
+                        class="btn btn-sm btn-outline">{{'newJob.editParticipantData' | translate}}</a>
+                    <clr-datagrid>
+                        <clr-dg-column>{{'projectDetail.participant' | translate}}</clr-dg-column>
+                        <clr-dg-column>{{'newJob.associatedData' | translate}}</clr-dg-column>
+                        <clr-dg-column *ngIf="modeling">{{'newJob.labelColumn' | translate}}</clr-dg-column>
+                        <clr-dg-row>
+                            <clr-dg-cell>{{displaySelf.name}} ({{'newJob.self' | translate}})</clr-dg-cell>
+                            <clr-dg-cell *ngIf="displaySelf.associated_data !=''">
+                                {{displaySelf.associated_data.split('+')[0]}}</clr-dg-cell>
+                            <clr-dg-cell *ngIf="displaySelf.associated_data===''"><a href="javascript:void(0)"
+                                    (click)="checkAssociatedData()">{{'newJob.pleaseSelect' | translate}}</a>
+                            </clr-dg-cell>
+                            <clr-dg-cell *ngIf="modeling && displaySelf.label_column!=''">{{displaySelf.label_column}}
+                            </clr-dg-cell>
+                            <clr-dg-cell *ngIf="modeling && displaySelf.label_column===''"><a href="javascript:void(0)"
+                                    (click)="checkAssociatedData()">{{'newJob.pleaseSelect' | translate}}</a>
+                            </clr-dg-cell>
+                        </clr-dg-row>
+                        <clr-dg-row *ngFor="let party of displayParticipant">
+                            <clr-dg-cell *ngIf="party.selected">{{party.name}}</clr-dg-cell>
+                            <clr-dg-cell *ngIf="party.selected">{{party.associated_data.split('+')[0]}}</clr-dg-cell>
+                            <clr-dg-cell *ngIf="party.selected && modeling"></clr-dg-cell>
+                        </clr-dg-row>
+                    </clr-datagrid>
+                </div>
+                <div class="card-block" *ngIf="predict">
+                    <a href="javascript:void(0)" (click)="checkAssociatedData()"
+                        class="btn btn-sm btn-outline">{{'newJob.editParticipantData' | translate}}</a>
+                    <clr-datagrid>
+                        <clr-dg-column>{{'projectDetail.participant' | translate}}</clr-dg-column>
+                        <clr-dg-column>{{'newJob.associatedData' | translate}}</clr-dg-column>
+                        <clr-dg-row>
+                            <clr-dg-cell>{{displaySelf.name}} ({{'newJob.self' | translate}})</clr-dg-cell>
+                            <clr-dg-cell *ngIf="displaySelf.associated_data !=''">
+                                {{displaySelf.associated_data.split('+')[0]}}</clr-dg-cell>
+                            <clr-dg-cell *ngIf="displaySelf.associated_data===''"><a href="javascript:void(0)"
+                                    (click)="checkAssociatedData()">{{'newJob.pleaseSelect' | translate}}</a>
+                            </clr-dg-cell>
+                        </clr-dg-row>
+                        <clr-dg-row *ngFor="let party of displayPredictParticipant">
+                            <clr-dg-cell>{{party.name}}</clr-dg-cell>
+                            <clr-dg-cell *ngIf="party.associated_data !=''">{{party.associated_data.split('+')[0]}}
+                            </clr-dg-cell>
+                            <clr-dg-cell *ngIf="party.associated_data ===''"><a href="javascript:void(0)"
+                                    (click)="checkAssociatedData()">{{'newJob.pleaseSelect' | translate}}</a>
+                            </clr-dg-cell>
+                        </clr-dg-row>
+                    </clr-datagrid>
+                </div>
+            </div>
+            <div *ngIf="modeling">
+                <div class="card">
+                    <div class="card-block">
+                        <h4 class="card-title">{{'newJob.modelConfiguration' | translate}}</h4>
+                    </div>
+                    <ul class="list-group">
+                        <li class="list-group-item">
+                            <clr-input-container>
+                                <label>{{'newJob.modelName' | translate}}&nbsp;</label>
+                                <input clrInput [(ngModel)]="model_name" name="model_name" formControlName="model_name"
+                                    required />
+                                <clr-control-error
+                                    *ngIf="!form.get('model_name')?.errors?.minlength && !form.get('model_name')?.errors?.maxlength">
+                                    {{form.get('model_name')?.errors?.emptyMessage ||
+                                    form.get('model_name')?.errors?.message | translate}}</clr-control-error>
+                                <clr-control-error *ngIf="form.get('model_name')?.errors?.minlength">
+                                    {{'CommonlyUse.few' |
+                                    translate}}{{form.get('model_name')?.errors?.minlength.requiredLength}}{{'CommonlyUse.character'
+                                    | translate}}</clr-control-error>
+                                <clr-control-error *ngIf="form.get('model_name')?.errors?.maxlength">
+                                    {{'CommonlyUse.many' |
+                                    translate}}{{form.get('model_name')?.errors?.maxlength.requiredLength}}{{'CommonlyUse.character'
+                                    | translate}}</clr-control-error>
+                            </clr-input-container>
+                        </li>
+                        <li class="list-group-item" *ngIf="!dropOrJson">
+                            <clr-select-container>
+                                <label>{{'newJob.algorithm' | translate}}:</label>
+                                <select clrSelect name="algorithm" class="selectalgorithm" [(ngModel)]="algorithm"
+                                    formControlName="algorithm" required>
+                                    <option value="al1">{{'newJob.homoLogisticRegression' | translate}}</option>
+                                    <option value="al2">{{'newJob.homoSecureBoost' | translate}}</option>
+                                </select>
+                                <clr-control-error>{{'validator.empty' | translate}}</clr-control-error>
+                            </clr-select-container>
+                        </li>
+                        <li class="list-group-item" *ngIf="!dropOrJson">
+                            <clr-input-container>
+                                <label>{{'newJob.ValidationData' | translate}}</label>
+                                <input placeholder="{{'newJob.valsetMessage' | translate}}" clrInput
+                                    name="validationDataPercent" [(ngModel)]="validationDataPercent"
+                                    formControlName="validationDataPercent" />
+                                <clr-control-error *ngIf="!form.get('valset')?.errors">{{ 'validator.zeroToHundred'
+                                    | translate}}</clr-control-error>
+                            </clr-input-container>
+                        </li>
+                        <li class="list-group-item border">
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-sm btn-outline" (click)="switchDropOrCopy(true)"
+                                    [ngClass]='{"btnPrimary": dropOrJson}'>{{'CommonlyUse.drop'|translate}}</button>
+                                <button type="button" class="btn btn-sm btn-outline" (click)="switchDropOrCopy(false)"
+                                    [ngClass]='{"btnPrimary": !dropOrJson}'>{{'CommonlyUse.json'|translate}}</button>
+                            </div>
+                            <button [hidden]="dropOrJson" class="btn btn-sm btn-outline genbtn"
+                                (click)="generateConfig(dropOrJson)"> {{'newJob.generateConfiguration' |
+                                translate}}</button>
+                            <!-- drag and dag mode section -->
+                            <div class="drag-session" [hidden]="!dropOrJson">
+                                <div class="component" #todolist="cdkDropList" cdkDropList
+                                    [cdkDropListData]="algorithmList" [cdkDropListConnectedTo]="doneList"
+                                    (cdkDropListDropped)='dragHandler($event)'>
+                                    <div *ngFor="let group of algorithmDataSourc let i = index">
+                                        <h5 (click)="openAlgorithmGroup(i)" class="angle-h5"
+                                            [ngClass]="{bac: !group.angle}">
+                                            <cds-icon shape="angle" [ngClass]="{angle: group.angle}"></cds-icon>
+                                            {{group.groupName}}
+                                        </h5>
+                                        <div class="show" [class]="{hidden: group.angle}">
+                                            <p *ngFor="let c of group.modules" class="angle-p" cdkDrag>
+                                                {{c.moduleName}}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="zoom">
+                                    <button type="button" (click)="zoom(+0.1)"></button>
+                                    <button (click)="zoom(-0.1)" type="button"></button>
+                                </div>
+                                <div class="textare" #doneList="cdkDropList" cdkDropList
+                                    [cdkDropListData]="dragStorageArea" (cdkDropListDropped)='dragHandler($event)'>
+                                    <svg id="svg-canvas-drop" [style]="{
+                                  width: 900+width+'px',
+                                  height: 783+height+ + 'px'
+                              }">
+                                    </svg>
+                                </div>
+                                <div class="attrbutes">
+                                    <h4 *ngIf="dag.attrForm.moduleName">{{dag.attrForm.moduleName}}</h4>
+                                    <clr-radio-container clrInline class="radio" (change)="changeCommonOrDiffRadio()">
+                                        <clr-radio-wrapper>
+                                            <input type="radio" clrRadio name="options" value="common"
+                                                [(ngModel)]="dag.attrForm.options"
+                                                [disabled]="dag.attrForm.moduleName === 'reader_0'"
+                                                [ngModelOptions]="{standalone: true}" />
+                                            <label>Common</label>
+                                        </clr-radio-wrapper>
+                                        <clr-radio-wrapper>
+                                            <input [disabled]='dag.attrForm.moduleName === "reader_0" || !diffShow' type="radio" clrRadio name="options"
+                                                value="diff" [(ngModel)]="dag.attrForm.options"
+                                                [ngModelOptions]="{standalone: true}" />
+                                            <label>Difference</label>
+                                        </clr-radio-wrapper>
+                                    </clr-radio-container>
+                                    <div class="btn-group" *ngIf="dag.attrForm.options === 'diff'">
+                                        <button class="btn" type="button" [ngClass]="{bgc: currentDiff === -1}"
+                                            (click)="currentDiff=-1">Guest</button>
+                                        <button class="btn" type="button" *ngFor="let host of hostList index as i"
+                                            [ngClass]="{bgc: currentDiff === i}"
+                                            (click)="currentDiff=i">{{host.name}}</button>
+                                    </div>
+                                    <div *ngIf="dag.attrForm.options === 'diff'" style="height: 40px;"></div>
+                                    <div class="clr-form-control" style="margin: 10px 5px;"
+                                        *ngFor="let attr of dag.attrForm.attrList">
+                                        <label for="example1" class="clr-control-label clr-col-md-4"
+                                            style="word-break: break-all;">{{attr.name}}</label>
+                                        <div class="clr-control-container">
+                                            <div class="clr-input-wrapper"
+                                                *ngIf="currentModuleAttrForm[attr.name] !== false && currentModuleAttrForm[attr.name]!==true">
+                                                <input type="text" [name]='attr.name'
+                                                    [(ngModel)]="currentModuleAttrForm[attr.name]"
+                                                    [ngModelOptions]="{standalone: true}" class="clr-input" />
+                                            </div>
+                                        </div>
+                                        <clr-radio-wrapper
+                                            *ngIf="currentModuleAttrForm[attr.name] === false || currentModuleAttrForm[attr.name]===true">
+                                            <input type="radio" clrRadio [name]='attr.name' [value]='false'
+                                                [(ngModel)]="currentModuleAttrForm[attr.name]"
+                                                [ngModelOptions]="{standalone: true}">
+                                            <label class="radio-label">false</label>
+                                        </clr-radio-wrapper>
+                                        <clr-radio-wrapper
+                                            *ngIf="currentModuleAttrForm[attr.name] === false || currentModuleAttrForm[attr.name]===true">
+                                            <input type="radio" clrRadio [name]='attr.name' [value]='true'
+                                                [(ngModel)]="currentModuleAttrForm[attr.name]"
+                                                [ngModelOptions]="{standalone: true}">
+                                            <label class="radio-label">true</label>
+                                        </clr-radio-wrapper>
+                                        <div *ngIf="currentModuleAttrForm[attr.name]" class="clr-control-container-select">
+                                            <select *ngIf="currentModuleAttrForm[attr.name].drop_down_box" clrSelect name="options" [(ngModel)]="currentModuleAttrForm[attr.name].value" [ngModelOptions]="{standalone: true}">
+                                                <option *ngFor="let item of currentModuleAttrForm[attr.name].drop_down_box" [value]="item">{{item}}</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div style="text-align: center;">
+                                        <button class="btn btn-primary"
+                                            (click)="saveCurrentModuleAttr()">{{'CommonlyUse.save' |
+                                            translate}}</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div *ngIf="(submitGenerated && submitGeneratedFailed)"
+                                class="alert alert-danger generatealert" role="alert">
+                                <div class="alert-items">
+                                    <div class="alert-item static">
+                                        <div class="alert-icon-wrapper">
+                                            <cds-icon class="alert-icon" shape="exclamation-circle"></cds-icon>
+                                        </div>
+                                        <span class="alert-text">
+                                            {{errorMessage}}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                        <button [hidden]="!dropOrJson" class="btn btn-sm btn-outline genbtn"
+                            (click)="generateConfig(dropOrJson)" style="margin-left: 20px;">
+                            {{'newJob.generateConfiguration' | translate}}</button>
+                        <li class="text-area" [hidden]="!dropOrJson">
+                            <clr-tabs>
+                                <clr-tab>
+                                    <button clrTabLink>{{'newJob.workflowDSL' | translate}}:&nbsp;</button>
+                                    <clr-tab-content *clrIfActive>
+                                        <clr-textarea-container>
+                                            <textarea class='config' clrTextarea [(ngModel)]="dsl" name="dsl" disabled
+                                                required [ngModelOptions]="{standalone: true}"></textarea>
+                                            <clr-control-error>{{'validator.empty' | translate}}</clr-control-error>
+                                        </clr-textarea-container>
+                                    </clr-tab-content>
+                                </clr-tab>
+
+                                <clr-tab>
+                                    <button clrTabLink>{{'newJob.algorithmConfiguration' | translate}}:&nbsp;</button>
+                                    <clr-tab-content *clrIfActive>
+                                        <clr-textarea-container>
+                                            <textarea class='config' clrTextarea [(ngModel)]="algorithmConfig"
+                                                name="algorithmConfig" disabled required
+                                                [ngModelOptions]="{standalone: true}"></textarea>
+                                            <clr-control-error>{{'validator.empty' | translate}}</clr-control-error>
+                                        </clr-textarea-container>
+                                    </clr-tab-content>
+                                </clr-tab>
+                            </clr-tabs>
+                        </li>
+                        <!-- Json mode section-->
+                        <li class="list-group-item json-textarea" [hidden]="dropOrJson">
+                            <div class="left">
+                                <div class="list-group-item bottom" [hidden]="dropOrJson">
+                                    <clr-textarea-container>
+                                        <label class='info'>
+                                            {{'newJob.workflowDSL' | translate}}:&nbsp;
+                                            <button type="button" class="btn btn-sm" *ngIf="dsl!==''"
+                                                (click)="dsl=''">{{'CommonlyUse.reset'| translate}}</button>
+                                        </label>
+                                        <textarea *ngIf="dsl===''" class='config' clrTextarea [(ngModel)]="dsl"
+                                            name="dsl" formControlName="dsl" required></textarea>
+                                        <clr-control-error *ngIf="dsl===''">{{'validator.empty' | translate}}
+                                        </clr-control-error>
+                                    </clr-textarea-container>
+                                </div>
+                                <div class="app-high" *ngIf="!dropOrJson && dsl.length > 0">
+                                    <app-high-json #dslJson [json]="dsl" id="json"></app-high-json>
+                                </div>
+                                <div class="list-group-item top" [hidden]="dropOrJson">
+                                    <clr-textarea-container>
+                                        <label class='info'>
+                                            {{'newJob.algorithmConfiguration' | translate}}:&nbsp;
+                                            <button type="button" class="btn btn-sm" *ngIf="algorithmConfig!==''"
+                                                (click)="algorithmConfig=''">{{'CommonlyUse.reset'| translate}}</button>
+                                        </label>
+                                        <textarea *ngIf="algorithmConfig===''" class='config' clrTextarea
+                                            [(ngModel)]="algorithmConfig" name="algorithmConfig"
+                                            formControlName="algorithmConfig" required></textarea>
+                                        <clr-control-error *ngIf="algorithmConfig===''">{{'validator.empty' |
+                                            translate}}
+                                        </clr-control-error>
+                                    </clr-textarea-container>
+                                </div>
+                                <div class="app-high" *ngIf="!dropOrJson && algorithmConfig.length > 0">
+                                    <app-high-json #alJson [json]="algorithmConfig" id="json2"></app-high-json>
+                                </div>
+                            </div>
+                            <div class="right">
+                        <li class="program" [hidden]="dropOrJson">
+                            <svg id="canvas_div" x="100" width="700" height="800" preserveAspectRatio="xMidYMin meet">
+                                <svg id="svg-canvas" x="100" y="150"></svg>
+                            </svg>
+                            <div id="component_info"></div>
+                        </li>
+                </div>
+                </li>
+                </ul>
+            </div>
+    </div>
+    </form>
+    <br>
+    <br>
+    <div *ngIf="(submitNewJob && submitNewJobFailed) " class="alert alert-danger" role="alert">
+        <div class="alert-items">
+            <div class="alert-item static">
+                <div class="alert-icon-wrapper">
+                    <cds-icon class="alert-icon" shape="exclamation-circle"></cds-icon>
+                </div>
+                <span class="alert-text">
+                    {{errorMessage}}
+                </span>
+            </div>
+        </div>
+    </div>
+    <button class="btn"><a href="javascript:history.back()">{{'CommonlyUse.cancel' | translate}}</a></button>
+    <button class="btn btn-primary" (click)="saveNewJob(true)">{{'CommonlyUse.submit' | translate}}</button>
+    <span *ngIf="submitNewJob && !submitNewJobFailed"> {{'CommonlyUse.creating' | translate}}... </span>
+    <clr-spinner *ngIf="submitNewJob && !submitNewJobFailed" [clrInline]="true"></clr-spinner>
+</div>
+</div>
+
+<clr-modal [(clrModalOpen)]="openModal" [clrModalSize]="modalSize" [clrModalClosable]="false">
+    <h3 class="modal-title">{{'newJob.selectParticipantAndData' | translate}}</h3>
+    <div class="modal-body">
+        <div *ngIf="(submitSaveSelection && invalidSave) || (showAssociatedDataSubmit && noAssociatedData) || showLocalDataListFailed"
+            class="alert alert-danger" role="alert">
+            <div class="alert-items">
+                <div class="alert-item static">
+                    <div class="alert-icon-wrapper">
+                        <cds-icon class="alert-icon" shape="exclamation-circle"></cds-icon>
+                    </div>
+                    <span class="alert-text">
+                        {{modalErrorMessage}}
+                        <a href="javascript:;" *ngIf="showAssociatedDataSubmit && noAssociatedData"
+                            (click)="redirectToData()">{{'newJob.toAssociatedData' | translate}}</a>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div *ngIf="!noAssociatedData">
+            <button type="button" class="btn btn-sm btn-outline"
+                (click)="resetSelection(true)">{{'newJob.resetSelection' | translate}}</button>
+            <clr-datagrid>
+                <clr-dg-column class="clr-col-1" *ngIf="!predict"></clr-dg-column>
+                <clr-dg-column>{{'projectDetail.participant' | translate}}</clr-dg-column>
+                <clr-dg-column>{{'newJob.associatedData' | translate}}</clr-dg-column>
+                <clr-dg-column *ngIf="modeling">{{'newJob.labelColumn' | translate}}</clr-dg-column>
+                <clr-dg-row>
+                    <clr-dg-cell class="clr-col-1" *ngIf="!predict"></clr-dg-cell>
+                    <clr-dg-cell>{{self.name}} ({{'newJob.self' | translate}})</clr-dg-cell>
+                    <clr-dg-cell *ngIf="selfdatalist?.length ===0">
+                        <cds-icon class="alert-icon" shape="exclamation-circle" style="color: brown;"></cds-icon>
+                        {{'newJob.noData' | translate}}
+                        <a href="javascript:;" (click)="redirectToData()">{{'newJob.toAssociatedData' |
+                            translate}}</a>
+                    </clr-dg-cell>
+                    <clr-dg-cell *ngIf="selfdatalist?.length !=0">
+                        <select clrSelect name="dataOptions" [(ngModel)]="self.associated_data"
+                            (ngModelChange)="showDataColumn(self.associated_data)">
+                            <option *ngFor="let data of selfdatalist" value="{{data.name}}+{{data.data_id}}">
+                                {{data.name}}</option>
+                        </select>
+                    </clr-dg-cell>
+                    <clr-dg-cell *ngIf="modeling && selfdatalist?.length !=0">
+                        <select clrSelect name="columnOptions" [(ngModel)]="self.label_column">
+                            <option *ngFor="let label of dataColumn" value="{{label}}">{{label}}</option>
+                        </select>
+                    </clr-dg-cell>
+                </clr-dg-row>
+                <clr-dg-row *ngFor="let party of participantList">
+                    <clr-dg-cell class="clr-col-1" *ngIf="!predict">
+                        <clr-checkbox-wrapper>
+                            <input type="checkbox" clrCheckbox name="option" required value="option"
+                                [(ngModel)]="party.selected"
+                                (ngModelChange)="getParticipantAssociatedDataList(party, party.selected, party.uuid)" />
+                        </clr-checkbox-wrapper>
+                    </clr-dg-cell>
+                    <clr-dg-cell *ngIf="!predict">{{party.name}}</clr-dg-cell>
+
+                    <clr-dg-cell *ngIf="party.selected && !predict && party.data_list.length !=0">
+                        <select clrSelect name="dataOptions" [(ngModel)]="party.associated_data">
+                            <option *ngFor="let data of party.data_list" value="{{data.name}}+{{data.data_id}}">
+                                {{data.name}}</option>
+                        </select>
+                    </clr-dg-cell>
+                    <clr-dg-cell
+                        *ngIf="!getParticipantAssociatedDataListIsPending && party.selected && !predict && party.data_list.length ===0">
+                        <cds-icon class="alert-icon" shape="exclamation-circle" style="color: brown;"></cds-icon>
+                        {{'newJob.noData' | translate}}
+                    </clr-dg-cell>
+                    <clr-dg-cell *ngIf="!party.selected && !predict"></clr-dg-cell>
+                    <clr-dg-cell *ngIf="!psi && !predict"></clr-dg-cell>
+                </clr-dg-row>
+                <clr-dg-row *ngFor="let party of newPredictParticipantList">
+                    <clr-dg-cell class="clr-col-1" *ngIf="predict">{{party.name}}</clr-dg-cell>
+
+                    <clr-dg-cell *ngIf="predict && party.data_list !=0">
+                        <select clrSelect name="dataOptions" [(ngModel)]="party.associated_data">
+                            <option *ngFor="let data of party.data_list" value="{{data.name}}+{{data.data_id}}">
+                                {{data.name}}</option>
+                        </select>
+                    </clr-dg-cell>
+                    <clr-dg-cell *ngIf="predict && party.data_list ===0">
+                        <cds-icon class="alert-icon" shape="exclamation-circle" style="color: brown;"></cds-icon>
+                        {{'newJob.noData' | translate}}
+                    </clr-dg-cell>
+                </clr-dg-row>
+            </clr-datagrid>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-outline" (click)="resetSelection(false)">{{'CommonlyUse.cancel' |
+            translate}}</button>
+        <button *ngIf="!noAssociatedData" type="button" class="btn btn-primary"
+            (click)="saveSelection()">{{'CommonlyUse.ok' | translate}}</button>
+    </div>
+</clr-modal>
+<div class="modal model-drag" *ngIf="addModuleFlag">
+    <div class="modal-dialog modal-xs" role="dialog" aria-hidden="true">
+        <div class="modal-content">
+            <h4>{{'newJob.currentModule'| translate}}: {{currentDragObj.moduleName}}</h4>
+            <p>
+                {{'newJob.inputSource'|translate}}
+                <cds-icon shape="plus-circle" class="plus-circle" (click)="addInputModule()"></cds-icon>
+            </p>
+            <div class="input-item" *ngFor="let item of inputModuleList index as index">
+                <div class="select-item">
+                    <label for="input">input:</label>
+                    <select id="input" clrSelect (change)="currentModel(item)" [(ngModel)]="item.inputModule">
+                        <option *ngFor="let key of changeOptRelationshipList" [value]="key">{{key}}</option>
+                    </select>
+                    <cds-icon shape="trash" class="trash" style="position: absolute; right: 30px;"
+                        *ngIf="inputModuleList.length > 1" (click)="deleteItem(index, 'inputModuleList')"></cds-icon>
+                </div>
+                <div class="title">
+                    <span>{{'newJob.source'|translate}} </span>
+                    <span>{{'newJob.target'|translate}} </span>
+                </div>
+                <div *ngFor="let opt of item.optRelationships index as i" class="opt">
+                    <div class="select-item module">
+                        <label for="type">{{item.inputModule}}:</label>
+                        <select id="type" clrSelect (change)='optChange(item, opt, opt.relation)'
+                            [(ngModel)]="opt.relation">
+                            <option [value]='v' *ngFor="let v of item.inputTypeList">{{v}}</option>
+                        </select>
+                    </div>
+                    <div class="select-item module">
+                        <label for="type">{{currentDragObj.moduleName}}:</label>
+                        <select id="type" clrSelect [(ngModel)]="opt.type">
+                            <option [value]='v' *ngFor="let v of opt.list">{{v}}</option>
+                        </select>
+                    </div>
+                    <cds-icon shape="plus-circle"
+                        *ngIf="item.inputTypeList.length > item.optRelationships.length && item.optRelationships.length-i === 1"
+                        class="plus-circle" (click)="addOptRelationship(item)"></cds-icon>
+                    <cds-icon shape="trash" class="trash" *ngIf="item.optRelationships.length > 1"
+                        (click)="deleteItem(i, item)"></cds-icon>
+                </div>
+            </div>
+            <!-- output -->
+            <p>
+                {{'newJob.outputType'|translate |templateReplacement:currentDragObj.moduleName}}
+            </p>
+            <div *ngFor="let opt of outputRelationships index as i" class="opt">
+                <div>
+                    <label for="input">{{opt.type}}:</label> <span>{{opt.value}}</span>
+                </div>
+            </div>
+            <div class="btns">
+                <button class="btn btn-primary" [disabled]="!disabled"
+                    (click)="sureOptRelationship()">{{'CommonlyUse.add'|translate}}</button>
+                <button class="btn btn-outline"
+                    (click)="cancelOptRelationship()">{{'CommonlyUse.Cancel'|translate}}</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div *ngIf="addModuleFlag" class="modal-backdrop" aria-hidden="true"></div>

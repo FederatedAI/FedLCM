@@ -1,0 +1,78 @@
+name: {{ .name }}
+
+image:
+  registry: {{ .registry | default "federatedai" }}
+  pullPolicy: {{ .pullPolicy | default "IfNotPresent" }}
+  {{- with .imagePullSecrets }}
+  imagePullSecrets:
+{{ toYaml . | indent 2 }}
+  {{- end }}
+
+{{- with .podSecurityPolicy }}
+podSecurityPolicy:
+  enabled: {{ .enabled | default false }}
+{{- end }}
+
+{{- with .ingress }}
+ingress:
+  {{- with .notebook }}
+  notebook:
+    {{- with .annotations }}
+    annotations:
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    {{- with .hosts }}
+    hosts:
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    {{- with .tls }}
+    tls:
+{{ toYaml . | indent 6 }}
+    {{- end }}
+  {{- end }}
+{{- end }}
+
+modules:
+  director:
+    {{- with .director }}
+    image: {{ .image }}
+    sampleShape: "{{ .sampleShape }}"
+    targetShape: "{{ .targetShape }}"
+    envoyHealthCheckPeriod: {{ .envoyHealthCheckPeriod | default "60"}}
+    {{- with .nodeSelector }}
+    nodeSelector:
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    {{- with .tolerations }}
+    tolerations:
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    {{- with .affinity }}
+    affinity:
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    type: {{ .type | default "NodePort" }}
+    nodePort: {{ .nodePort }}
+    loadBalancerIP: {{ .loadBalancerIP }}
+    {{- end }}
+
+  notebook:
+    {{- with .notebook}}
+    image: {{ .image }}
+    password: {{ .password }}
+    {{- with .nodeSelector }}
+    nodeSelector:
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    {{- with .tolerations }}
+    tolerations:
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    {{- with .affinity }}
+    affinity:
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    type: {{ .type | default "NodePort" }}
+    nodePort: {{ .nodePort }}
+    loadBalancerIP: {{ .loadBalancerIP }}
+    {{- end }}

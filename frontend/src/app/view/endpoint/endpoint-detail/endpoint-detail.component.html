@@ -1,0 +1,133 @@
+<div class="content-area" [ngClass]="{'hide': isShowEndpointDetailFailed && isPageLoading}">
+  <a href="javascript:void(0)" [routerLink]="['/endpoint']">&lt;&lt;{{'CommonlyUse.back'| translate}}</a>
+  <h2>{{'EndpointDetail.name'| translate}}</h2>
+  <clr-alert [clrAlertClosable]='false' clrAlertType="danger" *ngIf="isShowEndpointDetailFailed||ischeckFailed">
+    <clr-alert-item>
+      {{errorMessage}}
+    </clr-alert-item>
+  </clr-alert>
+  <div *ngIf="!isShowEndpointDetailFailed">
+    <br>
+    <button class="btn btn-sm" (click)="openDeleteConfrimModal()" [disabled]="isShowEndpointDetailFailed">
+      <cds-icon shape="trash"></cds-icon> {{'CommonlyUse.delete'| translate}}
+    </button>
+    <button class="btn btn-sm" (click)="check()"
+      [disabled]="isShowEndpointDetailFailed">{{'EndpointDetail.checkKubefate'| translate}}</button>
+    <cds-icon class="TestPassedIcon" shape="check-circle" style="color: green;" size="md"
+      *ngIf="ischeckSuccess && !isLoading"></cds-icon>
+    <clr-spinner [clrInline]="true" *ngIf="isLoading"></clr-spinner>
+    <br>
+    <br>
+    <clr-tabs>
+      <clr-tab>
+        <button clrTabLink>{{'CommonlyUse.overview'| translate}}</button>
+        <ng-template [(clrIfActive)]="isOverview">
+          <clr-tab-content *ngIf="!isShowEndpointDetailFailed">
+            <div class="card card1">
+              <ul class="list" *ngIf="endpointDetail">
+                <li>
+                  <span><b>{{'CommonlyUse.name'| translate}}:</b></span>
+                  <span>{{endpointDetail.name}}</span>
+                </li>
+                <li>
+                  <span><b>{{'CommonlyUse.description'| translate}}:</b></span>
+                  <span>{{endpointDetail.description}}</span>
+                </li>
+                <li>
+                  <span><b>{{'CommonlyUse.type'| translate}}:</b></span>
+                  <span>{{endpointDetail.type}}</span>
+                </li>
+                <li>
+                  <span><b>{{'CommonlyUse.version'| translate}}:</b></span>
+                  <span>{{endpointDetail.kubefate_version}}</span>
+                </li>
+                <li>
+                  <span><b>{{'CommonlyUse.creationTime'| translate}}:</b></span>
+                  <span>{{endpointDetail.created_at | dateFormat}}</span>
+                </li>
+                <li>
+                  <span><b>{{'EndpointDetail.host'| translate}}:</b></span>
+                  <span>{{endpointDetail.kubefate_host}}</span>
+                </li>
+                <li>
+                  <span><b>{{'CommonlyUse.ip'| translate}}:</b></span>
+                  <span>{{endpointDetail.kubefate_address}}</span>
+                </li>
+                <li>
+                  <span><b>{{'EndpointDetail.infraProviderName'| translate}}:</b></span>
+                  <span><a
+                      [routerLink]="[ '/infra-detail', endpointDetail.infra_provider_uuid ]">{{endpointDetail.infra_provider_name}}</a></span>
+                </li>
+                <li>
+                  <span><b>{{'CommonlyUse.status'| translate}}:</b></span>
+                  <span class="label statusLabel" [class.label-info]="endpointDetail.status===1"
+                    [class.label-success]="endpointDetail.status===2" [class.label-danger]="endpointDetail.status===4"
+                    [class.label-warning]="endpointDetail.status===5">{{constantGather('endpointstatus',
+                    endpointDetail.status).name | translate}}</span>
+                </li>
+              </ul>
+            </div>
+            <div class="card card2"
+              [ngClass]="{'show': endpointDetail && (!endpointDetail.kubefate_deployment_yaml || endpointDetail.kubefate_deployment_yaml.length <= 0)}">
+              <ul class="list">
+                <li class="codemirror">
+                  <p><b>{{'EndpointDetail.YAML'| translate}}:</b></p>
+                  <textarea class="t3" name="yaml" id="yaml" [attr.disabled]="true" style="color: black;"></textarea>
+                </li>
+              </ul>
+              <br>
+            </div>
+            <br>
+            <br>
+
+          </clr-tab-content>
+        </ng-template>
+      </clr-tab>
+      <clr-tab>
+        <button clrTabLink>{{'Event.event'| translate}}</button>
+        <clr-tab-content *clrIfActive>
+          <app-events-list [entity-uuid]="uuid"></app-events-list>
+        </clr-tab-content>
+      </clr-tab>
+
+    </clr-tabs>
+  </div>
+  <div *ngIf="isPageLoading" class="pageLoading-bac"></div>
+  <clr-spinner class="pageLoading" *ngIf="isPageLoading"></clr-spinner>
+
+</div>
+
+
+
+<clr-modal [(clrModalOpen)]="openDeleteModal" [clrModalClosable]="false">
+  <h3 class="modal-title">{{'CommonlyUse.delete'| translate}}</h3>
+  <div class="modal-body">
+    <div *ngIf="(isDeleteSubmit && isDeleteFailed)" class="alert alert-danger" role="alert">
+      <div class="alert-items">
+        <div class="alert-item static">
+          <div class="alert-icon-wrapper">
+            <cds-icon class="alert-icon" shape="exclamation-circle"></cds-icon>
+          </div>
+          <span class="alert-text">
+            {{errorMessage}}
+          </span>
+        </div>
+      </div>
+    </div>
+    <span>{{'EndpointMg.deleteEndpoint'| translate}}</span>
+    <span class='tog'>
+      <span class='tog' style="color:#247bae;">{{'EndpointDetail.removeKubeFATEInstallation'| translate}}</span>
+      <input class='togbtn' type="checkbox" clrToggle name="options" required value="option1" [(ngModel)]="uninstall" />
+    </span>
+  </div>
+  <div class="modal-footer">
+    <div *ngIf="isDeleteSubmit && !isDeleteFailed">
+      <span>{{'CommonlyUse.deleting'| translate}} ... </span>
+      <clr-spinner [clrInline]="true"></clr-spinner>
+    </div>
+    <button type="button" class="btn btn-outline" (click)="openDeleteModal=false">{{'CommonlyUse.cancel'|
+      translate}}</button>
+    <button type="submit" class="btn btn-primary" (click)="deleteEndpoint()">{{'CommonlyUse.delete'|
+      translate}}</button>
+  </div>
+</clr-modal>

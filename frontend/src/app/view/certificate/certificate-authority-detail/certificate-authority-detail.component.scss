@@ -1,0 +1,80 @@
+
+.card {
+  margin-top: 3px;
+  min-width: 1200px;
+  .clr-form::ng-deep {
+    .list {
+      padding: 12px 18px;
+      list-style: none;
+      width: 110%;
+      label {
+        font-size: 14px;
+      }
+      .clr-form-control {
+        margin-top: 0px;
+        height: 50px;
+        .clr-input {
+          width: 330px;
+          &.passwd {
+            width: 300px;
+          }
+        }
+        &.clr-form-control-disabled {
+          label {
+            color: #333;
+          }
+        }
+      }
+      .clr-textarea-block {
+        display: block;
+        height: auto;
+        textarea {
+          width: 650px;
+          height: 300px;
+        }
+      }
+      .clr-control-container {
+        .clr-input-wrapper {
+          height: 36px;
+          max-height: 36px;
+          .clr-input-group {
+            height: 36px;
+          }
+        }
+      }
+      .pemlabel {
+        width: 100%;
+      }
+    }
+  }
+}
+.pageLoading {
+  min-width: 20px;
+  min-height: 20px;
+  width: 20px;
+  height: 20px;
+  top: 5px;
+}
+.t2{
+  width: 330px;
+  height: 60px;
+}
+.textarea-li {
+  height: 80px;
+}
+
+.embeddingalert {
+  width: 600px;
+  height: fit-content;
+  .embeddingerroricon {
+    float: left;
+  }
+}
+.statusLabel {
+  margin-bottom: 12px;
+}
+
+.pageLoading {
+  margin-top: 10%;
+  margin-left: 45%;
+}

@@ -1,0 +1,29 @@
+.tog{
+    display: flex;
+}
+.tog b {
+    margin-right: 112px;
+}
+.alert{
+    padding-left: 0%;
+    padding-right: 0%;
+    padding-top: 0%;
+    padding-bottom: 0%;
+}
+.card1 .list span:first-of-type {
+    font-size: 15px;
+    display: inline-block;
+    width: 250px;
+    margin-right: 10px;
+    line-height: 36px;
+}
+.infotog{
+    margin-top: -15px;
+}
+.card1{
+    min-width: 500px;
+}
+.pageLoading {
+    margin-top: 10%;
+    margin-left: 45%;
+}

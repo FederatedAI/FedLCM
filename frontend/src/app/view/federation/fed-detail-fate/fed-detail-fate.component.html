@@ -1,0 +1,221 @@
+<div class="content-area">
+  <a href="javascript:void(0)" [routerLink]="['/federation']">&lt;&lt;{{'CommonlyUse.back'|translate}}</a>
+  <br>
+  <h2>{{'FederationDetail.name'|translate}}</h2>
+  <clr-spinner class="pageLoading" *ngIf="isPageLoading"></clr-spinner>
+  <clr-alert [clrAlertClosable]='false' clrAlertType="danger"
+    *ngIf="isShowFedDetailFailed || isShowParticipantListFailed">
+    <clr-alert-item>
+      {{errorMessage}}
+    </clr-alert-item>
+  </clr-alert>
+  <div *ngIf="!isPageLoading && !isShowFedDetailFailed">
+    <br>
+    <div class="btn-group btn-sm">
+      <button class="btn" (click)="refresh()">
+        <cds-icon shape="refresh"></cds-icon> {{'CommonlyUse.refresh'|translate}}
+      </button>
+      <button class="btn" (click)="openDeleteConfrimModal('federation','')">
+        <cds-icon shape="trash"></cds-icon> {{'CommonlyUse.delete'|translate}}
+      </button>
+    </div>
+    <div class="card card1">
+      <ul class="list">
+        <li>
+          <span><b>{{'CommonlyUse.name'|translate}}:</b></span>
+          <span>{{fedDetail?.name}}</span>
+        </li>
+        <li>
+          <span><b>{{'CommonlyUse.type'|translate}}:</b></span>
+          <span>{{fedDetail?.type}}</span>
+        </li>
+        <li>
+          <span><b>{{'CommonlyUse.description'|translate}}:</b></span>
+          <span>{{fedDetail?.description}}</span>
+        </li>
+        <li>
+          <span><b>{{'CommonlyUse.creationTime'|translate}}:</b></span>
+          <span>{{fedDetail?.created_at | dateFormat}}</span>
+        </li>
+        <li>
+          <span><b>{{'Federation.domain'|translate}}:</b></span>
+          <span>{{fedDetail?.domain}}</span>
+        </li>
+      </ul>
+    </div>
+    <br>
+    <h3 class="sub">
+      <cds-icon shape="cloud-traffic"></cds-icon> {{'FederationDetail.exchange'| translate}}
+    </h3>
+    <button type="button" class="btn btn-sm" [routerLink]="['/federation', 'fate', uuid,'exchange','new']"
+      *ngIf="!exchange">
+      <cds-icon solid shape="plus-circle"></cds-icon> {{'CommonlyUse.new'|translate}}
+    </button>
+    <clr-alert class="exchangealert" clrAlertType="info" [clrAlertClosable]='false' *ngIf="!exchange">
+      {{'FederationDetail.noexchange'| translate}}</clr-alert>
+    <table class="table" *ngIf="exchange">
+      <thead>
+        <tr>
+          <th class="left"><span>{{'FederationDetail.exchangeName'|translate}}</span></th>
+          <th><span>{{'CommonlyUse.description'|translate}}</span></th>
+          <th><span>{{'CommonlyUse.creationTime'|translate}}</span></th>
+          <th><span>{{'FederationDetail.accessInfo'| translate}}</span></th>
+          <th *ngIf="exchange?.is_managed"><span>{{'EndpointMg.name'|translate}}</span></th>
+          <th *ngIf="exchange?.is_managed"><span>{{'InfraProvider.name'|translate}}</span></th>
+          <th *ngIf="exchange?.is_managed"><span>{{'NewCluster.namespace'| translate}}</span></th>
+          <th><span>{{'CommonlyUse.status'|translate}}</span></th>
+          <th><span>{{'CommonlyUse.action'|translate}}</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="left" (click)="toDetail('exchange',exchange.uuid, exchange)"><a
+              href="javascript:void(0)">{{exchange.name}}</a></td>
+          <td>{{exchange.description}}</td>
+          <td>{{exchange.created_at | dateFormat}}</td>
+          <td>
+            <clr-signpost *ngIf="hasAccessInfo(exchange.access_info)">
+              <clr-signpost-content *clrIfOpen>
+                <clr-datagrid>
+                  <clr-dg-column [clrDgField]="'name'">{{'CommonlyUse.name'|translate}}</clr-dg-column>
+                  <clr-dg-column>{{'EndpointDetail.host'|translate}}</clr-dg-column>
+                  <clr-dg-column>{{'CommonlyUse.port'|translate}}</clr-dg-column>
+                  <clr-dg-column>{{'ExchangeNew.serviceType'|translate}}</clr-dg-column>
+                  <clr-dg-column>FQDN</clr-dg-column>
+                  <clr-dg-column>TLS</clr-dg-column>
+
+                  <clr-dg-row *clrDgItems="let exchange of exchangeInfoList" [clrDgItem]="exchange">
+                    <clr-dg-cell>{{exchange.name}}</clr-dg-cell>
+                    <clr-dg-cell>{{exchange.host}}</clr-dg-cell>
+                    <clr-dg-cell>{{exchange.port}}</clr-dg-cell>
+                    <clr-dg-cell>{{exchange.service_type ? exchange.service_type : 'N/A'}}</clr-dg-cell>
+                    <clr-dg-cell>{{exchange.fqdn ? exchange.fqdn : 'N/A'}}</clr-dg-cell>
+                    <clr-dg-cell>{{exchange.tls}}</clr-dg-cell>
+                  </clr-dg-row>
+                </clr-datagrid>
+              </clr-signpost-content>
+            </clr-signpost>
+          </td>
+          <td *ngIf="exchange?.is_managed">{{exchange.endpoint_name}}</td>
+          <td *ngIf="exchange?.is_managed">{{exchange.infra_provider_name}}</td>
+          <td *ngIf="exchange?.is_managed">{{exchange.namespace}}</td>
+          <td><span class="label" [class.label-info]="exchange.status===2" [class.label-success]="exchange.status===1"
+              [class.label-danger]="exchange.status===5"
+              [class.label-warning]="exchange.status===3||exchange.status===4">{{constantGather('participantFATEstatus',
+              exchange.status).name | translate}}</span></td>
+          <td><a href="javascript:void(0)"
+              (click)="openDeleteConfrimModal('exchange',exchange.uuid)">{{'CommonlyUse.delete'|translate}}</a></td>
+        </tr>
+      </tbody>
+    </table>
+    <br>
+    <h3 class="sub">
+      <cds-icon shape="cluster"></cds-icon> {{'FederationDetail.cluster'|translate}}
+    </h3>
+    <button [disabled]="createClusterDisabled" type="button" class="btn btn-sm"
+      [routerLink]="['/federation', 'fate', uuid,'cluster','new']">
+      <cds-icon solid shape="plus-circle"></cds-icon> {{'CommonlyUse.new'|translate}}
+    </button>
+    <clr-alert class="exchangealert" clrAlertType="info" [clrAlertClosable]='false'
+      *ngIf="!exchange || createClusterDisabled">
+      {{'FederationDetail.noactiveexchange'| translate}}</clr-alert>
+    <table *ngIf="!createClusterDisabled" class="table">
+      <thead>
+        <tr>
+          <th class="left"><span>{{'FederationDetail.clusterName'|translate}}</span></th>
+          <th><span>{{'CommonlyUse.description'|translate}}</span></th>
+          <th><span>{{'CommonlyUse.creationTime'|translate}}</span></th>
+          <th><span>{{'FederationDetail.accessInfo'| translate}}</span></th>
+          <th><span>{{'EndpointMg.name'|translate}}</span></th>
+          <th><span>{{'InfraProvider.name'|translate}}</span></th>
+          <th><span>{{'NewCluster.namespace'| translate}}</span></th>
+          <th><span>{{'FederationDetail.partyId'|translate}}</span></th>
+          <th><span>{{'CommonlyUse.status'|translate}}</span></th>
+          <th><span>{{'CommonlyUse.action'|translate}}</span></th>
+        </tr>
+      </thead>
+      <tbody *ngIf="clusterlist && clusterlist.length > 0">
+        <tr *ngFor="let cluster of clusterlist">
+          <td class="left" (click)="toDetail('cluster', cluster.uuid, cluster)"><a
+              href="javascript:void(0)">{{cluster.name}}</a></td>
+          <td>{{cluster.description}}</td>
+          <td>{{cluster.created_at | dateFormat}}</td>
+          <td>
+            <clr-signpost *ngIf="hasAccessInfo(cluster.access_info)">
+              <clr-signpost-content *clrIfOpen>
+                <clr-datagrid>
+                  <clr-dg-column [clrDgField]="'name'">{{'CommonlyUse.name'|translate}}</clr-dg-column>
+                  <clr-dg-column>{{'EndpointDetail.host'|translate}}</clr-dg-column>
+                  <clr-dg-column>{{'CommonlyUse.port'|translate}}</clr-dg-column>
+                  <clr-dg-column>{{'ExchangeNew.serviceType'|translate}}</clr-dg-column>
+                  <clr-dg-column>FQDN</clr-dg-column>
+                  <clr-dg-column>TLS</clr-dg-column>
+
+                  <clr-dg-row *clrDgItems="let item of cluster.clusterList" [clrDgItem]="item">
+                    <clr-dg-cell>
+                      {{item.name}}
+                    </clr-dg-cell>
+                    <clr-dg-cell>{{item.host}}</clr-dg-cell>
+                    <clr-dg-cell>{{item.port}}</clr-dg-cell>
+                    <clr-dg-cell>{{item.service_type ? item.service_type : 'N/A'}}</clr-dg-cell>
+                    <clr-dg-cell>{{item.fqdn ? item.fqdn : 'N/A'}}</clr-dg-cell>
+                    <clr-dg-cell>{{item.tls}}</clr-dg-cell>
+                  </clr-dg-row>
+                </clr-datagrid>
+              </clr-signpost-content>
+            </clr-signpost>
+          </td>
+          <td>{{cluster.endpoint_name}}</td>
+          <td>{{cluster.infra_provider_name}}</td>
+          <td>{{cluster.namespace}}</td>
+          <td>{{cluster.party_id}}</td>
+          <td><span class="label" [class.label-info]="cluster.status===2" [class.label-success]="cluster.status===1"
+              [class.label-danger]="cluster.status===5"
+              [class.label-warning]="cluster.status===3||cluster.status===4">{{constantGather('participantFATEstatus',
+              cluster.status).name | translate}}</span></td>
+          <td><a href="javascript:void(0)"
+              (click)="openDeleteConfrimModal('cluster',cluster.uuid)">{{'CommonlyUse.delete'|translate}}</a></td>
+        </tr>
+      </tbody>
+      <tbody *ngIf="!clusterlist || clusterlist.length < 1">
+        <tr class="none">
+          <img src="assets/none.jpg">
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<clr-modal [(clrModalOpen)]="openDeleteModal" [clrModalClosable]="false">
+  <h3 class="modal-title">{{'CommonlyUse.delete'| translate}}</h3>
+  <div class="modal-body">
+    <div *ngIf="(isDeleteSubmit && isDeleteFailed)" class="alert alert-danger" role="alert">
+      <div class="alert-items">
+        <div class="alert-item static">
+          <div class="alert-icon-wrapper">
+            <cds-icon class="alert-icon" shape="exclamation-circle"></cds-icon>
+          </div>
+          <span class="alert-text">
+            {{errorMessage}}
+          </span>
+        </div>
+      </div>
+    </div>
+    <h5>{{'FederationDetail.isDelete'|translate}} {{deleteType}}?</h5>
+    <clr-toggle-container class="clr-toggle-right" *ngIf="deleteType!='federation'">
+      <clr-toggle-wrapper>
+        <input type="checkbox" clrToggle name="options" required value="forceRemove" [(ngModel)]="forceRemove" />
+        <label>{{'FederationDetail.forceRemove'|translate}}</label>
+      </clr-toggle-wrapper>
+    </clr-toggle-container>
+  </div>
+  <div class="modal-footer">
+    <div *ngIf="isDeleteSubmit && !isDeleteFailed">
+      <span>{{'CommonlyUse.deleting'| translate}} ... </span>
+      <clr-spinner [clrInline]="true"></clr-spinner>
+    </div>
+    <button type="button" class="btn btn-outline" (click)="openDeleteModal=false">{{'CommonlyUse.cancel'|
+      translate}}</button>
+    <button type="submit" class="btn btn-primary" (click)="delete()">{{'CommonlyUse.delete'| translate}}</button>
+  </div>
+</clr-modal>

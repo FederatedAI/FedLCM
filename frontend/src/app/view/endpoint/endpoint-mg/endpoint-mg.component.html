@@ -1,0 +1,82 @@
+<div class="content-area">
+  <br>
+  <h2>{{'EndpointMg.name'|translate}}</h2>
+  <clr-alert [clrAlertClosable]='false' clrAlertType="danger" *ngIf="isShowEndpointFailed">
+    <clr-alert-item>
+      {{errorMessage}}
+    </clr-alert-item>
+  </clr-alert>
+  <br>
+  <button class="btn btn-outline" [routerLink]="['/endpoint','new']" [disabled]="isShowEndpointFailed">
+    <cds-icon shape="add-text"></cds-icon> {{'CommonlyUse.new'| translate}}
+  </button>
+  <a href="javascript:;" class="refreshbtn" (click)="refresh()">
+    <cds-icon shape="refresh"></cds-icon>
+  </a>
+  <clr-datagrid [clrDgLoading]="isPageLoading">
+    <clr-dg-column [clrDgField]="'name'">{{'CommonlyUse.name'| translate}}</clr-dg-column>
+    <clr-dg-column>{{'CommonlyUse.description'| translate}}</clr-dg-column>
+    <clr-dg-column [clrDgField]="'type'">{{'CommonlyUse.type'| translate}}</clr-dg-column>
+    <clr-dg-column>{{'CommonlyUse.version'|translate}}</clr-dg-column>
+    <clr-dg-column [clrDgField]="'created_at'">{{'CommonlyUse.creationTime'| translate}}</clr-dg-column>
+    <clr-dg-column>{{'CommonlyUse.ip'|translate}}</clr-dg-column>
+    <clr-dg-column [clrDgField]="'infra_provider_name'">{{'EndpointMg.infraName'|translate}}</clr-dg-column>
+    <clr-dg-column>{{'EndpointMg.infraUUID'|translate}}</clr-dg-column>
+    <clr-dg-column>{{'CommonlyUse.status'| translate}}</clr-dg-column>
+    <clr-dg-column>{{'CommonlyUse.action'| translate}}</clr-dg-column>
+
+    <clr-dg-row *clrDgItems="let endpoint of endpointlist">
+      <clr-dg-cell><a [routerLink]="['/endpoint-detail', endpoint.uuid]">{{endpoint.name}}</a></clr-dg-cell>
+      <clr-dg-cell>{{endpoint.description}}</clr-dg-cell>
+      <clr-dg-cell>{{endpoint.type}}</clr-dg-cell>
+      <clr-dg-cell>{{endpoint.kubefate_version}}</clr-dg-cell>
+      <clr-dg-cell>{{endpoint.created_at | dateFormat}}</clr-dg-cell>
+      <clr-dg-cell>{{endpoint.kubefate_address}}</clr-dg-cell>
+      <clr-dg-cell>{{endpoint.infra_provider_name}}</clr-dg-cell>
+      <clr-dg-cell>{{endpoint.infra_provider_uuid}}</clr-dg-cell>
+      <clr-dg-cell>
+        <span class="label" [class.label-info]="endpoint.status===1" [class.label-success]="endpoint.status===2"
+          [class.label-danger]="endpoint.status===4"
+          [class.label-warning]="endpoint.status===5">{{constantGather('endpointstatus', endpoint.status).name |
+          translate}}</span>
+      </clr-dg-cell>
+      <clr-dg-cell><a href="javascript:void(0)" (click)="openDeleteConfrimModal(endpoint.uuid)"
+          *ngIf="endpoint.status!=endpointStatus.Deleting">{{'CommonlyUse.delete'| translate}}</a></clr-dg-cell>
+    </clr-dg-row>
+
+    <clr-dg-footer>{{endpointlist ? endpointlist.length : 0}} item(s)</clr-dg-footer>
+  </clr-datagrid>
+</div>
+
+<clr-modal [(clrModalOpen)]="openDeleteModal" [clrModalClosable]="false">
+  <h3 class="modal-title">{{'CommonlyUse.delete'| translate}}</h3>
+  <div class="modal-body">
+    <div *ngIf="(isDeleteSubmit && isDeleteFailed)" class="alert alert-danger" role="alert">
+      <div class="alert-items">
+        <div class="alert-item static">
+          <div class="alert-icon-wrapper">
+            <cds-icon class="alert-icon" shape="exclamation-circle"></cds-icon>
+          </div>
+          <span class="alert-text">
+            {{errorMessage}}
+          </span>
+        </div>
+      </div>
+    </div>
+    <span>{{'EndpointMg.deleteEndpoint'|translate}}</span>
+    <span class='tog'>
+      <span class='tog' style="color:#247bae;">{{'EndpointDetail.removeKubeFATEInstallation'|translate}}</span>
+      <input class='togbtn' type="checkbox" clrToggle name="options" required value="option1" [(ngModel)]="uninstall" />
+    </span>
+  </div>
+  <div class="modal-footer">
+    <div *ngIf="isDeleteSubmit && !isDeleteFailed">
+      <span>{{'CommonlyUse.deleting'| translate}} ... </span>
+      <clr-spinner [clrInline]="true"></clr-spinner>
+    </div>
+    <button type="button" class="btn btn-outline" (click)="openDeleteModal=false">{{'CommonlyUse.cancel'|
+      translate}}</button>
+    <button type="submit" class="btn btn-primary" (click)="deleteEndpoint()">{{'CommonlyUse.delete'|
+      translate}}</button>
+  </div>
+</clr-modal>

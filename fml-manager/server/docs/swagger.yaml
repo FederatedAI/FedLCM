@@ -1,0 +1,849 @@
+basePath: /api/v1
+definitions:
+  api.GeneralResponse:
+    properties:
+      code:
+        example: 0
+        type: integer
+      data:
+        type: object
+      message:
+        example: success
+        type: string
+    type: object
+  entity.Site:
+    properties:
+      createdAt:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      description:
+        description: Description contains more text about this site
+        type: string
+      external_host:
+        description: ExternalHost is the IP or hostname this site portal service is
+          exposed
+        type: string
+      external_port:
+        description: ExternalPort the port number this site portal service is exposed
+        type: integer
+      https:
+        description: HTTPS indicate whether the endpoint is over https
+        type: boolean
+      id:
+        type: integer
+      last_connected_at:
+        description: LastRegisteredAt is the last time this site has tried to register
+          to the manager
+        type: string
+      name:
+        description: Name is the site's name
+        type: string
+      party_id:
+        description: PartyID is the id of this party
+        type: integer
+      server_name:
+        description: ServerName is used by fml manager to verify endpoint's certificate
+          when HTTPS is enabled
+        type: string
+      updatedAt:
+        type: string
+      uuid:
+        type: string
+    type: object
+  event.ProjectParticipantUpdateEvent:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+      party_id:
+        type: integer
+      uuid:
+        type: string
+    type: object
+  gorm.DeletedAt:
+    properties:
+      time:
+        type: string
+      valid:
+        description: Valid is true if Time is not NULL
+        type: boolean
+    type: object
+  service.JobApprovalContext:
+    properties:
+      approved:
+        type: boolean
+      site_uuid:
+        type: string
+    type: object
+  service.JobDataBase:
+    properties:
+      data_uuid:
+        type: string
+      label_name:
+        type: string
+    type: object
+  service.JobRemoteJobCreationRequest:
+    properties:
+      algorithm_component_name:
+        type: string
+      conf_json:
+        type: string
+      description:
+        type: string
+      dsl_json:
+        type: string
+      evaluate_component_name:
+        type: string
+      initiator_data:
+        $ref: '#/definitions/service.JobDataBase'
+      name:
+        type: string
+      other_site_data:
+        items:
+          $ref: '#/definitions/service.JobDataBase'
+        type: array
+      predicting_model_uuid:
+        type: string
+      project_uuid:
+        type: string
+      training_algorithm_type:
+        type: integer
+      training_component_list_to_deploy:
+        items:
+          type: string
+        type: array
+      training_model_name:
+        type: string
+      training_validation_enabled:
+        type: boolean
+      training_validation_percent:
+        type: integer
+      type:
+        type: integer
+      username:
+        type: string
+      uuid:
+        type: string
+    type: object
+  service.JobStatusUpdateContext:
+    properties:
+      fate_job_id:
+        type: string
+      fate_job_status:
+        type: string
+      fate_model_id:
+        type: string
+      fate_model_version:
+        type: string
+      participant_status_map:
+        additionalProperties:
+          type: integer
+        type: object
+      status:
+        type: integer
+      status_message:
+        type: string
+    type: object
+  service.ProjectDataAssociation:
+    properties:
+      creation_time:
+        type: string
+      data_uuid:
+        type: string
+      description:
+        type: string
+      name:
+        type: string
+      site_name:
+        type: string
+      site_party_id:
+        type: integer
+      site_uuid:
+        type: string
+      table_name:
+        type: string
+      table_namespace:
+        type: string
+      update_time:
+        type: string
+    type: object
+  service.ProjectDataAssociationBase:
+    properties:
+      data_uuid:
+        type: string
+    type: object
+  service.ProjectInfoWithStatus:
+    properties:
+      project_auto_approval_enabled:
+        type: boolean
+      project_creation_time:
+        type: string
+      project_description:
+        type: string
+      project_manager:
+        type: string
+      project_managing_site_name:
+        type: string
+      project_managing_site_party_id:
+        type: integer
+      project_managing_site_uuid:
+        type: string
+      project_name:
+        type: string
+      project_status:
+        type: integer
+      project_uuid:
+        type: string
+    type: object
+  service.ProjectInvitationRequest:
+    properties:
+      associated_data:
+        items:
+          $ref: '#/definitions/service.ProjectDataAssociation'
+        type: array
+      project_auto_approval_enabled:
+        type: boolean
+      project_creation_time:
+        type: string
+      project_description:
+        type: string
+      project_manager:
+        type: string
+      project_managing_site_name:
+        type: string
+      project_managing_site_party_id:
+        type: integer
+      project_managing_site_uuid:
+        type: string
+      project_name:
+        type: string
+      project_uuid:
+        type: string
+      site_party_id:
+        type: integer
+      site_uuid:
+        type: string
+      uuid:
+        type: string
+    type: object
+info:
+  contact:
+    name: FedLCM team
+  description: backend APIs of fml manager service
+  termsOfService: http://swagger.io/terms/
+  title: fml manager API service
+  version: v1
+paths:
+  /job/{uuid}/response:
+    post:
+      parameters:
+      - description: Job UUID
+        in: path
+        name: uuid
+        required: true
+        type: string
+      - description: job approval response
+        in: body
+        name: project
+        required: true
+        schema:
+          $ref: '#/definitions/service.JobApprovalContext'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Process job response
+      tags:
+      - Job
+  /job/{uuid}/status:
+    post:
+      parameters:
+      - description: Job UUID
+        in: path
+        name: uuid
+        required: true
+        type: string
+      - description: job status
+        in: body
+        name: project
+        required: true
+        schema:
+          $ref: '#/definitions/service.JobStatusUpdateContext'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Process job status update
+      tags:
+      - Job
+  /job/create:
+    post:
+      parameters:
+      - description: job creation request
+        in: body
+        name: project
+        required: true
+        schema:
+          $ref: '#/definitions/service.JobRemoteJobCreationRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Process job creation
+      tags:
+      - Job
+  /project:
+    get:
+      parameters:
+      - description: participant uuid, if set, only returns the projects containing
+          the participant
+        in: query
+        name: participant
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                data:
+                  additionalProperties:
+                    $ref: '#/definitions/service.ProjectInfoWithStatus'
+                  type: object
+              type: object
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: List all project
+      tags:
+      - Project
+  /project/{uuid}/close:
+    post:
+      parameters:
+      - description: Project UUID
+        in: path
+        name: uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Process project closing
+      tags:
+      - Project
+  /project/{uuid}/data:
+    get:
+      parameters:
+      - description: Project UUID
+        in: path
+        name: uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                data:
+                  additionalProperties:
+                    $ref: '#/definitions/service.ProjectDataAssociation'
+                  type: object
+              type: object
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: List all data association in a project
+      tags:
+      - Project
+  /project/{uuid}/data/associate:
+    post:
+      parameters:
+      - description: Project UUID
+        in: path
+        name: uuid
+        required: true
+        type: string
+      - description: Data association info
+        in: body
+        name: project
+        required: true
+        schema:
+          $ref: '#/definitions/service.ProjectDataAssociation'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Process new data association from site
+      tags:
+      - Project
+  /project/{uuid}/data/dismiss:
+    post:
+      parameters:
+      - description: Project UUID
+        in: path
+        name: uuid
+        required: true
+        type: string
+      - description: Data association info containing the data UUID
+        in: body
+        name: project
+        required: true
+        schema:
+          $ref: '#/definitions/service.ProjectDataAssociationBase'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Process data dismissal from site
+      tags:
+      - Project
+  /project/{uuid}/participant:
+    get:
+      parameters:
+      - description: Project UUID
+        in: path
+        name: uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                data:
+                  additionalProperties:
+                    $ref: '#/definitions/service.ProjectDataAssociation'
+                  type: object
+              type: object
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: List all participants in a project
+      tags:
+      - Project
+  /project/{uuid}/participant/{siteUUID}/dismiss:
+    post:
+      parameters:
+      - description: Project UUID
+        in: path
+        name: uuid
+        required: true
+        type: string
+      - description: Site UUID
+        in: path
+        name: siteUUID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Process participant dismissal, called by the managing site only
+      tags:
+      - Project
+  /project/{uuid}/participant/{siteUUID}/leave:
+    post:
+      parameters:
+      - description: Project UUID
+        in: path
+        name: uuid
+        required: true
+        type: string
+      - description: Site UUID
+        in: path
+        name: siteUUID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Process participant leaving
+      tags:
+      - Project
+  /project/event/participant/update:
+    post:
+      parameters:
+      - description: Updated participant info
+        in: body
+        name: project
+        required: true
+        schema:
+          $ref: '#/definitions/event.ProjectParticipantUpdateEvent'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Process participant info update event, called by this FML manager's
+        site context only
+      tags:
+      - Project
+  /project/invitation:
+    post:
+      parameters:
+      - description: invitation request
+        in: body
+        name: project
+        required: true
+        schema:
+          $ref: '#/definitions/service.ProjectInvitationRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Process project invitation
+      tags:
+      - Project
+  /project/invitation/{uuid}/accept:
+    post:
+      parameters:
+      - description: Invitation UUID
+        in: path
+        name: uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Process invitation acceptance response
+      tags:
+      - Project
+  /project/invitation/{uuid}/reject:
+    post:
+      parameters:
+      - description: Invitation UUID
+        in: path
+        name: uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Process invitation rejection response
+      tags:
+      - Project
+  /project/invitation/{uuid}/revoke:
+    post:
+      parameters:
+      - description: Invitation UUID
+        in: path
+        name: uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Process invitation revocation request
+      tags:
+      - Project
+  /site:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/entity.Site'
+                  type: array
+              type: object
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Return sites list
+      tags:
+      - Site
+    post:
+      parameters:
+      - description: The site information
+        in: body
+        name: site
+        required: true
+        schema:
+          $ref: '#/definitions/entity.Site'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Create or update site info
+      tags:
+      - Site
+swagger: "2.0"

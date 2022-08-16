@@ -1,0 +1,56 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: fedlcm
+  labels:
+    app: fedlcm
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: fedlcm-admin
+  namespace: fedlcm
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: fedlcm-binding
+  namespace: fedlcm
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: fedlcm-role
+subjects:
+  - kind: ServiceAccount
+    name: fedlcm-admin
+    namespace: fedlcm
+---
+apiVersion: policy/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  name: fedlcm-psp
+  namespace: fedlcm
+spec:
+  privileged: false
+  seLinux:
+    rule: RunAsAny
+  supplementalGroups:
+    rule: RunAsAny
+  runAsUser:
+    rule: RunAsAny
+  fsGroup:
+    rule: RunAsAny
+  volumes:
+  - '*'
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: fedlcm-role
+  namespace: fedlcm
+rules:
+- apiGroups: ['policy']
+  resources: ['podsecuritypolicies']
+  verbs:     ['use']
+  resourceNames:
+  - fedlcm-psp

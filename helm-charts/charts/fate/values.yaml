@@ -1,0 +1,331 @@
+
+image:
+  registry: 
+  pullPolicy: IfNotPresent
+  imagePullSecrets: 
+#  - name: 
+  
+partyId: 9999
+partyName: fate-9999
+
+istio:
+  enabled: false
+
+podSecurityPolicy:
+  enabled: false
+
+ingress:
+  fateboard: 
+    # annotations: 
+    hosts:
+    - name: fateboard.kubefate.net
+      path: /
+    tls: []
+    # - secretName: my-tls-secret
+      # hosts:
+        # - fateboard.kubefate.net
+  client: 
+    # annotations: 
+    hosts:
+    - name: notebook.kubefate.net
+      path: /
+    tls: [] 
+  spark: 
+    # annotations: 
+    hosts:
+    - name: spark.kubefate.net
+      path: /
+    tls: [] 
+  pulsar: 
+    # annotations: 
+    hosts:
+    - name:  pulsar.kubefate.net
+      path: /
+    tls: []
+  frontend: 
+    # annotations: 
+    hosts:
+    - name:  frontend.example.com
+      path: /
+    tls: []
+
+persistence:
+  enabled: false
+
+modules:
+  python: 
+    image: federatedai/python-spark
+    imageTag: 1.6.1-release
+    include: true
+    type: ClusterIP
+    httpNodePort: 30097
+    grpcNodePort: 30092
+    loadBalancerIP: 
+    serviceAccountName: 
+    nodeSelector:
+    tolerations:
+    affinity:
+    backend: eggroll
+    enabledNN: false
+    # subPath: ""
+    existingClaim: ""
+    claimName: python-data
+    storageClass: "python"
+    accessMode: ReadWriteOnce
+    size: 1Gi
+    clustermanager:
+      cores_per_node: 16
+      nodes: 2
+    spark: 
+      cores_per_node: 20
+      nodes: 2
+      master: spark://spark-master:7077
+      driverHost: fateflow
+      driverHostType: 
+      portMaxRetries: 
+      driverStartPort: 
+      blockManagerStartPort: 
+      pysparkPython: 
+    hdfs:
+      name_node: hdfs://namenode:9000
+      path_prefix:
+    rabbitmq:
+      host: rabbitmq
+      mng_port: 15672
+      port: 5672
+      user: fate
+      password: fate
+    pulsar:
+      host: pulsar
+      mng_port: 8080
+      port: 6650
+    nginx:
+      host: nginx
+      http_port: 9300
+      grpc_port: 9310
+
+  fateboard:
+    include: true
+    image: federatedai/fateboard
+    imageTag: 1.6.1-release
+    type: ClusterIP
+    username: admin
+    password: admin
+
+  client: 
+    include: true
+    image: federatedai/client
+    imageTag: 1.6.1-release
+    ip: client
+    type: ClusterIP
+    nodeSelector:
+    tolerations:
+    affinity:
+    subPath: "client"
+    existingClaim: ""
+    storageClass: "client"
+    accessMode: ReadWriteOnce
+    size: 1Gi
+
+  mysql: 
+    include: true
+    image: mysql
+    imageTag: 8
+    type: ClusterIP
+    nodeSelector:
+    tolerations:
+    affinity:
+    ip: mysql
+    port: 3306
+    database: eggroll_meta
+    user: fate
+    password: fate_dev
+    subPath: "mysql"
+    existingClaim: ""
+    claimName: mysql-data
+    storageClass: "mysql"
+    accessMode: ReadWriteOnce
+    size: 1Gi
+
+  serving:
+    ip: 192.168.9.1
+    port: 30095
+    useRegistry: false
+    zookeeper:
+      hosts:
+        - serving-zookeeper.fate-serving-9999:2181
+      use_acl: false
+
+  spark:
+    include: true
+    master:
+      image: "federatedai/spark-master"
+      imageTag: "1.6.1-release"
+      replicas: 1
+      nodeSelector:
+      tolerations:
+      affinity:
+      type: ClusterIP
+      nodePort: 30977
+    worker:
+      image: "federatedai/spark-worker"
+      imageTag: "1.6.1-release"
+      replicas: 2
+      resources:
+        requests:
+          cpu: "1"
+          memory: "2Gi"
+        limits:
+          cpu: "2"
+          memory: "4Gi"
+      nodeSelector:
+      tolerations:
+      affinity:
+      type: ClusterIP
+  hdfs:
+    include: true
+    namenode:
+      image: federatedai/hadoop-namenode
+      imageTag: 2.0.0-hadoop2.7.4-java8
+      nodeSelector:
+      tolerations:
+      affinity:
+      type: ClusterIP
+      nodePort: 30900
+      existingClaim: ""
+      accessMode: ReadWriteOnce
+      size: 1Gi
+      storageClass: hdfs
+    datanode:
+      image: federatedai/hadoop-datanode
+      imageTag: 2.0.0-hadoop2.7.4-java8
+      nodeSelector:
+      tolerations:
+      affinity:
+      type: ClusterIP
+      existingClaim: ""
+      accessMode: ReadWriteOnce
+      size: 1Gi
+      storageClass: hdfs
+  nginx:
+    include: true
+    image: federatedai/nginx
+    imageTag: 1.6.1-release
+    nodeSelector:
+    tolerations:
+    affinity:
+    type: ClusterIP
+    httpNodePort: 30093
+    grpcNodePort: 30098
+    loadBalancerIP: 
+    exchange:
+      ip: 192.168.10.1
+      httpPort: 30003
+      grpcPort: 30008
+    route_table: 
+#      10000: 
+#        proxy: 
+#        - host: 192.168.10.1 
+#          http_port: 30103
+#          grpc_port: 30108
+#        fateflow:
+#        - host: 192.168.10.1  
+#          http_port: 30107
+#          grpc_port: 30102
+
+  pulsar:
+    include: true
+    image: federatedai/pulsar
+    imageTag: 2.7.0
+    nodeSelector:
+    tolerations:
+    affinity:
+    type: ClusterIP
+    httpNodePort: 30094
+    httpsNodePort: 30099
+    loadBalancerIP: 
+    publicLB:
+      enabled: false
+    existingClaim: ""
+    storageClass: "pulsar"
+    accessMode: ReadWriteOnce
+    size: 1Gi
+    # exchange:
+      # ip: 192.168.10.1
+      # port: 30000
+      # domain: fate.org
+    route_table: 
+#      10000:
+#        host: 192.168.10.1
+#        port: 30104
+#        sslPort: 30109
+#        proxy: ""
+#   
+
+  postgres:
+    include: true
+    image: postgres
+    imageTag: 13.3
+    # nodeSelector:
+    # tolerations:
+    # affinity:
+    type: ClusterIP
+    # nodePort: 
+    # loadBalancerIP:
+    user: site_portal
+    password: site_portal
+    db: site_portal
+    # subPath: ""
+    existingClaim: ""
+    storageClass: ""
+    accessMode: ReadWriteOnce
+    size: 1Gi
+  
+  frontend:
+    include: true
+    image: federatedai/site-portal-frontend
+    imageTag: v0.1.0
+    # nodeSelector:
+    # tolerations:
+    # affinity:
+    type: ClusterIP
+    
+    # nodePort: 
+    # loadBalancerIP:
+    
+  sitePortalServer:
+    include: true
+    image: federatedai/site-portal-server
+    imageTag: v0.1.0
+    # nodeSelector:
+    # tolerations:
+    # affinity:
+    type: ClusterIP
+    # nodePort: 
+    # loadBalancerIP:
+    existingClaim: ""
+    storageClass: "sitePortalServer"
+    accessMode: ReadWriteOnce
+    size: 1Gi
+    postgresHost: postgres
+    postgresPort: 5432
+    postgresDb: site_portal
+    postgresUser: site_portal
+    postgresPassword: site_portal
+    adminPassword: admin
+    userPassword: user
+    serverCert: /var/lib/site-portal/cert/server.crt
+    serverKey: /var/lib/site-portal/cert/server.key
+    clientCert: /var/lib/site-portal/cert/client.crt
+    clientKey: /var/lib/site-portal/cert/client.key
+    caCert: /var/lib/site-portal/cert/ca.crt
+    tlsEnabled: 'true'
+    tlsPort: 8443
+    tlsCommonName: site-1.server.example.com
+
+
+# externalMysqlIp: mysql
+# externalMysqlPort: 3306
+# externalMysqlDatabase: eggroll_meta
+# externalMysqlUser: fate
+# externalMysqlPassword: fate_dev

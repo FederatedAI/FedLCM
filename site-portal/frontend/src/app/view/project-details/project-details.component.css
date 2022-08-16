@@ -1,0 +1,20 @@
+.content-area {
+    width: 100%;
+    min-width: 1080px;
+}
+exact.toggle{
+    margin-left: 350%;
+    margin-top:-90%;
+}
+.alert{
+    padding-left: 0%;
+    padding-right: 0%;
+    padding-top: 0%;
+    padding-bottom: 0%;
+}
+.btn.my-btn.btn-link.nav-link {
+    box-shadow: none;
+}
+.btn.my-btn.btn-link.nav-link.my-active {
+    box-shadow: 0 -0.15rem 0 #0072a3 inset;
+}

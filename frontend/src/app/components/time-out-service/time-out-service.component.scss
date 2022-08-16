@@ -1,0 +1,19 @@
+h2 {
+  text-align: center;
+  padding-top: 100px;
+  &::ng-deep {
+    .alert-danger {
+      font-size: 60px;
+      font-weight: bold;
+      display: inline-block;
+      line-height: 60px;
+    }
+  }
+}
+a {
+  display: block;
+  width: 300px;
+  font-size: 22px;
+  margin: 20px auto;
+  text-align: center;
+}

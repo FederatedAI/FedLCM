@@ -1,0 +1,50 @@
+
+.content-area .card1 .list span:first-of-type {
+    font-size: 15px;
+    display: inline-block;
+    width: 200px;
+    margin-right: 10px;
+}
+
+.content-area .card2 .list span:first-of-type {
+    font-size: 15px;
+    display: inline-block;
+    width: 130px;
+    margin-right: 10px;
+}
+.downloadbtn {
+    margin-left: 36px;
+    font-size:x-small;
+}
+.togglebtn {
+    margin-bottom: -8px;
+    margin-left: 50px;
+}
+.clr-form-control {
+    margin-top: 6px;
+}
+
+.selectarea {
+    margin-left: 24px;
+}
+textarea { 
+    width: 700px;
+    height: 100px;
+    margin-top: -10px;
+}
+clr-datagrid {
+    margin: 0px;
+    margin-top: -12px;
+}
+.pageLoading {
+    margin-top: 10%;
+    margin-left: 45%;
+}
+.metaalert {
+    padding: 0px;
+    margin-left: 12px ;
+    width: 60%;
+}
+.card1 {
+    margin-top: 12px;
+}

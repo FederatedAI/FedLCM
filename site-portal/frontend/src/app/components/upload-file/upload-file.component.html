@@ -1,0 +1,18 @@
+<div class="file-wrap">
+  <clr-input-container>
+    <label>{{'CommonlyUse.file' | translate}}</label>
+    <input clrInput #file type="file" style="display: none;" name="file" (change)="uploadFile($event)" required/>
+    <button type="button" class="browse" clrInput (click)="input()">
+      <cds-icon class="folder-icon" shape="folder"></cds-icon>
+      <span>{{fileName}}</span>
+    </button>
+    <button *ngIf="fileName!=='BROWSE'" clrInput (click)='empty()' type="button" class="close-x">✕</button>
+    <span *ngIf="fileName!=='BROWSE'" class="close-text" clrInput>{{'CommonlyUse.success' | translate}}</span>    
+  </clr-input-container>
+  <div style="color: red;" *ngIf="maxSizeFlag && fileName!=='BROWSE'">{{'validator.fileSize' | translate | templateReplacement: size}}</div>
+  <div style="color: red;" *ngIf="fileType && fileName!=='BROWSE'">{{'validator.fileFormat' | translate | templateReplacement: format}}</div>
+  <div class="progress labeled" *ngIf="progress > 0">
+    <progress [value]="progress" max="100"></progress>
+    <span style="margin-top: -7px;">{{progress}}%</span>
+  </div>
+</div>

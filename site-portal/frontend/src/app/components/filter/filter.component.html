@@ -1,0 +1,16 @@
+<form class="clr-form searchform position">
+  <div class="clr-control-container searchbtn" [ngStyle]="{
+    left: left === 'auto' ? 'auto' : left + 'px',
+    right: right === 'auto' ? 'auto' : right + 'px',
+    top: top === 'auto' ? 'auto' : top + 'px',
+    bottom: bottom === 'auto' ? 'auto' : bottom + 'px',
+    width: width
+  }">
+    <div class="clr-input-wrapper clr-row">
+      <input [ngStyle]="{
+          width: width
+        }" class="searchinput" clrInput [placeholder]="placeholder" name="filter" [(ngModel)]="filterSearchValue"
+        (input)="inputHandle()" />
+    </div>
+  </div>
+</form>

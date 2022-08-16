@@ -1,0 +1,168 @@
+<div class="content-area">
+  <a href="javascript:history.back()">&lt;&lt;{{'CommonlyUse.back' | translate}}</a>
+  <h2>{{'modelDetail.modelDetail' | translate}}</h2>
+  <div *ngIf="isShowModelDetailFailed" class="alert alert-danger" role="alert">
+    <div class="alert-items">
+      <div class="alert-item static">
+        <div class="alert-icon-wrapper">
+          <cds-icon class="alert-icon" shape="exclamation-circle"></cds-icon>
+        </div>
+        <span class="alert-text">
+          {{errorMessage}}
+        </span>
+      </div>
+    </div>
+  </div>
+  <clr-spinner class="pageLoading" *ngIf="isPageLoading"></clr-spinner>
+  <div *ngIf="!isPageLoading && !isShowModelDetailFailed">
+    <br>
+    <div class="btn-group btn-sm">
+      <button class="btn" (click)="openPublishModal(modeldata.uuid)">
+        <cds-icon shape="cloud-network"></cds-icon> {{'modelMg.publish' | translate}}
+      </button>
+      <button class="btn" (click)='openDeleteModal=true'>
+        <cds-icon shape="trash"></cds-icon> {{'CommonlyUse.delete' | translate}}
+      </button>
+    </div>
+    <div class="card card1">
+      <ul class="list">
+        <li>
+          <span><b>{{'CommonlyUse.name' | translate}}:</b></span>
+          <span>{{modeldata.name}}</span>
+        </li>
+        <li>
+          <span><b>{{'modelMg.modelID' | translate}}:</b></span>
+          <span>{{modeldata.model_id}}</span>
+        </li>
+        <li>
+          <span><b>{{'modelDetail.modelVersion' | translate}}:</b></span>
+          <span>{{modeldata.model_version}}</span>
+        </li>
+        <li>
+          <span><b>{{'CommonlyUse.createTime' | translate}}:</b></span>
+          <span>{{modeldata.create_time | dateFormatting}}</span>
+        </li>
+        <li>
+          <span><b>{{'modelDetail.componentName' | translate}}:</b></span>
+          <span>{{modeldata.component_name}}</span>
+        </li>
+      </ul>
+    </div>
+    <div class="card card2">
+      <div class="card-block">
+        <h6 class="card-title">{{'modelDetail.modelEvaluation' | translate}}:</h6>
+      </div>
+      <clr-datagrid class="evaltable">
+        <clr-dg-column>{{'jobDetail.index'|translate}}</clr-dg-column>
+        <clr-dg-column [clrDgColType]="'number'">{{'modelDetail.metric' | translate}}</clr-dg-column>
+        <clr-dg-row *ngFor="let keyvalue of key">
+          <clr-dg-cell>{{keyvalue}}</clr-dg-cell>
+          <clr-dg-cell>{{modeldata.evaluation[keyvalue]}}</clr-dg-cell>
+        </clr-dg-row>
+      </clr-datagrid>
+    </div>
+    <div class="card card3">
+      <div class="card-block">
+        <h6 class="card-title">{{'modelDetail.relatedProjectJobs' | translate}}:</h6>
+      </div>
+      <ul class="list">
+        <li>
+          <span><b>{{'modelDetail.Projectname' | translate}}:</b></span>
+          <span><a
+              [routerLink]="['/project-management/project-detail', modeldata.project_uuid]">{{modeldata.project_name}}</a></span>
+        </li>
+        <li>
+          <span><b>{{'modelDetail.Jobname' | translate}}:</b></span>
+          <span><a
+              [routerLink]="['/project-management/project-detail', modeldata.project_uuid, 'job', 'job-detail', modeldata.job_uuid]">{{modeldata.job_name}}</a></span>
+        </li>
+      </ul>
+    </div>
+    <br>
+    <br>
+  </div>
+</div>
+<clr-modal [(clrModalOpen)]="openDeleteModal" [clrModalClosable]="false">
+  <h3 class="modal-title">{{'CommonlyUse.delete'| translate}}</h3>
+  <div class="modal-body">
+    <div *ngIf="(isDeleteSubmit && isDeleteFailed)" class="alert alert-danger" role="alert">
+      <div class="alert-items">
+        <div class="alert-item static">
+          <div class="alert-icon-wrapper">
+            <cds-icon class="alert-icon" shape="exclamation-circle"></cds-icon>
+          </div>
+          <span class="alert-text">
+            {{errorMessage}}
+          </span>
+        </div>
+      </div>
+    </div>
+    <p>{{'modelDetail.DeleteMessage'| translate}}</p>
+  </div>
+  <div class="modal-footer">
+    <div *ngIf="isDeleteSubmit && !isDeleteFailed">
+      <span>{{'CommonlyUse.deleting' | translate}} ... </span>
+      <clr-spinner [clrInline]="true"></clr-spinner>
+    </div>
+    <button type="button" class="btn btn-outline" (click)="openDeleteModal=false">{{'CommonlyUse.cancel' |
+      translate}}</button>
+    <button type="submit" class="btn btn-primary" (click)='deleteModel(modeldata.uuid)'>{{'CommonlyUse.delete' |
+      translate}}</button>
+  </div>
+</clr-modal>
+<clr-modal [(clrModalOpen)]="openModal" [clrModalClosable]="false">
+  <h3 class="modal-title">{{'modelDetail.publishModel' | translate}}</h3>
+  <div class="modal-body">
+    <div *ngIf="isGetTypeFailed || (isPublishSubmit && isPublishFailed)" class="alert alert-danger" role="alert">
+      <div class="alert-items">
+        <div class="alert-item static">
+          <div class="alert-icon-wrapper">
+            <cds-icon class="alert-icon" shape="exclamation-circle"></cds-icon>
+          </div>
+          <span class="alert-text">
+            {{errorMessage}}
+          </span>
+        </div>
+      </div>
+    </div>
+    <form clrForm [formGroup]="form">
+      <clr-input-container>
+        <label class="clr-col-sm-6 clr-col-md-4">{{'modelDetail.serviceName' | translate}}:</label>
+        <input class="clr-col-sm-6 clr-col-md-4" clrInput [(ngModel)]="serviceName" name="serviceName"
+          formControlName="serviceName" />
+        <clr-control-error
+          *ngIf="!form.get('serviceName')?.errors?.minlength && !form.get('serviceName')?.errors?.maxlength">
+          {{form.get('serviceName')?.errors?.emptyMessage || form.get('serviceName')?.errors?.message |
+          translate}}</clr-control-error>
+        <clr-control-error *ngIf="form.get('serviceName')?.errors?.minlength">{{'CommonlyUse.few' |
+          translate}}{{form.get('serviceName')?.errors?.minlength.requiredLength}}{{'CommonlyUse.character' |
+          translate}}</clr-control-error>
+        <clr-control-error *ngIf="form.get('serviceName')?.errors?.maxlength">{{'CommonlyUse.many' |
+          translate}}{{form.get('serviceName')?.errors?.maxlength.requiredLength}}{{'CommonlyUse.character' |
+          translate}}</clr-control-error>
+      </clr-input-container>
+      <clr-select-container>
+        <label class="clr-col-sm-6 clr-col-md-4">{{'modelDetail.deploymentType' | translate}}:</label>
+        <select class="clr-col-sm-6 clr-col-md-4" clrSelect name="type" [(ngModel)]="type" formControlName="type"
+          required>
+          <option *ngFor="let typeNumber of modelTypeList" value="{{typeNumber}}">{{constantGather('modeldeploytype',
+            typeNumber).name}}</option>
+        </select>
+        <clr-control-error>{{'validator.empty' | translate}}</clr-control-error>
+      </clr-select-container>
+      <clr-textarea-container>
+        <label class="clr-col-sm-6 clr-col-md-4">{{'modelMg.parameters_json' | translate}}:</label>
+        <textarea clrTextarea class="clr-col-sm-12 clr-col-md-12 t2" name="parameters_json"
+          placeholder="{{'modelMg.jsonFormatMessage' | translate}}" formControlName="parameters_json"
+          [(ngModel)]="parameters_json"></textarea>
+        <clr-control-error>{{form.get('parameters_json')?.errors?.message | translate}}</clr-control-error>
+      </clr-textarea-container>
+      <br>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline" (click)="reloadCurrentRoute()">{{'CommonlyUse.cancel' |
+      translate}}</button>
+    <button type="button" class="btn btn-primary" (click)="publishModel()">{{'CommonlyUse.submit' | translate}}</button>
+  </div>
+</clr-modal>

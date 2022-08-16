@@ -1,0 +1,14 @@
+*.cfg
+*.idea/
+*.vscode/
+*output/
+*.todo
+*.exe
+dist/
+*.egg-info
+*.test
+.DS_Store
+*.out
+*.tgz
+*.tar
+tls/cert

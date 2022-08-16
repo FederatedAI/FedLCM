@@ -1,0 +1,340 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: fedlcm-secret
+  namespace: fedlcm
+type: Opaque
+stringData:
+  POSTGRES_PASSWORD: lifecycle_manager
+  LIFECYCLEMANAGER_INITIAL_ADMIN_PASSWORD: admin
+  LIFECYCLEMANAGER_SECRETKEY: passphrase123456
+  DOCKER_STEPCA_INIT_PASSWORD: stepca
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: stepca-entrypoint
+  namespace: fedlcm
+data:   
+  entrypoint.sh: |
+    #!/bin/bash
+    set -eo pipefail
+
+    export STEPPATH=$(step path)
+
+    declare -ra REQUIRED_INIT_VARS=(DOCKER_STEPCA_INIT_NAME DOCKER_STEPCA_INIT_DNS_NAMES)
+
+    function init_if_possible () {
+        local missing_vars=0
+        for var in "${REQUIRED_INIT_VARS[@]}"; do
+            if [ -z "${!var}" ]; then
+                missing_vars=1
+            fi
+        done
+        if [ ${missing_vars} = 1 ]; then
+        >&2 echo "there is no ca.json config file; please run step ca init, or provide config parameters via DOCKER_STEPCA_INIT_ vars"
+        else
+            step_ca_init "${@}"
+        fi
+    }
+
+    function generate_password () {
+        set +o pipefail
+        < /dev/urandom tr -dc A-Za-z0-9 | head -c40
+        echo
+        set -o pipefail
+    }
+
+    function step_ca_init () {
+        local -a setup_args=(
+            --name "${DOCKER_STEPCA_INIT_NAME}"
+        --dns "${DOCKER_STEPCA_INIT_DNS_NAMES}"
+        --provisioner "${DOCKER_STEPCA_INIT_PROVISIONER_NAME:-admin}"
+        --password-file "${STEPPATH}/password"
+            --address ":9000"
+        )
+        if [ -n "${DOCKER_STEPCA_INIT_PASSWORD}" ]; then
+            echo "${DOCKER_STEPCA_INIT_PASSWORD}" > "${STEPPATH}/password"
+        else
+            generate_password > "${STEPPATH}/password"
+        fi
+        if [ -n "${DOCKER_STEPCA_INIT_SSH}" ]; then
+            setup_args=("${setup_args[@]}" --ssh)
+        fi
+        step ca init "${setup_args[@]}"
+        sed -i 's/"authority": {/"authority": { "claims": { "maxTLSCertDuration" : "8760h" },/' ${STEPPATH}/config/ca.json
+        mv $STEPPATH/password $PWDPATH
+    }
+
+    if [ ! -f "${STEPPATH}/config/ca.json" ]; then
+      init_if_possible
+    fi
+
+    exec "${@}"  
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  namespace: fedlcm
+  labels:
+    app: fedlcm
+    tier: db
+spec:
+  selector:
+    app: fedlcm
+    tier: db
+  ports:
+    - port: 5432
+      targetPort: 5432
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+  namespace: fedlcm
+  labels:
+    app: fedlcm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fedlcm
+      tier: db
+  template:
+    metadata:
+      name: postgres
+      labels:
+        app: fedlcm
+        tier: db
+    spec:
+      serviceAccountName: fedlcm-admin
+      containers:
+        - name: postgres
+          image: postgres:13.3
+          ports:
+            - containerPort: 5432
+              name: postgresql-db
+          volumeMounts:
+            - name: postgres-volume
+              mountPath: /var/lib/postgresql/data
+          env:
+            - name: POSTGRES_USER
+              value: "lifecycle_manager"
+            - name: POSTGRES_DB
+              value: "lifecycle_manager"
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: fedlcm-secret
+                  key: POSTGRES_PASSWORD
+          resources:
+            limits:
+              memory: "4Gi"
+              cpu: "2"
+            requests:
+              memory: 512Mi
+              cpu: "0.5"
+      volumes:
+        - name: postgres-volume
+        # If you want use persistent storage, please change emptyDir to persistentVolumeClaim.
+          emptyDir: {}
+          # persistentVolumeClaim:
+          #   claimName: postgres-data
+# ---
+# apiVersion: v1
+# kind: PersistentVolumeClaim
+# metadata:
+#   name: postgres-data
+#   namespace: fedlcm
+# spec:
+#   storageClassName: <your storage class name>
+#   accessModes:
+#     - ReadWriteOnce
+#   resources:
+#     requests:
+#       storage: 5Gi  
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: server
+  namespace: fedlcm
+  labels:
+    app: fedlcm
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: fedlcm
+      tier: backend
+  template:
+    metadata:
+      labels:
+        app: fedlcm
+        tier: backend
+    spec:
+      serviceAccountName: fedlcm-admin
+      containers:
+        - name: stepca
+          image: smallstep/step-ca:0.18.2
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: DOCKER_STEPCA_INIT_NAME
+              value: "stepca"
+            - name: DOCKER_STEPCA_INIT_DNS_NAMES
+              value: "localhost"
+            - name: DOCKER_STEPCA_INIT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: fedlcm-secret
+                  key: DOCKER_STEPCA_INIT_PASSWORD
+            - name: DOCKER_STEPCA_INIT_PROVISIONER_NAME
+              value: "stepca"
+            - name: STEPCA_DATA_FOLDER
+              value: "/home/step"
+          ports:
+            - containerPort: 9000
+          volumeMounts:
+            - mountPath: /home/step
+              name: stepca-volume
+            - mountPath: /entrypoint.sh
+              subPath: entrypoint.sh
+              name: stepca-entrypoint
+        - name: server
+          image: federatedai/fedlcm-server:v0.1.0
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            runAsUser: 1000
+          env:
+            - name: POSTGRES_HOST
+              value: "postgres"
+            - name: POSTGRES_PORT
+              value: "5432"
+            - name: POSTGRES_USER
+              value: "lifecycle_manager"
+            - name: POSTGRES_DB
+              value: "lifecycle_manager"
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: fedlcm-secret
+                  key: POSTGRES_PASSWORD
+            - name: LIFECYCLEMANAGER_INITIAL_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: fedlcm-secret
+                  key: LIFECYCLEMANAGER_INITIAL_ADMIN_PASSWORD
+            - name: LIFECYCLEMANAGER_SECRETKEY
+              valueFrom:
+                secretKeyRef:
+                  name: fedlcm-secret
+                  key: LIFECYCLEMANAGER_SECRETKEY
+            - name: LIFECYCLEMANAGER_BUILTINCA_HOST
+              value: "localhost"
+            - name: LIFECYCLEMANAGER_BUILTINCA_PROVISIONER_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: fedlcm-secret
+                  key: DOCKER_STEPCA_INIT_PASSWORD
+            - name: LIFECYCLEMANAGER_BUILTINCA_PROVISIONER_NAME
+              value: "stepca"
+            - name: LIFECYCLEMANAGER_BUILTINCA_DATADIR
+              value: "/home/step"
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - mountPath: /home/step
+              name: stepca-volume
+      restartPolicy: Always
+      volumes:
+        - name: stepca-volume
+          # If you want use persistent storage, please change emptyDir to persistentVolumeClaim.
+          emptyDir: {}
+          # persistentVolumeClaim:
+          #   claimName: stepca-data
+        - name: stepca-entrypoint
+          configMap:
+            name: stepca-entrypoint
+# ---
+# apiVersion: v1
+# kind: PersistentVolumeClaim
+# metadata:
+#   name: stepca-data
+#   namespace: fedlcm
+# spec:
+#   storageClassName: <your storage class name>
+#   accessModes:
+#     - ReadWriteOnce
+#   resources:
+#     requests:
+#       storage: 5Gi 
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: server
+  namespace: fedlcm
+  labels:
+    app: fedlcm
+spec:
+  selector:
+    app: fedlcm
+    tier: backend
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  namespace: fedlcm
+  labels:
+    app: fedlcm
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: fedlcm
+      tier: frontend
+  template:
+    metadata:
+      labels:
+        app: fedlcm
+        tier: frontend
+    spec:
+      serviceAccountName: fedlcm-admin
+      containers:
+        - name: frontend
+          image: federatedai/fedlcm-frontend:v0.1.0
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: LIFECYCLEMANAGER_SERVER_HOST
+              value: "server"
+          ports:
+            - containerPort: 8080
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+  namespace: fedlcm
+  labels:
+    app: fedlcm
+spec:
+  type: NodePort
+  selector:
+    app: fedlcm
+    tier: frontend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+      nodePort: 30008

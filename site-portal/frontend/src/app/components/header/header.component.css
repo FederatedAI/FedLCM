@@ -1,0 +1,45 @@
+.dropdown{
+    right: 25px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 999;
+}
+.header {
+justify-content: space-between;
+}
+.login-btn-wrap {
+    position: relative;
+}
+.dropdown-menu {
+    min-width:2px;
+}
+
+.dropdown-toggle.btn.btn-link {
+    color: #fff;
+}
+.usericon {
+    margin: 4px;
+    margin-bottom: 6px;
+}
+clr-password-container input {
+    width: 250px
+}
+.alert {
+    padding-left: 6px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+    padding-right: 6px;
+    margin: 6px;
+}
+.iconImage {
+    width: 36px;
+    height: 36px;
+    margin-right: 12px;
+}
+.angleicon {
+    margin-right: -4px;
+    margin-top: -3px;
+}
+.language-dropdown {
+    margin-right: 12px;
+}

@@ -1,0 +1,75 @@
+# Copyright 2022 VMware, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    openfl: notebook
+{{ include "openfl-director.labels" . | indent 4 }}
+  name: notebook
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      openfl: notebook
+{{ include "openfl-director.matchLabels" . | indent 6 }}
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        openfl: notebook
+{{ include "openfl-director.labels" . | indent 8 }}
+    spec:
+      containers:
+        - command:
+            - /bin/bash
+            - -c
+            - |
+              jupyter lab --notebook-dir /usr/local/lib/python3.8/dist-packages/openfl-tutorials --allow-root --ip=0.0.0.0 --NotebookApp.token='' --NotebookApp.password={{ .Values.modules.notebook.password }}
+          image: {{ with .Values.image.registry }}{{ printf "%s/" . }}{{ end }}{{ .Values.modules.notebook.image | default "fedlcm-openfl" }}:{{ .Values.modules.notebook.imageTag | default "latest"}}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          name: notebook
+          ports:
+            - containerPort: 8888
+              name: jupyter-port
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /openfl/workspace/cert/
+              name: notebook-cert
+          workingDir: /openfl/workspace
+      dnsPolicy: ClusterFirst
+      {{- with .Values.modules.notebook.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+      {{- end }}
+      {{- with .Values.modules.notebook.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+      {{- end }}
+      {{- with .Values.modules.notebook.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+      {{- end }}
+      {{- with .Values.image.imagePullSecrets }}
+      imagePullSecrets:
+{{ toYaml . | indent 8 }}
+      {{- end }}
+      serviceAccountName: {{ template "serviceAccountName" . }}
+      restartPolicy: Always
+      volumes:
+        - name: notebook-cert
+          secret:
+            secretName: notebook-cert

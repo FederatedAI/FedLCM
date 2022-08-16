@@ -1,0 +1,8 @@
+apiVersion: v1
+appVersion: "fatev1.6.1+fedlcmv0.1.0"
+description: Helm chart for FATE and site-portal in FedLCM
+name: fate
+version: v1.6.1-fedlcm-v0.1.0
+sources:
+  - https://github.com/FederatedAI/KubeFATE.git
+  - https://github.com/FederatedAI/FATE.git

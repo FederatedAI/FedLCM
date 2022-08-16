@@ -1,0 +1,47 @@
+<div class="content-area">
+    <a href="javascript:;" (click)="back()">&lt;&lt;{{'CommonlyUse.back' | translate}}</a>
+    <h2>{{'projectDetail.projectDetail' | translate}}</h2>
+    <br>
+    <div *ngIf="isShowjobInfoFailed" class="alert alert-danger" role="alert">
+        <div class="alert-items">
+            <div class="alert-item static">
+                <div class="alert-icon-wrapper">
+                    <cds-icon class="alert-icon" shape="exclamation-circle"></cds-icon>
+                </div>
+                <span class="alert-text">
+                    {{errorMessage}}
+                </span>
+            </div>
+        </div>
+    </div>
+    <div *ngIf="!isShowjobInfoFailed">
+        <clr-tabs>
+            <clr-tab>
+                <button clrTabLink [routerLink]="'info'" routerLinkActive="my-active"
+                    class="my-btn">{{'projectDetail.projectInformation' | translate}}</button>
+            </clr-tab>
+            <clr-tab>
+                <button clrTabLink [routerLink]="'job'" routerLinkActive="active"
+                    [routerLinkActiveOptions]="{exact: true}" class="tabbtn">{{'projectDetail.jobManagement' |
+                    translate}} <span class="badge badge-danger"
+                        *ngIf="pendingJobList.length != 0">{{pendingJobList.length}}</span></button>
+            </clr-tab>
+            <clr-tab>
+                <button clrTabLink [routerLink]="'data'" routerLinkActive="active"
+                    [routerLinkActiveOptions]="{exact: true}" class="tabbtn">{{'nav.dataMg' | translate}}</button>
+            </clr-tab>
+            <clr-tab>
+                <button clrTabLink [routerLink]="'model'" routerLinkActive="active"
+                    [routerLinkActiveOptions]="{exact: true}" class="tabbtn">{{'nav.modelMg' | translate}}</button>
+            </clr-tab>
+            <clr-tab>
+                <button clrTabLink [routerLink]="'participant'" routerLinkActive="active"
+                    [routerLinkActiveOptions]="{exact: true}" class="tabbtn">{{'projectDetail.participantManagement' |
+                    translate}}</button>
+            </clr-tab>
+        </clr-tabs>
+        <div id="tabs-content">
+            <router-outlet></router-outlet>
+        </div>
+    </div>
+</div>

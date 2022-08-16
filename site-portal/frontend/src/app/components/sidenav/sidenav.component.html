@@ -1,0 +1,20 @@
+<clr-vertical-nav [clrVerticalNavCollapsible]="true" [(clrVerticalNavCollapsed)]="collapsed" class="sidenav1"
+    style="font-size: medium;">
+    <a clrVerticalNavLink routerLink='/project-management' routerLinkActive="active">
+        <cds-icon clrVerticalNavIcon shape="grid-view"></cds-icon> <b>{{'nav.projectMg' | translate}}​</b>
+    </a>
+    <a clrVerticalNavLink routerLink='/data-management' routerLinkActive="active">
+        <cds-icon clrVerticalNavIcon shape="data-cluster"></cds-icon> <b>{{'nav.dataMg' | translate}}</b>
+    </a>
+
+    <a clrVerticalNavLink routerLink='/model-management' routerLinkActive="active">
+        <cds-icon clrVerticalNavIcon shape="vm"></cds-icon> <b>{{'nav.modelMg' | translate}}</b>
+    </a>
+
+    <a clrVerticalNavLink routerLink='/user-management' routerLinkActive="active">
+        <cds-icon clrVerticalNavIcon shape="users"></cds-icon> <b>{{'nav.userMg' | translate}}</b>​
+    </a>
+    <a clrVerticalNavLink routerLink='/site-configuration' routerLinkActive="active">
+        <cds-icon clrVerticalNavIcon shape="cog"></cds-icon> <b>{{'nav.siteConfiguration' | translate}}</b>
+    </a>
+</clr-vertical-nav>

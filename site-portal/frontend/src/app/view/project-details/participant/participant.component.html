@@ -1,0 +1,116 @@
+<br>
+<button *ngIf="projectDetail.managed_by_this_site" class="btn btn-outline" (click)="showAllParticipantList()">
+    <cds-icon shape="add-text"></cds-icon> {{'projectDetail.inviteNewParticipant' | translate}}
+</button>
+<clr-modal [(clrModalOpen)]="openModal" [clrModalClosable]="false">
+    <h3 class="modal-title">{{'projectDetail.inviteNewParticipant' | translate}}</h3>
+    <div class="modal-body">
+        <div *ngIf="(isSubmitInvitation && isSubmitInvitationFailed) || isShowParticiapantFailed"
+            class="alert alert-danger" role="alert">
+            <div class="alert-items">
+                <div class="alert-item static">
+                    <div class="alert-icon-wrapper">
+                        <cds-icon class="alert-icon" shape="exclamation-circle"></cds-icon>
+                    </div>
+                    <span class="alert-text">
+                        {{errorMessage}}
+                    </span>
+                </div>
+            </div>
+        </div>
+        <clr-datagrid>
+            <clr-dg-column [clrDgField]="'name'">{{'CommonlyUse.name' | translate}}</clr-dg-column>
+            <clr-dg-column>{{'site.partyId' | translate}}</clr-dg-column>
+            <clr-dg-column>{{'CommonlyUse.description' | translate}}</clr-dg-column>
+            <clr-dg-column>{{'projectDetail.invite' | translate}}</clr-dg-column>
+            <clr-dg-row *clrDgItems="let party of newAllParticipantList">
+                <clr-dg-cell *ngIf="!party.is_current_site && party.status != partyStatus.Owner">{{party.name}}
+                </clr-dg-cell>
+                <clr-dg-cell *ngIf="!party.is_current_site  && party.status != partyStatus.Owner">{{party.party_id}}
+                </clr-dg-cell>
+                <clr-dg-cell *ngIf="!party.is_current_site  && party.status != partyStatus.Owner">{{party.description}}
+                </clr-dg-cell>
+                <clr-dg-cell *ngIf="!party.is_current_site  && party.status != partyStatus.Owner">
+                    <clr-checkbox-wrapper>
+                        <input *ngIf="party.status === partyStatus.Unknown" type="checkbox" clrCheckbox
+                            name="inviteoption-1" required value="inviteoption1" [(ngModel)]="party.selected" />
+                        <label
+                            *ngIf="party.status === partyStatus.Pending || party.status === partyStatus.Joined">{{'projectDetail.invited'
+                            | translate}}</label>
+                        <input *ngIf="party.status === partyStatus.Pending || party.status === partyStatus.Joined"
+                            class="disabledcheckbox" type="checkbox" clrCheckbox name="inviteoption-2"
+                            value="inviteoption2" [(ngModel)]="party.selected" disabled />
+                    </clr-checkbox-wrapper>
+                </clr-dg-cell>
+            </clr-dg-row>
+            <clr-dg-footer>{{newAllParticipantList.length-1}} {{'CommonlyUse.item' | translate}}</clr-dg-footer>
+        </clr-datagrid>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-outline" (click)="reloadCurrentRoute()">{{'CommonlyUse.cancel' |
+            translate}}</button>
+        <button type="button" class="btn btn-primary" (click)="submitInvitation()" [disabled]="isSubmitInvitation">{{'CommonlyUse.ok' |
+            translate}}</button>
+    </div>
+</clr-modal>
+<br>
+<a href="javascript:;" class="refreshbtn" (click)="refresh()">
+    <cds-icon shape="refresh"></cds-icon>
+</a>
+<br>
+<clr-datagrid [clrDgLoading]="isPageLoading">
+    <clr-dg-column [clrDgField]="'name'">{{'CommonlyUse.name' | translate}}</clr-dg-column>
+    <clr-dg-column>{{'site.partyId' | translate}}</clr-dg-column>
+    <clr-dg-column>{{'CommonlyUse.description' | translate}}</clr-dg-column>
+    <clr-dg-column [clrDgSortBy]="createTimeComparator">{{'CommonlyUse.createTime' | translate}}</clr-dg-column>
+    <clr-dg-column [clrDgSortBy]="roleComparator">{{'projectDetail.role' | translate}}</clr-dg-column>
+    <clr-dg-column [clrDgSortBy]="statusComparator">{{'CommonlyUse.status' | translate}}</clr-dg-column>
+    <clr-dg-column *ngIf="projectDetail.managed_by_this_site">{{'CommonlyUse.action' | translate}}</clr-dg-column>
+    <clr-dg-row *clrDgItems="let party of invitedParticipantList">
+        <clr-dg-cell>{{party.name}}</clr-dg-cell>
+        <clr-dg-cell>{{party.party_id}}</clr-dg-cell>
+        <clr-dg-cell>{{party.description}}</clr-dg-cell>
+        <clr-dg-cell>{{party.creation_time|dateFormatting}}</clr-dg-cell>
+        <clr-dg-cell *ngIf="party.status === partyStatus.Owner">{{'projectDetail.creator' | translate}}</clr-dg-cell>
+        <clr-dg-cell *ngIf="party.status != partyStatus.Owner">{{'projectDetail.participant' | translate}}</clr-dg-cell>
+        <clr-dg-cell *ngIf="party.status === partyStatus.Owner || party.status === partyStatus.Joined">
+            {{'CommonlyUse.joined' | translate}}</clr-dg-cell>
+        <clr-dg-cell *ngIf="party.status === partyStatus.Pending && !party.is_current_site">{{'CommonlyUse.pending' |
+            translate}}</clr-dg-cell>
+        <clr-dg-cell *ngIf="party.status === partyStatus.Pending && party.is_current_site">{{'CommonlyUse.joined' |
+            translate}}</clr-dg-cell>
+        <clr-dg-cell *ngIf="projectDetail.managed_by_this_site"><a href="javascript:void(0)"
+                (click)="openAlertModal(party.uuid)" class="alert-action"
+                *ngIf="party.status===partyStatus.Joined">{{'CommonlyUse.delete' | translate}}</a> <a
+                href="javascript:void(0)" (click)="openAlertModal(party.uuid)" class="alert-action"
+                *ngIf="!party.is_current_site && party.status===partyStatus.Pending">{{'projectDetail.revokeInvitation'
+                | translate}}</a></clr-dg-cell>
+    </clr-dg-row>
+    <clr-dg-footer>{{invitedParticipantList ? invitedParticipantList.length : 0}} {{'CommonlyUse.item' | translate}}
+    </clr-dg-footer>
+</clr-datagrid>
+<clr-modal [(clrModalOpen)]="isOpenAlertModal" [clrModalClosable]="false" class="modal-dialog modal-sm" role="dialog"
+    aria-hidden="true">
+    <div class="modal-body">
+        <div *ngIf="(isDeleteSubmitted&& submitDeleteFailed) " class="alert alert-danger" role="alert">
+            <div class="alert-items">
+                <div class="alert-item static">
+                    <div class="alert-icon-wrapper">
+                        <cds-icon class="alert-icon" shape="exclamation-circle"></cds-icon>
+                    </div>
+                    <span class="alert-text">
+                        {{errorMessage}}
+                    </span>
+                </div>
+            </div>
+        </div>
+        <h3>{{'projectDetail.isRemoveParty' | translate}}</h3>
+        <br>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-outline" (click)="reloadCurrentRoute()">{{'CommonlyUse.cancel' |
+            translate}}</button>
+        <button type="button" class="btn btn-primary" (click)="deleteParticipant(cur_party_uuid)">{{'CommonlyUse.yes' |
+            translate}}</button>
+    </div>
+</clr-modal>

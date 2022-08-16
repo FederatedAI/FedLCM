@@ -1,0 +1,22 @@
+<clr-vertical-nav [clrVerticalNavCollapsible]="true" [(clrVerticalNavCollapsed)]="collapsed" style="font-size: medium;">
+  <a clrVerticalNavLink routerLink="./federation" routerLinkActive="active">
+    <cds-icon clrVerticalNavIcon shape="organization"></cds-icon>
+    <b>{{'Nav.federation'|translate}}</b>
+  </a>
+  <a clrVerticalNavLink routerLink="./infra" routerLinkActive="active">
+    <cds-icon shape="host-group" clrVerticalNavIcon></cds-icon>
+    <b>{{'Nav.infraProvider'|translate}}</b>
+  </a>
+  <a clrVerticalNavLink routerLink="./endpoint" routerLinkActive="active">
+    <cds-icon shape="node-group" clrVerticalNavIcon></cds-icon>
+    <b>{{'Nav.endpoint'|translate}}</b>
+  </a>
+  <a clrVerticalNavLink routerLink="./chart" routerLinkActive="active">
+    <cds-icon shape="bars" clrVerticalNavIcon></cds-icon>
+    <b>{{'Nav.chart'|translate}}</b>
+  </a>
+  <a clrVerticalNavLink routerLink="./certificate" routerLinkActive="active">
+    <cds-icon shape="certificate" clrVerticalNavIcon></cds-icon>
+    <b>{{'Nav.certificate'|translate}}</b>
+  </a>
+</clr-vertical-nav>

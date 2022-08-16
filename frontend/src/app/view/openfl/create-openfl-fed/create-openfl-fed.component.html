@@ -1,0 +1,93 @@
+<form clrForm clrLayout="horizontal" [formGroup]="openflForm">
+    <clr-input-container class="margin-top-10">
+        <label>{{'CommonlyUse.name'|translate}}</label>
+        <input clrInput name="name" formControlName="name" />
+        <clr-control-error
+            *ngIf="!openflForm.get('name')?.errors?.minlength && !openflForm.get('name')?.errors?.maxlength">
+            {{openflForm.get('name')?.errors?.emptyMessage || openflForm.get('name')?.errors?.message | translate}}
+        </clr-control-error>
+        <clr-control-error *ngIf="openflForm.get('name')?.errors?.minlength">{{'CommonlyUse.few' |
+            translate}}{{openflForm.get('name')?.errors?.minlength.requiredLength}}{{'CommonlyUse.character' |
+            translate}}</clr-control-error>
+        <clr-control-error *ngIf="openflForm.get('name')?.errors?.maxlength">{{'CommonlyUse.many' |
+            translate}}{{openflForm.get('name')?.errors?.maxlength.requiredLength}}{{'CommonlyUse.character' |
+            translate}}</clr-control-error>
+    </clr-input-container>
+    <clr-textarea-container>
+        <label>{{'CommonlyUse.description'|translate}}</label>
+        <textarea clrTextarea class="t2" name="description" formControlName="description"></textarea>
+    </clr-textarea-container>
+    <clr-input-container>
+        <label>{{'Federation.domain'| translate}}
+            <a role="tooltip" aria-haspopup="false" class="tooltip tooltip-lg tooltip-top-right tooltip-icon">
+                <cds-icon shape="info-circle" style="color: #0072a3;"></cds-icon>
+                <span class="tooltip-content">{{'Federation.domainExplain'|translate}}</span>
+            </a>
+        </label>
+        <input clrInput name="domain" formControlName="domain" />
+        <clr-control-error *ngIf="openflForm.get('domain')?.errors">{{openflForm.get('domain')?.errors?.emptyMessage ||
+            openflForm.get('domain')?.errors?.message | translate}}</clr-control-error>
+    </clr-input-container>
+    <clr-toggle-container style="display: flex; flex-wrap: nowrap;">
+        <label class="clr-col-md-5">{{'Federation.customize'|translate}}</label>
+        <clr-toggle-wrapper style="max-width: 200px; width: 200px;">
+            <input (ngModelChange)="openflToggleChange()" type="checkbox" clrToggle name="customize" required
+                value="customize" formControlName="customize" />
+            <label></label>
+        </clr-toggle-wrapper>
+    </clr-toggle-container>
+    <div *ngIf="openflForm.get('customize')?.value === true">
+        <div class="clr-input-contaner">
+            <label class="clr-col-md-3">{{'Federation.sample'| translate}}</label>
+            [<input name="sample" [placeholder]="'Federation.commas'|translate" formControlName="sample" [style]="{
+              'border-bottom': (openflForm.get('sample')?.dirty && openflForm.get('sample')?.errors) ? '1px solid #c21d00' : '1px solid #b3b3b3'
+          }" />
+            <cds-icon *ngIf="openflForm.get('sample')?.dirty && openflForm.get('sample')?.errors" class="error-standard"
+                shape="error-standard"></cds-icon>]
+            <p *ngIf="openflForm.get('sample')?.dirty && openflForm.get('sample')?.errors" class="valid-errot">
+                {{openflForm.get('sample')?.errors?.emptyMessage || openflForm.get('sample')?.errors?.message |
+                translate}}
+            </p>
+        </div>
+        <div class="clr-input-contaner">
+            <label class="clr-col-md-3">{{'Federation.target'| translate}}</label>
+            [<input name="target" [placeholder]="'Federation.commas'|translate" formControlName="target" [style]="{
+                  'border-bottom': (openflForm.get('target')?.dirty && openflForm.get('target')?.errors) ? '1px solid #c21d00' : '1px solid #b3b3b3'
+              }" />
+            <cds-icon *ngIf="openflForm.get('target')?.dirty && openflForm.get('target')?.errors" class="error-standard"
+                shape="error-standard"></cds-icon>]
+            <p *ngIf="openflForm.get('target')?.dirty && openflForm.get('target')?.errors" class="valid-errot">
+                {{openflForm.get('target')?.errors?.emptyMessage || openflForm.get('target')?.errors?.message |
+                translate}}
+            </p>
+        </div>
+        <clr-textarea-container class="clr-textrea">
+            <label class="clr-control-label clr-col-12 clr-col-md-12">{{'Federation.envoyConfig'|translate}}</label>
+            <textarea clrTextarea class="t3" id="yaml" name="yaml" formControlName="envoyYaml"></textarea>
+        </clr-textarea-container>
+        <div class="clr-input-contaner">
+            <label class="clr-col-12 clr-col-md-3">{{'CommonlyUse.file'|translate}}</label>
+            <cds-file class="file" layout="vertical" [status]="fileStatus">
+                <label></label>
+                <input (change)="uploadFileChange($event, 'py')" type="file" multiple />
+                <cds-control-message *ngIf="fileStatus === 'error'" [status]="fileStatus">{{
+                    'Openfl.pythonFileUploadErrorMessage'| translate}}</cds-control-message>
+            </cds-file>
+        </div>
+        <p style="margin-top: 5px;" *ngIf="this.uploadFileList.length>0">{{'DirectorNew.files'| translate}}</p>
+        <ol class="list file-list">
+            <li *ngFor="let file of this.uploadFileList">
+                {{file.name}}
+            </li>
+        </ol>
+        <div class="clr-input-contaner">
+            <label class="clr-col-12 clr-col-md-5">{{'CommonlyUse.requirements'|translate}}</label>
+            <cds-file class="file" layout="vertical" [status]="requirementStatus">
+                <label></label>
+                <input (change)="uploadFileChange($event, 'requirement')" type="file" single />
+                <cds-control-message *ngIf="requirementStatus === 'error'" [status]="requirementStatus">{{
+                    'Openfl.requirementFileUploadErrorMessage'| translate}}</cds-control-message>
+            </cds-file>
+        </div>
+    </div>
+</form>

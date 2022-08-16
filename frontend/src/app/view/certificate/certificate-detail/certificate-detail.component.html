@@ -1,0 +1,70 @@
+<div class="content-area" [ngClass]="{'hide': isShowDetailFailed && isPageLoading}">
+  <a href="javascript:history.back()">&lt;&lt;{{'CommonlyUse.back'|translate}}</a>
+  <h2>{{'CertificateDetail.name'|translate}}</h2>
+  <div *ngIf="!certificateDetail" class="alert alert-danger" role="alert">
+    <div class="alert-items">
+      <div class="alert-item static">
+        <div class="alert-icon-wrapper">
+          <cds-icon class="alert-icon" shape="exclamation-circle"></cds-icon>
+        </div>
+        <span class="alert-text">
+          {{errorMessage}}
+        </span>
+      </div>
+    </div>
+  </div>
+  <div *ngIf="isPageLoading" class="pageLoading-bac"></div>
+  <clr-spinner class="pageLoading" *ngIf="isPageLoading"></clr-spinner>
+  <div class="card card1" *ngIf="certificateDetail">
+    <ul class="list">
+      <li>
+        <span><b>{{'CommonlyUse.name'|translate}}:</b></span>
+        <span>{{certificateDetail.name}}</span>
+      </li>
+      <li>
+        <span><b>{{'CertificateDetail.commonName'|translate}}:</b></span>
+        <span>{{certificateDetail.common_name}}</span>
+      </li>
+      <li>
+        <span><b>{{'CertificateDetail.expirationDate'|translate}}:</b></span>
+        <span>{{certificateDetail?.expiration_date | date :'medium'}}</span>
+      </li>
+      <li>
+        <span><b>{{'CertificateDetail.serialNumber'|translate}}:</b></span>
+        <span>{{certificateDetail.serial_number}}</span>
+      </li>
+      <li>
+        <span><b>UUID:</b></span>
+        <span>{{certificateDetail.uuid}}</span>
+      </li>
+    </ul>
+  </div>
+  <div class="card card1" *ngIf="certificateDetail && certificateDetail.bindings.length>0">
+    <div class="card-block">
+      <h6 class="card-title">{{'CertificateDetail.bind'|translate}}:</h6>
+    </div>
+    <clr-datagrid>
+      <clr-dg-column [clrDgField]="'name'">{{'CertificateDetail.participantName'|translate}}</clr-dg-column>
+      <clr-dg-column>{{'CertificateDetail.participantUuid'|translate}}</clr-dg-column>
+      <clr-dg-column>{{'CertificateDetail.federationName'|translate}}</clr-dg-column>
+      <clr-dg-column>{{'CertificateDetail.federationType'|translate}}</clr-dg-column>
+      <clr-dg-column>{{'CertificateDetail.serviceDescription'|translate}}</clr-dg-column>
+      <clr-dg-column>{{'CertificateDetail.serviceType'|translate}}</clr-dg-column>
+
+      <clr-dg-row *clrDgItems="let bind of certificateDetail.bindings" [clrDgItem]="bind">
+        <clr-dg-cell><a
+            [routerLink]="['/federation', bind.federation_type==='FATE'?'fate':'openfl', bind.federation_uuid,bind.participant_type,'detail',bind.participant_uuid]">{{bind.participant_name}}</a>
+        </clr-dg-cell>
+        <clr-dg-cell>{{bind.participant_uuid}}</clr-dg-cell>
+        <clr-dg-cell><a
+            [routerLink]="['/federation', bind.federation_type==='FATE'?'fate':'openfl', bind.federation_uuid]">{{bind.federation_name}}</a>
+        </clr-dg-cell>
+        <clr-dg-cell>{{bind.federation_type}}</clr-dg-cell>
+        <clr-dg-cell>{{bind.service_description}}</clr-dg-cell>
+        <clr-dg-cell>{{constantGather('cerificateType',
+          bind.service_type).name | translate}}</clr-dg-cell>
+      </clr-dg-row>
+    </clr-datagrid>
+  </div>
+  <div>
+  </div>

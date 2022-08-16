@@ -1,0 +1,18 @@
+.toggle{
+    margin-left: 350%;
+    margin-top:-90%;
+}
+.alert{
+    padding-left: 0%;
+    padding-right: 0%;
+    padding-top: 0%;
+    padding-bottom: 0%;
+}
+.pageLoading {
+    margin-top: 10%;
+    margin-left: 45%;
+}
+.refreshbtn {
+    float: right;
+    margin-right: 12px;
+}

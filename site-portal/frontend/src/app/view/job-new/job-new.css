@@ -1,0 +1,96 @@
+.t1{
+  width: 250px;
+  margin-left: -10%;
+  height:36px;
+  resize: none;
+}
+.t2{
+  width: 250px;
+  margin-left: -10%;
+  height:72px;
+}
+
+select {
+  width: 200px;
+}
+
+form .radio {
+  margin-left: 10px;
+}
+.clr-radio-container {
+  width: 100%;
+}
+
+.valset{
+  width: 30px;
+  margin-left: -18%;
+  margin-top: -5%;   
+}
+.cell {
+  display: inline-block;
+  position: relative;
+}
+.selectAlg {
+  width:250px;
+  margin-left:-120px;
+}
+.selectAlg2 {
+  width:200px;
+  margin-left:-150px;
+}
+
+.cardtextarea {
+  width:50%;
+}
+
+.config {
+  width:50%;
+  height:200px;
+}
+input {
+  width:25%;
+}
+
+
+
+.generatealert {
+  padding-left: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-right: 0;
+  margin-top:10px;
+  margin-bottom: 0;
+  width: 50%;
+}
+.predict_selector {
+  width:100%;
+}
+#svg-canvas {
+  display: block;
+  margin: 0 auto;
+}
+
+.model-drag .modal-content .select-item{
+  display: flex;
+}
+.model-drag .modal-content .select-item::ng-deep .clr-form-control{
+  margin-top: 0px;
+}
+.model-drag .modal-content .select-item::ng-deep .clr-form-control .clr-select{
+  width: 170px;
+}
+.model-drag .modal-content::ng-deep .opt {
+  position: relative;
+}
+.model-drag .modal-content::ng-deep .opt .trash {
+  position: absolute;
+  right: 0px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.model-drag::ng-deep .plus-circle {
+  float: right;
+}
+.info_container::ng-deep .clr-form .clr-form-control{
+  margin-top: 0px;
+}
