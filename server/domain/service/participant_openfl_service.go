@@ -41,7 +41,6 @@ import (
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 	uuid "github.com/satori/go.uuid"
-	"gorm.io/gorm"
 	corev1 "k8s.io/api/core/v1"
 	apierr "k8s.io/apimachinery/pkg/api/errors"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -952,28 +951,29 @@ func (s *ParticipantOpenFLService) configEnvoyInfra(req *ParticipantOpenFLEnvoyR
 		return nil, err
 	}
 
-	var infraProvider *entity.InfraProviderKubernetes
-	infraProviderInstance, err := s.InfraRepo.GetByAddress(infraAPIHost)
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			infraProvider = &entity.InfraProviderKubernetes{
-				InfraProviderBase: entity.InfraProviderBase{
-					Name:        u.Hostname(),
-					Description: "added during registering OpenFL envoy",
-					Type:        entity.InfraProviderTypeK8s,
-				},
-				Config: kubeconfig,
-				Repo:   s.InfraRepo,
-			}
-			log.Info().Msgf("creating infra provider during envoy registration, name: %s", infraProvider.Name)
-			if err := infraProvider.Create(); err != nil {
-				return nil, err
-			}
-		} else {
+	infraProvider := &entity.InfraProviderKubernetes{
+		InfraProviderBase: entity.InfraProviderBase{
+			Name:        u.Hostname(),
+			Description: "added during registering OpenFL envoy",
+			Type:        entity.InfraProviderTypeK8s,
+		},
+		Config: kubeconfig,
+		Repo:   s.InfraRepo,
+	}
+
+	if err := s.InfraRepo.ProviderExists(infraProvider); err == nil {
+		log.Info().Msgf("creating infra provider during envoy registration, name: %s", infraProvider.Name)
+		if err := infraProvider.Create(); err != nil {
 			return nil, err
 		}
-	} else {
+	} else if errors.Is(err, repo.ErrProviderExist) {
+		infraProviderInstance, err := s.InfraRepo.GetByConfigSHA256(infraProvider.Config.SHA2565())
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to load infra provider")
+		}
 		infraProvider = infraProviderInstance.(*entity.InfraProviderKubernetes)
+	} else {
+		return nil, errors.Wrap(err, "failed to check provider existence")
 	}
 	return infraProvider, nil
 }
