@@ -21,12 +21,12 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"fmt"
-	"os"
 	"strings"
 	"sync"
 	"text/template"
 
 	"github.com/FederatedAI/FedLCM/pkg/kubernetes"
+	site_portal_client "github.com/FederatedAI/FedLCM/pkg/site-portal-client"
 	"github.com/FederatedAI/FedLCM/server/domain/entity"
 	"github.com/FederatedAI/FedLCM/server/domain/repo"
 	"github.com/FederatedAI/FedLCM/server/domain/valueobject"
@@ -361,7 +361,7 @@ func (s *ParticipantFATEService) CreateExchange(req *ParticipantFATEExchangeCrea
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		operationLog := zerolog.New(os.Stderr).With().Timestamp().Str("action", "installing fate exchange").Str("uuid", exchange.UUID).Logger().
+		operationLog := log.Logger.With().Timestamp().Str("action", "installing fate exchange").Str("uuid", exchange.UUID).Logger().
 			Hook(zerolog.HookFunc(func(e *zerolog.Event, level zerolog.Level, message string) {
 				eventLvl := entity.EventLogLevelInfo
 				if level == zerolog.ErrorLevel {
@@ -625,7 +625,7 @@ func (s *ParticipantFATEService) RemoveExchange(uuid string, force bool) (*sync.
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		operationLog := zerolog.New(os.Stderr).With().Timestamp().Str("action", "uninstalling fate exchange").Str("uuid", exchange.UUID).Logger().
+		operationLog := log.Logger.With().Timestamp().Str("action", "uninstalling fate exchange").Str("uuid", exchange.UUID).Logger().
 			Hook(zerolog.HookFunc(func(e *zerolog.Event, level zerolog.Level, message string) {
 				eventLvl := entity.EventLogLevelInfo
 				if level == zerolog.ErrorLevel {
@@ -888,7 +888,7 @@ func (s *ParticipantFATEService) CreateCluster(req *ParticipantFATEClusterCreati
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		operationLog := zerolog.New(os.Stderr).With().Timestamp().Str("action", "installing fate cluster").Str("uuid", cluster.UUID).Logger().
+		operationLog := log.Logger.With().Timestamp().Str("action", "installing fate cluster").Str("uuid", cluster.UUID).Logger().
 			Hook(zerolog.HookFunc(func(e *zerolog.Event, level zerolog.Level, message string) {
 				eventLvl := entity.EventLogLevelInfo
 				if level == zerolog.ErrorLevel {
@@ -1075,6 +1075,43 @@ func (s *ParticipantFATEService) CreateCluster(req *ParticipantFATEClusterCreati
 						TLS:         true,
 						FQDN:        sitePortalFQDN,
 					}
+					if fmlManagerInfo, ok := exchange.AccessInfo[entity.ParticipantFATEServiceNameFMLMgr]; ok {
+						go func() {
+							operationLog.Info().Msgf("automatically configure site portal and its connection with fml manager")
+							password := "admin"
+							if serverConfigInt, ok := m["sitePortalServer"]; ok {
+								serverConfig := serverConfigInt.(map[string]interface{})
+								if passwordInt, ok := serverConfig["adminPassword"]; ok {
+									password = passwordInt.(string)
+								}
+							}
+							sitePortalClient, err := site_portal_client.NewClient(site_portal_client.Site{
+								Username:             "Admin",
+								Password:             password,
+								Name:                 cluster.Name,
+								Description:          cluster.Description,
+								PartyID:              uint(cluster.PartyID),
+								ExternalHost:         host,
+								ExternalPort:         uint(port),
+								HTTPS:                true,
+								FMLManagerEndpoint:   fmt.Sprintf("https://%s:%d", fmlManagerInfo.Host, fmlManagerInfo.Port),
+								FMLManagerServerName: fmlManagerInfo.FQDN,
+								FATEFlowHost:         "fateflow",
+								FATEFlowHTTPPort:     9380,
+							})
+							if err != nil {
+								operationLog.Err(err).Msg("failed to get site portal client instance")
+								return
+							}
+							if err := sitePortalClient.ConfigAndConnectSite(); err != nil {
+								operationLog.Err(err).Msg("failed to configure site portal")
+								return
+							}
+							operationLog.Info().Msg("configured site portal and it is connected to fml manager")
+						}()
+					} else {
+						operationLog.Warn().Msgf("fml manager is not installed in the exchange, skipping configuration of site portal")
+					}
 				}
 			}
 
@@ -1162,7 +1199,7 @@ func (s *ParticipantFATEService) RemoveCluster(uuid string, force bool) (*sync.W
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		operationLog := zerolog.New(os.Stderr).With().Timestamp().Str("action", "uninstalling fate cluster").Str("uuid", cluster.UUID).Logger().
+		operationLog := log.Logger.With().Timestamp().Str("action", "uninstalling fate cluster").Str("uuid", cluster.UUID).Logger().
 			Hook(zerolog.HookFunc(func(e *zerolog.Event, level zerolog.Level, message string) {
 				eventLvl := entity.EventLogLevelInfo
 				if level == zerolog.ErrorLevel {
@@ -1403,7 +1440,7 @@ func (s *ParticipantFATEService) CreateExternalCluster(req *ParticipantFATEExter
 	go func() {
 		defer wg.Done()
 		if exchange.IsManaged {
-			operationLog := zerolog.New(os.Stderr).With().Timestamp().Str("action", "configuring external fate cluster").Str("uuid", cluster.UUID).Logger().
+			operationLog := log.Logger.With().Timestamp().Str("action", "configuring external fate cluster").Str("uuid", cluster.UUID).Logger().
 				Hook(zerolog.HookFunc(func(e *zerolog.Event, level zerolog.Level, message string) {
 					eventLvl := entity.EventLogLevelInfo
 					if level == zerolog.ErrorLevel {
@@ -1447,7 +1484,7 @@ func (s *ParticipantFATEService) buildATSRouteTable(routeTable map[string]interf
 }
 
 func (s *ParticipantFATEService) rebuildRouteTable(exchange *entity.ParticipantFATE) error {
-	operationLog := zerolog.New(os.Stderr).With().Timestamp().Str("action", "rebuilding fate route table").Str("federation_uuid", exchange.FederationUUID).Logger().
+	operationLog := log.Logger.With().Timestamp().Str("action", "rebuilding fate route table").Str("federation_uuid", exchange.FederationUUID).Logger().
 		Hook(zerolog.HookFunc(func(e *zerolog.Event, level zerolog.Level, message string) {
 			eventLvl := entity.EventLogLevelInfo
 			if level == zerolog.ErrorLevel {

@@ -26,7 +26,6 @@ import (
 	"github.com/rs/zerolog/log"
 	"math/rand"
 	"net/url"
-	"os"
 	"strings"
 	"sync"
 	"text/template"
@@ -287,7 +286,7 @@ func (s *ParticipantOpenFLService) CreateDirector(req *ParticipantOpenFLDirector
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		operationLog := zerolog.New(os.Stderr).With().Timestamp().Str("action", "installing openfl director").Str("uuid", director.UUID).Logger().
+		operationLog := log.Logger.With().Timestamp().Str("action", "installing openfl director").Str("uuid", director.UUID).Logger().
 			Hook(zerolog.HookFunc(func(e *zerolog.Event, level zerolog.Level, message string) {
 				eventLvl := entity.EventLogLevelInfo
 				if level == zerolog.ErrorLevel {
@@ -499,7 +498,7 @@ func (s *ParticipantOpenFLService) RemoveDirector(uuid string, force bool) (*syn
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		operationLog := zerolog.New(os.Stderr).With().Timestamp().Str("action", "uninstalling openfl director").Str("uuid", director.UUID).Logger().
+		operationLog := log.Logger.With().Timestamp().Str("action", "uninstalling openfl director").Str("uuid", director.UUID).Logger().
 			Hook(zerolog.HookFunc(func(e *zerolog.Event, level zerolog.Level, message string) {
 				eventLvl := entity.EventLogLevelInfo
 				if level == zerolog.ErrorLevel {
@@ -706,7 +705,7 @@ func (s *ParticipantOpenFLService) HandleRegistrationRequest(req *ParticipantOpe
 	}
 
 	go func() {
-		operationLog := zerolog.New(os.Stderr).With().Timestamp().Str("action", "installing envoy").Str("uuid", envoy.UUID).Logger().
+		operationLog := log.Logger.With().Timestamp().Str("action", "installing envoy").Str("uuid", envoy.UUID).Logger().
 			Hook(zerolog.HookFunc(func(e *zerolog.Event, level zerolog.Level, message string) {
 				eventLvl := entity.EventLogLevelInfo
 				if level == zerolog.ErrorLevel {
@@ -841,7 +840,7 @@ func (s *ParticipantOpenFLService) RemoveEnvoy(uuid string, force bool) error {
 	_ = s.EventService.CreateEvent(entity.EventTypeLogMessage, entity.EntityTypeOpenFLEnvoy, envoy.UUID, "start removing envoy", entity.EventLogLevelInfo)
 
 	go func() {
-		operationLog := zerolog.New(os.Stderr).With().Timestamp().Str("action", "uninstalling openfl envoy").Str("uuid", envoy.UUID).Logger().
+		operationLog := log.Logger.With().Timestamp().Str("action", "uninstalling openfl envoy").Str("uuid", envoy.UUID).Logger().
 			Hook(zerolog.HookFunc(func(e *zerolog.Event, level zerolog.Level, message string) {
 				eventLvl := entity.EventLogLevelInfo
 				if level == zerolog.ErrorLevel {

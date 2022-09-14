@@ -17,12 +17,12 @@ package mock
 import "github.com/FederatedAI/FedLCM/server/domain/repo"
 
 type InfraProviderKubernetesRepoMock struct {
-	CreateFn       func(instance interface{}) error
-	ListFn         func() (interface{}, error)
-	DeleteByUUIDFn func(uuid string) error
-	GetByUUIDFn    func(uuid string) (interface{}, error)
-	UpdateByUUIDFn func(instance interface{}) error
-	GetByAddressFn func(address string) (interface{}, error)
+	CreateFn            func(instance interface{}) error
+	ListFn              func() (interface{}, error)
+	DeleteByUUIDFn      func(uuid string) error
+	GetByUUIDFn         func(uuid string) (interface{}, error)
+	UpdateByUUIDFn      func(instance interface{}) error
+	GetByConfigSHA256Fn func(address string) (interface{}, error)
 }
 
 func (m *InfraProviderKubernetesRepoMock) ProviderExists(instance interface{}) error {
@@ -49,8 +49,8 @@ func (m *InfraProviderKubernetesRepoMock) UpdateByUUID(instance interface{}) err
 	return m.UpdateByUUIDFn(instance)
 }
 
-func (m *InfraProviderKubernetesRepoMock) GetByAddress(address string) (interface{}, error) {
-	return m.GetByAddressFn(address)
+func (m *InfraProviderKubernetesRepoMock) GetByConfigSHA256(address string) (interface{}, error) {
+	return m.GetByConfigSHA256Fn(address)
 }
 
 var _ repo.InfraProviderRepository = (*InfraProviderKubernetesRepoMock)(nil)
