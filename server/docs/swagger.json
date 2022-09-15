@@ -3936,6 +3936,9 @@
                 "name": {
                     "type": "string"
                 },
+                "namespace": {
+                    "type": "string"
+                },
                 "type": {
                     "type": "string"
                 }
@@ -3969,6 +3972,9 @@
                     "type": "string"
                 },
                 "name": {
+                    "type": "string"
+                },
+                "namespace": {
                     "type": "string"
                 },
                 "status": {
@@ -4009,6 +4015,9 @@
                 "name": {
                     "type": "string"
                 },
+                "namespace": {
+                    "type": "string"
+                },
                 "status": {
                     "type": "integer"
                 },
@@ -4024,6 +4033,9 @@
             "type": "object",
             "properties": {
                 "infra_provider_uuid": {
+                    "type": "string"
+                },
+                "namespace": {
                     "type": "string"
                 },
                 "type": {
@@ -4342,6 +4354,12 @@
                 "kubeconfig_content": {
                     "type": "string"
                 },
+                "namespaces_list": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
                 "registry_config_fate": {
                     "$ref": "#/definitions/valueobject.KubeRegistryConfig"
                 }
@@ -4352,6 +4370,12 @@
             "properties": {
                 "kubeconfig_content": {
                     "type": "string"
+                },
+                "namespaces_list": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 },
                 "registry_config_fate": {
                     "$ref": "#/definitions/valueobject.KubeRegistryConfig"
@@ -4970,6 +4994,12 @@
             "properties": {
                 "kubeconfig_content": {
                     "type": "string"
+                },
+                "namespaces_list": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },

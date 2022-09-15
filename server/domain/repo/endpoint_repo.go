@@ -26,6 +26,8 @@ type EndpointRepository interface {
 	GetByUUID(string) (interface{}, error)
 	// ListByInfraProviderUUID returns []entity.EndpointBase or derived struct instances list that contain the specified infra uuid
 	ListByInfraProviderUUID(string) (interface{}, error)
+	// ListByInfraProviderUUIDAndNamespace returns entity.EndpointBase or derived struct instance that contain the specified infra uuid and namespace
+	ListByInfraProviderUUIDAndNamespace(string, string) (interface{}, error)
 	// UpdateStatusByUUID takes an *entity.EndpointBase or its derived struct and updates the status field
 	UpdateStatusByUUID(interface{}) error
 	// UpdateInfoByUUID takes an *entity.EndpointBase or its derived struct and updates endpoint editable fields

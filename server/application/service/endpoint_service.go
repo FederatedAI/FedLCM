@@ -45,6 +45,7 @@ type EndpointListItem struct {
 	CreatedAt         time.Time             `json:"created_at"`
 	InfraProviderName string                `json:"infra_provider_name"`
 	InfraProviderUUID string                `json:"infra_provider_uuid"`
+	Namespace         string                `json:"namespace"`
 	KubeFATEHost      string                `json:"kubefate_host"`
 	KubeFATEAddress   string                `json:"kubefate_address"`
 	KubeFATEVersion   string                `json:"kubefate_version"`
@@ -68,6 +69,7 @@ type EndpointScanItem struct {
 type EndpointScanRequest struct {
 	InfraProviderUUID string              `json:"infra_provider_uuid"`
 	Type              entity.EndpointType `json:"type"`
+	Namespace         string              `json:"namespace"`
 }
 
 // EndpointCreationRequest contains necessary request info to create an endpoint
@@ -98,6 +100,7 @@ func (app *EndpointApp) GetEndpointList() ([]EndpointListItem, error) {
 			CreatedAt:         domainEndpointKubeFATE.CreatedAt,
 			InfraProviderName: "Unknown",
 			InfraProviderUUID: fmt.Sprintf("Unknown (%s)", domainEndpointKubeFATE.InfraProviderUUID),
+			Namespace:         domainEndpointKubeFATE.Namespace,
 			KubeFATEHost:      domainEndpointKubeFATE.Config.IngressRuleHost,
 			KubeFATEAddress:   domainEndpointKubeFATE.Config.IngressAddress,
 			KubeFATEVersion:   domainEndpointKubeFATE.Version,
@@ -133,6 +136,7 @@ func (app *EndpointApp) GetEndpointDetail(uuid string) (*EndpointDetail, error) 
 			CreatedAt:         domainEndpointKubeFATE.CreatedAt,
 			InfraProviderName: "Unknown",
 			InfraProviderUUID: fmt.Sprintf("Unknown (%s)", domainEndpointKubeFATE.InfraProviderUUID),
+			Namespace:         domainEndpointKubeFATE.Namespace,
 			KubeFATEHost:      domainEndpointKubeFATE.Config.IngressRuleHost,
 			KubeFATEAddress:   domainEndpointKubeFATE.Config.IngressAddress,
 			KubeFATEVersion:   domainEndpointKubeFATE.Version,
@@ -171,7 +175,7 @@ func (app *EndpointApp) ScanEndpoint(req *EndpointScanRequest) ([]EndpointScanIt
 	}
 	domainProvider := domainProviderInstance.(*entity.InfraProviderKubernetes)
 
-	scanResult, err := app.getDomainService().FindKubeFATEEndpoint(req.InfraProviderUUID)
+	scanResult, err := app.getDomainService().FindKubeFATEEndpoint(req.InfraProviderUUID, req.Namespace)
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to scan the endpoints")
 	}
@@ -187,6 +191,7 @@ func (app *EndpointApp) ScanEndpoint(req *EndpointScanRequest) ([]EndpointScanIt
 				CreatedAt:         resultItem.CreatedAt,
 				InfraProviderName: domainProvider.Name,
 				InfraProviderUUID: domainProvider.UUID,
+				Namespace:         resultItem.Namespace,
 				// ignore kubefate related info
 				KubeFATEHost:    "",
 				KubeFATEAddress: "",
@@ -205,15 +210,15 @@ func (app *EndpointApp) CheckKubeFATEConnection(uuid string) error {
 }
 
 // GetKubeFATEDeploymentYAML returns the default yaml content for deploying KubeFATE
-func (app *EndpointApp) GetKubeFATEDeploymentYAML(serviceUsername, servicePassword, hostname string, registryConfig valueobject.KubeRegistryConfig) (string, error) {
-	return app.getDomainService().GetDeploymentYAML(serviceUsername, servicePassword, hostname, registryConfig)
+func (app *EndpointApp) GetKubeFATEDeploymentYAML(namespace, serviceUsername, servicePassword, hostname string, registryConfig valueobject.KubeRegistryConfig) (string, error) {
+	return app.getDomainService().GetDeploymentYAML(namespace, serviceUsername, servicePassword, hostname, registryConfig)
 }
 
 // CreateEndpoint add or install an endpoint
 func (app *EndpointApp) CreateEndpoint(req *EndpointCreationRequest) (string, error) {
 	switch req.Type {
 	case entity.EndpointTypeKubeFATE:
-		return app.getDomainService().CreateKubeFATEEndpoint(req.InfraProviderUUID, req.Name, req.Description, req.KubeFATEDeploymentYAML, req.Install, req.IngressControllerServiceMode)
+		return app.getDomainService().CreateKubeFATEEndpoint(req.InfraProviderUUID, req.Namespace, req.Name, req.Description, req.KubeFATEDeploymentYAML, req.Install, req.IngressControllerServiceMode)
 	default:
 		return "", constants.ErrNotImplemented
 	}

@@ -72,11 +72,9 @@ type pfClient struct {
 // InstallationMeta describes the basic info of a KubeFATE installation
 type InstallationMeta struct {
 	namespace                    string
+	isClusterAdmin               bool
 	kubefateDeployName           string
 	kubefateIngressName          string
-	clusterRoleName              string
-	clusterRoleBindingName       string
-	pspName                      string
 	yaml                         string
 	ingressControllerNamespace   string
 	ingressControllerDeployName  string
@@ -115,25 +113,30 @@ type ClusterListResponse struct {
 }
 
 // BuildInstallationMetaFromYAML builds a meta description of a KubeFATE installation
-func BuildInstallationMetaFromYAML(yamlStr, ingressControllerYAMLStr string) (*InstallationMeta, error) {
+func BuildInstallationMetaFromYAML(namespace, yamlStr, ingressControllerYAMLStr string) (*InstallationMeta, error) {
 	// empty ingressControllerYAMLStr means we don't need to install ingress controller
 	if yamlStr == "" {
-		yamlStr = defaultKubeFATEYAMLVersion180
+		return nil, errors.New("No yaml provided")
 	}
-	// TODO: we should parse the passed yaml to determine these values, for now the hardcoded ones can work just fine
-	return &InstallationMeta{
-		namespace:                    "kube-fate",
+
+	meta := &InstallationMeta{
+		namespace:                    namespace,
+		isClusterAdmin:               false,
 		kubefateDeployName:           "kubefate",
 		kubefateIngressName:          "kubefate",
-		clusterRoleName:              "kubefate-role",
-		clusterRoleBindingName:       "kubefate",
-		pspName:                      "kubefate-psp",
 		yaml:                         yamlStr,
 		ingressControllerNamespace:   "ingress-nginx",
 		ingressControllerDeployName:  "ingress-nginx-controller",
 		ingressControllerServiceName: "ingress-nginx-controller",
 		ingressControllerYAML:        ingressControllerYAMLStr,
-	}, nil
+	}
+
+	if namespace == "" {
+		meta.namespace = "kube-fate"
+		meta.isClusterAdmin = true
+	}
+
+	return meta, nil
 }
 
 func (c *client) IngressAddress() string {

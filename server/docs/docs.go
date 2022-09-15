@@ -3944,6 +3944,9 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
+                "namespace": {
+                    "type": "string"
+                },
                 "type": {
                     "type": "string"
                 }
@@ -3977,6 +3980,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "name": {
+                    "type": "string"
+                },
+                "namespace": {
                     "type": "string"
                 },
                 "status": {
@@ -4017,6 +4023,9 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
+                "namespace": {
+                    "type": "string"
+                },
                 "status": {
                     "type": "integer"
                 },
@@ -4032,6 +4041,9 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "infra_provider_uuid": {
+                    "type": "string"
+                },
+                "namespace": {
                     "type": "string"
                 },
                 "type": {
@@ -4350,6 +4362,12 @@ const docTemplate = `{
                 "kubeconfig_content": {
                     "type": "string"
                 },
+                "namespaces_list": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
                 "registry_config_fate": {
                     "$ref": "#/definitions/valueobject.KubeRegistryConfig"
                 }
@@ -4360,6 +4378,12 @@ const docTemplate = `{
             "properties": {
                 "kubeconfig_content": {
                     "type": "string"
+                },
+                "namespaces_list": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 },
                 "registry_config_fate": {
                     "$ref": "#/definitions/valueobject.KubeRegistryConfig"
@@ -4978,6 +5002,12 @@ const docTemplate = `{
             "properties": {
                 "kubeconfig_content": {
                     "type": "string"
+                },
+                "namespaces_list": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },

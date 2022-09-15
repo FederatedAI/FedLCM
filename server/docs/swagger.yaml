@@ -202,6 +202,8 @@ definitions:
         type: string
       name:
         type: string
+      namespace:
+        type: string
       type:
         type: string
     type: object
@@ -224,6 +226,8 @@ definitions:
       kubefate_version:
         type: string
       name:
+        type: string
+      namespace:
         type: string
       status:
         type: integer
@@ -250,6 +254,8 @@ definitions:
         type: string
       name:
         type: string
+      namespace:
+        type: string
       status:
         type: integer
       type:
@@ -260,6 +266,8 @@ definitions:
   service.EndpointScanRequest:
     properties:
       infra_provider_uuid:
+        type: string
+      namespace:
         type: string
       type:
         type: string
@@ -468,6 +476,10 @@ definitions:
         type: string
       kubeconfig_content:
         type: string
+      namespaces_list:
+        items:
+          type: string
+        type: array
       registry_config_fate:
         $ref: '#/definitions/valueobject.KubeRegistryConfig'
     type: object
@@ -475,6 +487,10 @@ definitions:
     properties:
       kubeconfig_content:
         type: string
+      namespaces_list:
+        items:
+          type: string
+        type: array
       registry_config_fate:
         $ref: '#/definitions/valueobject.KubeRegistryConfig'
     type: object
@@ -885,6 +901,10 @@ definitions:
     properties:
       kubeconfig_content:
         type: string
+      namespaces_list:
+        items:
+          type: string
+        type: array
     type: object
   valueobject.KubeRegistryConfig:
     properties:

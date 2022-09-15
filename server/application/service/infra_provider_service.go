@@ -57,6 +57,7 @@ type InfraProviderListItemKubernetes struct {
 // InfraProviderKubernetesConfig contains kubernetes provider details properties
 type InfraProviderKubernetesConfig struct {
 	KubeConfig         string                         `json:"kubeconfig_content"`
+	Namespaces         []string                       `json:"namespaces_list"`
 	RegistryConfigFATE valueobject.KubeRegistryConfig `json:"registry_config_fate"`
 }
 
@@ -134,6 +135,7 @@ func (app *InfraProviderApp) CreateProvider(providerInfo *InfraProviderCreationR
 			},
 			Config: valueobject.KubeConfig{
 				KubeConfigContent: providerInfo.KubernetesProviderInfo.KubeConfig,
+				NamespacesList:    providerInfo.KubernetesProviderInfo.Namespaces,
 			},
 			RegistryConfigFATE: providerInfo.KubernetesProviderInfo.RegistryConfigFATE,
 			Repo:               app.InfraProviderKubernetesRepo,
@@ -185,6 +187,7 @@ func (app *InfraProviderApp) GetProviderDetail(uuid string) (*InfraProviderDetai
 			},
 			InfraProviderKubernetesConfig: InfraProviderKubernetesConfig{
 				KubeConfig:         domainProvider.Config.KubeConfigContent,
+				Namespaces:         domainProvider.Config.NamespacesList,
 				RegistryConfigFATE: domainProvider.RegistryConfigFATE,
 			},
 		},
@@ -204,6 +207,7 @@ func (app *InfraProviderApp) UpdateProvider(uuid string, updateProviderInfo *Inf
 			},
 			Config: valueobject.KubeConfig{
 				KubeConfigContent: updateProviderInfo.KubernetesProviderInfo.KubeConfig,
+				NamespacesList:    updateProviderInfo.KubernetesProviderInfo.Namespaces,
 			},
 			RegistryConfigFATE: updateProviderInfo.KubernetesProviderInfo.RegistryConfigFATE,
 			Repo:               app.InfraProviderKubernetesRepo,

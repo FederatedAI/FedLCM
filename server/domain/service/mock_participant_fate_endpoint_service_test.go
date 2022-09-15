@@ -22,7 +22,7 @@ type mockParticipantFATEEndpointServiceInt struct {
 	// TODO add stubs
 }
 
-func (m *mockParticipantFATEEndpointServiceInt) ensureEndpointExist(string) (string, error) {
+func (m *mockParticipantFATEEndpointServiceInt) ensureEndpointExist(string, string) (string, error) {
 	return "", nil
 }
 
