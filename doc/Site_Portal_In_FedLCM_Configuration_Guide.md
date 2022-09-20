@@ -21,7 +21,11 @@ Looking at the detail information page of each cluster, we can see there is a hy
 </div>
 
 ## Configure Site Information
-Firstly, log in with the credentials. If we didn't change such settings during the cluster deployment, the default credentials are `Admin:admin` and `User:user`. And the first thing we need to do after login is to configure this site on the "Site Configuration" page. For site 1 in this example, we input the settings as in below example:
+Firstly, log in with the credentials. If we didn't change such settings during the cluster deployment, the default credentials are `Admin:admin` and `User:user`. And the first thing we need to do after login is to configure this site on the "Site Configuration" page. 
+
+Starting from v0.2.0 release, FedLCM will try to automatically configure the site information and register the site to the FML manager. Sometimes this automatic process may fail, and we need to manually configure the site ourselves, as shown below. If the Site Portal is already configured, you can skip this section and move on to the next one.
+
+For site 1 in this example, we input the settings as in below example:
 
 <div style="text-align:center">
 <img src="images/portal-site-configuration.png"  alt="" width="936"/>

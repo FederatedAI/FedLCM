@@ -21,7 +21,11 @@ Site Portal服务用于帮助用户以图形化的方式使用FATE，提供包�
 </div>
 
 ## 配置站点信息
-Site Portal已经内置有两个用户，默认用户名密码是`Admin:admin`或者`User:user`。网站的界面语言默认为英语，我们可以在登录之后，通过右上角的菜单切换语言。之后，我们需要去到“站点配置”页面去进行站点的初始化配置。在下图为我们示例环境中Site 1的站点配置：
+Site Portal已经内置有两个用户，默认用户名密码是`Admin:admin`或者`User:user`。网站的界面语言默认为英语，我们可以在登录之后，通过右上角的菜单切换语言。之后，我们需要去到“站点配置”页面去进行站点的初始化配置。
+
+从v0.2.0 Release开始，FedLCM会在部署好Site Portal之后，尝试自动对其进行配置并自动注册到FML Manager之中，如果您在站点配置页面看到当前站点已经注册成功，那可以忽略本节内容，直接进行下一节的内容。有时，FedLCM的自动配置过程可能失败，那么此时我们需要根据如下示例手动进行Site Portal的配置。
+
+在下图为我们示例环境中Site 1的站点配置：
 
 <div style="text-align:center">
 <img src="images/portal-site-configuration.png"  alt="" width="936"/>

@@ -140,7 +140,6 @@ func (s *EndpointService) CreateKubeFATEEndpoint(infraUUID, namespace, name, des
 	}
 
 	if yaml == "" {
-		// Directly add endpoint to database
 		log.Info().Msgf("generating default deployment yaml")
 		yaml, err = s.GetDeploymentYAML(namespace, "admin", "admin", "kubefate.net", valueobject.KubeRegistryConfig{})
 		if err != nil {

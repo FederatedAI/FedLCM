@@ -1583,7 +1583,7 @@ func (s *ParticipantFATEService) BuildIngressInfoMap(participant *entity.Partici
 
 	ingressMap := entity.ParticipantFATEIngressMap{}
 
-	mgr, _, closer, err := s.buildKubeFATEMgrAndClient(participant.EndpointUUID)
+	mgr, KFClient, closer, err := s.buildKubeFATEMgrAndClient(participant.EndpointUUID)
 	if closer != nil {
 		defer closer()
 	}
@@ -1595,6 +1595,15 @@ func (s *ParticipantFATEService) BuildIngressInfoMap(participant *entity.Partici
 		info, err := getIngressInfo(mgr.K8sClient(), name, participant.Namespace)
 		if err != nil {
 			return err
+		}
+		// if the ingress controller service is of type NodePort, then we can get the node port address from
+		// this KFClient, and we should try to replace the address in the info with it
+		ingressAddressFromKFClient := KFClient.IngressAddress()
+		if !strings.HasPrefix(ingressAddressFromKFClient, "localhost") {
+			if len(info.Addresses) == 0 ||
+				(len(info.Addresses) == 1 && info.Addresses[0] != ingressAddressFromKFClient) {
+				info.Addresses = []string{ingressAddressFromKFClient}
+			}
 		}
 		ingressMap[name] = *info
 	}
