@@ -179,7 +179,7 @@ nohup socat TCP-LISTEN:80,fork TCP:localhost:<PORT> > /dev/null 2>&1 &
 <img src="images/fate-fateboard-job-detail.png"  alt="" width="936"/>
 </div>
 
-> 如果部署版本是 FATE v1.8.0，则也可以使用 `flow test toy` 命令快速执行联邦学习测试。
+> 如果部署版本是 FATE v1.8.0+，则也可以使用 `flow test toy` 命令快速执行联邦学习测试。
 
 ## 删除联邦
 

@@ -197,9 +197,9 @@ spec:
       serviceAccountName: kubefate-admin
       containers:
         {{- if .UseRegistry}}
-        - image: {{.Registry}}/kubefate:v1.4.4
+        - image: {{.Registry}}/kubefate:v1.4.5
         {{- else }}
-        - image: federatedai/kubefate:v1.4.4
+        - image: federatedai/kubefate:v1.4.5
         {{- end }}
           imagePullPolicy: IfNotPresent
           name: kubefate
@@ -253,6 +253,27 @@ spec:
             requests:
               memory: 512Mi
               cpu: "0.5"
+          livenessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 3
+          readinessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 1
+            successThreshold: 1
+            failureThreshold: 3
+          startupProbe:
+            tcpSocket:
+              port: 8080
+            failureThreshold: 30
+            periodSeconds: 10
       {{- if .UseImagePullSecrets}}
       imagePullSecrets:
         - name: {{.ImagePullSecretsName}}
@@ -314,6 +335,26 @@ spec:
           volumeMounts:
             - name: mariadb-data
               mountPath: /var/lib/mysql
+          livenessProbe:
+            exec:
+              command:
+              - mysqladmin
+              - ping
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 3
+          readinessProbe:
+            exec:
+              command:
+              - mysqladmin
+              - ping
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 1
+            successThreshold: 1
+            failureThreshold: 3
       restartPolicy: Always
       {{- if .UseImagePullSecrets}}
       imagePullSecrets:

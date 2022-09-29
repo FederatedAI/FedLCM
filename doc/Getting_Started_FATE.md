@@ -192,7 +192,7 @@ If everything goes well, the progress of the job should reach 100%, which means 
 <img src="images/fate-fateboard-job-detail.png"  alt="" width="936"/>
 </div>
 
-> Alternatively, if we deployed FATE v1.8.0, then we can use `flow test toy` command to run a toy example test to verify everything works fine.
+> Alternatively, if we deployed FATE v1.8.0 or above versions, then we can use `flow test toy` command to run a toy example test to verify everything works fine.
 
 ## Destroying the Federation
 
