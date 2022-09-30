@@ -31,3 +31,12 @@ type ProjectParticipantUpdateEvent struct {
 func (e ProjectParticipantUpdateEvent) GetUrl() string {
 	return "project/event/participant/update"
 }
+
+// ProjectParticipantUnregistrationEvent is triggered when a site is unregistered
+type ProjectParticipantUnregistrationEvent struct {
+	SiteUUID string `json:"siteUUID"`
+}
+
+func (e ProjectParticipantUnregistrationEvent) GetUrl() string {
+	return "project/event/participant/unregister"
+}

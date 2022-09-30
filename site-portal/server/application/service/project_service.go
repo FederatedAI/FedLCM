@@ -974,6 +974,27 @@ func (app *ProjectApp) ProcessProjectClosing(projectUUID string) error {
 	return domainService.ProcessProjectClosing(projectUUID)
 }
 
+// ProcessParticipantUnregistration processes participant unregistration event
+// if siteUUID is empty the current site uuid will be used
+func (app *ProjectApp) ProcessParticipantUnregistration(siteUUID string) error {
+	site, err := app.LoadSite()
+	if err != nil {
+		return err
+	}
+
+	if siteUUID == "" {
+		siteUUID = site.UUID
+	}
+
+	domainService := service.ProjectService{
+		ProjectRepo:     app.ProjectRepo,
+		ParticipantRepo: app.ParticipantRepo,
+		InvitationRepo:  app.InvitationRepo,
+		ProjectDataRepo: app.ProjectDataRepo,
+	}
+	return domainService.ProcessParticipantUnregistration(siteUUID, siteUUID == site.UUID)
+}
+
 // SyncProjectParticipant sync participant status of a project from the fml manager
 func (app *ProjectApp) SyncProjectParticipant(projectUUID string) error {
 	if err := app.EnsureProjectIsOpen(projectUUID); err != nil {

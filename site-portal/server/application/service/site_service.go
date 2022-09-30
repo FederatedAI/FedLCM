@@ -83,3 +83,11 @@ func (app *SiteApp) RegisterToFMLManager(connectionInfo *FMLManagerConnectionInf
 	}
 	return site.RegisterToFMLManager(connectionInfo.Endpoint, connectionInfo.ServerName)
 }
+
+// UnregisterFromFMLManager connects to fml manager and unregister the current site
+func (app *SiteApp) UnregisterFromFMLManager() error {
+	site := &entity.Site{
+		Repo: app.SiteRepo,
+	}
+	return site.UnregisterFromFMLManager()
+}

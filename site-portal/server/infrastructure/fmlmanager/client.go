@@ -54,6 +54,17 @@ func (c *client) CreateSite(site *Site) error {
 	return err
 }
 
+// UnregisterSite unregistered the site from FML manager
+func (c *client) UnregisterSite(siteUUID string) error {
+	resp, err := c.delete(fmt.Sprintf("site/%s", siteUUID))
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	_, err = c.parseResponse(resp)
+	return err
+}
+
 // SendProjectClosing sends a project closing request
 func (c *client) SendProjectClosing(projectUUID string) error {
 	resp, err := c.postJSON(fmt.Sprintf("project/%s/close", projectUUID), "")
@@ -297,6 +308,39 @@ func (c *client) GetProject(siteUUID string) (map[string]ProjectInfoWithStatus, 
 		return nil, err
 	}
 	return getProjectResponse.Data, nil
+}
+
+func (c *client) delete(path string) (*http.Response, error) {
+	urlStr := c.genURL(path)
+	baseUrl, err := url.Parse(urlStr)
+	if err != nil {
+		return nil, err
+	}
+	urlStr = baseUrl.String()
+	var resp *http.Response
+
+	req, err := http.NewRequest(http.MethodDelete, urlStr, nil)
+	if err != nil {
+		return nil, err
+	}
+	if baseUrl.Scheme == "https" {
+		client, err := c.getHttpsClientWithCert()
+		if err != nil {
+			return nil, err
+		}
+		log.Info().Msg(fmt.Sprintf("Deleting %s via HTTPs", urlStr))
+		resp, err = client.Do(req)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		log.Info().Msg(fmt.Sprintf("Deleting %s via HTTP", urlStr))
+		resp, err = http.DefaultClient.Do(req)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return resp, nil
 }
 
 func (c *client) getJSON(path string, query map[string]string) (*http.Response, error) {

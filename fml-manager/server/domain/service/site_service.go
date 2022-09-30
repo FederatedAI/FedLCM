@@ -78,3 +78,19 @@ func (s *SiteService) HandleSiteRegistration(site *entity.Site) error {
 	}()
 	return err
 }
+
+func (s *SiteService) HandleSiteUnregistration(siteUUID string) error {
+	if err := s.SiteRepo.DeleteByUUID(siteUUID); err != nil {
+		return errors.Wrap(err, "failed to delete site")
+	}
+	// send the site info update event to the project context
+	go func() {
+		log.Info().Msgf("sending site unregistration event to project context: site uuid: %s", siteUUID)
+		if err := event.NewSelfHttpExchange().PostEvent(event.ProjectParticipantUnregistrationEvent{
+			SiteUUID: siteUUID,
+		}); err != nil {
+			log.Err(err).Msgf("failed to post site unregistration event")
+		}
+	}()
+	return nil
+}

@@ -39,3 +39,11 @@ func (app *SiteApp) GetSiteList() ([]entity.Site, error) {
 	list, err := app.SiteRepo.GetSiteList()
 	return list.([]entity.Site), err
 }
+
+// UnregisterSite remove a site from this manager
+func (app *SiteApp) UnregisterSite(siteUUID string) error {
+	siteService := &service.SiteService{
+		SiteRepo: app.SiteRepo,
+	}
+	return siteService.HandleSiteUnregistration(siteUUID)
+}

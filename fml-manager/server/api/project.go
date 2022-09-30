@@ -62,6 +62,7 @@ func (controller *ProjectController) Route(r *gin.RouterGroup) {
 		project.POST("/:uuid/participant/:siteUUID/dismiss", controller.handleParticipantDismissal)
 
 		project.POST("/event/participant/update", controller.handleParticipantInfoUpdate)
+		project.POST("/event/participant/unregister", controller.handleParticipantUnregistration)
 
 		project.POST("/:uuid/data/associate", controller.handleDataAssociation)
 		project.POST("/:uuid/data/dismiss", controller.handleDataDismissal)
@@ -446,6 +447,36 @@ func (controller *ProjectController) listParticipant(c *gin.Context) {
 		resp := &GeneralResponse{
 			Code: constants.RespNoErr,
 			Data: participantList,
+		}
+		c.JSON(http.StatusOK, resp)
+	}
+}
+
+// handleParticipantUnregistration process a participant unregistration event
+// @Summary Process participant unregistration event, called by this FML manager's site context only
+// @Tags Project
+// @Produce json
+// @Param site body event.ProjectParticipantUnregistrationEvent true "Unregistered site info"
+// @Success 200 {object} GeneralResponse{} "Success"
+// @Failure 401 {object} GeneralResponse "Unauthorized operation"
+// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
+// @Router /project/event/participant/unregister [post]
+func (controller *ProjectController) handleParticipantUnregistration(c *gin.Context) {
+	if err := func() error {
+		unregistrationEvent := &event.ProjectParticipantUnregistrationEvent{}
+		if err := c.ShouldBindJSON(unregistrationEvent); err != nil {
+			return err
+		}
+		return controller.projectApp.ProcessParticipantUnregistration(unregistrationEvent.SiteUUID)
+	}(); err != nil {
+		resp := &GeneralResponse{
+			Code:    constants.RespInternalErr,
+			Message: err.Error(),
+		}
+		c.JSON(http.StatusInternalServerError, resp)
+	} else {
+		resp := &GeneralResponse{
+			Code: constants.RespNoErr,
 		}
 		c.JSON(http.StatusOK, resp)
 	}

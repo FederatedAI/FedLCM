@@ -91,11 +91,13 @@ func (controller *ProjectController) Route(r *gin.RouterGroup) {
 		internal.POST("/:uuid/participants", controller.createParticipants)
 		internal.POST("/:uuid/participant/:siteUUID/dismiss", controller.handleParticipantDismissal)
 		internal.POST("/:uuid/participant/:siteUUID/leave", controller.handleParticipantLeaving)
+		internal.POST("/all/participant/:siteUUID/unregister", controller.handleParticipantUnregistration)
 
 		internal.POST("/event/participant/update", controller.handleParticipantInfoUpdate)
 		internal.POST("/event/participant/sync", controller.handleParticipantSync)
 		internal.POST("/event/data/sync", controller.handleDataSync)
 		internal.POST("/event/list/sync", controller.handleProjectListSync)
+		internal.POST("/event/participant/unregister", controller.handleParticipantUnregistration)
 
 		internal.POST("/:uuid/data/associate", controller.handleRemoteDataAssociation)
 		internal.POST("/:uuid/data/dismiss", controller.handleRemoteDataDismissal)
@@ -1074,6 +1076,33 @@ func (controller *ProjectController) handleDataSync(c *gin.Context) {
 // @Router /project/internal/event/list/sync [post]
 func (controller *ProjectController) handleProjectListSync(c *gin.Context) {
 	if err := controller.projectApp.SyncProject(); err != nil {
+		resp := &GeneralResponse{
+			Code:    constants.RespInternalErr,
+			Message: err.Error(),
+		}
+		c.JSON(http.StatusInternalServerError, resp)
+	} else {
+		resp := &GeneralResponse{
+			Code: constants.RespNoErr,
+		}
+		c.JSON(http.StatusOK, resp)
+	}
+}
+
+// handleParticipantUnregistration process a project participant unregistration event
+// @Summary Process participant unregistration event, called by FML manager only
+// @Tags Project
+// @Produce json
+// @Param siteUUID path string true "Participant Site UUID"
+// @Success 200 {object} GeneralResponse{} "Success"
+// @Failure 401 {object} GeneralResponse "Unauthorized operation"
+// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
+// @Router /project/internal/all/participant/{siteUUID}/unregister [post]
+func (controller *ProjectController) handleParticipantUnregistration(c *gin.Context) {
+	if err := func() error {
+		siteUUID := c.Param("siteUUID")
+		return controller.projectApp.ProcessParticipantUnregistration(siteUUID)
+	}(); err != nil {
 		resp := &GeneralResponse{
 			Code:    constants.RespInternalErr,
 			Message: err.Error(),

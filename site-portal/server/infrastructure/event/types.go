@@ -76,3 +76,11 @@ type ProjectListSyncEvent struct {
 func (e ProjectListSyncEvent) GetUrl() string {
 	return "project/internal/event/list/sync"
 }
+
+// ProjectSelfUnregistrationEvent is an event triggered when this site unregistered from the fml manager
+type ProjectSelfUnregistrationEvent struct {
+}
+
+func (e ProjectSelfUnregistrationEvent) GetUrl() string {
+	return "project/internal/event/participant/unregister"
+}

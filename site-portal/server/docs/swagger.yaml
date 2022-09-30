@@ -2758,6 +2758,37 @@ paths:
       summary: Create joined participants for a project, called by FML manager only
       tags:
       - Project
+  /project/internal/all/participant/{siteUUID}/unregister:
+    post:
+      parameters:
+      - description: Participant Site UUID
+        in: path
+        name: siteUUID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Process participant unregistration event, called by FML manager only
+      tags:
+      - Project
   /project/internal/event/data/sync:
     post:
       parameters:
@@ -3131,6 +3162,31 @@ paths:
                   type: integer
               type: object
       summary: Connect to fml manager and register itself
+      tags:
+      - Site
+  /site/fmlmanager/unregister:
+    post:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Unregister from the fml manager
       tags:
       - Site
   /site/kubeflow/connect:

@@ -197,3 +197,42 @@ func (site *Site) RegisterToFMLManager(endpoint string, serverName string) error
 	}
 	return nil
 }
+
+// UnregisterFromFMLManager unregisters this site from the FML manager service
+func (site *Site) UnregisterFromFMLManager() error {
+	// load the site info first
+	if err := site.Load(); err != nil {
+		return err
+	}
+
+	defer func() {
+		go func() {
+			log.Info().Msg("sending self unregistration event to the project context")
+			exchange := event.NewSelfHttpExchange()
+			if err := exchange.PostEvent(event.ProjectSelfUnregistrationEvent{}); err != nil {
+				log.Err(err).Msg("failed to send the unregistration event")
+				return
+			}
+		}()
+	}()
+
+	if site.FMLManagerEndpoint == "" || site.FMLManagerConnected == false {
+		log.Warn().Msg("site is not registered, ignore")
+		return nil
+	}
+	client := fmlmanager.NewFMLManagerClient(site.FMLManagerEndpoint, site.FMLManagerServerName)
+	log.Info().Msgf("connecting FML manager at %s", site.FMLManagerEndpoint)
+	err := client.UnregisterSite(site.UUID)
+	if err != nil {
+		return errors.Wrapf(err, "failed to unregister from fml-manager at %s", site.FMLManagerEndpoint)
+	}
+	log.Info().Msgf("unregistered from fml manager at %s", site.FMLManagerEndpoint)
+	site.FMLManagerConnected = false
+	site.FMLManagerEndpoint = ""
+	site.FMLManagerServerName = ""
+	if err := site.Repo.UpdateFMLManagerConnectionStatus(site); err != nil {
+		return errors.Wrapf(err, "failed to update fml connection status")
+	}
+
+	return nil
+}
