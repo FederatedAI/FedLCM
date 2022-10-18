@@ -32,6 +32,8 @@ import (
 type Client interface {
 	// ConfigAndConnectSite configures the site info and connect it to the fml manager
 	ConfigAndConnectSite() error
+	// UnregisterFromFMLManager asks the site to unregister from the fml manager
+	UnregisterFromFMLManager() error
 }
 
 type client struct {
@@ -79,6 +81,22 @@ func (c *client) ConfigAndConnectSite() error {
 		return errors.Wrap(err, "failed to connect site to fml-manager")
 	}
 	return nil
+}
+
+func (c *client) UnregisterFromFMLManager() error {
+	resp, err := c.sendJSON("POST", "site/fmlmanager/unregister", FMLManagerConnectionInfo{
+		Endpoint:   c.site.FMLManagerEndpoint,
+		ServerName: c.site.FMLManagerServerName,
+	})
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	_, err = c.parseResponse(resp)
+	if err != nil {
+		return errors.Wrapf(err, "failed to unregister site")
+	}
+	return err
 }
 
 func (c *client) connectSite() error {

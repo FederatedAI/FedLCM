@@ -1078,12 +1078,10 @@ func (s *ParticipantFATEService) CreateCluster(req *ParticipantFATEClusterCreati
 					if fmlManagerInfo, ok := exchange.AccessInfo[entity.ParticipantFATEServiceNameFMLMgr]; ok {
 						go func() {
 							operationLog.Info().Msgf("automatically configure site portal and its connection with fml manager")
-							password := "admin"
-							if serverConfigInt, ok := m["sitePortalServer"]; ok {
-								serverConfig := serverConfigInt.(map[string]interface{})
-								if passwordInt, ok := serverConfig["adminPassword"]; ok {
-									password = passwordInt.(string)
-								}
+							password, err := cluster.GetSitePortalAdminPassword()
+							if err != nil {
+								operationLog.Err(err).Msg("failed to get site portal admin password")
+								return
 							}
 							sitePortalClient, err := site_portal_client.NewClient(site_portal_client.Site{
 								Username:             "Admin",
@@ -1298,6 +1296,34 @@ func (s *ParticipantFATEService) RemoveCluster(uuid string, force bool) (*sync.W
 					err := clusterKFClient.StopJob(cluster.JobUUID)
 					if err != nil {
 						return err
+					}
+				}
+
+				if sitePortalSvcAccess, ok := cluster.AccessInfo[entity.ParticipantFATEServiceNamePortal]; ok {
+					operationLog.Info().Msg("unregistering site portal from fml manager")
+					if err := func() error {
+						password, err := cluster.GetSitePortalAdminPassword()
+						if err != nil {
+							return err
+						}
+						sitePortalClient, err := site_portal_client.NewClient(site_portal_client.Site{
+							Username:         "Admin",
+							Password:         password,
+							Name:             cluster.Name,
+							Description:      cluster.Description,
+							PartyID:          uint(cluster.PartyID),
+							ExternalHost:     sitePortalSvcAccess.Host,
+							ExternalPort:     uint(sitePortalSvcAccess.Port),
+							HTTPS:            true,
+							FATEFlowHost:     "fateflow",
+							FATEFlowHTTPPort: 9380,
+						})
+						if err != nil {
+							return err
+						}
+						return sitePortalClient.UnregisterFromFMLManager()
+					}(); err != nil {
+						operationLog.Info().Err(err).Msgf("cannot unregister site portal, continue")
 					}
 				}
 				if cluster.ClusterUUID != "" {
