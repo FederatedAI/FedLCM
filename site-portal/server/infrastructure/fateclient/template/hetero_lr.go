@@ -14,7 +14,7 @@
 
 package template
 
-const homoLRDSL = `
+const heteroLRDSL = `
 {
   "components": {
     "reader_0": {
@@ -43,12 +43,27 @@ const homoLRDSL = `
         ]
       }
     },
-    "HomoLR_0": {
-      "module": "HomoLR",
+    "intersection_0": {
+      "module": "Intersection",
+      "input": {
+        "data": {
+          "data": [
+            "dataio_0.data"
+          ]
+        }
+      },
+      "output": {
+        "data": [
+          "data"
+        ]
+      }
+    },
+    "HeteroLR_0": {
+      "module": "HeteroLR",
       "input": {
         "data": {
           "train_data": [
-            "dataio_0.data"
+            "intersection_0.data"
           ]
         }
       },
@@ -66,7 +81,7 @@ const homoLRDSL = `
       "input": {
         "data": {
           "data": [
-            "HomoLR_0.data"
+            "HeteroLR_0.data"
           ]
         }
       },
@@ -80,7 +95,7 @@ const homoLRDSL = `
 }
 `
 
-const homoLRConf = `
+const heteroLRConf = `
 {
   "dsl_version": 2,
   "initiator": {
@@ -113,38 +128,40 @@ const homoLRConf = `
   },
   "component_parameters": {
     "common": {
-      "dataio_0": {
-        "with_label": true,
-        "output_format": "dense",
-		"label_type": "int",
-    	"label_name": "%s"
-      },
-      "HomoLR_0": {
+      "HeteroLR_0": {
         "penalty": "L2",
-        "tol": 0.00001,
+		"tol": 0.0001,
         "alpha": 0.01,
         "optimizer": "rmsprop",
-        "batch_size": -1,
+		"batch_size": -1,
         "learning_rate": 0.15,
         "init_param": {
           "init_method": "zeros"
         },
-        "max_iter": 30,
+        "max_iter": 10,
         "early_stop": "diff",
-        "encrypt_param": {
-          "method": null
-        },
         "cv_param": {
-          "n_splits": 4,
-          "shuffle": true,
-          "random_seed": 33,
+          "n_splits": 5,
+          "shuffle": false,
+          "random_seed": 103,
           "need_cv": false
         },
-        "decay": 1,
-        "decay_sqrt": true
+		"decay": 1,
+		"decay_sqrt": true,
+		"multi_class": "ovr",
+		"sqn_param": {
+		  "update_interval_L": 3,
+		  "memory_M": 5,
+		  "sample_size": 5000,
+		  "random_seed": null
+		},
+		"use_first_metric_only": false
       },
       "evaluation_0": {
-        "eval_type": "binary"
+        "eval_type": "binary",
+		"need_run": true,
+		"pos_label": 1,
+		"unfold_multi_result": false
       }
     },
     "role": {
@@ -156,7 +173,21 @@ const homoLRConf = `
               "name": "%s",
               "namespace": "%s"
             }
-          }
+          },
+		  "dataio_0": {
+			"data_type": "float",
+			"default_value": 0,
+			"delimitor": ",",
+			"input_format": "dense",
+			"label_name": "y",
+			"label_type": "int",
+			"missing_fill": false,
+			"outlier_replace": false,
+			"output_format": "dense",
+			"tag_value_delimitor": ":",
+			"tag_with_value": false,
+			"with_label": true
+ 		 }
         }
       }
     }
@@ -164,58 +195,19 @@ const homoLRConf = `
 }
 `
 
-const homoLRHomoDataSplitDSL = `
+const heteroLRHeteroDataSplitDSL = `
 {
   "components": {
-    "homo_data_split_0": {
-      "output": {
-        "data": [
-          "train_data",
-          "validate_data",
-          "test_data"
-        ]
-      },
-      "input": {
-        "data": {
-          "data": [
-            "dataio_0.data"
-          ]
-        }
-      },
-      "module": "HomoDataSplit"
-    },
     "reader_0": {
+      "module": "Reader",
       "output": {
         "data": [
           "data"
         ]
-      },
-      "module": "Reader"
-    },
-    "evaluation_0": {
-      "output": {
-        "data": [
-          "data"
-        ]
-      },
-      "input": {
-        "data": {
-          "data": [
-            "HomoLR_0.data"
-          ]
-        }
-      },
-      "module": "Evaluation"
+      }
     },
     "dataio_0": {
-      "output": {
-        "data": [
-          "data"
-        ],
-        "model": [
-          "model"
-        ]
-      },
+      "module": "DataIO",
       "input": {
         "data": {
           "data": [
@@ -223,9 +215,6 @@ const homoLRHomoDataSplitDSL = `
           ]
         }
       },
-      "module": "DataIO"
-    },
-    "HomoLR_0": {
       "output": {
         "data": [
           "data"
@@ -233,24 +222,81 @@ const homoLRHomoDataSplitDSL = `
         "model": [
           "model"
         ]
-      },
+      }
+    },
+    "intersection_0": {
+      "module": "Intersection",
       "input": {
         "data": {
-          "validate_data": [
-            "homo_data_split_0.validate_data"
-          ],
-          "train_data": [
-            "homo_data_split_0.train_data"
+          "data": [
+            "dataio_0.data"
           ]
         }
       },
-      "module": "HomoLR"
+      "output": {
+        "data": [
+          "data"
+        ]
+      }
+    },
+	"hetero_data_split_0": {
+      "module": "HeteroDataSplit",
+      "input": {
+        "data": {
+          "data": [
+            "intersection_0.data"
+          ]
+        }
+      },
+      "output": {
+        "data": [
+          "train_data",
+          "validate_data",
+          "test_data"
+        ]
+      }
+    },
+    "HeteroLR_0": {
+      "module": "HeteroLR",
+      "input": {
+        "data": {
+          "validate_data": [
+            "hetero_data_split_0.validate_data"
+          ],
+          "train_data": [
+            "hetero_data_split_0.train_data"
+          ]
+        }
+      },
+      "output": {
+        "data": [
+          "data"
+        ],
+        "model": [
+          "model"
+        ]
+      }
+    },
+    "evaluation_0": {
+      "module": "Evaluation",
+      "input": {
+        "data": {
+          "data": [
+            "HeteroLR_0.data"
+          ]
+        }
+      },
+      "output": {
+        "data": [
+          "data"
+        ]
+      }
     }
   }
 }
 `
 
-const homoLRHomoDataSplitConf = `
+const heteroLRHeteroDataSplitConf = `
 {
   "dsl_version": 2,
   "initiator": {
@@ -273,6 +319,7 @@ const homoLRHomoDataSplitConf = `
       "job_type": "train",
       "backend": 2,
       "work_mode": 1,
+      "use_encrypt": false,
       "spark_run": {
         "num-executors": 2,
         "executor-cores": 1,
@@ -282,7 +329,7 @@ const homoLRHomoDataSplitConf = `
   },
   "component_parameters": {
     "common": {
-      "homo_data_split_0": {
+	  "hetero_data_split_0": {
         "validate_size": %s,
         "split_points": [
           0,
@@ -291,38 +338,40 @@ const homoLRHomoDataSplitConf = `
         "test_size": 0,
         "stratified": true
       },
-      "dataio_0": {
-        "with_label": true,
-        "output_format": "dense",
-		"label_type": "int",
-    	"label_name": "%s"
-      },
-      "HomoLR_0": {
+      "HeteroLR_0": {
         "penalty": "L2",
-        "tol": 0.00001,
+		"tol": 0.0001,
         "alpha": 0.01,
         "optimizer": "rmsprop",
-        "batch_size": -1,
+		"batch_size": -1,
         "learning_rate": 0.15,
         "init_param": {
           "init_method": "zeros"
         },
-        "max_iter": 30,
+        "max_iter": 10,
         "early_stop": "diff",
-        "encrypt_param": {
-          "method": null
-        },
         "cv_param": {
-          "n_splits": 4,
-          "shuffle": true,
-          "random_seed": 33,
+          "n_splits": 5,
+          "shuffle": false,
+          "random_seed": 103,
           "need_cv": false
         },
-        "decay": 1,
-        "decay_sqrt": true
+		"decay": 1,
+		"decay_sqrt": true,
+		"multi_class": "ovr",
+		"sqn_param": {
+		  "update_interval_L": 3,
+		  "memory_M": 5,
+		  "sample_size": 5000,
+		  "random_seed": null
+		},
+		"use_first_metric_only": false
       },
       "evaluation_0": {
-        "eval_type": "binary"
+        "eval_type": "binary",
+		"need_run": true,
+		"pos_label": 1,
+		"unfold_multi_result": false
       }
     },
     "role": {
@@ -334,7 +383,21 @@ const homoLRHomoDataSplitConf = `
               "name": "%s",
               "namespace": "%s"
             }
-          }
+          },
+		  "dataio_0": {
+			"data_type": "float",
+			"default_value": 0,
+			"delimitor": ",",
+			"input_format": "dense",
+			"label_name": "y",
+			"label_type": "int",
+			"missing_fill": false,
+			"outlier_replace": false,
+			"output_format": "dense",
+			"tag_value_delimitor": ":",
+			"tag_with_value": false,
+			"with_label": true
+ 		  }
         }
       }
     }

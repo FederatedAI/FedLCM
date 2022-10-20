@@ -240,6 +240,8 @@
     "algorithm": "算法",
     "homoLogisticRegression": "Homo Logistic Regression",
     "homoSecureBoost": "Homo SecureBoost",
+    "heteroLogisticRegression": "Hetero Logistic Regression",
+    "heteroSecureBoost": "Hetero SecureBoost",
     "generateConfiguration": "生成配置文件",
     "algorithmConfiguration": "算法配置",
     "workflowDSL": "工作流DSL",

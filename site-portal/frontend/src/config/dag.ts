@@ -265,7 +265,7 @@ export default class Dag {
             return false
         } else if (this.cObj[name].children.length < 2) {
             if (this.find(this.cObj[name].children[0])) {
-                if (this.cObj[name].children[0].indexOf('evaluation') !== -1 || this.cObj[name].children[0].indexOf('homo_data_split_0') !== -1) {
+                if (this.cObj[name].children[0].indexOf('evaluation') !== -1 || this.cObj[name].children[0].indexOf('homo_data_split_0') !== -1 || this.cObj[name].children[0].indexOf('hetero_data_split_0') !== -1) {
                     this.my.push({
                         name: this.cObj[name].children[0],
                         value: false
@@ -282,7 +282,7 @@ export default class Dag {
         } else if (this.cObj[name].children.length > 2) {
             this.cObj[name].children.forEach((el: string) => {
                 if (this.find(el)) {
-                    if (el.indexOf('evaluation') !== -1  || el.indexOf('homo_data_split_0') !== -1) {
+                    if (el.indexOf('evaluation') !== -1  || el.indexOf('homo_data_split_0') !== -1 || el.indexOf('hetero_data_split_0') !== -1) {
                         this.my.push({
                             name: el,
                             value: false

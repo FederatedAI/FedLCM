@@ -45,9 +45,9 @@ const trainingGeneralConf = `
       "backend": 2,
       "work_mode": 1,
       "spark_run": {
-        "num-executors": 1,
+        "num-executors": 2,
         "executor-cores": 1,
-        "total-executor-cores": 1
+        "total-executor-cores": 2
       }
     }
   }

@@ -240,6 +240,8 @@
     "algorithm": "Algorithm",
     "homoLogisticRegression": "Homo Logistic Regression",
     "homoSecureBoost": "Homo SecureBoost",
+    "heteroLogisticRegression": "Hetero Logistic Regression",
+    "heteroSecureBoost": "Hetero SecureBoost",
     "generateConfiguration": "Generate Configuration",
     "algorithmConfiguration": "Algorithm Configuration",
     "workflowDSL": "Workflow DSL",

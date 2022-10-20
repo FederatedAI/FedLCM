@@ -14,176 +14,9 @@
 
 package template
 
-const homoLRDSL = `
+const heteroSBTDSL = `
 {
   "components": {
-    "reader_0": {
-      "module": "Reader",
-      "output": {
-        "data": [
-          "data"
-        ]
-      }
-    },
-    "dataio_0": {
-      "module": "DataIO",
-      "input": {
-        "data": {
-          "data": [
-            "reader_0.data"
-          ]
-        }
-      },
-      "output": {
-        "data": [
-          "data"
-        ],
-        "model": [
-          "model"
-        ]
-      }
-    },
-    "HomoLR_0": {
-      "module": "HomoLR",
-      "input": {
-        "data": {
-          "train_data": [
-            "dataio_0.data"
-          ]
-        }
-      },
-      "output": {
-        "data": [
-          "data"
-        ],
-        "model": [
-          "model"
-        ]
-      }
-    },
-    "evaluation_0": {
-      "module": "Evaluation",
-      "input": {
-        "data": {
-          "data": [
-            "HomoLR_0.data"
-          ]
-        }
-      },
-      "output": {
-        "data": [
-          "data"
-        ]
-      }
-    }
-  }
-}
-`
-
-const homoLRConf = `
-{
-  "dsl_version": 2,
-  "initiator": {
-    "role": "guest",
-    "party_id": %s
-  },
-  "role": {
-    "guest": [
-      %s
-    ],
-    "host": [
-      %s
-    ],
-    "arbiter": [
-      %s
-    ]
-  },
-  "job_parameters": {
-    "common": {
-      "job_type": "train",
-      "backend": 2,
-      "work_mode": 1,
-      "use_encrypt": false,
-      "spark_run": {
-        "num-executors": 2,
-        "executor-cores": 1,
-        "total-executor-cores": 2
-      }
-    }
-  },
-  "component_parameters": {
-    "common": {
-      "dataio_0": {
-        "with_label": true,
-        "output_format": "dense",
-		"label_type": "int",
-    	"label_name": "%s"
-      },
-      "HomoLR_0": {
-        "penalty": "L2",
-        "tol": 0.00001,
-        "alpha": 0.01,
-        "optimizer": "rmsprop",
-        "batch_size": -1,
-        "learning_rate": 0.15,
-        "init_param": {
-          "init_method": "zeros"
-        },
-        "max_iter": 30,
-        "early_stop": "diff",
-        "encrypt_param": {
-          "method": null
-        },
-        "cv_param": {
-          "n_splits": 4,
-          "shuffle": true,
-          "random_seed": 33,
-          "need_cv": false
-        },
-        "decay": 1,
-        "decay_sqrt": true
-      },
-      "evaluation_0": {
-        "eval_type": "binary"
-      }
-    },
-    "role": {
-      "host": %s,
-      "guest": {
-        "0": {
-          "reader_0": {
-            "table": {
-              "name": "%s",
-              "namespace": "%s"
-            }
-          }
-        }
-      }
-    }
-  }
-}
-`
-
-const homoLRHomoDataSplitDSL = `
-{
-  "components": {
-    "homo_data_split_0": {
-      "output": {
-        "data": [
-          "train_data",
-          "validate_data",
-          "test_data"
-        ]
-      },
-      "input": {
-        "data": {
-          "data": [
-            "dataio_0.data"
-          ]
-        }
-      },
-      "module": "HomoDataSplit"
-    },
     "reader_0": {
       "output": {
         "data": [
@@ -201,7 +34,7 @@ const homoLRHomoDataSplitDSL = `
       "input": {
         "data": {
           "data": [
-            "HomoLR_0.data"
+            "HeteroSecureBoost_0.data"
           ]
         }
       },
@@ -225,7 +58,22 @@ const homoLRHomoDataSplitDSL = `
       },
       "module": "DataIO"
     },
-    "HomoLR_0": {
+	"intersection_0": {
+      "module": "Intersection",
+      "input": {
+        "data": {
+          "data": [
+            "dataio_0.data"
+          ]
+        }
+      },
+      "output": {
+        "data": [
+          "data"
+        ]
+      }
+    },
+    "HeteroSecureBoost_0": {
       "output": {
         "data": [
           "data"
@@ -236,21 +84,18 @@ const homoLRHomoDataSplitDSL = `
       },
       "input": {
         "data": {
-          "validate_data": [
-            "homo_data_split_0.validate_data"
-          ],
           "train_data": [
-            "homo_data_split_0.train_data"
+            "intersection_0.data"
           ]
         }
       },
-      "module": "HomoLR"
+      "module": "HeteroSecureBoost"
     }
   }
 }
 `
 
-const homoLRHomoDataSplitConf = `
+const heteroSBTConf = `
 {
   "dsl_version": 2,
   "initiator": {
@@ -282,47 +127,25 @@ const homoLRHomoDataSplitConf = `
   },
   "component_parameters": {
     "common": {
-      "homo_data_split_0": {
-        "validate_size": %s,
-        "split_points": [
-          0,
-          %s
-        ],
-        "test_size": 0,
-        "stratified": true
-      },
-      "dataio_0": {
-        "with_label": true,
-        "output_format": "dense",
-		"label_type": "int",
-    	"label_name": "%s"
-      },
-      "HomoLR_0": {
-        "penalty": "L2",
-        "tol": 0.00001,
-        "alpha": 0.01,
-        "optimizer": "rmsprop",
-        "batch_size": -1,
-        "learning_rate": 0.15,
-        "init_param": {
-          "init_method": "zeros"
+      "HeteroSecureBoost_0": {
+        "task_type": "classification",
+        "objective_param": {
+          "objective": "cross_entropy"
         },
-        "max_iter": 30,
-        "early_stop": "diff",
+        "num_trees": 3,
+        "validation_freqs": 1,
         "encrypt_param": {
-          "method": null
+          "method": "iterativeAffine"
         },
-        "cv_param": {
-          "n_splits": 4,
-          "shuffle": true,
-          "random_seed": 33,
-          "need_cv": false
-        },
-        "decay": 1,
-        "decay_sqrt": true
+        "tree_param": {
+          "max_depth": 3
+        }
       },
       "evaluation_0": {
-        "eval_type": "binary"
+        "eval_type": "binary",
+		"need_run": true,
+		"pos_label": 1,
+		"unfold_multi_result": false
       }
     },
     "role": {
@@ -334,7 +157,215 @@ const homoLRHomoDataSplitConf = `
               "name": "%s",
               "namespace": "%s"
             }
-          }
+          },
+		  "dataio_0": {
+			"data_type": "float",
+			"default_value": 0,
+			"delimitor": ",",
+			"input_format": "dense",
+			"label_name": "y",
+			"label_type": "int",
+			"missing_fill": false,
+			"outlier_replace": false,
+			"output_format": "dense",
+			"tag_value_delimitor": ":",
+			"tag_with_value": false,
+			"with_label": true
+ 		  }
+		}
+      }
+    }
+  }
+}
+`
+
+const heteroSBTHeteroDataSplitDSL = `
+{
+  "components": {
+    "hetero_data_split_0": {
+      "output": {
+        "data": [
+          "train_data",
+          "validate_data",
+          "test_data"
+        ]
+      },
+      "input": {
+        "data": {
+          "data": [
+            "intersection_0.data"
+          ]
+        }
+      },
+      "module": "HeteroDataSplit"
+    },
+	"intersection_0": {
+      "module": "Intersection",
+      "input": {
+        "data": {
+          "data": [
+            "dataio_0.data"
+          ]
+        }
+      },
+      "output": {
+        "data": [
+          "data"
+        ]
+      }
+    },
+    "reader_0": {
+      "output": {
+        "data": [
+          "data"
+        ]
+      },
+      "module": "Reader"
+    },
+    "evaluation_0": {
+      "output": {
+        "data": [
+          "data"
+        ]
+      },
+      "input": {
+        "data": {
+          "data": [
+            "HeteroSecureBoost_0.data"
+          ]
+        }
+      },
+      "module": "Evaluation"
+    },
+    "dataio_0": {
+      "output": {
+        "data": [
+          "data"
+        ],
+        "model": [
+          "model"
+        ]
+      },
+      "input": {
+        "data": {
+          "data": [
+            "reader_0.data"
+          ]
+        }
+      },
+      "module": "DataIO"
+    },
+    "HeteroSecureBoost_0": {
+      "output": {
+        "data": [
+          "data"
+        ],
+        "model": [
+          "model"
+        ]
+      },
+      "input": {
+        "data": {
+          "validate_data": [
+            "hetero_data_split_0.validate_data"
+          ],
+          "train_data": [
+            "hetero_data_split_0.train_data"
+          ]
+        }
+      },
+      "module": "HeteroSecureBoost"
+    }
+  }
+}
+`
+
+const heteroSBTHeteroDataSplitConf = `
+{
+  "dsl_version": 2,
+  "initiator": {
+    "role": "guest",
+    "party_id": %s
+  },
+  "role": {
+    "guest": [
+      %s
+    ],
+    "host": [
+      %s
+    ],
+    "arbiter": [
+      %s
+    ]
+  },
+  "job_parameters": {
+    "common": {
+      "job_type": "train",
+      "backend": 2,
+      "work_mode": 1,
+      "spark_run": {
+        "num-executors": 2,
+        "executor-cores": 1,
+        "total-executor-cores": 2
+      }
+    }
+  },
+  "component_parameters": {
+    "common": {
+      "hetero_data_split_0": {
+        "validate_size": %s,
+        "split_points": [
+          0,
+          %s
+        ],
+        "test_size": 0,
+        "stratified": true
+      },
+      "HeteroSecureBoost_0": {
+        "task_type": "classification",
+        "objective_param": {
+          "objective": "cross_entropy"
+        },
+        "num_trees": 3,
+        "validation_freqs": 1,
+        "encrypt_param": {
+          "method": "iterativeAffine"
+        },
+        "tree_param": {
+          "max_depth": 3
+        }
+      },
+      "evaluation_0": {
+        "eval_type": "binary",
+		"need_run": true,
+		"pos_label": 1,
+		"unfold_multi_result": false
+      }
+    },
+    "role": {
+      "host": %s,
+      "guest": {
+        "0": {
+          "reader_0": {
+            "table": {
+              "name": "%s",
+              "namespace": "%s"
+            }
+          },
+		  "dataio_0": {
+			"data_type": "float",
+			"default_value": 0,
+			"delimitor": ",",
+			"input_format": "dense",
+			"label_name": "y",
+			"label_type": "int",
+			"missing_fill": false,
+			"outlier_replace": false,
+			"output_format": "dense",
+			"tag_value_delimitor": ":",
+			"tag_with_value": false,
+			"with_label": true
+ 		  }
         }
       }
     }

@@ -126,6 +126,27 @@ func (aggregate *JobAggregate) generatePredictingConfig() (string, string, error
 			},
 		}
 		return template.BuildHomoPredictingConf(param)
+	case entity.JobAlgorithmTypeHeteroLR, entity.JobAlgorithmTypeHeteroSBT:
+		if len(aggregate.Participants) == 0 {
+			return "", "", errors.New("hetero predicting job must contain other participants")
+		}
+		param := template.HeteroPredictingParam{
+			Guest: template.PartyDataInfo{
+				PartyID:        strconv.Itoa(int(aggregate.Initiator.SitePartyID)),
+				TableName:      aggregate.Initiator.DataTableName,
+				TableNamespace: aggregate.Initiator.DataTableNamespace,
+			},
+			ModelID:      aggregate.Job.FATEModelID,
+			ModelVersion: aggregate.Job.FATEModelVersion,
+		}
+		for _, host := range aggregate.Participants {
+			param.Hosts = append(param.Hosts, template.PartyDataInfo{
+				PartyID:        strconv.Itoa(int(host.SitePartyID)),
+				TableName:      host.DataTableName,
+				TableNamespace: host.DataTableNamespace,
+			})
+		}
+		return template.BuildHeteroPredictingConf(param)
 	}
 	return "", "", errors.Errorf("invalied algorithm type: %d", aggregate.Job.AlgorithmType)
 }
@@ -176,6 +197,31 @@ func (aggregate *JobAggregate) generateTrainingConfig() (string, string, error) 
 			})
 		}
 		return template.BuildHomoTrainingConf(info)
+	case entity.JobAlgorithmTypeHeteroLR, entity.JobAlgorithmTypeHeteroSBT:
+		heteroAlgorithmType := template.HeteroAlgorithmTypeLR
+		if aggregate.Job.AlgorithmType == entity.JobAlgorithmTypeHeteroSBT {
+			heteroAlgorithmType = template.HeteroAlgorithmTypeSBT
+		}
+		info := template.HeteroTrainingParam{
+			Guest: template.PartyDataInfo{
+				PartyID:        strconv.Itoa(int(aggregate.Initiator.SitePartyID)),
+				TableName:      aggregate.Initiator.DataTableName,
+				TableNamespace: aggregate.Initiator.DataTableNamespace,
+			},
+			Hosts:             nil,
+			LabelName:         aggregate.Initiator.DataLabelName,
+			ValidationEnabled: aggregate.Job.AlgorithmConfig.TrainingValidationEnabled,
+			ValidationPercent: aggregate.Job.AlgorithmConfig.TrainingValidationSizePercent,
+			Type:              heteroAlgorithmType,
+		}
+		for _, host := range aggregate.Participants {
+			info.Hosts = append(info.Hosts, template.PartyDataInfo{
+				PartyID:        strconv.Itoa(int(host.SitePartyID)),
+				TableName:      host.DataTableName,
+				TableNamespace: host.DataTableNamespace,
+			})
+		}
+		return template.BuildHeteroTrainingConf(info)
 	}
 	return "", "", errors.Errorf("invalid algorithm type: %d", aggregate.Job.AlgorithmType)
 }
@@ -198,6 +244,14 @@ func (aggregate *JobAggregate) GeneratePredictingJobParticipants() ([]*entity.Jo
 		} else {
 			return nil, errors.New("current site cannot participate in the predicting job")
 		}
+	case entity.JobAlgorithmTypeHeteroLR, entity.JobAlgorithmTypeHeteroSBT:
+		list := []*entity.JobParticipant{
+			aggregate.Initiator,
+		}
+		for _, p := range aggregate.Participants {
+			list = append(list, p)
+		}
+		return list, nil
 	}
 	return nil, errors.New("cannot get predicting job participant list")
 }
@@ -213,6 +267,9 @@ func (aggregate *JobAggregate) SubmitJob() error {
 	if len(aggregate.Participants) == 0 {
 		if aggregate.Job.Type == entity.JobTypeTraining && aggregate.Job.AlgorithmType == entity.JobAlgorithmTypeHomoLR {
 			return errors.New("homo LR job cannot be launched with only one party")
+		}
+		if aggregate.Job.AlgorithmType == entity.JobAlgorithmTypeHeteroLR || aggregate.Job.AlgorithmType == entity.JobAlgorithmTypeHeteroSBT {
+			return errors.New("Hetero job cannot be launched with only one party")
 		}
 	}
 	if aggregate.JobContext.CurrentSiteUUID != aggregate.Job.InitiatingSiteUUID {

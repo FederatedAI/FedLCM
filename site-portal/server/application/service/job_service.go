@@ -858,7 +858,7 @@ func (app *JobApp) buildJobAggregate(username string, request *JobSubmissionRequ
 		}
 	}
 
-	if request.Type == entity.JobTypePredict {
+	if request.Type == entity.JobTypePredict && jobAggregate.Job.IsInitiatingSite {
 		log.Info().Msgf("changing participants role and job info according to original job info")
 		if request.ModelUUID == "" {
 			return nil, errors.New("invalid model uuid")
