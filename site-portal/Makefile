@@ -1,6 +1,6 @@
 .PHONY: all clean format swag swag-bin server-unittest server frontend run
 
-TAG ?= v0.1.0
+TAG ?= v0.2.0
 
 SERVER_NAME ?= federatedai/site-portal-server
 SERVER_IMG ?= ${SERVER_NAME}:${TAG}
