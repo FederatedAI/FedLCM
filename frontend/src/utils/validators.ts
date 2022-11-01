@@ -68,12 +68,15 @@ export function ValidatorGroup(group: groupModel[]) {
           newGroup[el.name] = maxOrMin(IpValidator, el.max || 0, el.min || 0, el.value || null, el)
           break;
         case 'zero':
-          
           newGroup[el.name] = maxOrMin(zeroToHundred, el.max || 0, el.min || 0, el.value || null, el)
           break;
         case 'require':
-          newGroup[el.name] = maxOrMin('', el.max || 0, el.min || 0, el.value || null, el)
+          newGroup[el.name] = maxOrMin('', el.max || 0, el.min || 0, el.value, el)
           break;
+        case 'not-compliant':
+          newGroup[el.name] = maxOrMin(CompliantValidator, el.max || 0, el.min || 0, el.value || null, el)
+          break;
+  
         case 'json':
           newGroup[el.name] = maxOrMin(JsonValidator, el.max || 0, el.min || 0, el.value || null, el)
           break;
@@ -83,11 +86,17 @@ export function ValidatorGroup(group: groupModel[]) {
         case 'number-list':
           newGroup[el.name] = maxOrMin(NumberListValidator, el.max || 0, el.min || 0, el.value || null, el)
           break;
-          case 'notRequired':
-          newGroup[el.name] = maxOrMin('notRequired', el.max || 0, el.min || 0, el.value || null, el)
+        case 'notRequired':
+          newGroup[el.name] = maxOrMin('notRequired', el.max || 0, el.min || 0, el.value, el)
           break;
-          default:
-          if (el.value) {
+        case 'atLeastOne':
+          newGroup[el.name] = maxOrMin(atLeastOne, el.max || 0, el.min || 0, el.value, el)
+          break;
+        case 'numberPort':
+          newGroup[el.name] = maxOrMin(numberPort, el.max || 0, el.min || 0, el.value, el)
+          break;          
+        default:
+          if (el.value !== null) {
             newGroup[el.name] = [el.value]
           } else {
             newGroup[el.name] = [null]
@@ -198,6 +207,23 @@ export function zeroToHundred (control: AbstractControl): { [key: string]: any }
   }
   return null
 }
+// at least 1
+export function atLeastOne (control: AbstractControl): { [key: string]: any } | null {
+  const v = control.value
+  const reg = /^[0-9]*$/
+  if (v === ''|| v===null) {
+    return null
+  }
+  
+  if (!reg.test(v)) {
+    return { message: 'validator.number' }
+  }
+
+  if (+v < 1) {
+    return { message: 'validator.atLeastOne' }
+  }
+  return null
+}
 
 
 // Json
@@ -258,4 +284,36 @@ export function ConfirmedValidator(controlName: string, matchingControlName: str
 
   }
 
+}
+
+//
+export function CompliantValidator (control: AbstractControl): { [key: string]: any } | null {
+  const v = control.value
+  const reg = /\S*:\/\/\S*/g
+  if (v === ''|| v===null) {
+    return null
+  }
+  if (!reg.test(v?.trim())) {
+    return { message: 'validator.notCompliant' }
+  }
+  return null
+}
+
+// port 0-65535
+export function numberPort (control: AbstractControl): { [key: string]: any } | null {
+  const v = control.value
+  const reg = /^[0-9]*$/
+
+  if (v === ''|| v===null) {
+    return null
+  }
+  
+  if (!reg.test(v)) {
+    return { message: 'validator.number' }
+  }
+
+  if (+v < 0 || +v > 65535) {
+    return { message: 'validator.portRange' }
+  }
+  return null
 }

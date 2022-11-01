@@ -62,6 +62,36 @@ type ParticipantFATEExchangeYAMLCreationRequest struct {
 	EnablePSP      bool                           `json:"enable_psp"`
 }
 
+// ExternalSpark is the request to get the external Spark information
+type ExternalSpark struct {
+	Enable                bool
+	Cores_per_node        int
+	Nodes                 int
+	Master                string
+	DriverHost            string
+	DriverHostType        string
+	PortMaxRetries        int
+	DriverStartPort       int
+	BlockManagerStartPort int
+	PysparkPython         string
+}
+
+// ExternalHDFS is the request to get the external HDFS information
+type ExternalHDFS struct {
+	Enable      bool
+	Name_node   string
+	Path_prefix string
+}
+
+// ExternalPulsar is the request to get the external Pulsar information
+type ExternalPulsar struct {
+	Enable   bool
+	Host     string
+	Mng_port int
+	Port     int
+	SSLPort  int
+}
+
 // ParticipantFATEClusterYAMLCreationRequest is the request to get the cluster deployment yaml
 type ParticipantFATEClusterYAMLCreationRequest struct {
 	ParticipantFATEExchangeYAMLCreationRequest
@@ -69,6 +99,9 @@ type ParticipantFATEClusterYAMLCreationRequest struct {
 	PartyID           int    `json:"party_id"`
 	EnablePersistence bool   `json:"enable_persistence"`
 	StorageClass      string `json:"storage_class"`
+	ExternalSpark     ExternalSpark
+	ExternalHDFS      ExternalHDFS
+	ExternalPulsar    ExternalPulsar
 }
 
 // ParticipantFATEExternalExchangeCreationRequest is the request for creating a record of an exchange not managed by this service
@@ -207,37 +240,73 @@ func (s *ParticipantFATEService) GetClusterDeploymentYAML(req *ParticipantFATECl
 	}
 
 	data := struct {
-		Name                    string
-		Namespace               string
-		PartyID                 int
-		ExchangeNginxHost       string
-		ExchangeNginxPort       int
-		ExchangeATSHost         string
-		ExchangeATSPort         int
-		Domain                  string
-		ServiceType             string
-		UseRegistry             bool
-		Registry                string
-		UseImagePullSecrets     bool
-		ImagePullSecretsName    string
-		SitePortalTLSCommonName string
-		EnablePersistence       bool
-		StorageClass            string
-		EnablePSP               bool
+		Name                               string
+		Namespace                          string
+		PartyID                            int
+		ExchangeNginxHost                  string
+		ExchangeNginxPort                  int
+		ExchangeATSHost                    string
+		ExchangeATSPort                    int
+		Domain                             string
+		ServiceType                        string
+		UseRegistry                        bool
+		Registry                           string
+		UseImagePullSecrets                bool
+		ImagePullSecretsName               string
+		SitePortalTLSCommonName            string
+		EnablePersistence                  bool
+		StorageClass                       string
+		EnablePSP                          bool
+		EnableExternalSpark                bool
+		ExternalSparkCoresPerNode          int
+		ExternalSparkNode                  int
+		ExternalSparkMaster                string
+		ExternalSparkDriverHost            string
+		ExternalSparkDriverHostType        string
+		ExternalSparkPortMaxRetries        int
+		ExternalSparkDriverStartPort       int
+		ExternalSparkBlockManagerStartPort int
+		ExternalSparkPysparkPython         string
+		EnableExternalHDFS                 bool
+		ExternalHDFSNamenode               string
+		ExternalHDFSPathPrefix             string
+		EnableExternalPulsar               bool
+		ExternalPulsarHost                 string
+		ExternalPulsarMngPort              int
+		ExternalPulsarPort                 int
+		ExternalPulsarSSLPort              int
 	}{
-		Name:                    toDeploymentName(req.Name),
-		Namespace:               req.Namespace,
-		PartyID:                 req.PartyID,
-		Domain:                  federation.Domain,
-		ServiceType:             req.ServiceType.String(),
-		UseRegistry:             req.RegistryConfig.UseRegistry,
-		Registry:                req.RegistryConfig.Registry,
-		UseImagePullSecrets:     req.RegistryConfig.UseRegistrySecret,
-		ImagePullSecretsName:    imagePullSecretsNameFATE,
-		SitePortalTLSCommonName: fmt.Sprintf("site-%d.server.%s", req.PartyID, federation.Domain),
-		EnablePersistence:       req.EnablePersistence,
-		StorageClass:            req.StorageClass,
-		EnablePSP:               req.EnablePSP,
+		Name:                               toDeploymentName(req.Name),
+		Namespace:                          req.Namespace,
+		PartyID:                            req.PartyID,
+		Domain:                             federation.Domain,
+		ServiceType:                        req.ServiceType.String(),
+		UseRegistry:                        req.RegistryConfig.UseRegistry,
+		Registry:                           req.RegistryConfig.Registry,
+		UseImagePullSecrets:                req.RegistryConfig.UseRegistrySecret,
+		ImagePullSecretsName:               imagePullSecretsNameFATE,
+		SitePortalTLSCommonName:            fmt.Sprintf("site-%d.server.%s", req.PartyID, federation.Domain),
+		EnablePersistence:                  req.EnablePersistence,
+		StorageClass:                       req.StorageClass,
+		EnablePSP:                          req.EnablePSP,
+		EnableExternalSpark:                req.ExternalSpark.Enable,
+		ExternalSparkCoresPerNode:          req.ExternalSpark.Cores_per_node,
+		ExternalSparkNode:                  req.ExternalSpark.Nodes,
+		ExternalSparkMaster:                req.ExternalSpark.Master,
+		ExternalSparkDriverHost:            req.ExternalSpark.DriverHost,
+		ExternalSparkDriverHostType:        req.ExternalSpark.DriverHostType,
+		ExternalSparkPortMaxRetries:        req.ExternalSpark.PortMaxRetries,
+		ExternalSparkDriverStartPort:       req.ExternalSpark.DriverStartPort,
+		ExternalSparkBlockManagerStartPort: req.ExternalSpark.BlockManagerStartPort,
+		ExternalSparkPysparkPython:         req.ExternalSpark.PysparkPython,
+		EnableExternalHDFS:                 req.ExternalHDFS.Enable,
+		ExternalHDFSNamenode:               req.ExternalHDFS.Name_node,
+		ExternalHDFSPathPrefix:             req.ExternalHDFS.Path_prefix,
+		EnableExternalPulsar:               req.ExternalPulsar.Enable,
+		ExternalPulsarHost:                 req.ExternalPulsar.Host,
+		ExternalPulsarMngPort:              req.ExternalPulsar.Mng_port,
+		ExternalPulsarPort:                 req.ExternalPulsar.Port,
+		ExternalPulsarSSLPort:              req.ExternalPulsar.SSLPort,
 	}
 	if nginxAccess, ok := accessInfoMap[entity.ParticipantFATEServiceNameNginx]; !ok {
 		return "", errors.New("missing exchange nginx access info")
@@ -1047,17 +1116,31 @@ func (s *ParticipantFATEService) CreateCluster(req *ParticipantFATEClusterCreati
 			}
 			operationLog.Info().Msgf("kubefate job succeeded")
 
-			// the pulsar-public-tls service is always of type LoadBalancer, we try to use nodePort if no LoadBalancer IP is available
-			serviceType, host, port, err = getServiceAccessWithFallback(endpointMgr.K8sClient(), req.Namespace, string(entity.ParticipantFATEServiceNamePulsar), "tls-port", true)
-			if err != nil {
-				return errors.Wrapf(err, "fail to get pulsar access info")
-			}
-			cluster.AccessInfo[entity.ParticipantFATEServiceNamePulsar] = entity.ParticipantModulesAccess{
-				ServiceType: serviceType,
-				Host:        host,
-				Port:        port,
-				TLS:         true,
-				FQDN:        pulsarFQDN,
+			if req.PulsarServerCertInfo.BindingMode != entity.CertBindingModeSkip {
+				// the pulsar-public-tls service is always of type LoadBalancer, we try to use nodePort if no LoadBalancer IP is available
+				serviceType, host, port, err = getServiceAccessWithFallback(endpointMgr.K8sClient(), req.Namespace, string(entity.ParticipantFATEServiceNamePulsar), "tls-port", true)
+				if err != nil {
+					return errors.Wrapf(err, "fail to get pulsar access info")
+				}
+				cluster.AccessInfo[entity.ParticipantFATEServiceNamePulsar] = entity.ParticipantModulesAccess{
+					ServiceType: serviceType,
+					Host:        host,
+					Port:        port,
+					TLS:         true,
+					FQDN:        pulsarFQDN,
+				}
+			} else {
+				pulsarHost, pulsarSSLPort, err := getPulsarInformationFromYAML(req.DeploymentYAML)
+				if err != nil {
+					return errors.Wrapf(err, "fail to get pulsar access info")
+				}
+				cluster.AccessInfo[entity.ParticipantFATEServiceNamePulsar] = entity.ParticipantModulesAccess{
+					ServiceType: "External",
+					Host:        pulsarHost,
+					Port:        pulsarSSLPort,
+					TLS:         true,
+					FQDN:        pulsarFQDN,
+				}
 			}
 
 			moduleList := m["modules"].([]interface{})
@@ -1749,4 +1832,22 @@ func getPulsarDomainFromYAML(yamlStr string) (string, error) {
 		return "", errors.Wrapf(err, "failed to extract pulsar exchange info")
 	}
 	return clusterDef.Pulsar.Exchange.Domain, nil
+}
+
+func getPulsarInformationFromYAML(yamlStr string) (string, int, error) {
+	type Pulsar struct {
+		Host string `json:"host"`
+		Port int    `json:"ssl_port"`
+	}
+	type Python struct {
+		Pulsar Pulsar `json:"pulsar"`
+	}
+	type Cluster struct {
+		Python Python `json:"python"`
+	}
+	var clusterDef Cluster
+	if err := yaml.Unmarshal([]byte(yamlStr), &clusterDef); err != nil {
+		return "", 0, errors.Wrapf(err, "failed to extract pulsar info")
+	}
+	return clusterDef.Python.Pulsar.Host, clusterDef.Python.Pulsar.Port, nil
 }

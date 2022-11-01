@@ -14,7 +14,10 @@
     "match":"Passwords do not match.",
     "password":"Password should be 8-20 characters long with at least 1 uppercase, 1 lowercase and 1 number.",
     "fileSize": "The maximum upload file size is d%",
-    "fileFormat": "The upload file format can only be: d%"
+    "fileFormat": "The upload file format can only be: d%",
+    "notCompliant": "The content is not compliant, please fill in according to the regulations.",
+    "atLeastOne": "At Least 1",
+    "portRange": "port fill in the range is 0-65535"
   },
   "serverMessage": {
     "default200": "Successful operation",
@@ -237,7 +240,26 @@
     "pulsar": "Pulsar Public TLS",
     "nginx" : "Nginx",
     "host" : "Host",
-    "port" : "Port"
+    "port" : "Port",
+    "chooseExternalSpark": "Select External Engine",
+    "spark": "Spark",
+    "hdfs": "HDFS",
+    "Pulsar": "Pulsar",
+    "node": "Node",
+    "master": "Master",
+    "driverHost": "Driver Host",
+    "driverHostType": "Driver Host Type",
+    "portMaxRetries": "Port Max Retries",
+    "driverStartPort": "Driver Start Port",
+    "blockManagerStartPort": "Block Manager Start Port",
+    "pysparkPython": "Pyspark Python",
+    "hdfsNameNode": "Name Node",
+    "hdfsPathPrefix": "Path Prefix",
+    "pulsarHost": "Host",
+    "pulsarMngPort": "Manager Port",
+    "pulsarPort": "Port",
+    "sslPort": "SSL Port",
+    "coresPerNode": "Cores Per Node"
   },
   "ExchangeNew": {
     "name": "Create a New Exchange",

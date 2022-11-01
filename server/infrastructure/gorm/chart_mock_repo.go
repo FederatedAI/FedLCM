@@ -381,10 +381,16 @@ modules:
   - python
   - fateboard
   - client
+  {{- if not .EnableExternalSpark }}
   - spark
+  {{- end }}
+  {{- if not .EnableExternalHDFS }}
   - hdfs
-  - nginx
+  {{- end }}
+  {{- if not .EnableExternalPulsar }}
   - pulsar
+  {{- end }}
+  - nginx
 
 computing: Spark
 federation: Pulsar
@@ -399,12 +405,16 @@ ingress:
   client:
     hosts:
     - name: {{.Name}}.notebook.{{.Domain}}
+  {{- if not .EnableExternalSpark }}
   spark:
     hosts:
     - name: {{.Name}}.spark.{{.Domain}}
+  {{- end }}
+  {{- if not .EnableExternalPulsar }}
   pulsar:
     hosts:
     - name: {{.Name}}.pulsar.{{.Domain}}
+  {{- end }}
 
 nginx:
   type: {{.ServiceType}}
@@ -418,6 +428,7 @@ nginx:
   # httpNodePort: 30093
   # grpcNodePort: 30098
 
+{{- if not .EnableExternalPulsar }}
 pulsar:
   publicLB:
     enabled: true
@@ -449,6 +460,13 @@ pulsar:
     # limits:
       # cpu: "4"
       # memory: "8Gi"
+{{- else }}
+pulsar:
+  exchange:
+    ip: {{.ExchangeATSHost}}
+    port: {{.ExchangeATSPort}}
+    domain: {{.Domain}}
+{{- end }}
 
 mysql:
   size: 1Gi
@@ -485,6 +503,18 @@ python:
       # cpu: "4"
       # memory: "8Gi"
   # logLevel: INFO
+  {{- if .EnableExternalSpark }}
+  spark: 
+    cores_per_node: {{.ExternalSparkCoresPerNode}}
+    nodes: {{.ExternalSparkNode}}
+    master: {{.ExternalSparkMaster}}
+    driverHost: {{.ExternalSparkDriverHost}}
+    driverHostType: {{.ExternalSparkDriverHostType}}
+    portMaxRetries: {{.ExternalSparkPortMaxRetries}}
+    driverStartPort: {{.ExternalSparkDriverStartPort}}
+    blockManagerStartPort: {{.ExternalSparkBlockManagerStartPort}}
+    pysparkPython: {{.ExternalSparkPysparkPython}}
+  {{- else }}
   # spark: 
     # cores_per_node: 20
     # nodes: 2
@@ -495,13 +525,28 @@ python:
     # driverStartPort: 
     # blockManagerStartPort: 
     # pysparkPython: 
+  {{- end }}
+  {{- if .EnableExternalHDFS }}
+  hdfs:
+    name_node: {{.ExternalHDFSNamenode}}
+    path_prefix: {{.ExternalHDFSPathPrefix}}
+  {{- else }}
   # hdfs:
     # name_node: hdfs://namenode:9000
     # path_prefix:
+  {{- end }}
+  {{- if .EnableExternalPulsar }}
+  pulsar:
+    host: {{.ExternalPulsarHost}}
+    mng_port: {{.ExternalPulsarMngPort}}
+    port: {{.ExternalPulsarPort}}
+    ssl_port: {{.ExternalPulsarSSLPort}}
+  {{- else }}
   # pulsar:
     # host: pulsar
     # mng_port: 8080
     # port: 6650
+  {{- end }}
   # nginx:
     # host: nginx
     # http_port: 9300
@@ -516,7 +561,7 @@ client:
   # nodeSelector:
   # tolerations:
   # affinity:
-
+{{- if not .EnableExternalHDFS }}
 hdfs:
   namenode:
     storageClass: {{ .StorageClass }}
@@ -538,7 +583,8 @@ hdfs:
     # tolerations:
     # affinity:
     # type: ClusterIP
-
+{{- end }}
+{{- if not .EnableExternalSpark }}
 spark:
   # master:
     # replicas: 1
@@ -561,7 +607,7 @@ spark:
     # tolerations:
     # affinity:
     # type: ClusterIP
-`,
+{{- end }}`,
 			Values: `image:
   registry: federatedai
   isThridParty:
@@ -1864,10 +1910,16 @@ modules:
   - python
   - fateboard
   - client
+  {{- if not .EnableExternalSpark }}
   - spark
+  {{- end }}
+  {{- if not .EnableExternalHDFS }}
   - hdfs
-  - nginx
+  {{- end }}
+  {{- if not .EnableExternalPulsar }}
   - pulsar
+  {{- end }}
+  - nginx
 
 backend: spark_pulsar
 
@@ -1878,12 +1930,16 @@ ingress:
   client:
     hosts:
     - name: {{.Name}}.notebook.{{.Domain}}
+  {{- if not .EnableExternalSpark }}
   spark:
     hosts:
     - name: {{.Name}}.spark.{{.Domain}}
+  {{- end }}
+  {{- if not .EnableExternalPulsar }}
   pulsar:
     hosts:
     - name: {{.Name}}.pulsar.{{.Domain}}
+  {{- end }}
 
 nginx:
   type: {{.ServiceType}}
@@ -1897,6 +1953,7 @@ nginx:
   # httpNodePort: 30093
   # grpcNodePort: 30098
 
+{{- if not .EnableExternalPulsar }}
 pulsar:
   publicLB:
     enabled: true
@@ -1915,6 +1972,13 @@ pulsar:
   # httpNodePort: 30094
   # httpsNodePort: 30099
   # loadBalancerIP:
+{{- else }}
+pulsar:
+  exchange:
+    ip: {{.ExchangeATSHost}}
+    port: {{.ExchangeATSPort}}
+    domain: {{.Domain}}
+{{- end }}
 
 mysql:
   size: 1Gi
@@ -1945,6 +2009,18 @@ python:
   # affinity:
   # resources:
   # logLevel: INFO
+  {{- if .EnableExternalSpark }}
+  spark: 
+    cores_per_node: {{.ExternalSparkCoresPerNode}}
+    nodes: {{.ExternalSparkNode}}
+    master: {{.ExternalSparkMaster}}
+    driverHost: {{.ExternalSparkDriverHost}}
+    driverHostType: {{.ExternalSparkDriverHostType}}
+    portMaxRetries: {{.ExternalSparkPortMaxRetries}}
+    driverStartPort: {{.ExternalSparkDriverStartPort}}
+    blockManagerStartPort: {{.ExternalSparkBlockManagerStartPort}}
+    pysparkPython: {{.ExternalSparkPysparkPython}}
+  {{- else }}
   # spark: 
     # cores_per_node: 20
     # nodes: 2
@@ -1955,13 +2031,28 @@ python:
     # driverStartPort: 
     # blockManagerStartPort: 
     # pysparkPython: 
+  {{- end }}
+  {{- if .EnableExternalHDFS }}
+  hdfs:
+    name_node: {{.ExternalHDFSNamenode}}
+    path_prefix: {{.ExternalHDFSPathPrefix}}
+  {{- else }}
   # hdfs:
     # name_node: hdfs://namenode:9000
     # path_prefix:
+  {{- end }}
+  {{- if .EnableExternalPulsar }}
+  pulsar:
+    host: {{.ExternalPulsarHost}}
+    mng_port: {{.ExternalPulsarMngPort}}
+    port: {{.ExternalPulsarPort}}
+    ssl_port: {{.ExternalPulsarSSLPort}}
+  {{- else }}
   # pulsar:
     # host: pulsar
     # mng_port: 8080
     # port: 6650
+  {{- end }}
   # nginx:
     # host: nginx
     # http_port: 9300
@@ -1976,7 +2067,7 @@ client:
   # nodeSelector:
   # tolerations:
   # affinity:
-
+{{- if not .EnableExternalHDFS }}
 hdfs:
   namenode:
     storageClass: {{ .StorageClass }}
@@ -1997,7 +2088,8 @@ hdfs:
     # tolerations:
     # affinity:
     # type: ClusterIP
-
+{{- end }}
+{{- if not .EnableExternalSpark }}
 spark:
   # master:
     # replicas: 1
@@ -2020,7 +2112,7 @@ spark:
     # tolerations:
     # affinity:
     # type: ClusterIP
-`,
+{{- end }}`,
 			Values: `image:
   registry: federatedai
   isThridParty:
@@ -3365,10 +3457,16 @@ modules:
   - python
   - fateboard
   - client
+  {{- if not .EnableExternalSpark }}
   - spark
+  {{- end }}
+  {{- if not .EnableExternalHDFS }}
   - hdfs
-  - nginx
+  {{- end }}
+  {{- if not .EnableExternalPulsar }}
   - pulsar
+  {{- end }}
+  - nginx
   - frontend
   - sitePortalServer
   - postgres
@@ -3382,12 +3480,16 @@ ingress:
   client:
     hosts:
     - name: {{.Name}}.notebook.{{.Domain}}
+  {{- if not .EnableExternalSpark }}
   spark:
     hosts:
     - name: {{.Name}}.spark.{{.Domain}}
+  {{- end }}
+  {{- if not .EnableExternalPulsar }}
   pulsar:
     hosts:
     - name: {{.Name}}.pulsar.{{.Domain}}
+  {{- end }}
 
 python:
 {{- if .UseRegistry}}
@@ -3408,6 +3510,18 @@ python:
   # tolerations:
   # affinity:
   # enabledNN: true
+  {{- if .EnableExternalSpark }}
+  spark: 
+    cores_per_node: {{.ExternalSparkCoresPerNode}}
+    nodes: {{.ExternalSparkNode}}
+    master: {{.ExternalSparkMaster}}
+    driverHost: {{.ExternalSparkDriverHost}}
+    driverHostType: {{.ExternalSparkDriverHostType}}
+    portMaxRetries: {{.ExternalSparkPortMaxRetries}}
+    driverStartPort: {{.ExternalSparkDriverStartPort}}
+    blockManagerStartPort: {{.ExternalSparkBlockManagerStartPort}}
+    pysparkPython: {{.ExternalSparkPysparkPython}}
+  {{- else }}
   spark: 
     cores_per_node: 20
     nodes: 2
@@ -3418,13 +3532,28 @@ python:
     driverStartPort:
     blockManagerStartPort:
     pysparkPython:
+  {{- end }}
+  {{- if .EnableExternalHDFS }}
+  hdfs:
+    name_node: {{.ExternalHDFSNamenode}}
+    path_prefix: {{.ExternalHDFSPathPrefix}}
+  {{- else }}
   hdfs:
     name_node: hdfs://namenode:9000
     path_prefix:
+  {{- end }}
+  {{- if .EnableExternalPulsar }}
+  pulsar:
+    host: {{.ExternalPulsarHost}}
+    mng_port: {{.ExternalPulsarMngPort}}
+    port: {{.ExternalPulsarPort}}
+    ssl_port: {{.ExternalPulsarSSLPort}}
+  {{- else }}
   pulsar:
     host: pulsar
     mng_port: 8080
     port: 6650
+  {{- end }}
   nginx:
     host: nginx
     http_port: 9300
@@ -3474,6 +3603,7 @@ mysql:
   # user: fate
   # password: fate_dev
 
+{{- if not .EnableExternalSpark }}
 spark:
   master:
 {{- if .UseRegistry}}
@@ -3513,7 +3643,8 @@ spark:
     # tolerations:
     # affinity:
     # type: ClusterIP
-
+{{- end }}
+{{- if not .EnableExternalHDFS }}
 hdfs:
   namenode:
 {{- if .UseRegistry}}
@@ -3546,7 +3677,7 @@ hdfs:
     # tolerations:
     # affinity:
     # type: ClusterIP
-
+{{- end }}
 nginx:
   {{- if .UseRegistry}}
   image: nginx
@@ -3565,6 +3696,7 @@ nginx:
   # httpNodePort:
   # grpcNodePort:
 
+{{- if not .EnableExternalPulsar }}
 pulsar:
   {{- if .UseRegistry}}
   image: pulsar
@@ -3589,7 +3721,13 @@ pulsar:
   # httpNodePort: 
   # httpsNodePort: 
   # loadBalancerIP:
-
+{{- else }}
+pulsar:
+  exchange:
+    ip: {{.ExchangeATSHost}}
+    port: {{.ExchangeATSPort}}
+    domain: {{.Domain}}
+{{- end }}
 postgres:
   image: postgres
   imageTag: 13.3

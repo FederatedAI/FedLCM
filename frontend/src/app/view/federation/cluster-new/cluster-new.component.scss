@@ -44,6 +44,14 @@ li span:first-of-type {
         width:400px;
     }
 }
+.no-warp3::ng-deep {
+    flex-direction: row;
+    label {
+        width: 150px;
+        max-width: 150px;
+        display: inline-block;
+    }
+}
 // mark changes
 .yaml {
     font-weight: 700;

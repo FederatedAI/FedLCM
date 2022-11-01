@@ -14,7 +14,10 @@
     "match":"两次密码不相同",
     "password":"新密码长度必须在8-20之间，至少有一个大写字母，一个小写字母，和一个数字",
     "fileSize": "文件最大容量是d%",
-    "fileFormat": "文件格式只能为：d%"
+    "fileFormat": "文件格式只能为：d%",
+    "notCompliant": "填写内容不合规，请按规定填写",
+    "atLeastOne": "至少需要1个",
+    "portRange": "port 填写范围是0-65535"
   },
   "serverMessage": {
     "default200": "操作成功",
@@ -237,7 +240,26 @@
     "pulsar": "Pulsar Public TLS",
     "nginx" : "Nginx",
     "host" : "Host",
-    "port" : "Port"
+    "port" : "Port",
+    "chooseExternalSpark": "选择外部的引擎",
+    "spark": "Spark",
+    "hdfs": "HDFS",
+    "Pulsar": "Pulsar",
+    "node": "节点数",
+    "master": "Master",
+    "driverHost": "驱动主机",
+    "driverHostType": "驱动主机访问类型",
+    "portMaxRetries": "端口最大重试次数",
+    "driverStartPort": "驱动起始端口",
+    "blockManagerStartPort": "块管理器起始端口",
+    "pysparkPython": "Pyspark Python 路径",
+    "hdfsNameNode": "NameNode地址",
+    "hdfsPathPrefix": "路径前缀",
+    "pulsarHost": "主机地址",
+    "pulsarMngPort": "管理端口",
+    "pulsarPort": "端口",
+    "sslPort": "SSL 端口",
+    "coresPerNode": "单个节点核心数"
   },
   "ExchangeNew": {
     "name": "创建Exchange",
@@ -275,7 +297,6 @@
     "noAccessInformation" :"无访问信息",
     "certificateInformation": "证书信息",
     "isDelete": "确定删除这个Exchange?"
-
   },
   "ClusterDetail":{
     "detail": "Cluster详情",
