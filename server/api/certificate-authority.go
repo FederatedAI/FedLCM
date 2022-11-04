@@ -50,13 +50,13 @@ func (controller *CertificateAuthorityController) Route(r *gin.RouterGroup) {
 }
 
 // get returns the certificate authority info
-// @Summary Return certificate authority info
-// @Tags    CertificateAuthority
-// @Produce json
-// @Success 200 {object} GeneralResponse{data=service.CertificateAuthorityDetail} "Success"
-// @Failure 401 {object} GeneralResponse                                          "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int}                                "Internal server error"
-// @Router  /certificate-authority [get]
+// @Summary  Return certificate authority info
+// @Tags     CertificateAuthority
+// @Produce  json
+// @Success  200  {object}  GeneralResponse{data=service.CertificateAuthorityDetail}  "Success"
+// @Failure  401  {object}  GeneralResponse                                           "Unauthorized operation"
+// @Failure  500  {object}  GeneralResponse{code=int}                                 "Internal server error"
+// @Router   /certificate-authority [get]
 func (controller *CertificateAuthorityController) get(c *gin.Context) {
 	if caInfo, err := controller.certificateAuthorityApp.Get(); err != nil {
 		resp := &GeneralResponse{
@@ -76,14 +76,14 @@ func (controller *CertificateAuthorityController) get(c *gin.Context) {
 }
 
 // create a new certificate authority
-// @Summary Create a new certificate authority
-// @Tags    CertificateAuthority
-// @Produce json
-// @Param   certificateAuthority body     service.CertificateAuthorityEditableItem true "The CA information, currently for the type field only '1(StepCA)'  is  supported"
-// @Success 200                  {object} GeneralResponse                          "Success"
-// @Failure 401                  {object} GeneralResponse                          "Unauthorized operation"
-// @Failure 500                  {object} GeneralResponse{code=int}                "Internal server error"
-// @Router  /certificate-authority [post]
+// @Summary  Create a new certificate authority
+// @Tags     CertificateAuthority
+// @Produce  json
+// @Param    certificateAuthority  body      service.CertificateAuthorityEditableItem  true  "The CA information, currently for the type field only '1(StepCA)'  is  supported"
+// @Success  200                   {object}  GeneralResponse                           "Success"
+// @Failure  401                   {object}  GeneralResponse                           "Unauthorized operation"
+// @Failure  500                   {object}  GeneralResponse{code=int}                 "Internal server error"
+// @Router   /certificate-authority [post]
 func (controller *CertificateAuthorityController) create(c *gin.Context) {
 	if err := func() error {
 		caInfo := &service.CertificateAuthorityEditableItem{}
@@ -106,15 +106,15 @@ func (controller *CertificateAuthorityController) create(c *gin.Context) {
 }
 
 // update the CA configuration
-// @Summary Updates the certificate authority
-// @Tags    CertificateAuthority
-// @Produce json
-// @Param   uuid                 path     string                                   true "certificate authority UUID"
-// @Param   certificateAuthority body     service.CertificateAuthorityEditableItem true "The updated CA information"
-// @Success 200                  {object} GeneralResponse                          "Success"
-// @Failure 401                  {object} GeneralResponse                          "Unauthorized operation"
-// @Failure 500                  {object} GeneralResponse{code=int}                "Internal server error"
-// @Router  /certificate-authority/{uuid} [put]
+// @Summary  Updates the certificate authority
+// @Tags     CertificateAuthority
+// @Produce  json
+// @Param    uuid                  path      string                                    true  "certificate authority UUID"
+// @Param    certificateAuthority  body      service.CertificateAuthorityEditableItem  true  "The updated CA information"
+// @Success  200                   {object}  GeneralResponse                           "Success"
+// @Failure  401                   {object}  GeneralResponse                           "Unauthorized operation"
+// @Failure  500                   {object}  GeneralResponse{code=int}                 "Internal server error"
+// @Router   /certificate-authority/{uuid} [put]
 func (controller *CertificateAuthorityController) update(c *gin.Context) {
 	if err := func() error {
 		uuid := c.Param("uuid")
@@ -138,13 +138,13 @@ func (controller *CertificateAuthorityController) update(c *gin.Context) {
 }
 
 // getBuiltInCAConfig returns the built-in certificate authority config
-// @Summary Return the built-in certificate authority config
-// @Tags    CertificateAuthority
-// @Produce json
-// @Success 200 {object} GeneralResponse{data=entity.CertificateAuthorityConfigurationStepCA} "Success"
-// @Failure 401 {object} GeneralResponse                                                      "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int}                                            "Internal server error"
-// @Router  /certificate-authority/built-in-ca [get]
+// @Summary  Return the built-in certificate authority config
+// @Tags     CertificateAuthority
+// @Produce  json
+// @Success  200  {object}  GeneralResponse{data=entity.CertificateAuthorityConfigurationStepCA}  "Success"
+// @Failure  401  {object}  GeneralResponse                                                       "Unauthorized operation"
+// @Failure  500  {object}  GeneralResponse{code=int}                                             "Internal server error"
+// @Router   /certificate-authority/built-in-ca [get]
 func (controller *CertificateAuthorityController) getBuiltInCAConfig(c *gin.Context) {
 	caConfig, err := controller.certificateAuthorityApp.GetBuiltInCAConfig()
 	if err != nil {

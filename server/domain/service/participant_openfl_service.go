@@ -648,7 +648,7 @@ func (s *ParticipantOpenFLService) HandleRegistrationRequest(req *ParticipantOpe
 	if req.Namespace == "" {
 		req.Namespace = fmt.Sprintf("%s-envoy", toDeploymentName(req.federation.Name))
 	}
-	K8sClient, err := kubernetes.NewKubernetesClient("", infraProvider.Config.KubeConfigContent)
+	K8sClient, err := kubernetes.NewKubernetesClient("", infraProvider.Config.KubeConfigContent, infraProvider.Config.IsInCluster)
 	if err != nil {
 		return nil, err
 	}

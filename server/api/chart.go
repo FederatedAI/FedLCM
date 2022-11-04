@@ -51,14 +51,14 @@ func (controller *ChartController) Route(r *gin.RouterGroup) {
 }
 
 // list returns the chart list
-// @Summary Return chart list, optionally with the specified type
-// @Tags    Chart
-// @Produce json
-// @Param   type query    uint8                                         false "if set, it should be the chart type"
-// @Success 200  {object} GeneralResponse{data=[]service.ChartListItem} "Success"
-// @Failure 401  {object} GeneralResponse                               "Unauthorized operation"
-// @Failure 500  {object} GeneralResponse{code=int}                     "Internal server error"
-// @Router  /chart [get]
+// @Summary  Return chart list, optionally with the specified type
+// @Tags     Chart
+// @Produce  json
+// @Param    type  query     uint8                                          false  "if set, it should be the chart type"
+// @Success  200   {object}  GeneralResponse{data=[]service.ChartListItem}  "Success"
+// @Failure  401   {object}  GeneralResponse                                "Unauthorized operation"
+// @Failure  500   {object}  GeneralResponse{code=int}                      "Internal server error"
+// @Router   /chart [get]
 func (controller *ChartController) list(c *gin.Context) {
 	if charList, err := func() ([]service.ChartListItem, error) {
 		t64, err := strconv.ParseUint(c.DefaultQuery("type", "0"), 10, 8)
@@ -84,14 +84,14 @@ func (controller *ChartController) list(c *gin.Context) {
 }
 
 // get returns detailed information of a chart
-// @Summary Get chart's detailed info
-// @Tags    Chart
-// @Produce json
-// @Param   uuid path     string                                    true "Chart UUID"
-// @Success 200  {object} GeneralResponse{data=service.ChartDetail} "Success"
-// @Failure 401  {object} GeneralResponse                           "Unauthorized operation"
-// @Failure 500  {object} GeneralResponse{code=int}                 "Internal server error"
-// @Router  /chart/{uuid} [get]
+// @Summary  Get chart's detailed info
+// @Tags     Chart
+// @Produce  json
+// @Param    uuid  path      string                                     true  "Chart UUID"
+// @Success  200   {object}  GeneralResponse{data=service.ChartDetail}  "Success"
+// @Failure  401   {object}  GeneralResponse                            "Unauthorized operation"
+// @Failure  500   {object}  GeneralResponse{code=int}                  "Internal server error"
+// @Router   /chart/{uuid} [get]
 func (controller *ChartController) get(c *gin.Context) {
 	uuid := c.Param("uuid")
 	if chartDetail, err := controller.chartApp.GetDetail(uuid); err != nil {

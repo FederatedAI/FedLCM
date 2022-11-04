@@ -31,6 +31,8 @@ import (
 type KubeConfig struct {
 	// KubeConfigContent stores the kubeconfig file of a K8s cluster
 	KubeConfigContent string `json:"kubeconfig_content"`
+	// IsInCluster indicates this config can be used for in cluster actions, meaning the KubeConfig content can be empty
+	IsInCluster bool `json:"is_in_cluster"`
 	// NamespacesList stores namespaces the user in KubeConfigContent can access
 	NamespacesList []string `json:"namespaces_list"`
 }
@@ -46,7 +48,7 @@ func (c *KubeConfig) Scan(v interface{}) error {
 
 // Validate checks if the config can be used to connect to a K8s cluster and if the user has enough privilege
 func (c *KubeConfig) Validate() error {
-	client, err := kubernetes.NewKubernetesClient("", c.KubeConfigContent)
+	client, err := kubernetes.NewKubernetesClient("", c.KubeConfigContent, c.IsInCluster)
 	if err != nil {
 		return err
 	}
@@ -78,7 +80,7 @@ func (c *KubeConfig) Validate() error {
 
 // APIHost returns the address for the API server connection
 func (c *KubeConfig) APIHost() (string, error) {
-	client, err := kubernetes.NewKubernetesClient("", c.KubeConfigContent)
+	client, err := kubernetes.NewKubernetesClient("", c.KubeConfigContent, c.IsInCluster)
 	if err != nil {
 		return "", err
 	}

@@ -67,13 +67,13 @@ func (controller *EndpointController) Route(r *gin.RouterGroup) {
 }
 
 // list returns the endpoints list
-// @Summary Return endpoints list data
-// @Tags    Endpoint
-// @Produce json
-// @Success 200 {object} GeneralResponse{data=[]service.EndpointListItem} "Success"
-// @Failure 401 {object} GeneralResponse                                  "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int}                        "Internal server error"
-// @Router  /endpoint [get]
+// @Summary  Return endpoints list data
+// @Tags     Endpoint
+// @Produce  json
+// @Success  200  {object}  GeneralResponse{data=[]service.EndpointListItem}  "Success"
+// @Failure  401  {object}  GeneralResponse                                   "Unauthorized operation"
+// @Failure  500  {object}  GeneralResponse{code=int}                         "Internal server error"
+// @Router   /endpoint [get]
 func (controller *EndpointController) list(c *gin.Context) {
 	endpointList, err := controller.endpointAppService.GetEndpointList()
 	if err != nil {
@@ -94,14 +94,14 @@ func (controller *EndpointController) list(c *gin.Context) {
 }
 
 // get returns detailed information of an endpoint
-// @Summary Get endpoint's detailed info
-// @Tags    Endpoint
-// @Produce json
-// @Param   uuid path     string                                       true "Endpoint UUID"
-// @Success 200  {object} GeneralResponse{data=service.EndpointDetail} "Success"
-// @Failure 401  {object} GeneralResponse                              "Unauthorized operation"
-// @Failure 500  {object} GeneralResponse{code=int}                    "Internal server error"
-// @Router  /endpoint/{uuid} [get]
+// @Summary  Get endpoint's detailed info
+// @Tags     Endpoint
+// @Produce  json
+// @Param    uuid  path      string                                        true  "Endpoint UUID"
+// @Success  200   {object}  GeneralResponse{data=service.EndpointDetail}  "Success"
+// @Failure  401   {object}  GeneralResponse                               "Unauthorized operation"
+// @Failure  500   {object}  GeneralResponse{code=int}                     "Internal server error"
+// @Router   /endpoint/{uuid} [get]
 func (controller *EndpointController) get(c *gin.Context) {
 	uuid := c.Param("uuid")
 	if endpointDetail, err := controller.endpointAppService.GetEndpointDetail(uuid); err != nil {
@@ -120,15 +120,15 @@ func (controller *EndpointController) get(c *gin.Context) {
 }
 
 // delete removes the endpoint
-// @Summary Delete the endpoint
-// @Tags    Endpoint
-// @Produce json
-// @Param   uuid      path     string                    true  "Endpoint UUID"
-// @Param   uninstall query    bool                      false "if set to true, the endpoint installation will be removed too"
-// @Success 200       {object} GeneralResponse           "Success"
-// @Failure 401       {object} GeneralResponse           "Unauthorized operation"
-// @Failure 500       {object} GeneralResponse{code=int} "Internal server error"
-// @Router  /endpoint/{uuid} [delete]
+// @Summary  Delete the endpoint
+// @Tags     Endpoint
+// @Produce  json
+// @Param    uuid       path      string                     true   "Endpoint UUID"
+// @Param    uninstall  query     bool                       false  "if set to true, the endpoint installation will be removed too"
+// @Success  200        {object}  GeneralResponse            "Success"
+// @Failure  401        {object}  GeneralResponse            "Unauthorized operation"
+// @Failure  500        {object}  GeneralResponse{code=int}  "Internal server error"
+// @Router   /endpoint/{uuid} [delete]
 func (controller *EndpointController) delete(c *gin.Context) {
 	uuid := c.Param("uuid")
 	uninstall, err := strconv.ParseBool(c.DefaultQuery("uninstall", "false"))
@@ -150,14 +150,14 @@ func (controller *EndpointController) delete(c *gin.Context) {
 }
 
 // scan finds the endpoint installation status of an infra provider
-// @Summary Scan the endpoints in an infra provider
-// @Tags    Endpoint
-// @Produce json
-// @Param   provider body     service.EndpointScanRequest                      true "Provider UUID and endpoint type"
-// @Success 200      {object} GeneralResponse{data=[]service.EndpointListItem} "Success"
-// @Failure 401      {object} GeneralResponse                                  "Unauthorized operation"
-// @Failure 500      {object} GeneralResponse{code=int}                        "Internal server error"
-// @Router  /endpoint/scan [post]
+// @Summary  Scan the endpoints in an infra provider
+// @Tags     Endpoint
+// @Produce  json
+// @Param    provider  body      service.EndpointScanRequest                       true  "Provider UUID and endpoint type"
+// @Success  200       {object}  GeneralResponse{data=[]service.EndpointListItem}  "Success"
+// @Failure  401       {object}  GeneralResponse                                   "Unauthorized operation"
+// @Failure  500       {object}  GeneralResponse{code=int}                         "Internal server error"
+// @Router   /endpoint/scan [post]
 func (controller *EndpointController) scan(c *gin.Context) {
 	if endpointDetail, err := func() ([]service.EndpointScanItem, error) {
 		request := &service.EndpointScanRequest{}
@@ -181,14 +181,14 @@ func (controller *EndpointController) scan(c *gin.Context) {
 }
 
 // checkKubeFATE test connection to a KubeFATE endpoint
-// @Summary Test connection to KubeFATE endpoint
-// @Tags    Endpoint
-// @Produce json
-// @Param   uuid path     string                    true "Endpoint UUID"
-// @Success 200  {object} GeneralResponse           "Success"
-// @Failure 401  {object} GeneralResponse           "Unauthorized operation"
-// @Failure 500  {object} GeneralResponse{code=int} "Internal server error"
-// @Router  /endpoint/{uuid}/kubefate/check [post]
+// @Summary  Test connection to KubeFATE endpoint
+// @Tags     Endpoint
+// @Produce  json
+// @Param    uuid  path      string                     true  "Endpoint UUID"
+// @Success  200   {object}  GeneralResponse            "Success"
+// @Failure  401   {object}  GeneralResponse            "Unauthorized operation"
+// @Failure  500   {object}  GeneralResponse{code=int}  "Internal server error"
+// @Router   /endpoint/{uuid}/kubefate/check [post]
 func (controller *EndpointController) checkKubeFATE(c *gin.Context) {
 	uuid := c.Param("uuid")
 	if err := controller.endpointAppService.CheckKubeFATEConnection(uuid); err != nil {
@@ -206,22 +206,22 @@ func (controller *EndpointController) checkKubeFATE(c *gin.Context) {
 }
 
 // getKubeFATEDeploymentYAML returns the yaml content for deploying KubeFATE
-// @Summary Get KubeFATE installation YAML content
-// @Tags    Endpoint
-// @Produce json
-// @Param   service_username    query    string                       true "username of the created KubeFATE service"
-// @Param   service_password    query    string                       true "password of the created KubeFATE service"
-// @Param   hostname            query    string                       true "hostname domain name for the KubeFATE ingress object"
-// @Param   use_registry        query    bool                         true "use_registry is to choose to use registry or not"
-// @Param   registry            query    string                       true "registry is registry address"
-// @Param   use_registry_secret query    bool                         true "use_registry_secret is to choose to use registry secret or not"
-// @Param   registry_server_url query    string                       true "registry_server_url is registry's server url"
-// @Param   registry_username   query    string                       true "registry_username is registry's username"
-// @Param   registry_password   query    string                       true "registry_password is registry's password"
-// @Success 200                 {object} GeneralResponse{data=string} "Success"
-// @Failure 401                 {object} GeneralResponse              "Unauthorized operation"
-// @Failure 500                 {object} GeneralResponse{code=int}    "Internal server error"
-// @Router  /endpoint/kubefate/yaml [get]
+// @Summary  Get KubeFATE installation YAML content
+// @Tags     Endpoint
+// @Produce  json
+// @Param    service_username     query     string                        true  "username of the created KubeFATE service"
+// @Param    service_password     query     string                        true  "password of the created KubeFATE service"
+// @Param    hostname             query     string                        true  "hostname domain name for the KubeFATE ingress object"
+// @Param    use_registry         query     bool                          true  "use_registry is to choose to use registry or not"
+// @Param    registry             query     string                        true  "registry is registry address"
+// @Param    use_registry_secret  query     bool                          true  "use_registry_secret is to choose to use registry secret or not"
+// @Param    registry_server_url  query     string                        true  "registry_server_url is registry's server url"
+// @Param    registry_username    query     string                        true  "registry_username is registry's username"
+// @Param    registry_password    query     string                        true  "registry_password is registry's password"
+// @Success  200                  {object}  GeneralResponse{data=string}  "Success"
+// @Failure  401                  {object}  GeneralResponse               "Unauthorized operation"
+// @Failure  500                  {object}  GeneralResponse{code=int}     "Internal server error"
+// @Router   /endpoint/kubefate/yaml [get]
 func (controller *EndpointController) getKubeFATEDeploymentYAML(c *gin.Context) {
 	if yaml, err := func() (string, error) {
 		namespace := c.DefaultQuery("namespace", "")
@@ -275,14 +275,14 @@ func (controller *EndpointController) getKubeFATEDeploymentYAML(c *gin.Context) 
 }
 
 // create a new endpoint
-// @Summary Create a new endpoint by install a new one or add an existing one
-// @Tags    Endpoint
-// @Produce json
-// @Param   provider body     service.EndpointCreationRequest true "The endpoint information, currently for the type field only 'KubeFATE' is supported"
-// @Success 200      {object} GeneralResponse                 "Success, the returned data contains the created endpoint"
-// @Failure 401      {object} GeneralResponse                 "Unauthorized operation"
-// @Failure 500      {object} GeneralResponse{code=int}       "Internal server error"
-// @Router  /endpoint [post]
+// @Summary  Create a new endpoint by install a new one or add an existing one
+// @Tags     Endpoint
+// @Produce  json
+// @Param    provider  body      service.EndpointCreationRequest  true  "The endpoint information, currently for the type field only 'KubeFATE' is supported"
+// @Success  200       {object}  GeneralResponse                  "Success, the returned data contains the created endpoint"
+// @Failure  401       {object}  GeneralResponse                  "Unauthorized operation"
+// @Failure  500       {object}  GeneralResponse{code=int}        "Internal server error"
+// @Router   /endpoint [post]
 func (controller *EndpointController) create(c *gin.Context) {
 	if uuid, err := func() (string, error) {
 		req := &service.EndpointCreationRequest{}

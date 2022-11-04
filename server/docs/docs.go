@@ -4552,6 +4552,9 @@ const docTemplate = `{
                 "api_server": {
                     "type": "string"
                 },
+                "is_in_cluster": {
+                    "type": "boolean"
+                },
                 "kubeconfig_content": {
                     "type": "string"
                 },
@@ -4569,6 +4572,9 @@ const docTemplate = `{
         "service.InfraProviderKubernetesConfig": {
             "type": "object",
             "properties": {
+                "is_in_cluster": {
+                    "type": "boolean"
+                },
                 "kubeconfig_content": {
                     "type": "string"
                 },
@@ -5202,6 +5208,10 @@ const docTemplate = `{
         "valueobject.KubeConfig": {
             "type": "object",
             "properties": {
+                "is_in_cluster": {
+                    "description": "IsInCluster indicates this config can be used for in cluster actions, meaning the KubeConfig content can be empty",
+                    "type": "boolean"
+                },
                 "kubeconfig_content": {
                     "description": "KubeConfigContent stores the kubeconfig file of a K8s cluster",
                     "type": "string"

@@ -54,3 +54,32 @@ rules:
   verbs:     ['use']
   resourceNames:
   - fedlcm-psp
+# add below settings to enable FedLCM to operator in the specified namespace when adding the cluster as an infra using in-cluster-config
+# ---
+# apiVersion: rbac.authorization.k8s.io/v1
+# kind: RoleBinding
+# metadata:
+#   name: admin-binding-for-fedlcm
+#   namespace: <your namespace>
+# roleRef:
+#   apiGroup: rbac.authorization.k8s.io
+#   kind: ClusterRole
+#   name: admin
+# subjects:
+#   - kind: ServiceAccount
+#     name: fedlcm-admin
+#     namespace: fedlcm
+# un-comment below settings to enable FedLCM to operator on the entire cluster when adding the cluster as an infra using in-cluster-config
+# ---
+# apiVersion: rbac.authorization.k8s.io/v1
+# kind: ClusterRoleBinding
+# metadata:
+#   name: cluster-admin-binding-for-fedlcm
+# roleRef:
+#   apiGroup: rbac.authorization.k8s.io
+#   kind: ClusterRole
+#   name: cluster-admin
+# subjects:
+#   - kind: ServiceAccount
+#     name: fedlcm-admin
+#     namespace: fedlcm

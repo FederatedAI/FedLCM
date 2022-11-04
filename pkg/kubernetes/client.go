@@ -54,7 +54,7 @@ type client struct {
 }
 
 // NewKubernetesClient returns a client struct based on the kubeconfig path
-func NewKubernetesClient(kubeconfigPath string, kubeconfigContent string) (Client, error) {
+func NewKubernetesClient(kubeconfigPath string, kubeconfigContent string, inCluster bool) (Client, error) {
 	var config *rest.Config
 	var err error
 	if kubeconfigPath != "" {
@@ -63,8 +63,11 @@ func NewKubernetesClient(kubeconfigPath string, kubeconfigContent string) (Clien
 	} else if kubeconfigContent != "" {
 		log.Debug().Msg("build client with kubeconfigContent")
 		config, err = clientcmd.RESTConfigFromKubeConfig([]byte(kubeconfigContent))
+	} else if inCluster {
+		log.Debug().Msg("build client using inCluster config")
+		config, err = rest.InClusterConfig()
 	} else {
-		err = errors.New("neither kubeconfigPath nor kubeconfigContent specified")
+		err = errors.New("neither kubeconfigPath, kubeconfigContent nor inCluster specified")
 	}
 	if err != nil {
 		return nil, err

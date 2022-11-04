@@ -470,7 +470,7 @@ func (s *EndpointService) BuildKubeFATEManager(infraUUID, namespace, yaml, ingre
 	}
 	provider := providerInstance.(*entity.InfraProviderKubernetes)
 
-	client, err := newK8sClientFn("", provider.Config.KubeConfigContent)
+	client, err := newK8sClientFn("", provider.Config.KubeConfigContent, provider.Config.IsInCluster)
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to get kubernetes client")
 	}

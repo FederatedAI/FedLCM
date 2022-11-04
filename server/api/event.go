@@ -47,13 +47,13 @@ func (controller *EventController) Route(r *gin.RouterGroup) {
 }
 
 // list returns the event list of related entity
-// @Summary Return event list of related entity
-// @Tags    Event
-// @Produce json
-// @Success 200 {object} GeneralResponse{data=[]service.EventListItem} "Success"
-// @Failure 401 {object} GeneralResponse                               "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int}                     "Internal server error"
-// @Router  /event/{entity_uuid} [get]
+// @Summary  Return event list of related entity
+// @Tags     Event
+// @Produce  json
+// @Success  200  {object}  GeneralResponse{data=[]service.EventListItem}  "Success"
+// @Failure  401  {object}  GeneralResponse                                "Unauthorized operation"
+// @Failure  500  {object}  GeneralResponse{code=int}                      "Internal server error"
+// @Router   /event/{entity_uuid} [get]
 func (controller *EventController) get(c *gin.Context) {
 	entity_uuid := c.Param("entity_uuid")
 	eventList, err := controller.EventApp.GetEventList(entity_uuid)
