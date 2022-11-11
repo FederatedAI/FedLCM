@@ -687,16 +687,11 @@ export class JobNewComponent implements OnInit, OnDestroy, AfterViewInit {
 
   diffGuestOrHostChangeHandler(num:number) {
     // this.currentDiff = num;
-    console.log('num', num);
-    console.log('algorithmList', this.algorithmList);
     this.algorithmList.forEach(el => {
       if (el.moduleName === this.dag.attrForm.moduleName) {
         this.currentModuleAttrForm = el.parameters
       }
     })
-    console.log('svgData', this.svgData);
-    console.log('currentModuleAttrForm', this.currentModuleAttrForm);
-
   }
   getOutputListHandler(output: any) {
     if (output.model) {

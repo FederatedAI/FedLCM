@@ -36,6 +36,7 @@ export class EndpointNewComponent implements OnInit {
       }),
       endpoint: this.formBuilder.group({
         endpoint_type: [],
+        endpoint_namespace: ['']
       }),
       install: this.formBuilder.group(
         ValidatorGroup([
@@ -123,6 +124,7 @@ export class EndpointNewComponent implements OnInit {
   type: 'success' | 'info' | 'warning' | 'danger' = 'danger'
   questResultFalg = false
   infra!: InfraType | null
+  endpointNamespaceList: string[] = []
   //selectedInfra is the selected infra in the 'Step 1'
   get selectedInfra() {
     return this.infra
@@ -149,7 +151,37 @@ export class EndpointNewComponent implements OnInit {
       this.needInstall = false;
     }
   }
-
+  // endpoint config disable function
+  get endpointDisabled() {
+    if (this.endpointNamespaceList && this.endpointNamespaceList.length < 1) {
+      if (this.needAdd || this.needInstall) {
+        return false
+      } else {
+        return true
+      }
+      
+    } else {
+      const namespace = this.form.get('endpoint')?.get('endpoint_namespace')?.value
+      if (namespace) {
+        if (this.needAdd && this.needInstall) {
+          return true
+        } else {
+          return false
+        }
+      } else {
+        return true
+      }
+    }
+  }
+  // is show Install an Ingress Controller for me button
+  get showIngressControllerService() {
+    
+    if (this.endpointNamespaceList && this.endpointNamespaceList.length > 0) {      
+      return false
+    } else {
+      return !this.needAdd
+    }
+  }
   infralist = [];
   noInfra = false;
   //getInfraList is to get the infra list in the 'Step 1'
@@ -175,26 +207,63 @@ export class EndpointNewComponent implements OnInit {
   //postEndpointScan is to post the request to scan the endpoint on the selected infra
   postEndpointScan(type: any) {
     if (this.infra) {
-      this.scanLoading = true;
-      this.endpointService.postEndpointScan(this.infra.uuid, this.form.get('endpoint')?.get('endpoint_type')?.value,).subscribe(
-        (data: any) => {
-          this.scanList = data.data
-          if (this.scanList === null || this.scanList.length === 0) {
-            this.scanList = []
-            this.needInstall = true;
-            this.needAdd = false;
-          } else {
-            this.selectedEndpoint = this.scanList[0];
+      
+      // must select namespace options
+      if (this.endpointNamespaceList && this.endpointNamespaceList.length >0 ) {
+        if (this.form.get('endpoint')?.get('endpoint_type')?.value && this.form.get('endpoint')?.get('endpoint_namespace')?.value) {
+          this.scanLoading = true;
+          const data = {
+            infra_provider_uuid: this.infra.uuid,
+            type: this.form.get('endpoint')?.get('endpoint_type')?.value,
+            namespace: this.form.get('endpoint')?.get('endpoint_namespace')?.value
           }
-          this.scanLoading = false
-        },
-        err => {
-          this.type = 'danger'
-          this.message = err.error.message;
-          this.questResultFalg = true
-          this.scanLoading = false
+          this.endpointService.postEndpointScan(data).subscribe(
+            (data: any) => {
+              this.scanList = data.data
+              if (this.scanList === null || this.scanList.length === 0) {
+                this.scanList = []
+                this.needInstall = true;
+                this.needAdd = false;
+              } else {
+                this.selectedEndpoint = this.scanList[0];
+              }
+              this.scanLoading = false
+            },
+            err => {
+              this.type = 'danger'
+              this.message = err.error.message;
+              this.questResultFalg = true
+              this.scanLoading = false
+            }
+          )
         }
-      )
+      } else {
+        this.scanLoading = true;
+        const data = {
+          infra_provider_uuid: this.infra.uuid,
+          type: this.form.get('endpoint')?.get('endpoint_type')?.value
+        }
+        this.endpointService.postEndpointScan(data).subscribe(
+          (data: any) => {
+            this.scanList = data.data
+            if (this.scanList === null || this.scanList.length === 0) {
+              this.scanList = []
+              this.needInstall = true;
+              this.needAdd = false;
+            } else {
+              this.selectedEndpoint = this.scanList[0];
+            }
+            this.scanLoading = false
+          },
+          err => {
+            this.type = 'danger'
+            this.message = err.error.message;
+            this.questResultFalg = true
+            this.scanLoading = false
+          }
+        )
+      }
+
     }
   }
 
@@ -275,8 +344,9 @@ export class EndpointNewComponent implements OnInit {
   showInfraDetail(uuid: string) {
     this.isShowInfraDetailFailed = false;
     this.infraservice.getInfraDetail(uuid)
-      .subscribe((data: any) => {
+      .subscribe((data: any) => {        
         this.infraConfigDetail = data.data.kubernetes_provider_info;
+        this.endpointNamespaceList = data.data.kubernetes_provider_info?.namespaces_list || []
         this.hasRegistry = this.infraConfigDetail.registry_config_fate.use_registry
         this.hasRegistrySecret = this.infraConfigDetail.registry_config_fate.use_registry_secret
         this.registrySecretConfig = this.infraConfigDetail.registry_config_fate.registry_secret_config
@@ -395,7 +465,8 @@ export class EndpointNewComponent implements OnInit {
       var registry_server_url = this.useRegistrySecret ? this.form.controls['install'].get('server_url')?.value?.trim() : "";
       var registry_username = this.useRegistrySecret ? this.form.controls['install'].get('username')?.value?.trim() : "";
       var registry_password = this.useRegistrySecret ? this.form.controls['install'].get('password')?.value?.trim() : "";
-      this.endpointService.getKubefateYaml(service_username, service_password, hostname, this.useRegistry, this.registryConfig, this.useRegistrySecret, registry_server_url, registry_username, registry_password).subscribe(
+      const namespace = this.form.get('endpoint')?.get('endpoint_namespace')?.value
+      this.endpointService.getKubefateYaml(service_username, service_password, hostname, this.useRegistry, this.registryConfig, this.useRegistrySecret, registry_server_url, registry_username, registry_password, namespace).subscribe(
         data => {
           this.form.get('install')?.get('yaml')?.setValue(data.data);
           this.isGenerateFailed = false;
@@ -453,7 +524,7 @@ export class EndpointNewComponent implements OnInit {
     this.isCreateEndpointFailed = false;
     this.isCreateEndpointSubmit = true;
     if (this.form.valid) {
-      const endpointConfig = {
+      const endpointConfig: any = {
         description: this.form.get('install')?.get('description')?.value,
         infra_provider_uuid: this.infra?.uuid,
         install: this.needInstall,
@@ -461,6 +532,9 @@ export class EndpointNewComponent implements OnInit {
         name: this.form.get('install')?.get('name')?.value,
         type: this.form.get('endpoint')?.get('endpoint_type')?.value,
         ingress_controller_service_mode: Number(this.form.get('install')?.get('ingress_controller_service_mode')?.value),
+      }
+      if (this.form.get('endpoint')?.get('endpoint_namespace')?.value) {
+        endpointConfig.namespace = this.form.get('endpoint')?.get('endpoint_namespace')?.value
       }
       // validate
       if (this.needInstall && endpointConfig.kubefate_deployment_yaml === '') {

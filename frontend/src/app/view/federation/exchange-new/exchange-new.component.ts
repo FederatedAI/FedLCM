@@ -70,13 +70,16 @@ export class ExchangeNewComponent implements OnInit {
         namespace: ['fate-exchange'],
       }),
       certificate: this.formBuilder.group({
-        cert: ['skip'],
+        cert: ['use'],
         fml_manager_client_cert_mode: [1],
         fml_manager_client_cert_uuid: [''],
+        fml_manager_client_cert_mode_radio: {value: 'new'},
         fml_manager_server_cert_mode: [1],
         fml_manager_server_cert_uuid: [''],
+        fml_manager_server_cert_mode_radio: {value: 'new'},
         proxy_server_cert_mode: [1],
-        proxy_server_cert_uuid: ['']
+        proxy_server_cert_uuid: [''],
+        proxy_server_cert_mode_radio: {value: 'new'}
       }),
       serviceType: this.formBuilder.group({
         serviceType: [null],
@@ -145,6 +148,15 @@ export class ExchangeNewComponent implements OnInit {
   //submitExternalExchangeDisable returns true when the input provided for adding an external exchnage is invaid
   get submitExternalExchangeDisable() {
     return !this.form.controls['external'].valid || (this.isCreatedExternalSubmit && !this.isCreatedExternalFailed)
+  }
+
+  get setNamespaceDisabled() {
+    if (this.selectedEndpoint && this.selectedEndpoint.namespace) {
+      this.form.get('namespace')?.get('namespace')?.setValue(this.selectedEndpoint.namespace)
+      return true
+    } else {
+      return false
+    }
   }
 
   isCreatedExternalSubmit = false;
@@ -230,7 +242,7 @@ export class ExchangeNewComponent implements OnInit {
     }
   }
 
-  use_cert: boolean = false;
+  use_cert: boolean = true;
   skip_cert: boolean = false;
   //setRadioDisplay is triggered when the selection of certificate's mode is changed
   setRadioDisplay(val: any) {
@@ -249,10 +261,35 @@ export class ExchangeNewComponent implements OnInit {
 
   //cert_disabled is to validate the configuration of certificate section and disabled the 'Next' button if needed
   get cert_disabled() {
-    var case1 = this.use_cert && this.isChartContainsPortalservices && (this.form.controls['certificate'].get('proxy_server_cert_mode')?.value === 1 ||
-      this.form.controls['certificate'].get('fml_manager_server_cert_mode')?.value === 1
-      || this.form.controls['certificate'].get('fml_manager_client_cert_mode')?.value === 1)
-    var case2 = this.use_cert && !this.isChartContainsPortalservices && this.form.controls['certificate'].get('proxy_server_cert_mode')?.value === 1
+    if (this.form.get('certificate')?.get('cert')?.value === 'skip') {
+      return false
+    } else {
+      // isChartContainsPortalservices value is true
+      if (this.isChartContainsPortalservices) {
+        const proxy_server_cert_mode_radio = this.form.get('certificate')?.get('proxy_server_cert_mode_radio')?.value
+        const fml_manager_server_cert_mode_radio = this.form.get('certificate')?.get('fml_manager_server_cert_mode_radio')?.value
+        const fml_manager_client_cert_mode_radio = this.form.get('certificate')?.get('fml_manager_client_cert_mode_radio')?.value
+        if (proxy_server_cert_mode_radio && fml_manager_server_cert_mode_radio && fml_manager_client_cert_mode_radio) {
+          return false
+        } else {
+          return true
+        }
+      } else {
+        const pulsar_server_cert_info_radio = this.form.get('certificate')?.get('proxy_server_cert_mode_radio')?.value
+        if (pulsar_server_cert_info_radio) {
+          return false
+        } else {
+          return true
+        }
+      }
+    }
+
+
+    var case1 = this.use_cert && this.isChartContainsPortalservices && (this.form.controls['certificate'].get('proxy_server_cert_mode')?.value === '1' ||
+      this.form.controls['certificate'].get('fml_manager_server_cert_mode')?.value === '1'
+      || this.form.controls['certificate'].get('fml_manager_client_cert_mode')?.value === '1')
+    var case2 = this.use_cert && !this.isChartContainsPortalservices && this.form.controls['certificate'].get('proxy_server_cert_mode')?.value !== '3'
+
     return (case1 || case2)
   }
 
@@ -423,8 +460,8 @@ export class ExchangeNewComponent implements OnInit {
   //resetCert is triggered when the selection of chart is changed
   resetCert() {
     this.formResetChild('certificate');
-    this.form.get('certificate')?.get('cert')?.setValue("skip");
-    this.setRadioDisplay("skip");
+    this.form.get('certificate')?.get('cert')?.setValue("use");
+    this.setRadioDisplay("cert");
   }
 
   //selectChange is to reset YAML value when the releted confiuration is changed
@@ -517,6 +554,27 @@ export class ExchangeNewComponent implements OnInit {
   createNewExchange() {
     this.isCreatedFailed = false;
     this.isCreatedSubmit = true;
+    if (this.isChartContainsPortalservices) {
+      if(this.use_cert) {
+        this.form.controls['certificate'].get('proxy_server_cert_mode')?.setValue('3')
+        this.form.controls['certificate'].get('fml_manager_client_cert_mode')?.setValue('3')
+        this.form.controls['certificate'].get('fml_manager_server_cert_mode')?.setValue('3')
+      } else {
+        this.form.controls['certificate'].get('proxy_server_cert_mode')?.setValue('1')
+        this.form.controls['certificate'].get('fml_manager_client_cert_mode')?.setValue('1')
+        this.form.controls['certificate'].get('fml_manager_server_cert_mode')?.setValue('1')
+      }
+    } else {
+      if(this.use_cert) {
+        this.form.controls['certificate'].get('proxy_server_cert_mode')?.setValue('3')
+        this.form.controls['certificate'].get('fml_manager_client_cert_mode')?.setValue('1')
+        this.form.controls['certificate'].get('fml_manager_server_cert_mode')?.setValue('1')
+      } else {
+        this.form.controls['certificate'].get('proxy_server_cert_mode')?.setValue('1')
+        this.form.controls['certificate'].get('fml_manager_client_cert_mode')?.setValue('1')
+        this.form.controls['certificate'].get('fml_manager_server_cert_mode')?.setValue('1')
+      }
+    }
     const exchangeInfo = {
       chart_uuid: this.form.controls['chart'].get('chart_uuid')?.value,
       deployment_yaml: this.codeMirror.getTextArea().value,

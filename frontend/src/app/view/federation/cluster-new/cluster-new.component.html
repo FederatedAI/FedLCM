@@ -122,14 +122,17 @@
             <clr-dg-column [clrDgField]="'name'">{{'CommonlyUse.name'| translate}}</clr-dg-column>
             <clr-dg-column>{{'CommonlyUse.description'| translate}}</clr-dg-column>
             <clr-dg-column>{{'CommonlyUse.type'| translate}}</clr-dg-column>
+            <clr-dg-column>{{'NewCluster.namespace'| translate}}</clr-dg-column>
             <clr-dg-column>{{'CommonlyUse.creationTime'| translate}}</clr-dg-column>
             <clr-dg-column>{{'EndpointMg.infraName'|translate}}</clr-dg-column>
             <clr-dg-column>{{'EndpointMg.endpointURL'|translate}}</clr-dg-column>
             <clr-dg-column>{{'CommonlyUse.status'| translate}}</clr-dg-column>
+            
             <clr-dg-row *clrDgItems="let endpoint of endpointlist" [clrDgItem]="endpoint">
               <clr-dg-cell>{{endpoint?.name}}</clr-dg-cell>
               <clr-dg-cell>{{endpoint?.description}}</clr-dg-cell>
               <clr-dg-cell>{{endpoint?.type}}</clr-dg-cell>
+              <clr-dg-cell>{{endpoint?.namespace}}</clr-dg-cell>
               <clr-dg-cell>{{endpoint?.created_at | date : "medium"}}</clr-dg-cell>
               <clr-dg-cell>{{endpoint?.infra_provider_name}}</clr-dg-cell>
               <clr-dg-cell>{{endpoint?.kubefate_host}}</clr-dg-cell>
@@ -198,6 +201,8 @@
           <clr-input-container class="no-warp">
             <label>{{'NewCluster.namespace'|translate}}</label>
             <input clrInput Placeholder="Default: fate-'Party Id'" formControlName="namespace"
+            [disabled]="setNamespaceDisabled"
+            [class]="{disabled: setNamespaceDisabled}"
               (ngModelChange)="selectChange($event)" />
           </clr-input-container>
           <button clrStepButton="next">{{'CommonlyUse.next'| translate}}</button>
@@ -224,14 +229,14 @@
           <div *ngIf="use_cert">
             <h5>1. {{'NewCluster.pulsarServerCertificate'|translate}}:</h5>
             <clr-radio-container clrInline class="no-warp">
-              <label>{{'NewCluster.server'|translate}}:</label>
+              <label>{{'NewCluster.server'|translate}}: </label>
               <clr-radio-wrapper>
-                <input type="radio" clrRadio name="pulsar_server_cert_info" formControlName="pulsar_server_cert_info"
-                  required value=3>
+                <input type="radio" value='new' clrRadio name="pulsar_server_cert_info_radio" formControlName="pulsar_server_cert_info_radio"
+                   >
                 <label>{{'NewCluster.addNew'|translate}}</label>
               </clr-radio-wrapper>
               <clr-radio-wrapper>
-                <input type="radio" clrRadio name="pulsar_server_cert_info" disabled required value=2 />
+                <input type="radio" clrRadio name="pulsar_server_cert_info_radio"  disabled  value=2 />
                 <label>{{'NewCluster.useExist'|translate}}</label>
               </clr-radio-wrapper>
             </clr-radio-container>
@@ -241,24 +246,24 @@
               <clr-radio-container clrInline class="no-warp">
                 <label>{{'NewCluster.server'|translate}}:</label>
                 <clr-radio-wrapper>
-                  <input type="radio" clrRadio name="site_portal_server_cert_mode"
-                    formControlName="site_portal_server_cert_mode" required value=3 />
+                  <input type="radio" value='new' clrRadio name="site_portal_server_cert_mode_radio"
+                    formControlName="site_portal_server_cert_mode_radio"  />
                   <label>{{'NewCluster.addNew'|translate}}</label>
                 </clr-radio-wrapper>
                 <clr-radio-wrapper>
-                  <input type="radio" clrRadio name="site_portal_server_cert_mode" disabled required value=2 />
+                  <input type="radio" clrRadio name="site_portal_server_cert_mode_radio" disabled  value=2 />
                   <label>{{'NewCluster.useExist'|translate}}</label>
                 </clr-radio-wrapper>
               </clr-radio-container>
               <clr-radio-container clrInline class="no-warp">
                 <label>{{'NewCluster.client'|translate}}:</label>
                 <clr-radio-wrapper>
-                  <input type="radio" clrRadio name="site_portal_client_cert_mode"
-                    formControlName="site_portal_client_cert_mode" required value=3 />
+                  <input type="radio" value='new' clrRadio name="site_portal_client_cert_mode_radio"
+                    formControlName="site_portal_client_cert_mode_radio"  />
                   <label>{{'NewCluster.addNew'|translate}}</label>
                 </clr-radio-wrapper>
                 <clr-radio-wrapper>
-                  <input type="radio" clrRadio name="site_portal_client_cert_mode" disabled required value=2 />
+                  <input type="radio" clrRadio name="site_portal_client_cert_mode_radio" disabled  value=2 />
                   <label>{{'NewCluster.useExist'|translate}}</label>
                 </clr-radio-wrapper>
               </clr-radio-container>
@@ -395,7 +400,7 @@
       </clr-stepper-panel>
 
       <!-- Step 11 -->
-      <clr-stepper-panel formGroupName="psp" class="yaml-warp">
+      <clr-stepper-panel formGroupName="psp" class="yaml-warp" *ngIf="!setNamespaceDisabled">
         <clr-step-title>{{'PSP.pspConfigTitle' | translate}}</clr-step-title>
         <clr-step-description></clr-step-description>
         <clr-step-content *clrIfExpanded>
@@ -413,7 +418,7 @@
 
       <!-- Step 12 -->
       <clr-stepper-panel formGroupName="externalSpark">
-        <clr-step-title>{{'NewCluster.chooseExternalSpark'|translate}}: </clr-step-title>
+        <clr-step-title>{{'NewCluster.chooseExternalSpark'|translate}}</clr-step-title>
         <clr-step-description></clr-step-description>
         <clr-step-content *clrIfExpanded>
           <clr-toggle-container clrInline class="no-warp no-warp2">

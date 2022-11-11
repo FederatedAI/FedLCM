@@ -80,6 +80,8 @@ Click `GET KUBEFATE INSTALLATION YAML` to get the deployment yaml file. You can 
 
 We depend on *Ingress* and *Ingress Controllers* to work with the KubeFATE service. You can optionally click the `Install an Ingress Controller for me` checkbox to install an ingress-nginx controller with some predefined configurations.
 
+> Please make sure there is no existing Ingress rule using same host address on this infrastructure. Change default hostname if necessary.
+
 **Only select the LoadBalancer service type if you know your cluster can support that.**
 
 <div style="text-align:center">

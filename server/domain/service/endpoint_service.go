@@ -120,9 +120,10 @@ func (s *EndpointService) CreateKubeFATEEndpoint(infraUUID, namespace, name, des
 			Status:            entity.EndpointStatusCreating,
 		},
 		Config: entity.KubeFATEConfig{
-			IngressAddress:    "",
-			IngressRuleHost:   "",
-			UsePortForwarding: ingressControllerServiceMode == entity.EndpointKubeFATEIngressControllerServiceModeModeNonexistent,
+			IngressAddress:  "",
+			IngressRuleHost: "",
+			UsePortForwarding: ingressControllerServiceMode == entity.EndpointKubeFATEIngressControllerServiceModeModeNonexistent ||
+				ingressControllerServiceMode == entity.EndpointKubeFATEIngressControllerServiceModeSkip,
 		},
 		DeploymentYAML:        "",
 		IngressControllerYAML: "",

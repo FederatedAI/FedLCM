@@ -157,7 +157,7 @@ metadata:
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: edit
+  name: admin
 subjects:
   - kind: ServiceAccount
     name: kubefate-admin

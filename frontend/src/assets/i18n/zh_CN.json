@@ -145,7 +145,8 @@
     "ingressControllerService": "为我安装Ingress控制器",
     "notCompatible": "这个服务端点不兼容，请手动卸载后再继续。",
     "registryConfiguration": "Registry 配置",
-    "serviceConfiguration": "服务配置"
+    "serviceConfiguration": "服务配置",
+    "ingressRule": "请确保在此基础架构上没有使用相同主机地址的现有 Ingress 规则"
   },
   "EndpointDetail": {
     "name": "服务端点详情",
@@ -179,7 +180,12 @@
     "password": "密码",
     "toSubmit": "你需要先通过Kubeconfig测试后才能提交。",
     "urlSuggestion": "你或许想用:",
-    "togglePlacerHolder": "将按钮置为'false' 来使用默认的DockerHub Registry"
+    "togglePlacerHolder": "将按钮置为'false' 来使用默认的DockerHub Registry",
+    "namespaceList": "命名空间列表",
+    "namespacePlaceholder": "多个namespace 请使用用 , 隔开",
+    "namespaceSwitch": "限定命名空间",
+    "inputKubeconfigContent": "手动输入Kubeconfig",
+    "useIn_clusterServiceAccount": "使用当前服务的Service Account"
   },
   "Federation": {
     "name": "联邦",
@@ -247,11 +253,11 @@
     "Pulsar": "Pulsar",
     "node": "节点数",
     "master": "Master",
-    "driverHost": "驱动主机",
-    "driverHostType": "驱动主机访问类型",
-    "portMaxRetries": "端口最大重试次数",
-    "driverStartPort": "驱动起始端口",
-    "blockManagerStartPort": "块管理器起始端口",
+    "driverHost": "Driver Host 地址",
+    "driverHostType": "Driver Host 服务类型",
+    "portMaxRetries": "端口最大尝试次数",
+    "driverStartPort": "Driver 起始端口",
+    "blockManagerStartPort": "Block Manager 起始端口",
     "pysparkPython": "Pyspark Python 路径",
     "hdfsNameNode": "NameNode地址",
     "hdfsPathPrefix": "路径前缀",

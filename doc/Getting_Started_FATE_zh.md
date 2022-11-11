@@ -80,6 +80,8 @@ FedLCM 服务需要通过一个 CA 服务来向各组件签发证书。因此我
 
 KubeFATE 服务的运行以及交互依赖 Ingress 和 Ingress Controllers，如有需要，您可以选择让 FedLCM 在集群中安装一个基本的 [Ingress-NGINX Controller](https://kubernetes.github.io/ingress-nginx/) 。
 
+> 同一个基础设施上不同的服务端点应当使用不同的主机名称。
+
 点击 `提交` 并等待服务端点的状态变为“准备就绪”。我们可以在服务端点详情页面的“事件”栏中查看日志信息。用户可以继续在其他 K8s 集群上安装 KubeFATE 。
 
 > KubeFATE 服务只能操作其本身所在的 K8s 集群，因此所有集群都应独立安装自己的 KubeFATE 服务作为服务端点。

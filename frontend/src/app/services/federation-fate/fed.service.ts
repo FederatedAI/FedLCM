@@ -72,9 +72,7 @@ export class FedService {
     queryList.forEach(query => {
       baseurl += query.key + '=' + query.value + '&'
     });
-    baseurl.slice(0, -1)
-    console.log('baseurl', baseurl);
-    
+    baseurl.slice(0, -1)    
     return this.http.get<any>(baseurl);
   }
 

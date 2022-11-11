@@ -62,7 +62,19 @@
                     <span><b>{{'InfraProvider.APIServer'|translate}}:</b></span>
                     <span>{{infraDetail.kubernetes_provider_info.api_server}}</span>
                 </li>
-                <li class="codemirror">
+                <li *ngIf="infraDetail">
+                    <span><b>{{'InfraProvider.namespaceList'|translate}}:</b></span>
+                    <span *ngFor="let ns of infraDetail.kubernetes_provider_info.namespaces_list; let i=index">
+                        {{ns}}
+                        <i *ngIf="i < infraDetail.kubernetes_provider_info.namespaces_list.length-1">,</i>
+                    </span>
+                </li>
+                <li *ngIf="infraDetail">
+                    <span style=" width: 220px;"><b style="white-space: nowrap;">{{'InfraProvider.useIn_clusterServiceAccount' | translate}}:</b></span>
+                    <span>{{infraDetail.kubernetes_provider_info.is_in_cluster}}</span>
+                </li>
+                
+                <li class="codemirror" [hidden]="infraDetail?.kubernetes_provider_info?.is_in_cluster">
                     <p><b>{{'InfraProvider.kubeconfig'|translate}}:</b></p>
                     <textarea clrTextarea class="t3" name="kubeconfig" [attr.disabled]="true" style="color: black"
                         id="yaml"></textarea>
@@ -174,15 +186,36 @@
                         <label>{{'CommonlyUse.description'|translate}}</label>
                         <textarea clrTextarea class="t2" name="description" formControlName="description"></textarea>
                     </clr-textarea-container>
-                    <clr-textarea-container>
+                    <div class="clr-form-control">
+                        <label style="padding-left: 0px;" class="clr-control-label"></label>
+                        <div class="clr-control-container clr-control-inline">
+                          <div class="clr-radio-wrapper">
+                            <input type="radio" id="vertical-radio1" formControlName="is_in_cluster" name="is_in_cluster" [value]="false" class="clr-radio" />
+                            <label style="word-break: normal;white-space: nowrap;" for="vertical-radio1" class="clr-control-label">{{'InfraProvider.inputKubeconfigContent' | translate}}</label>
+                          </div>
+                          <div class="clr-radio-wrapper">
+                            <input type="radio" id="vertical-radio2" formControlName="is_in_cluster" name="is_in_cluster" [value]="true" class="clr-radio" />
+                            <label style="word-break: normal;white-space: nowrap;" for="vertical-radio2" class="clr-control-label">{{'InfraProvider.useIn_clusterServiceAccount' | translate}}</label>
+                          </div>
+                        </div>
+                      </div>
+                    <clr-textarea-container *ngIf="!updateInfraForm.controls['is_in_cluster'].value">
                         <label>{{'InfraProvider.kubeconfig' |translate}}</label>
                         <textarea clrTextarea class="t3" name="kubeconfig" formControlName="kubeconfig"
                             (ngModelChange)="onKubeconfigChange($event)"></textarea>
                         <clr-control-error *ngIf="updateInfraForm.get('kubeconfig')?.errors">
                             {{updateInfraForm.get('kubeconfig')?.errors?.emptyMessage | translate}}</clr-control-error>
                     </clr-textarea-container>
+                    <div class="namespace">
+                        <label >{{'InfraProvider.namespaceSwitch'| translate}} </label>
+                        <input type="checkbox" formControlName="namespace" clrToggle />
+                    </div>
+                    <clr-input-container *ngIf="updateInfraForm.get('namespace')?.value">
+                        <label>{{'InfraProvider.namespaceList'|translate}}</label>
+                        <input (change)="namespaceStrChange()"  placeholder="{{'InfraProvider.namespacePlaceholder' | translate}}" clrInput name="namespaceList" formControlName="namespaceList" />
+                    </clr-input-container>
                     <button class="btn btn-sm btnTest" (click)="testConnection(false)"
-                        [disabled]="!this.updateInfraForm.get('kubeconfig')?.valid">{{'CommonlyUse.test'|translate}}</button>
+                        [disabled]="testConnectionDisable">{{'CommonlyUse.test'|translate}}</button>
                     <cds-icon class="TestPassedIcon" shape="check-circle" style="color: green;" size="md"
                         *ngIf="testPassedModal && !isTestLoadingModal"></cds-icon>
                     <clr-spinner class="TestPassedIcon" [clrInline]="true" *ngIf="isTestLoadingModal"></clr-spinner>

@@ -36,7 +36,7 @@ export class DirectorNewComponent implements OnInit {
   isPageLoading: boolean = true;
   noEndpoint = false;
   openInfraModal: boolean = false;
-  use_cert: boolean = false;
+  use_cert: boolean = true;
   skip_cert: boolean = false;
   endpointSelectOk: boolean = false;
   isGenerateSubmit = false;
@@ -157,7 +157,7 @@ export class DirectorNewComponent implements OnInit {
         namespace: ['openfl-director'],
       }),
       certificate: this.formBuilder.group({
-        cert: ['skip'],
+        cert: ['use'],
         director_server_cert_info_mode: [1],
         director_server_cert_info_uuid: [''],
         director_server_cert_info_name: [''],

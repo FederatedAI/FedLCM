@@ -83,13 +83,17 @@ export class ClusterNewComponent implements OnInit {
         ])
       ),
       certificate: this.formBuilder.group({
-        cert: ['skip'],
-        site_portal_client_cert_mode: [1],
+        cert: ['use'],
+        site_portal_client_cert_mode: ['1'],
         site_portal_client_cert_uuid: [''],
-        site_portal_server_cert_mode: [1],
+        site_portal_client_cert_mode_radio: {value: 'new'},
+
+        site_portal_server_cert_mode: ['1'],
         site_portal_server_cert_uuid: [''],
-        pulsar_server_cert_info: [1],
-        pulsar_server_cert_uuid: ['']
+        site_portal_server_cert_mode_radio: {value: 'new'},
+        pulsar_server_cert_info: ['1'],
+        pulsar_server_cert_uuid: [''],
+        pulsar_server_cert_info_radio: {value: 'new'},
       }),
       serviceType: this.formBuilder.group({
         serviceType: [null],
@@ -267,6 +271,15 @@ export class ClusterNewComponent implements OnInit {
   //submitExternalClusterDisable returns true when the input provided for adding an external Cluster is invaid
   get submitExternalClusterDisable() {
     return !this.form.controls['external'].valid || (this.isCreatedExternalSubmit && !this.isCreatedExternalFailed)
+  }
+  // set Namespace Disabled 
+  get setNamespaceDisabled() {
+    if (this.selectedEndpoint && this.selectedEndpoint.namespace) {
+      this.form.get('namespace')?.get('namespace')?.setValue(this.selectedEndpoint.namespace)
+      return true
+    } else {
+      return false
+    }
   }
 
   // external_spark_disabled returns true when the input provided for adding external spark is invalid
@@ -451,6 +464,7 @@ export class ClusterNewComponent implements OnInit {
   isShowEndpointFailed: boolean = false;
   isPageLoading: boolean = true;
   noEndpoint = false;
+
   //showEndpointList is to get the ready endpoint list
   showEndpointList() {
     this.isShowEndpointFailed = false;
@@ -492,7 +506,7 @@ export class ClusterNewComponent implements OnInit {
     }
   }
 
-  use_cert: boolean = false;
+  use_cert: boolean = true;
   skip_cert: boolean = false;
   //setRadioDisplay is trigger when the selection of certificate's mode is changed
   setRadioDisplay(val: any) {
@@ -511,11 +525,30 @@ export class ClusterNewComponent implements OnInit {
 
   //cert_disabled is to validate the configuration of certificate section and disabled the 'Next' button if needed
   get cert_disabled() {
-    var case1 = this.use_cert && this.isChartContainsPortalservices && (this.form.controls['certificate'].get('pulsar_server_cert_info')?.value === 1 ||
-      this.form.controls['certificate'].get('site_portal_server_cert_mode')?.value === 1
-      || this.form.controls['certificate'].get('site_portal_client_cert_mode')?.value === 1)
-    var case2 = this.use_cert && !this.isChartContainsPortalservices && this.form.controls['certificate'].get('pulsar_server_cert_info')?.value === 1
-    return (case1 || case2)
+    // cert is skip
+    if (this.form.get('certificate')?.get('cert')?.value === 'skip') {
+      return false
+    } else {
+      // isChartContainsPortalservices value is true
+      if (this.isChartContainsPortalservices) {
+        const pulsar_server_cert_info_radio = this.form.get('certificate')?.get('pulsar_server_cert_info_radio')?.value
+        const site_portal_server_cert_mode_radio = this.form.get('certificate')?.get('site_portal_server_cert_mode_radio')?.value
+        const site_portal_client_cert_mode_radio = this.form.get('certificate')?.get('site_portal_client_cert_mode_radio')?.value
+        if (pulsar_server_cert_info_radio && site_portal_server_cert_mode_radio && site_portal_client_cert_mode_radio) {
+          return false
+        } else {
+          return true
+        }
+      } else {
+        const pulsar_server_cert_info_radio = this.form.get('certificate')?.get('pulsar_server_cert_info_radio')?.value
+        if (pulsar_server_cert_info_radio) {
+          return false
+        } else {
+          return true
+        }
+      }
+    }
+
   }
 
   //service_type_disabled is to validate the configuration of Service type section and disabled the 'Next' button if needed
@@ -760,8 +793,8 @@ export class ClusterNewComponent implements OnInit {
   //resetCert is triggered when the selection of chart is changed
   resetCert() {
     this.formResetChild('certificate');
-    this.form.get('certificate')?.get('cert')?.setValue("skip");
-    this.setRadioDisplay("skip");
+    this.form.get('certificate')?.get('cert')?.setValue("use");
+    this.setRadioDisplay("use");
   }
 
   //enablePSP returns if enable the pod secrurity policy
@@ -934,6 +967,28 @@ export class ClusterNewComponent implements OnInit {
   createNewCluster() {
     this.isCreatedFailed = false;
     this.isCreatedSubmit = true;
+    if (this.isChartContainsPortalservices) {
+      if(this.use_cert) {
+        this.form.controls['certificate'].get('pulsar_server_cert_info')?.setValue('3')
+        this.form.controls['certificate'].get('site_portal_client_cert_mode')?.setValue('3')
+        this.form.controls['certificate'].get('site_portal_server_cert_mode')?.setValue('3')
+      } else {
+        this.form.controls['certificate'].get('pulsar_server_cert_info')?.setValue('1')
+        this.form.controls['certificate'].get('site_portal_client_cert_mode')?.setValue('1')
+        this.form.controls['certificate'].get('site_portal_server_cert_mode')?.setValue('1')
+      }
+    } else {
+      if(this.use_cert) {
+        this.form.controls['certificate'].get('pulsar_server_cert_info')?.setValue('3')
+        this.form.controls['certificate'].get('site_portal_client_cert_mode')?.setValue('1')
+        this.form.controls['certificate'].get('site_portal_server_cert_mode')?.setValue('1')
+      } else {
+        this.form.controls['certificate'].get('pulsar_server_cert_info')?.setValue('1')
+        this.form.controls['certificate'].get('site_portal_client_cert_mode')?.setValue('1')
+        this.form.controls['certificate'].get('site_portal_server_cert_mode')?.setValue('1')
+      }
+    }
+
     const clusterInfo = {
       chart_uuid: this.form.controls['chart'].get('chart_uuid')?.value,
       deployment_yaml: this.codeMirror.getTextArea().value,
@@ -969,6 +1024,8 @@ export class ClusterNewComponent implements OnInit {
         uuid: this.form.controls['certificate'].get('site_portal_server_cert_uuid')?.value
       }
     }
+
+
     this.fedservice.createCluster(this.fed_uuid, clusterInfo)
       .subscribe(
         data => {

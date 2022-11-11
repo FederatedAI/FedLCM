@@ -71,3 +71,18 @@ li span:first-of-type {
 .externalPartyIDLabel {
     margin-bottom: 0px;
 }
+.disabled {
+    color: #666;
+    cursor: not-allowed;
+}
+
+clr-stepper-panel{
+    &::ng-deep {
+        .clr-accordion-header-button {
+            .clr-accordion-status {
+                display: flex;
+                align-items: center;
+            }
+        }
+    }
+}

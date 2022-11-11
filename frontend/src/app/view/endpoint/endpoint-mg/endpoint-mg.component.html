@@ -18,6 +18,7 @@
     <clr-dg-column>{{'CommonlyUse.description'| translate}}</clr-dg-column>
     <clr-dg-column [clrDgField]="'type'">{{'CommonlyUse.type'| translate}}</clr-dg-column>
     <clr-dg-column>{{'CommonlyUse.version'|translate}}</clr-dg-column>
+    <clr-dg-column>{{'NewCluster.namespace'|translate}}</clr-dg-column>
     <clr-dg-column [clrDgField]="'created_at'">{{'CommonlyUse.creationTime'| translate}}</clr-dg-column>
     <clr-dg-column>{{'CommonlyUse.ip'|translate}}</clr-dg-column>
     <clr-dg-column [clrDgField]="'infra_provider_name'">{{'EndpointMg.infraName'|translate}}</clr-dg-column>
@@ -30,6 +31,7 @@
       <clr-dg-cell>{{endpoint.description}}</clr-dg-cell>
       <clr-dg-cell>{{endpoint.type}}</clr-dg-cell>
       <clr-dg-cell>{{endpoint.kubefate_version}}</clr-dg-cell>
+      <clr-dg-cell>{{endpoint.namespace}}</clr-dg-cell>
       <clr-dg-cell>{{endpoint.created_at | dateFormat}}</clr-dg-cell>
       <clr-dg-cell>{{endpoint.kubefate_address}}</clr-dg-cell>
       <clr-dg-cell>{{endpoint.infra_provider_name}}</clr-dg-cell>

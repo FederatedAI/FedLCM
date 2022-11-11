@@ -45,3 +45,7 @@ li span:first-of-type {
         }  
     }
 }
+.disabled {
+    color: #666;
+    cursor: not-allowed;
+}

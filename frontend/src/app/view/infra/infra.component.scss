@@ -10,6 +10,18 @@
             width: 130px;
         }
     }
+    .namespace {
+        display: flex;
+        margin-top: 0.15rem;
+        label {
+            width: 9.6rem;
+            flex-shrink: 0;
+            color: #454545;
+            font-size: 0.65rem;
+            font-weight: 600;
+            padding-left: 0px;
+        }
+    }
     .t2{
         width: 100%;
         height: 60px;

@@ -114,6 +114,7 @@
             <clr-dg-column [clrDgField]="'name'">{{'CommonlyUse.name'| translate}}</clr-dg-column>
             <clr-dg-column>{{'CommonlyUse.description'| translate}}</clr-dg-column>
             <clr-dg-column>{{'CommonlyUse.type'| translate}}</clr-dg-column>
+            <clr-dg-column>{{'NewCluster.namespace'| translate}}</clr-dg-column>
             <clr-dg-column>{{'CommonlyUse.creationTime'| translate}}</clr-dg-column>
             <clr-dg-column>{{'EndpointMg.infraName'|translate}}</clr-dg-column>
             <clr-dg-column>{{'EndpointMg.endpointURL'|translate}}</clr-dg-column>
@@ -122,6 +123,7 @@
               <clr-dg-cell>{{endpoint?.name}}</clr-dg-cell>
               <clr-dg-cell>{{endpoint?.description}}</clr-dg-cell>
               <clr-dg-cell>{{endpoint?.type}}</clr-dg-cell>
+              <clr-dg-cell>{{endpoint?.namespace}}</clr-dg-cell>
               <clr-dg-cell>{{endpoint?.created_at | date : "medium"}}</clr-dg-cell>
               <clr-dg-cell>{{endpoint?.infra_provider_name}}</clr-dg-cell>
               <clr-dg-cell>{{endpoint?.kubefate_host}}</clr-dg-cell>
@@ -161,7 +163,8 @@
         <clr-step-content *clrIfExpanded>
           <clr-input-container class="no-warp">
             <label>{{'NewCluster.namespace'|translate}}</label>
-            <input clrInput Placeholder="Default: fate-exchange" formControlName="namespace"
+            <input clrInput Placeholder="Default: fate-exchange" [disabled]="setNamespaceDisabled" formControlName="namespace"
+              [class]="{disabled: setNamespaceDisabled}"
               (ngModelChange)="selectChange($event)" />
           </clr-input-container>
           <button clrStepButton="next">{{'CommonlyUse.next'| translate}}</button>
@@ -190,12 +193,12 @@
             <clr-radio-container clrInline class="no-warp">
               <label>{{'NewCluster.server'|translate}}:</label>
               <clr-radio-wrapper>
-                <input type="radio" clrRadio name="proxy_server_cert_mode" formControlName="proxy_server_cert_mode"
-                  required value=3>
+                <input type="radio" clrRadio name="proxy_server_cert_mode_radio" formControlName="proxy_server_cert_mode_radio"
+                 value='new'>
                 <label>{{'NewCluster.addNew'|translate}}</label>
               </clr-radio-wrapper>
               <clr-radio-wrapper>
-                <input type="radio" disabled clrRadio name="proxy_server_cert_mode" required value=2 />
+                <input type="radio" disabled clrRadio name="proxy_server_cert_mode" value=2 />
                 <label>{{'NewCluster.useExist'|translate}}</label>
               </clr-radio-wrapper>
             </clr-radio-container>
@@ -205,24 +208,24 @@
               <clr-radio-container clrInline class="no-warp">
                 <label>{{'NewCluster.server'|translate}}:</label>
                 <clr-radio-wrapper>
-                  <input type="radio" clrRadio name="fml_manager_server_cert_mode"
-                    formControlName="fml_manager_server_cert_mode" required value=3 />
+                  <input type="radio" clrRadio name="fml_manager_server_cert_mode_radio"
+                    formControlName="fml_manager_server_cert_mode_radio" value='new' />
                   <label>{{'NewCluster.addNew'|translate}}</label>
                 </clr-radio-wrapper>
                 <clr-radio-wrapper>
-                  <input type="radio" [disabled]='true' clrRadio name="fml_manager_server_cert_mode" required value=2 />
+                  <input type="radio" [disabled]='true' clrRadio name="fml_manager_server_cert_mode" value=2 />
                   <label>{{'NewCluster.useExist'|translate}}</label>
                 </clr-radio-wrapper>
               </clr-radio-container>
               <clr-radio-container clrInline class="no-warp">
                 <label>{{'NewCluster.client'|translate}}:</label>
                 <clr-radio-wrapper>
-                  <input type="radio" clrRadio name="fml_manager_client_cert_mode"
-                    formControlName="fml_manager_client_cert_mode" required value=3 />
+                  <input type="radio" clrRadio name="fml_manager_client_cert_mode_radio"
+                    formControlName="fml_manager_client_cert_mode_radio" value='new' />
                   <label>{{'NewCluster.addNew'|translate}}</label>
                 </clr-radio-wrapper>
                 <clr-radio-wrapper>
-                  <input type="radio" [disabled]='true' clrRadio name="fml_manager_client_cert_mode" required value=2 />
+                  <input type="radio" [disabled]='true' clrRadio name="fml_manager_client_cert_mode" value=2 />
                   <label>{{'NewCluster.useExist'|translate}}</label>
                 </clr-radio-wrapper>
               </clr-radio-container>
@@ -329,7 +332,7 @@
       </clr-stepper-panel>
 
       <!-- Step 8 -->
-      <clr-stepper-panel formGroupName="psp">
+      <clr-stepper-panel *ngIf="!setNamespaceDisabled" formGroupName="psp">
         <clr-step-title>{{'PSP.pspConfigTitle' | translate}}</clr-step-title>
         <clr-step-description></clr-step-description>
         <clr-step-content *clrIfExpanded>
