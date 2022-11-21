@@ -1480,7 +1480,7 @@ func (s *ParticipantFATEService) RemoveCluster(uuid string, force bool) (*sync.W
 	return wg, nil
 }
 
-//CreateExternalCluster creates an external FATE cluster with the access info provided by user
+// CreateExternalCluster creates an external FATE cluster with the access info provided by user
 func (s *ParticipantFATEService) CreateExternalCluster(req *ParticipantFATEExternalClusterCreationRequest) (*entity.ParticipantFATE, *sync.WaitGroup, error) {
 	if err := s.CheckPartyIDConflict(req.FederationUUID, req.PartyID); err != nil {
 		return nil, nil, err

@@ -19,6 +19,7 @@ import (
 	_ "unsafe"
 )
 
-//go:linkname IsDomainName net.isDomainName
 // IsDomainName checks if a string is a presentation-format domain name
+//
+//go:linkname IsDomainName net.isDomainName
 func IsDomainName(s string) bool
