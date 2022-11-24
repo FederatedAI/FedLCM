@@ -18,37 +18,15 @@ const heteroSBTDSL = `
 {
   "components": {
     "reader_0": {
+      "module": "Reader",
       "output": {
         "data": [
           "data"
         ]
-      },
-      "module": "Reader"
+      }
     },
-    "evaluation_0": {
-      "output": {
-        "data": [
-          "data"
-        ]
-      },
-      "input": {
-        "data": {
-          "data": [
-            "HeteroSecureBoost_0.data"
-          ]
-        }
-      },
-      "module": "Evaluation"
-    },
-    "dataio_0": {
-      "output": {
-        "data": [
-          "data"
-        ],
-        "model": [
-          "model"
-        ]
-      },
+    "DataTransform_0": {
+      "module": "DataTransform",
       "input": {
         "data": {
           "data": [
@@ -56,14 +34,21 @@ const heteroSBTDSL = `
           ]
         }
       },
-      "module": "DataIO"
+      "output": {
+        "data": [
+          "data"
+        ],
+        "model": [
+          "model"
+        ]
+      }
     },
-	"intersection_0": {
+    "Intersection_0": {
       "module": "Intersection",
       "input": {
         "data": {
           "data": [
-            "dataio_0.data"
+            "DataTransform_0.data"
           ]
         }
       },
@@ -74,6 +59,14 @@ const heteroSBTDSL = `
       }
     },
     "HeteroSecureBoost_0": {
+      "module": "HeteroSecureBoost",
+      "input": {
+        "data": {
+          "train_data": [
+            "Intersection_0.data"
+          ]
+        }
+      },
       "output": {
         "data": [
           "data"
@@ -81,15 +74,22 @@ const heteroSBTDSL = `
         "model": [
           "model"
         ]
-      },
+      }
+    },
+    "Evaluation_0": {
+      "module": "Evaluation",
       "input": {
         "data": {
-          "train_data": [
-            "intersection_0.data"
+          "data": [
+            "HeteroSecureBoost_0.data"
           ]
         }
       },
-      "module": "HeteroSecureBoost"
+      "output": {
+        "data": [
+          "data"
+        ]
+      }
     }
   }
 }
@@ -116,8 +116,11 @@ const heteroSBTConf = `
   "job_parameters": {
     "common": {
       "job_type": "train",
-      "backend": 2,
-      "work_mode": 1,
+      "task_parallelism": 2,
+      "computing_partitions": 8,
+      "eggroll_run": {
+        "eggroll.session.processors.per.node": 2
+      },
       "spark_run": {
         "num-executors": 2,
         "executor-cores": 1,
@@ -135,17 +138,17 @@ const heteroSBTConf = `
         "num_trees": 3,
         "validation_freqs": 1,
         "encrypt_param": {
-          "method": "iterativeAffine"
+          "method": "Paillier"
         },
         "tree_param": {
           "max_depth": 3
         }
       },
-      "evaluation_0": {
+      "Evaluation_0": {
         "eval_type": "binary",
-		"need_run": true,
-		"pos_label": 1,
-		"unfold_multi_result": false
+        "need_run": true,
+      	"pos_label": 1,
+        "unfold_multi_result": false
       }
     },
     "role": {
@@ -158,21 +161,28 @@ const heteroSBTConf = `
               "namespace": "%s"
             }
           },
-		  "dataio_0": {
-			"data_type": "float",
-			"default_value": 0,
-			"delimitor": ",",
-			"input_format": "dense",
-			"label_name": "y",
-			"label_type": "int",
-			"missing_fill": false,
-			"outlier_replace": false,
-			"output_format": "dense",
-			"tag_value_delimitor": ":",
-			"tag_with_value": false,
-			"with_label": true
- 		  }
-		}
+          "DataTransform_0": {
+            "input_format": "dense",
+            "delimitor": ",",
+            "data_type": "float64",
+            "exclusive_data_type": null,
+            "tag_with_value": false,
+            "tag_value_delimitor": ":",
+            "missing_fill": false,
+            "default_value": 0,
+            "missing_fill_method": null,
+            "missing_impute": null,
+            "outlier_replace": false,
+            "outlier_replace_method": null,
+            "outlier_impute": null,
+            "outlier_replace_value": 0,
+            "with_label": true,
+            "label_name": "%s",
+            "label_type": "int",
+            "output_format": "dense",
+            "with_match_id": false
+          }
+		    }
       }
     }
   }
@@ -182,7 +192,48 @@ const heteroSBTConf = `
 const heteroSBTHeteroDataSplitDSL = `
 {
   "components": {
-    "hetero_data_split_0": {
+    "reader_0": {
+      "module": "Reader",
+      "output": {
+        "data": [
+          "data"
+        ]
+      }
+    },
+    "DataTransform_0": {
+      "module": "DataTransform",
+      "input": {
+        "data": {
+          "data": [
+            "reader_0.data"
+          ]
+        }
+      },
+      "output": {
+        "data": [
+          "data"
+        ],
+        "model": [
+          "model"
+        ]
+      }
+    },
+    "Intersection_0": {
+      "module": "Intersection",
+      "input": {
+        "data": {
+          "data": [
+            "DataTransform_0.data"
+          ]
+        }
+      },
+      "output": {
+        "data": [
+          "data"
+        ]
+      }
+    },
+    "HeteroDataSplit_0": {
       "output": {
         "data": [
           "train_data",
@@ -193,18 +244,39 @@ const heteroSBTHeteroDataSplitDSL = `
       "input": {
         "data": {
           "data": [
-            "intersection_0.data"
+            "Intersection_0.data"
           ]
         }
       },
       "module": "HeteroDataSplit"
     },
-	"intersection_0": {
-      "module": "Intersection",
+    "HeteroSecureBoost_0": {
+      "module": "HeteroSecureBoost",
+      "input": {
+        "data": {
+          "validate_data": [
+            "HeteroDataSplit_0.validate_data"
+          ],
+          "train_data": [
+            "HeteroDataSplit_0.train_data"
+          ]
+        }
+      },
+      "output": {
+        "data": [
+          "data"
+        ],
+        "model": [
+          "model"
+        ]
+      }
+    },
+    "Evaluation_0": {
+      "module": "Evaluation",
       "input": {
         "data": {
           "data": [
-            "dataio_0.data"
+            "HeteroSecureBoost_0.data"
           ]
         }
       },
@@ -213,68 +285,6 @@ const heteroSBTHeteroDataSplitDSL = `
           "data"
         ]
       }
-    },
-    "reader_0": {
-      "output": {
-        "data": [
-          "data"
-        ]
-      },
-      "module": "Reader"
-    },
-    "evaluation_0": {
-      "output": {
-        "data": [
-          "data"
-        ]
-      },
-      "input": {
-        "data": {
-          "data": [
-            "HeteroSecureBoost_0.data"
-          ]
-        }
-      },
-      "module": "Evaluation"
-    },
-    "dataio_0": {
-      "output": {
-        "data": [
-          "data"
-        ],
-        "model": [
-          "model"
-        ]
-      },
-      "input": {
-        "data": {
-          "data": [
-            "reader_0.data"
-          ]
-        }
-      },
-      "module": "DataIO"
-    },
-    "HeteroSecureBoost_0": {
-      "output": {
-        "data": [
-          "data"
-        ],
-        "model": [
-          "model"
-        ]
-      },
-      "input": {
-        "data": {
-          "validate_data": [
-            "hetero_data_split_0.validate_data"
-          ],
-          "train_data": [
-            "hetero_data_split_0.train_data"
-          ]
-        }
-      },
-      "module": "HeteroSecureBoost"
     }
   }
 }
@@ -301,8 +311,11 @@ const heteroSBTHeteroDataSplitConf = `
   "job_parameters": {
     "common": {
       "job_type": "train",
-      "backend": 2,
-      "work_mode": 1,
+      "task_parallelism": 2,
+      "computing_partitions": 8,
+      "eggroll_run": {
+        "eggroll.session.processors.per.node": 2
+      },
       "spark_run": {
         "num-executors": 2,
         "executor-cores": 1,
@@ -312,7 +325,7 @@ const heteroSBTHeteroDataSplitConf = `
   },
   "component_parameters": {
     "common": {
-      "hetero_data_split_0": {
+      "HeteroDataSplit_0": {
         "validate_size": %s,
         "split_points": [
           0,
@@ -329,17 +342,17 @@ const heteroSBTHeteroDataSplitConf = `
         "num_trees": 3,
         "validation_freqs": 1,
         "encrypt_param": {
-          "method": "iterativeAffine"
+          "method": "Paillier"
         },
         "tree_param": {
           "max_depth": 3
         }
       },
-      "evaluation_0": {
+      "Evaluation_0": {
         "eval_type": "binary",
-		"need_run": true,
-		"pos_label": 1,
-		"unfold_multi_result": false
+		    "need_run": true,
+		    "pos_label": 1,
+		    "unfold_multi_result": false
       }
     },
     "role": {
@@ -352,20 +365,27 @@ const heteroSBTHeteroDataSplitConf = `
               "namespace": "%s"
             }
           },
-		  "dataio_0": {
-			"data_type": "float",
-			"default_value": 0,
-			"delimitor": ",",
-			"input_format": "dense",
-			"label_name": "y",
-			"label_type": "int",
-			"missing_fill": false,
-			"outlier_replace": false,
-			"output_format": "dense",
-			"tag_value_delimitor": ":",
-			"tag_with_value": false,
-			"with_label": true
- 		  }
+          "DataTransform_0": {
+            "input_format": "dense",
+            "delimitor": ",",
+            "data_type": "float64",
+            "exclusive_data_type": null,
+            "tag_with_value": false,
+            "tag_value_delimitor": ":",
+            "missing_fill": false,
+            "default_value": 0,
+            "missing_fill_method": null,
+            "missing_impute": null,
+            "outlier_replace": false,
+            "outlier_replace_method": null,
+            "outlier_impute": null,
+            "outlier_replace_value": 0,
+            "with_label": true,
+            "label_name": "%s",
+            "label_type": "int",
+            "output_format": "dense",
+            "with_match_id": false
+          }
         }
       }
     }

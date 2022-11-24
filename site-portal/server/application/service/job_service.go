@@ -680,9 +680,11 @@ func (app *JobApp) GeneratePredictingJobParticipants(modelUUID string) ([]JobPar
 func (app *JobApp) SubmitJob(username string, request *JobSubmissionRequest) (*JobListItemBase, error) {
 	jobAggregate, err := app.buildJobAggregate(username, request)
 	if err != nil {
+		log.Error().Err(err).Interface("request", request).Msg("app.buildJobAggregate error")
 		return nil, err
 	}
 	if err := jobAggregate.SubmitJob(); err != nil {
+		log.Error().Err(err).Msg("jobAggregate.SubmitJob error")
 		return nil, err
 	}
 

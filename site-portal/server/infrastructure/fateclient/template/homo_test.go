@@ -67,3 +67,164 @@ func TestBuildHomoLRConf(t *testing.T) {
 		assert.True(t, json.Valid([]byte(dsl)))
 	}
 }
+
+func TestBuildHomoTrainingConf(t *testing.T) {
+	type args struct {
+		param HomoTrainingParam
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    string
+		want1   string
+		wantErr bool
+	}{
+		// Check json format and basic functions
+		{
+			name: "homo-lr-base",
+			args: args{
+				param: HomoTrainingParam{
+					Guest: PartyDataInfo{
+						PartyID:        "999",
+						TableName:      "guest-table-name-999",
+						TableNamespace: "guest-table-namespace-999",
+					},
+					Hosts: []PartyDataInfo{
+						{
+							PartyID:        "1000",
+							TableName:      "host-table-name-1000",
+							TableNamespace: "host-table-namespace-1000",
+						},
+					},
+					LabelName:         "y",
+					ValidationEnabled: false,
+					ValidationPercent: 0,
+					Type:              HomoAlgorithmTypeLR,
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "homo-lr-base-validation",
+			args: args{
+				param: HomoTrainingParam{
+					Guest: PartyDataInfo{
+						PartyID:        "999",
+						TableName:      "guest-table-name-999",
+						TableNamespace: "guest-table-namespace-999",
+					},
+					Hosts: []PartyDataInfo{
+						{
+							PartyID:        "1000",
+							TableName:      "host-table-name-1000",
+							TableNamespace: "host-table-namespace-1000",
+						},
+					},
+					LabelName:         "y",
+					ValidationEnabled: true,
+					ValidationPercent: 10,
+					Type:              HomoAlgorithmTypeLR,
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "homo-sbt-base",
+			args: args{
+				param: HomoTrainingParam{
+					Guest: PartyDataInfo{
+						PartyID:        "999",
+						TableName:      "guest-table-name-999",
+						TableNamespace: "guest-table-namespace-999",
+					},
+					Hosts: []PartyDataInfo{
+						{
+							PartyID:        "1000",
+							TableName:      "host-table-name-1000",
+							TableNamespace: "host-table-namespace-1000",
+						},
+					},
+					LabelName:         "y",
+					ValidationEnabled: false,
+					ValidationPercent: 0,
+					Type:              HomoAlgorithmTypeSBT,
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "homo-sbt-base-validation",
+			args: args{
+				param: HomoTrainingParam{
+					Guest: PartyDataInfo{
+						PartyID:        "999",
+						TableName:      "guest-table-name-999",
+						TableNamespace: "guest-table-namespace-999",
+					},
+					Hosts: []PartyDataInfo{
+						{
+							PartyID:        "1000",
+							TableName:      "host-table-name-1000",
+							TableNamespace: "host-table-namespace-1000",
+						},
+					},
+					LabelName:         "y",
+					ValidationEnabled: true,
+					ValidationPercent: 10,
+					Type:              HomoAlgorithmTypeSBT,
+				},
+			},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, _, err := BuildHomoTrainingConf(tt.args.param)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("BuildHomoTrainingConf() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+		})
+	}
+}
+
+func TestBuildHomoPredictingConf(t *testing.T) {
+	type args struct {
+		param HomoPredictingParam
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    string
+		want1   string
+		wantErr bool
+	}{
+		{
+			name: "hetero-predicting-base",
+			args: args{
+				param: HomoPredictingParam{
+					Role:         "guest",
+					ModelID:      "homo-guest-host-test",
+					ModelVersion: "123456789",
+					PartyDataInfo: PartyDataInfo{
+						PartyID:        "9999",
+						TableName:      "homo-name-test",
+						TableNamespace: "homo-namespace-test",
+					},
+				},
+			},
+			want:    "",
+			want1:   "",
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, _, err := BuildHomoPredictingConf(tt.args.param)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("BuildHomoPredictingConf() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+		})
+	}
+}

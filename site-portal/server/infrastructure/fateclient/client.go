@@ -46,8 +46,6 @@ type DataUploadRequest struct {
 	File      string `json:"file"`
 	Head      int    `json:"head"`
 	Partition int    `json:"partition"`
-	WorkMode  int    `json:"work_mode"`
-	Backend   int    `json:"backend"`
 	Namespace string `json:"namespace"`
 	TableName string `json:"table_name"`
 	Drop      int    `json:"drop"`
@@ -260,10 +258,12 @@ func (c *client) QueryJobStatus(jobID string) (string, error) {
 func (c *client) SubmitJob(conf, dsl string) (string, *ModelInfo, error) {
 	var confObj map[string]interface{}
 	if err := json.Unmarshal([]byte(conf), &confObj); err != nil {
+		log.Err(err).Str("conf", conf).Msg("Unmarshal conf")
 		return "", nil, err
 	}
 	var dslObj map[string]interface{}
 	if err := json.Unmarshal([]byte(dsl), &dslObj); err != nil {
+		log.Err(err).Msg("Unmarshal dsl")
 		return "", nil, err
 	}
 	jobSubmissionBody := map[string]interface{}{
@@ -272,6 +272,7 @@ func (c *client) SubmitJob(conf, dsl string) (string, *ModelInfo, error) {
 	}
 	resp, err := c.postJSON("job/submit", jobSubmissionBody)
 	if err != nil {
+		log.Err(err).Msg("postJSON job/submit")
 		return "", nil, err
 	}
 	defer resp.Body.Close()
@@ -300,11 +301,13 @@ func (c *client) SubmitJob(conf, dsl string) (string, *ModelInfo, error) {
 func (c *client) DeployModel(request ModelDeployRequest) (*ModelInfo, error) {
 	resp, err := c.postJSON("model/deploy", request)
 	if err != nil {
+		log.Err(err).Msg("postJSON")
 		return nil, err
 	}
 	defer resp.Body.Close()
 	body, err := c.parseResponse(resp)
 	if err != nil {
+		log.Err(err).Msg("parseResponse")
 		return nil, err
 	}
 	type ModelDeployResponse struct {
@@ -313,6 +316,7 @@ func (c *client) DeployModel(request ModelDeployRequest) (*ModelInfo, error) {
 	}
 	var response ModelDeployResponse
 	if err := json.Unmarshal(body, &response); err != nil {
+		log.Err(err).Msg("Unmarshal")
 		return nil, err
 	}
 	if response.RetCode != 0 {

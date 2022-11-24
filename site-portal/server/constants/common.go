@@ -19,7 +19,7 @@ const (
 	JobComponents = `[{
 		"groupName": "Data Input and Output",
 		"modules": [{
-				"moduleName": "DataIO",
+				"moduleName": "DataTransform",
 				"parameters": {
 					"input_format": {
                       "drop_down_box": ["dense", "sparse", "tag"]
@@ -47,7 +47,7 @@ const (
 					"output_format": "dense"
 				},
 				"conditions": {
-					"possible_input": ["Reader", "DataIO"],
+					"possible_input": ["Reader", "DataTransform"],
 					"can_be_endpoint": false
 				},
 				"input": {
@@ -72,7 +72,7 @@ const (
 					"need_run": true
 				},
 				"conditions": {
-					"possible_input": ["DataIO", "HomoOneHotEncoder"],
+					"possible_input": ["DataTransform", "HomoOneHotEncoder"],
 					"can_be_endpoint": false
 				},
 				"input": {
@@ -121,7 +121,7 @@ const (
 				"need_alignment": true
 			},
 			"conditions": {
-				"possible_input": ["DataIO"],
+				"possible_input": ["DataTransform"],
 				"can_be_endpoint": false
 			},
 			"input": {
@@ -141,7 +141,7 @@ const (
 			"parameters": {
 			},
 			"conditions": {
-				"possible_input": ["DataIO"],
+				"possible_input": ["DataTransform"],
 				"can_be_endpoint": false
 			},
 			"input": {
@@ -191,7 +191,7 @@ const (
 					"floating_point_precision": ""
 				},
 				"conditions": {
-					"possible_input": ["DataIO", "HomoOneHotEncoder", "HomoDataSplit"],
+					"possible_input": ["DataTransform", "HomoOneHotEncoder", "HomoDataSplit"],
 					"can_be_endpoint": true
 				},
 				"input": {
@@ -204,7 +204,7 @@ const (
 				}
 			},
 			{
-				"moduleName": "HomoSecureboost",
+				"moduleName": "HomoSecureBoost",
 				"parameters": {
 					"task_type": "classification",
 					"objective_param": {
@@ -221,7 +221,7 @@ const (
 					}
 				},
 				"conditions": {
-					"possible_input": ["DataIO", "HomoOneHotEncoder", "HomoDataSplit"],
+					"possible_input": ["DataTransform", "HomoOneHotEncoder", "HomoDataSplit"],
 					"can_be_endpoint": true
 				},
 				"input": {
@@ -253,7 +253,7 @@ const (
 					"init_param": {
                     	"init_method": "zeros"
                 	},
-					"max_iter": 10,
+					"max_iter": 30,
 					"early_stop": {
                       "drop_down_box": ["diff", "weight_diff", "abs"]
                     },
@@ -313,7 +313,7 @@ const (
 					},
 					"random_seed": 100,
 					"encrypt_param": {
-						 "method": "iterativeAffine"
+						 "method": "Paillier"
 					},
 					"encrypted_mode_calculator_param": {},
 					"use_missing": false,
@@ -357,7 +357,7 @@ const (
 				"need_run": true
 			},
 			"conditions": {
-				"possible_input": ["HomoLR", "HomoSecureboost", "HeteroLR", "HeteroSecureBoost"],
+				"possible_input": ["HomoLR", "HomoSecureBoost", "HeteroLR", "HeteroSecureBoost"],
 				"can_be_endpoint": true
 			},
 			"input": {

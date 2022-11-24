@@ -25,12 +25,30 @@ const homoLRDSL = `
         ]
       }
     },
-    "dataio_0": {
-      "module": "DataIO",
+    "DataTransform_0": {
+      "module": "DataTransform",
       "input": {
         "data": {
           "data": [
             "reader_0.data"
+          ]
+        }
+      },
+      "output": {
+        "data": [
+          "data"
+        ],
+        "model": [
+          "model"
+        ]
+      }
+    },
+    "FeatureScale_0": {
+      "module": "FeatureScale",
+      "input": {
+        "data": {
+          "data": [
+            "DataTransform_0.data"
           ]
         }
       },
@@ -48,7 +66,7 @@ const homoLRDSL = `
       "input": {
         "data": {
           "train_data": [
-            "dataio_0.data"
+            "FeatureScale_0.data"
           ]
         }
       },
@@ -61,7 +79,7 @@ const homoLRDSL = `
         ]
       }
     },
-    "evaluation_0": {
+    "Evaluation_0": {
       "module": "Evaluation",
       "input": {
         "data": {
@@ -101,9 +119,11 @@ const homoLRConf = `
   "job_parameters": {
     "common": {
       "job_type": "train",
-      "backend": 2,
-      "work_mode": 1,
-      "use_encrypt": false,
+      "task_parallelism": 2,
+      "computing_partitions": 8,
+      "eggroll_run": {
+        "eggroll.session.processors.per.node": 2
+      },
       "spark_run": {
         "num-executors": 2,
         "executor-cores": 1,
@@ -113,11 +133,11 @@ const homoLRConf = `
   },
   "component_parameters": {
     "common": {
-      "dataio_0": {
+      "DataTransform_0": {
         "with_label": true,
         "output_format": "dense",
-		"label_type": "int",
-    	"label_name": "%s"
+		    "label_type": "int",
+    	  "label_name": "%s"
       },
       "HomoLR_0": {
         "penalty": "L2",
@@ -143,7 +163,7 @@ const homoLRConf = `
         "decay": 1,
         "decay_sqrt": true
       },
-      "evaluation_0": {
+      "Evaluation_0": {
         "eval_type": "binary"
       }
     },
@@ -167,7 +187,51 @@ const homoLRConf = `
 const homoLRHomoDataSplitDSL = `
 {
   "components": {
-    "homo_data_split_0": {
+    "reader_0": {
+      "module": "Reader",
+      "output": {
+        "data": [
+          "data"
+        ]
+      }
+    },
+    "DataTransform_0": {
+      "module": "DataTransform",
+      "input": {
+        "data": {
+          "data": [
+            "reader_0.data"
+          ]
+        }
+      },
+      "output": {
+        "data": [
+          "data"
+        ],
+        "model": [
+          "model"
+        ]
+      }
+    },
+    "FeatureScale_0": {
+      "module": "FeatureScale",
+      "input": {
+        "data": {
+          "data": [
+            "DataTransform_0.data"
+          ]
+        }
+      },
+      "output": {
+        "data": [
+          "data"
+        ],
+        "model": [
+          "model"
+        ]
+      }
+    },
+    "HomoDataSplit_0": {
       "output": {
         "data": [
           "train_data",
@@ -178,52 +242,11 @@ const homoLRHomoDataSplitDSL = `
       "input": {
         "data": {
           "data": [
-            "dataio_0.data"
+            "FeatureScale_0.data"
           ]
         }
       },
       "module": "HomoDataSplit"
-    },
-    "reader_0": {
-      "output": {
-        "data": [
-          "data"
-        ]
-      },
-      "module": "Reader"
-    },
-    "evaluation_0": {
-      "output": {
-        "data": [
-          "data"
-        ]
-      },
-      "input": {
-        "data": {
-          "data": [
-            "HomoLR_0.data"
-          ]
-        }
-      },
-      "module": "Evaluation"
-    },
-    "dataio_0": {
-      "output": {
-        "data": [
-          "data"
-        ],
-        "model": [
-          "model"
-        ]
-      },
-      "input": {
-        "data": {
-          "data": [
-            "reader_0.data"
-          ]
-        }
-      },
-      "module": "DataIO"
     },
     "HomoLR_0": {
       "output": {
@@ -237,14 +260,29 @@ const homoLRHomoDataSplitDSL = `
       "input": {
         "data": {
           "validate_data": [
-            "homo_data_split_0.validate_data"
+            "HomoDataSplit_0.validate_data"
           ],
           "train_data": [
-            "homo_data_split_0.train_data"
+            "HomoDataSplit_0.train_data"
           ]
         }
       },
       "module": "HomoLR"
+    },
+    "Evaluation_0": {
+      "module": "Evaluation",
+      "input": {
+        "data": {
+          "data": [
+            "HomoLR_0.data"
+          ]
+        }
+      },
+      "output": {
+        "data": [
+          "data"
+        ]
+      }
     }
   }
 }
@@ -271,8 +309,11 @@ const homoLRHomoDataSplitConf = `
   "job_parameters": {
     "common": {
       "job_type": "train",
-      "backend": 2,
-      "work_mode": 1,
+      "task_parallelism": 2,
+      "computing_partitions": 8,
+      "eggroll_run": {
+        "eggroll.session.processors.per.node": 2
+      },
       "spark_run": {
         "num-executors": 2,
         "executor-cores": 1,
@@ -282,7 +323,7 @@ const homoLRHomoDataSplitConf = `
   },
   "component_parameters": {
     "common": {
-      "homo_data_split_0": {
+      "HomoDataSplit_0": {
         "validate_size": %s,
         "split_points": [
           0,
@@ -291,11 +332,11 @@ const homoLRHomoDataSplitConf = `
         "test_size": 0,
         "stratified": true
       },
-      "dataio_0": {
+      "DataTransform_0": {
         "with_label": true,
         "output_format": "dense",
-		"label_type": "int",
-    	"label_name": "%s"
+		    "label_type": "int",
+    	  "label_name": "%s"
       },
       "HomoLR_0": {
         "penalty": "L2",
@@ -321,7 +362,7 @@ const homoLRHomoDataSplitConf = `
         "decay": 1,
         "decay_sqrt": true
       },
-      "evaluation_0": {
+      "Evaluation_0": {
         "eval_type": "binary"
       }
     },

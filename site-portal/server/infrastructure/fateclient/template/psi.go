@@ -29,8 +29,8 @@ const PSIDSL = `
                 ]
             }
         },
-        "dataio_0": {
-            "module": "DataIO",
+        "DataTransform_0": {
+            "module": "DataTransform",
             "input": {
                 "data": {
                     "data": [
@@ -44,12 +44,12 @@ const PSIDSL = `
                 ]
             }
         },
-        "intersection_0": {
+        "Intersection_0": {
             "module": "Intersection",
             "input": {
                 "data": {
                     "data": [
-                        "dataio_0.data"
+                        "DataTransform_0.data"
                     ]
                 }
             },
@@ -65,75 +65,77 @@ const PSIDSL = `
 
 const PSIConf = `
 {
-    "dsl_version": 2,
-    "initiator": {
-        "role": "guest",
-        "party_id": %s
-    },
-    "role": {
-        "guest": [
-            %s
-        ],
-        "host": [
-            %s
-        ]
-    },
-	"job_parameters": {
-		"common": {
-      	"job_type": "train",
-      	"backend": 2,
-      	"work_mode": 1,
-      	"spark_run": {
+  "dsl_version": 2,
+  "initiator": {
+    "role": "guest",
+    "party_id": %s
+  },
+  "role": {
+    "guest": [
+      %s
+    ],
+    "host": [
+      %s
+    ]
+  },
+  "job_parameters": {
+    "common": {
+      "job_type": "train",
+      "task_parallelism": 2,
+      "computing_partitions": 8,
+      "eggroll_run": {
+        "eggroll.session.processors.per.node": 2
+      },
+      "spark_run": {
         "num-executors": 2,
         "executor-cores": 1,
         "total-executor-cores": 2
-      	}
+      }
     }
   },
-    "component_parameters": {
-        "common": {
-            "intersect_0": {
-                "intersect_method": "rsa",
-                "sync_intersect_ids": false,
-                "only_output_key": true,
-                "rsa_params": {
-                    "hash_method": "sha256",
-                    "final_hash_method": "sha256",
-                    "split_calculation": false,
-                    "key_length": 2048
-                }
-            },
-		"dataio_0": {
-			"with_label": false,
-			"output_format": "dense",
-			"label_type": "int"
-			}
-        },
-        "role": {
-            "host": %s,
-            "guest": {
-                "0": {
-                    "reader_0": {
-                        "table": {
-                            "name": "%s",
-                            "namespace": "%s"
-                        }
-                    }
-                }
-            }
+  "component_parameters": {
+    "common": {
+      "Intersect_0": {
+        "intersect_method": "rsa",
+        "sync_intersect_ids": false,
+        "only_output_key": true,
+        "rsa_params": {
+          "hash_method": "sha256",
+          "final_hash_method": "sha256",
+          "split_calculation": false,
+          "key_length": 2048
         }
+      },
+      "DataTransform_0": {
+        "with_label": false,
+        "output_format": "dense"
+      }
+    },
+    "role": {
+      "host": %s,
+      "guest": {
+        "0": {
+          "reader_0": {
+            "table": {
+              "name": "%s",
+              "namespace": "%s"
+            }
+          }
+        }
+      }
     }
+  }
 }
 `
 
 const PSIHostParamTemplate = `
 {
-	"reader_0": {
-    	"table": {
-      		"name": "%s",
-      		"namespace": "%s"
-    	}
-  	}
+  "reader_0": {
+    "table": {
+      "name": "%s",
+      "namespace": "%s"
+    }
+  }
 }
 `
 

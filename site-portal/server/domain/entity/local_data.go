@@ -251,17 +251,11 @@ func (d *LocalData) Upload(fileHeader *multipart.FileHeader) error {
 		log.Info().Msgf("uploading data file %s to FATE", dst.Name())
 		fateClient := fateclient.NewFATEFlowClient(d.UploadContext.FATEFlowHost, d.UploadContext.FATEFlowPort, d.UploadContext.FATEFlowIsHttps)
 		d.ChangeJobStatus(UploadJobStatusCreating)
-		// 2 stands for SPARK_PULSAR
-		backend := 2
-		if viper.GetBool("siteportal.fate.eggroll.enabled") {
-			backend = 0
-		}
+
 		uploadConf := fateclient.DataUploadRequest{
 			File:      dst.Name(),
 			Head:      1,
 			Partition: 8, // XXX: use viper configuration instead of a hard-code one
-			WorkMode:  1,
-			Backend:   backend,
 			Namespace: d.TableNamespace,
 			TableName: d.TableName,
 			Drop:      1,

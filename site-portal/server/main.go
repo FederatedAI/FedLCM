@@ -107,7 +107,12 @@ func main() {
 			return
 		}
 	} else {
-		err := r.Run()
+		// Defining the listening port can facilitate development and debugging, and multiple services can be started in one place.
+		port := viper.GetString("siteportal.port")
+		if port == "" {
+			port = "8080"
+		}
+		err := r.Run(fmt.Sprintf(":%s", port))
 		if err != nil {
 			log.Error().Err(err).Msg("gin run error, ")
 			return

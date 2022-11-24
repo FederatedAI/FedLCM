@@ -28,19 +28,26 @@ const heteroTrainingHostComponentParamTemplate = `
       "namespace": "%s"
     }
   },
-  "dataio_0": {
-	"data_type": "float",
-	"default_value": 0,
-	"delimitor": ",",
-	"input_format": "dense",
-	"label_name": "y",
-	"label_type": "int",
-	"missing_fill": false,
-	"outlier_replace": false,
-	"output_format": "dense",
-	"tag_value_delimitor": ":",
-	"tag_with_value": false,
-	"with_label": false
+  "DataTransform_0": {
+    "input_format": "dense",
+    "delimitor": ",",
+    "data_type": "float64",
+    "exclusive_data_type": null,
+    "tag_with_value": false,
+    "tag_value_delimitor": ":",
+    "missing_fill": false,
+    "default_value": 0,
+    "missing_fill_method": null,
+    "missing_impute": null,
+    "outlier_replace": false,
+    "outlier_replace_method": null,
+    "outlier_impute": null,
+    "outlier_replace_value": 0,
+    "with_label": false,
+    "label_name": "y",
+    "label_type": "int",
+    "output_format": "dense",
+    "with_match_id": false
   }
 }
 `
@@ -76,8 +83,15 @@ const heteroPredictingJobConf = `
   },
   "job_parameters": {
     "common": {
-      "work_mode": 1,
-      "backend": 2,
+      "task_parallelism": 2,
+      "eggroll_run": {
+        "eggroll.session.processors.per.node": 2
+      },
+      "spark_run": {
+        "num-executors": 2,
+        "executor-cores": 1,
+        "total-executor-cores": 2
+      },
       "job_type": "predict",
       "model_id": "%s",
       "model_version": "%s"
@@ -179,7 +193,9 @@ func BuildHeteroTrainingConf(param HeteroTrainingParam) (string, string, error) 
 			validationSizeStr,
 			hostParamStr,
 			param.Guest.TableName,
-			param.Guest.TableNamespace)
+			param.Guest.TableNamespace,
+			param.LabelName,
+		)
 	} else {
 		confStr = fmt.Sprintf(confStr,
 			param.Guest.PartyID,
@@ -188,7 +204,9 @@ func BuildHeteroTrainingConf(param HeteroTrainingParam) (string, string, error) 
 			arbiterPartyID,
 			hostParamStr,
 			param.Guest.TableName,
-			param.Guest.TableNamespace)
+			param.Guest.TableNamespace,
+			param.LabelName,
+		)
 	}
 	var prettyJson bytes.Buffer
 	if err := json.Indent(&prettyJson, []byte(confStr), "", "  "); err != nil {

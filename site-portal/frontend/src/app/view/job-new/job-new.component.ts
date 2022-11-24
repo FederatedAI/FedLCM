@@ -565,7 +565,7 @@ export class JobNewComponent implements OnInit, OnDestroy, AfterViewInit {
     }]
     if (e.previousContainer.data[e.previousIndex].moduleName === 'HomoLR') {
       this.JobAlgorithmType = 1
-    } else if (e.previousContainer.data[e.previousIndex].moduleName === 'HomoSecureboost') {
+    } else if (e.previousContainer.data[e.previousIndex].moduleName === 'HomoSecureBoost') {
       this.JobAlgorithmType = 2
     } else if (e.previousContainer.data[e.previousIndex].moduleName === 'HeteroLR') {
       this.JobAlgorithmType = 3
@@ -1272,7 +1272,7 @@ export class JobNewComponent implements OnInit, OnDestroy, AfterViewInit {
     const keyArr = Object.values(this.svgData)
     this.submitGeneratedFailed = false;
     this.submitGenerated = false
-    if (!keyArr.find(el => el.module === 'HomoLR' || el.module === 'HomoSecureboost' || el.module === 'HeteroLR' || el.module === 'HeteroSecureBoost')) {
+    if (!keyArr.find(el => el.module === 'HomoLR' || el.module === 'HomoSecureBoost' || el.module === 'HeteroLR' || el.module === 'HeteroSecureBoost')) {
       this.errorMessage = 'Homolr or homosecureboost or heterolr or heterosecureboost module is missing'
       this.submitGeneratedFailed = true;
       this.submitGenerated = true
@@ -1593,7 +1593,7 @@ export class JobNewComponent implements OnInit, OnDestroy, AfterViewInit {
         }
         if (this.algorithm === 'al2') {
           this.jobDetail.training_algorithm_type = 2;
-          this.jobDetail.algorithm_component_name = 'HomoSecureboost_0'
+          this.jobDetail.algorithm_component_name = 'HomoSecureBoost_0'
         }
         if (this.algorithm === 'al3') {
           this.jobDetail.training_algorithm_type = 3;
@@ -1606,7 +1606,7 @@ export class JobNewComponent implements OnInit, OnDestroy, AfterViewInit {
       } else {
         this.jobDetail.training_algorithm_type = this.JobAlgorithmType
         for (const data in this.svgData) {
-          if (data.indexOf('HomoLR') !== -1 || data.indexOf('HomoSecureboost') !== -1 || data.indexOf('HeteroLR') !== -1 || data.indexOf('HeteroSecureBoost') !== -1) {
+          if (data.indexOf('HomoLR') !== -1 || data.indexOf('HomoSecureBoost') !== -1 || data.indexOf('HeteroLR') !== -1 || data.indexOf('HeteroSecureBoost') !== -1) {
             this.jobDetail.algorithm_component_name = data
           } else if (data.indexOf('Evaluation') !== -1) {
             this.jobDetail.evaluate_component_name = data

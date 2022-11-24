@@ -285,6 +285,7 @@ func (aggregate *JobAggregate) SubmitJob() error {
 		aggregate.Job.Conf = conf
 		aggregate.Job.DSL = dsl
 	}
+	log.Debug().Str("conf", aggregate.Job.Conf).Str("dsl", aggregate.Job.DSL).Msg("dsl info")
 
 	if err := aggregate.Job.Validate(); err != nil {
 		return err

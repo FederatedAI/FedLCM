@@ -246,7 +246,7 @@ func getSingleSiteInput() string {
 		},
 		"module": "DataIO"
 	},
-	"HomoSecureboost_0": {
+	"HomoSecureBoost_0": {
 		"attributeType": "common",
 		"commonAttributes": {
 			"task_type": "classification",
@@ -281,7 +281,7 @@ func getSingleSiteInput() string {
 				]
 			}
 		},
-		"module": "HomoSecureboost"
+		"module": "HomoSecureBoost"
 	},
 	"Evaluation_0": {
 		"attributeType": "common",
@@ -296,7 +296,7 @@ func getSingleSiteInput() string {
 			"input": {
 				"data": {
 					"data": [
-						"HomoSecureboost_0.data"
+						"HomoSecureBoost_0.data"
 					]
 				}
 			},
@@ -680,7 +680,7 @@ func TestBuildComponentParametersSingleSite(t *testing.T) {
 				"pos_label": 1,
 				"unfold_multi_result": false
 			},
-			"HomoSecureboost_0": {
+			"HomoSecureBoost_0": {
 				"bin_num": 32,
 				"learning_rate": 0.3,
 				"n_iter_no_change": true,

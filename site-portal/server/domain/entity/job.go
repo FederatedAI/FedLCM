@@ -164,7 +164,7 @@ func (job *Job) Validate() error {
 		if !strings.Contains(job.DSL, "Evaluation") {
 			return errors.New("training job must contain an Evaluation module")
 		}
-		if !(strings.Contains(job.DSL, "HomoLR") || strings.Contains(job.DSL, "HomoSecureboost") || strings.Contains(job.DSL, "HeteroLR") || strings.Contains(job.DSL, "HeteroSecureBoost")) {
+		if !(strings.Contains(job.DSL, "HomoLR") || strings.Contains(job.DSL, "HomoSecureBoost") || strings.Contains(job.DSL, "HeteroLR") || strings.Contains(job.DSL, "HeteroSecureBoost")) {
 			return errors.Errorf("training job must contain at least one algorithm component")
 		}
 	} else if job.Type == JobTypePredict {
