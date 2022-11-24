@@ -97,10 +97,6 @@ func (app *InfraProviderApp) GetProviderList() ([]InfraProviderListItem, error) 
 	}
 	domainProviderList := domainProviderListInstance.([]entity.InfraProviderKubernetes)
 	for _, p := range domainProviderList {
-		APIServer, err := p.Config.APIHost()
-		if err != nil {
-			return nil, err
-		}
 		providerList = append(providerList, InfraProviderListItem{
 			InfraProviderItemBase: InfraProviderItemBase{
 				InfraProviderEditableItem: InfraProviderEditableItem{
@@ -112,7 +108,7 @@ func (app *InfraProviderApp) GetProviderList() ([]InfraProviderListItem, error) 
 				CreatedAt: p.CreatedAt,
 			},
 			KubernetesProviderInfo: InfraProviderListItemKubernetes{
-				APIServer: APIServer,
+				APIServer: p.APIHost,
 			},
 		})
 	}
@@ -169,7 +165,6 @@ func (app *InfraProviderApp) GetProviderDetail(uuid string) (*InfraProviderDetai
 	}
 	domainProvider := domainProviderInstance.(*entity.InfraProviderKubernetes)
 
-	apiHost, err := domainProvider.Config.APIHost()
 	if err != nil {
 		return nil, err
 	}
@@ -185,7 +180,7 @@ func (app *InfraProviderApp) GetProviderDetail(uuid string) (*InfraProviderDetai
 		},
 		KubernetesProviderInfo: InfraProviderInfoKubernetes{
 			InfraProviderListItemKubernetes: InfraProviderListItemKubernetes{
-				APIServer: apiHost,
+				APIServer: domainProvider.APIHost,
 			},
 			InfraProviderKubernetesConfig: InfraProviderKubernetesConfig{
 				KubeConfig:         domainProvider.Config.KubeConfigContent,
