@@ -467,6 +467,17 @@ definitions:
       type:
         type: integer
     type: object
+  service.LocalDataAssociateRequest:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+      table_name:
+        type: string
+      table_namespace:
+        type: string
+    type: object
   service.LocalDataDetail:
     properties:
       creation_time:
@@ -1201,6 +1212,38 @@ paths:
                   type: integer
               type: object
       summary: Update data record's ID meta info
+      tags:
+      - LocalData
+  /data/associate:
+    post:
+      parameters:
+      - description: Local data association request
+        in: body
+        name: project
+        required: true
+        schema:
+          $ref: '#/definitions/service.LocalDataAssociateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success, the data field is the data UUID
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Associate flow data table to a local data
       tags:
       - LocalData
   /job/{uuid}:

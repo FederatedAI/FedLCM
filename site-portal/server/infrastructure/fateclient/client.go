@@ -51,6 +51,21 @@ type DataUploadRequest struct {
 	Drop      int    `json:"drop"`
 }
 
+// TableSchema is schema description of the data table
+type TableSchema struct {
+	Header string `json:"header"`
+	Sid    string `json:"sid"`
+}
+
+// TableInfo is response data of the table info query api
+type TableInfo struct {
+	Count     int         `json:"count"`
+	Exist     int         `json:"partition"`
+	Namespace string      `json:"namespace"`
+	TableName string      `json:"table_name"`
+	Schema    TableSchema `json:"schema"`
+}
+
 // ComponentTrackingCommonRequest is the request to query the metric of a component
 type ComponentTrackingCommonRequest struct {
 	JobID         string `json:"job_id"`
@@ -165,6 +180,51 @@ func (c *client) UploadData(request DataUploadRequest) (string, error) {
 		return "", responseError
 	}
 	return uploadDataResponse.JobID, nil
+}
+
+// QueryTableInfo returns the specified table's info
+func (c *client) QueryTableInfo(tableNamespace, tableName string) (*TableInfo, error) {
+	resp, err := c.postJSON("table/table_info",
+		fmt.Sprintf(`{"namespace": "%s", "table_name": "%s"}`, tableNamespace, tableName))
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	body, err := c.parseResponse(resp)
+	if err != nil {
+		return nil, err
+	}
+	type TableInfoResponse struct {
+		CommonResponse
+		Data TableInfo `json:"data"`
+	}
+	var tableInfoResp TableInfoResponse
+	err = json.Unmarshal(body, &tableInfoResp)
+	if err != nil {
+		return nil, err
+	}
+	if tableInfoResp.RetCode != 0 {
+		return nil, errors.Errorf("error return code: %d, msg: %s", tableInfoResp.RetCode, tableInfoResp.RetMsg)
+	}
+	return &tableInfoResp.Data, nil
+}
+
+// GetDataDownloadRequest returns a *http.Request object to be used to download the data table
+func (c *client) GetDataDownloadRequest(tableNamespace, tableName string) (*http.Request, error) {
+	body := struct {
+		Namespace string `json:"namespace"`
+		Name      string `json:"name"`
+	}{
+		Namespace: tableNamespace,
+		Name:      tableName,
+	}
+	payload, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	req, _ := http.NewRequest("GET", c.genURL("table/download"), bytes.NewBuffer(payload))
+	req.Header.Set("Content-Type", "application/json")
+	return req, nil
 }
 
 // DeleteTable deletes a table in fate

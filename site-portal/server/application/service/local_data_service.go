@@ -17,6 +17,7 @@ package service
 import (
 	"fmt"
 	"mime/multipart"
+	"net/http"
 	"path/filepath"
 	"strings"
 	"time"
@@ -42,6 +43,14 @@ type LocalDataUploadRequest struct {
 	FileHeader  *multipart.FileHeader
 }
 
+// LocalDataAssociateRequest contains basic local data association request information
+type LocalDataAssociateRequest struct {
+	Name           string `json:"name"`
+	Description    string `json:"description"`
+	TableNamespace string `json:"table_namespace"`
+	TableName      string `json:"table_name"`
+}
+
 // LocalDataListItem is an item describing a data record
 type LocalDataListItem struct {
 	Name            string                 `json:"name"`
@@ -61,6 +70,7 @@ type LocalDataDetail struct {
 	IDMetaInfo  *valueobject.IDMetaInfo `json:"id_meta_info"`
 	Features    []string                `json:"features_array"`
 	Preview     string                  `json:"preview_array"`
+	NotUploaded bool                    `json:"not_uploaded_locally"`
 }
 
 // LocalDataIDMetaInfoUpdateRequest contains basic upload request information
@@ -89,6 +99,33 @@ func (s *LocalDataApp) Upload(request *LocalDataUploadRequest) (string, error) {
 		Repo:          s.LocalDataRepo,
 	}
 	if err := data.Upload(request.FileHeader); err != nil {
+		return "", err
+	}
+	return data.UUID, nil
+}
+
+// AssociateFlowTable creates a local data record associated with existing flow table
+func (s *LocalDataApp) AssociateFlowTable(request *LocalDataAssociateRequest) (string, error) {
+	site := entity.Site{
+		Repo: s.SiteRepo,
+	}
+	if err := site.Load(); err != nil {
+		return "", errors.Wrapf(err, "failed to load connection info of FATE flow")
+	}
+	context := entity.UploadContext{
+		FATEFlowHost:    site.FATEFlowHost,
+		FATEFlowPort:    site.FATEFlowHTTPPort,
+		FATEFlowIsHttps: false,
+	}
+	data := entity.LocalData{
+		Name:           request.Name,
+		Description:    request.Description,
+		TableName:      request.TableName,
+		TableNamespace: request.TableNamespace,
+		UploadContext:  context,
+		Repo:           s.LocalDataRepo,
+	}
+	if err := data.CreateFromExistingTable(); err != nil {
 		return "", err
 	}
 	return data.UUID, nil
@@ -138,6 +175,10 @@ func (s *LocalDataApp) Get(uuid string) (*LocalDataDetail, error) {
 		Features:    localData.Features,
 		Preview:     localData.Preview,
 	}
+	if localData.LocalFilePath == "" {
+		localDataDetail.Filename = localDataDetail.Name
+		localDataDetail.NotUploaded = true
+	}
 
 	return localDataDetail, nil
 }
@@ -150,6 +191,27 @@ func (s *LocalDataApp) GetFilePath(uuid string) (string, error) {
 	}
 	localData := instance.(*entity.LocalData)
 	return localData.GetAbsFilePath()
+}
+
+// GetDataDownloadRequest returns a request object to be used to download the table data
+func (s *LocalDataApp) GetDataDownloadRequest(uuid string) (*http.Request, error) {
+	site := entity.Site{
+		Repo: s.SiteRepo,
+	}
+	if err := site.Load(); err != nil {
+		return nil, errors.Wrapf(err, "failed to load connection info of FATE flow")
+	}
+	instance, err := s.LocalDataRepo.GetByUUID(uuid)
+	if err != nil {
+		return nil, err
+	}
+	localData := instance.(*entity.LocalData)
+	localData.UploadContext = entity.UploadContext{
+		FATEFlowHost:    site.FATEFlowHost,
+		FATEFlowPort:    site.FATEFlowHTTPPort,
+		FATEFlowIsHttps: false,
+	}
+	return localData.GetFlowDataDownloadRequest()
 }
 
 // GetColumns returns a list of headers of the current data

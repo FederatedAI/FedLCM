@@ -133,6 +133,60 @@
                 }
             }
         },
+        "/data/associate": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "LocalData"
+                ],
+                "summary": "Associate flow data table to a local data",
+                "parameters": [
+                    {
+                        "description": "Local data association request",
+                        "name": "project",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/service.LocalDataAssociateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success, the data field is the data UUID",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized operation",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/data/{uuid}": {
             "get": {
                 "produces": [
@@ -4819,6 +4873,23 @@
                 },
                 "type": {
                     "type": "integer"
+                }
+            }
+        },
+        "service.LocalDataAssociateRequest": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "table_name": {
+                    "type": "string"
+                },
+                "table_namespace": {
+                    "type": "string"
                 }
             }
         },

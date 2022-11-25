@@ -16,6 +16,7 @@ package api
 
 import (
 	"net/http"
+	"net/http/httputil"
 	"path/filepath"
 
 	"github.com/FederatedAI/FedLCM/site-portal/server/application/service"
@@ -50,6 +51,7 @@ func (controller *LocalDataController) Route(r *gin.RouterGroup) {
 	data.Use(authMiddleware.MiddlewareFunc())
 	{
 		data.POST("", controller.upload)
+		data.POST("associate", controller.associate)
 		data.GET("", controller.list)
 		data.GET("/:uuid", controller.get)
 		data.GET("/:uuid/columns", controller.getColumns)
@@ -158,11 +160,20 @@ func (controller *LocalDataController) get(c *gin.Context) {
 func (controller *LocalDataController) download(c *gin.Context) {
 	uuid := c.Param("uuid")
 	if path, err := controller.localDataApp.GetFilePath(uuid); err != nil {
-		resp := &GeneralResponse{
-			Code:    constants.RespInternalErr,
-			Message: err.Error(),
+		if req, err := controller.localDataApp.GetDataDownloadRequest(uuid); err != nil {
+			resp := &GeneralResponse{
+				Code:    constants.RespInternalErr,
+				Message: err.Error(),
+			}
+			c.JSON(http.StatusInternalServerError, resp)
+		} else {
+			proxy := &httputil.ReverseProxy{
+				Director: func(*http.Request) {
+					// no-op as we don't need to change the request
+				},
+			}
+			proxy.ServeHTTP(c.Writer, req)
 		}
-		c.JSON(http.StatusInternalServerError, resp)
 	} else {
 		// TODO: investigate and implement "chunked Transfer-Encoding"
 		c.FileAttachment(path, filepath.Base(path))
@@ -250,6 +261,37 @@ func (controller *LocalDataController) getColumns(c *gin.Context) {
 		resp := &GeneralResponse{
 			Code: constants.RespNoErr,
 			Data: columns,
+		}
+		c.JSON(http.StatusOK, resp)
+	}
+}
+
+// associate creates a local data item with existing flow data table
+// @Summary Associate flow data table to a local data
+// @Tags LocalData
+// @Produce json
+// @Param project body service.LocalDataAssociateRequest true "Local data association request"
+// @Success 200 {object} GeneralResponse{} "Success, the data field is the data UUID"
+// @Failure 401 {object} GeneralResponse "Unauthorized operation"
+// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
+// @Router /data/associate [post]
+func (controller *LocalDataController) associate(c *gin.Context) {
+	if uuid, err := func() (string, error) {
+		request := &service.LocalDataAssociateRequest{}
+		if err := c.ShouldBindJSON(request); err != nil {
+			return "", err
+		}
+		return controller.localDataApp.AssociateFlowTable(request)
+	}(); err != nil {
+		resp := &GeneralResponse{
+			Code:    constants.RespInternalErr,
+			Message: err.Error(),
+		}
+		c.JSON(http.StatusInternalServerError, resp)
+	} else {
+		resp := &GeneralResponse{
+			Code: constants.RespNoErr,
+			Data: uuid,
 		}
 		c.JSON(http.StatusOK, resp)
 	}
