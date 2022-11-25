@@ -4931,6 +4931,9 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
+                "not_uploaded_locally": {
+                    "type": "boolean"
+                },
                 "preview_array": {
                     "type": "string"
                 },

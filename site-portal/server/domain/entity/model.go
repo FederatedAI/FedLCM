@@ -41,7 +41,7 @@ type Model struct {
 	Repo                   repo.ModelRepository        `gorm:"-"`
 }
 
-//ComponentAlgorithmType is the type enum of the algorithm
+// ComponentAlgorithmType is the type enum of the algorithm
 type ComponentAlgorithmType uint8
 
 const (
