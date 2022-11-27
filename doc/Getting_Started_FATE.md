@@ -17,17 +17,17 @@ The high-level steps are:
 4. For one federation, FedLCM firstly deploys a FATE exchange into a K8s cluster with the help of KubeFATE.
 5. Then, it creates several FATE clusters as different parties into different K8s clusters, also by working with KubeFATE services.
 6. Jupyter Notebook is created for each FATE cluster, and users can start using it to start FML jobs.
-7. Alternatively, for each FATE v1.6.1 deployment, FedLCM provides a management portal called "Site Portal" that can also be used to manage FATE jobs.
+7. Alternatively, for each FATE v1.9.1 deployment, FedLCM provides a management portal called "Site Portal" that can also be used to manage FATE jobs.
 
 ## Prerequisites
 
 FedLCM works with Kubernetes clusters to deploy KubeFATE and FATE. It can accelerate the overall workflow and enable more features if your cluster has applications like Ingress Controllers, StorageClass Provisioners and LoadBalancer Providers installed. But it isn't a hard requirement for minimal FATE federation deployments.
 
-> Currently, FedLCM needs cluster-admin privilege to manage the FATE deployments.
+> Currently, FedLCM needs cluster-admin or namespace-wide admin privilege to manage the FATE deployments. The difference between these two types will be discussed in the next several sections.
 
 ## Deployment
 
-The FedLCM service can be deployed via docker-compose or in a K8s cluster. Refer to the [README](../README.md) doc for the steps.
+The FedLCM service can be deployed via docker-compose or in a K8s cluster. Refer to the [README](../README.md) doc for the steps. For the K8s deployment, we can optionally modify the `rbac_config.yaml` to assign more permissions to the FedLCM Service Account so that we can create FATE deployment more easily on the same K8s cluster.
 
 After deploying the FedLCM service, access the web UI from a browser:
 <div style="text-align:center">
@@ -50,9 +50,9 @@ Click `SUBMIT` to save the CA configuration.
 
 Kubernetes clusters are considered as Infrastructures in the FedLCM service. All the other installation activities are performed on these K8s clusters. To deploy other services, including KubeFATE and FATE clusters, you must add the target K8s cluster as infrastructure.
 
-Go to the `Infrastructure` section and click the `NEW` button. Provide some basic information of this infrastructure, especially the kubeconfig content, which FedLCM will use to connect to the K8s cluster.
+Go to the `Infrastructure` section and click the `NEW` button. Provide some basic information of this infrastructure, especially the kubeconfig content, which FedLCM will use to connect to the K8s cluster. Or, if we want to operate the Kubernetes cluster this FedLCM service is running on, we can choose "Use in-cluster Service Account". This requires that we have already given enough permissions to this account.
 
-> **The user configured in the kubeconfig section should have the privilege to create all core K8s resources, including namespace, deployment, configmap, role, secret, etc.**
+FedLCM by default treat the account in the kubeconfig or service account to have the cluster-admin privilege. If the account only has namespace-wide admin privilege, we should turn on the "limited to certain namespaces" option and input the corresponding namespaces, separated with comma. 
 
 <div style="text-align:center">
 <img src="images/fate-new-infrastructure.png"  alt="" width="936"/>
@@ -70,7 +70,7 @@ In practical use, there will be several K8s clusters from different organization
 
 In the `Endpoint` section, you can install KubeFATE service into a K8s infrastructure. And later it can be used to deploy FATE components.
 
-To add a new KubeFATE endpoint, select an existing infrastructure and FedLCM will try to find if there is already a KubeFATE service running. If so, it will add the KubeFATE service into its database directly. If not, an installation step will be provided as shown below:
+To add a new KubeFATE endpoint, select an existing infrastructure (if the infrastructure account is only namespace-wide admin, we need to choose the namespace here too) and FedLCM will try to find if there is already a KubeFATE service running. If so, it will add the KubeFATE service into its database directly. If not, an installation step will be provided as shown below:
 
 <div style="text-align:center">
 <img src="images/fate-new-endpoint.png"  alt="" width="936"/>
@@ -104,6 +104,8 @@ The domain field will be used to generate the hostnames for the FATE and exchang
 
 ## Creating Participants
 
+> Note: currently in each namespace, we can only deploy one FATE participant, no matter if it is FATE exchange or cluster.
+
 ### Creating Exchange
 
 In a just created federation, we firstly need an exchange. Click the `NEW` button under *Exchange* section in *FATE Federation Detail* page. And follow the steps to create a new exchange.
@@ -113,7 +115,7 @@ In a just created federation, we firstly need an exchange. Click the `NEW` butto
 </div>
 
 > Note:
-> * To use the FedLCM's Site Portal service, choose the “chart for FATE exchange v1.6.1 with fml-manager service” when selecting the chart. Otherwise, this federation cannot use Site Portal even if the FATE cluster contains one.
+> * To use the FedLCM's Site Portal service, choose the “chart for FATE exchange v1.9.1 with fml-manager service” when selecting the chart. Otherwise, this federation cannot use Site Portal even if the FATE cluster contains one.
 > * It is suggested to choose `Install certificates for me` in *the Certificate* section. Only select `I will manually install certificates` if you want to import your own certificate instead of using the configured CA to create a new one.
 > * Choose `NodePort` if your cluster doesn't have any controller that can handle `LoadBalancer` type of service.
 > * If your cluster doesn't enable [Pod Security Policies](https://kubernetes.io/docs/concepts/security/pod-security-policy/), you don't have to enable it in *Pod Security Policy Configuration* section.
@@ -135,7 +137,9 @@ After the exchange's status becomes `Active`, FATE clusters could be added to th
 </div>
 
 > Most of the steps are the same as configuring an exchange; see more in the note above.
-> Choose the "chart for FATE cluster v1.6.1 with site-portal" chart to deploy FATE clusters with site-portal support.
+> Choose the "chart for FATE cluster v1.9.1 with site-portal" chart to deploy FATE clusters with site-portal support.
+
+By default, FedLCM can deploy the external engine components (Spark, HDFS and Pulsar) as Kubernetes deployment along with core FATE components. Alternatively, if we already have any of these services running we can optionally ask FedLCM to use these existing engines instead of deploying new ones. To do so, we can refer to [this document](./FATE_External_Engine.md).
 
 Finally, get the yaml content, verify it is correct and click `SUBMIT`.
 
@@ -206,4 +210,4 @@ And to delete an infrastructure, all endpoints in the k8s cluster need to be rem
 
 1. The example shown above is the simplest use of FedLCM. You can explore more functions and feedback are welcome.
 2. Default yaml files were used in the example, you can customize them according to your needs.
-3. When deploying FATE v1.6.1 with Site Portal service, we can create FATE jobs via this web service. For more detailed introduction of that service, follow the document [here](./Site_Portal_In_FedLCM_Configuration_Guide.md).
+3. When deploying FATE v1.9.1 with Site Portal service, we can create FATE jobs via this web service. For more detailed introduction of that service, follow the document [here](./Site_Portal_In_FedLCM_Configuration_Guide.md).

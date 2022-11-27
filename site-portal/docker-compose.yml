@@ -3,6 +3,7 @@ version: '3.5'
 services:
   server:
     image: "${SERVER_IMG}"
+    user: root
     depends_on:
       - postgres
     restart: always
@@ -23,8 +24,6 @@ services:
     image: postgres:13.3
     volumes:
       - ./output/data/postgres:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
     restart: always
     environment:
       POSTGRES_PASSWORD: site_portal

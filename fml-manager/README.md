@@ -41,18 +41,15 @@ step ca root
 ```
 2. Then `cd` to `tls/cert` folder, run commands below to create certificates and keys (replace `<CommonName>`(e.g. fmlmanager.fate.org) and `<CertValidTime>`(e.g. 8760h) with your configuration):
 ```
-step ca certificate <CommonName> --san localhost server.crt server.key --not-after=<CertValidTime>
+step ca certificate <CommonName> --san localhost --san <ServerName> server.crt server.key --not-after=<CertValidTime>
 
 step ca certificate <CommonName> client.crt client.key --not-after=<CertValidTime>
 ```
 * For the server cert, the `localhost` SAN name is required because our sever may call itself via the localhost address.
+* For the server cert, the `<ServerName>` should be the address that Site Portal use to connect to this service.
 * You can optionally add your other address and dns names as SANs in the command line.
 
-**If you want to use other methods to generate the certificates and keys**
-* For server.crt server.key, make sure to include `<CommonName>` and <SAN> `localhost`.
-  1. If you have a usable FQDN, you can use it as your `<CommonName>`, and set <SAN> `localhost`
-  2. If you don't have a usable FQDN, set your `<CommonName>` with your preference. Then append <SAN> with `localhost`.
-* For client.crt client.key, make sure to include `<CommonName>`
+**If you want to use other methods to generate the certificates and keys**, one thing to note is for server.crt server.key, make sure the SAN field includes the `localhost` and a valid `<ServerName>`.
 
 ### Run FML Manager
 * `cd` to the project root folder

@@ -6,7 +6,7 @@ This guide provides a step-by-step guide on how to use the Site Portal provision
 >Site Portal is currently an experimental service and may include features that are in alpha or beta state.
 
 ## Deploy
-You can follow the FedLCM [getting started guide](./Getting_Started_FATE.md) to create FATE federations. **In order to use the Site Portal service, you must deploy the v1.6.1 version of FATE exchange and FATE clusters.** This means in the "Select a Chart" step when creating a new exchange and cluster, you must select the "chart for FATE exchange v1.6.1 with fml-manager service" and "chart for FATE cluster v1.6.1 with site-portal", respectively.
+You can follow the FedLCM [getting started guide](./Getting_Started_FATE.md) to create FATE federations. **In order to use the Site Portal service, you must deploy the v1.9.1 version of FATE exchange and FATE clusters.** This means in the "Select a Chart" step when creating a new exchange and cluster, you must select the "chart for FATE exchange v1.9.1 with fml-manager service" and "chart for FATE cluster v1.9.1 with site-portal", respectively.
 
 In the below example, we have created a federation with 3 clusters, all containing a Site Portal service.
 
@@ -51,10 +51,10 @@ For other Site Portals in other parties, we need to perform the same action for 
 </div>
 
 ## Upload Local Data
-CSV files can be uploaded to the system via the "Data Management" page. In this example, we use the FATE [official data](https://github.com/FederatedAI/FATE/blob/v1.6.1/examples/data) to demonstrate the workflow. Site Portal needs to upload the data to the FATE cluster, so the "Upload Job Status" field of each data is the status of the "uploading to FATE" job.
+CSV files can be uploaded to the system via the "Data Management" page. In this example, we use the FATE [official data](https://github.com/FederatedAI/FATE/blob/v1.9.1/examples/data) to demonstrate the workflow. Site Portal needs to upload the data to the FATE cluster, so the "Upload Job Status" field of each data is the status of the "uploading to FATE" job.
 > Only data in "Succeeded" status can be used in future FATE training and predicting jobs.
 
-We uploaded the [guest data](https://github.com/FederatedAI/FATE/blob/v1.6.1/examples/data/breast_homo_guest.csv) and [test data](https://github.com/FederatedAI/FATE/blob/v1.6.1/examples/data/breast_homo_test.csv) to site 1 and [host data](https://github.com/FederatedAI/FATE/blob/v1.6.1/examples/data/breast_homo_host.csv) to site 2, as shown below.
+We uploaded the [guest data](https://github.com/FederatedAI/FATE/blob/v1.9.1/examples/data/breast_homo_guest.csv) and [test data](https://github.com/FederatedAI/FATE/blob/v1.9.1/examples/data/breast_homo_test.csv) to site 1 and [host data](https://github.com/FederatedAI/FATE/blob/v1.9.1/examples/data/breast_homo_host.csv) to site 2, as shown below.
 
 <div style="text-align:center">
 <img src="images/portal-data-uploaded.png"  alt="" height="447"/>
@@ -108,9 +108,7 @@ Modeling job will generate trained models that can be viewed in the "model manag
 <img src="images/portal-create-predicting-job.gif"  alt="" width="1024"/>
 </div>
 
-> Currently, the publish function will return an error as FATE v1.6.1 does not support such an operation. This is a placeholder for future integration with newer FATE versions.
-
-> In the job detail page, we may fail to download the complete predicting result. It is a known issue in FATE-Flow and will be fixed in future releases.
+> Currently, the publish function is a placeholder for future integration with newer FATE versions.
 
 ## Other Operations
 * All parties can dismiss their data association so it won't be used for future jobs.

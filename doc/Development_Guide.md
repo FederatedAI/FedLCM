@@ -6,11 +6,11 @@ In this section you can have a glance of the minimum and recommended versions of
 
 These tools and services needs to be installed:
 
-| Tool | Link | Minimum | Recommended |
-|---|---|---|---|
-| npm | [link](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) | >= 6 | >= 7 |
-| NodeJS | [link](https://nodejs.org/en/) | >= 14 | >= 16 |
-| golang | [link](https://go.dev/dl/) | >= 1.17 | >= 1.17 |
+| Tool   | Link                                                                      | Minimum | Recommended |
+|--------|---------------------------------------------------------------------------|---------|-------------|
+| npm    | [link](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) | >= 6    | >= 7        |
+| NodeJS | [link](https://nodejs.org/en/)                                            | >= 14   | >= 16       |
+| golang | [link](https://go.dev/dl/)                                                | >= 1.19 | >= 1.19     |
 
 ## Service Dependency
 
@@ -27,13 +27,13 @@ git clone $URL
 ### Start Backend Server
 Configure necessary environment variables for connecting with PostgreSQL:
 
-| Name | Description | Required |
-|---|---|---|
-| POSTGRES_HOST | the address of the postgres db | Yes |
-| POSTGRES_PORT | the port of the postgres db | Yes |
-| POSTGRES_USER | the username of the postgres connection | Yes |
-| POSTGRES_PASSWORD | the password of the postgres connection | Yes |
-| POSTGRES_DB | the db name of the postgres | Yes |
+| Name              | Description                             | Required |
+|-------------------|-----------------------------------------|----------|
+| POSTGRES_HOST     | the address of the postgres db          | Yes      |
+| POSTGRES_PORT     | the port of the postgres db             | Yes      |
+| POSTGRES_USER     | the username of the postgres connection | Yes      |
+| POSTGRES_PASSWORD | the password of the postgres connection | Yes      |
+| POSTGRES_DB       | the db name of the postgres             | Yes      |
 
 Go to `./server` directory and run:
 
@@ -88,15 +88,15 @@ make docker-push
 
 ## Other configurable environment variables
 
-| Name | Description | Required |
-|---|---|---|
-| POSTGRES_DEBUG | whether or not to enable postgres debug level logs | No, default to false |
-| POSTGRES_SSLMODE | whether or not to enable ssl connection to DB | No, default to false |
-| LIFECYCLEMANAGER_INITIAL_ADMIN_PASSWORD | initial admin user password, only takes effect on first start | No, default to "admin" |
-| LIFECYCLEMANAGER_SECRETKEY | a string of secret key for encrypting sensitive data in the DB | No, default to "passphrase123456" |
-| LIFECYCLEMANAGER_DEBUG | true or false to enable debug log | No, default to false |
-| LIFECYCLEMANAGER_EXPERIMENT_ENABLED | true of false to enable OpenFL management | No, default to false |
-| LIFECYCLEMANAGER_JWT_KEY | a string of secret key for generating JWT token | No, default to a random one |
+| Name                                    | Description                                                    | Required                          |
+|-----------------------------------------|----------------------------------------------------------------|-----------------------------------|
+| POSTGRES_DEBUG                          | whether or not to enable postgres debug level logs             | No, default to false              |
+| POSTGRES_SSLMODE                        | whether or not to enable ssl connection to DB                  | No, default to false              |
+| LIFECYCLEMANAGER_INITIAL_ADMIN_PASSWORD | initial admin user password, only takes effect on first start  | No, default to "admin"            |
+| LIFECYCLEMANAGER_SECRETKEY              | a string of secret key for encrypting sensitive data in the DB | No, default to "passphrase123456" |
+| LIFECYCLEMANAGER_DEBUG                  | true or false to enable debug log                              | No, default to false              |
+| LIFECYCLEMANAGER_EXPERIMENT_ENABLED     | true of false to enable OpenFL management                      | No, default to false              |
+| LIFECYCLEMANAGER_JWT_KEY                | a string of secret key for generating JWT token                | No, default to a random one       |
 
 ## Development
 

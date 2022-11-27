@@ -161,7 +161,7 @@
                     <clr-select-container>
                         <label>{{'CommonlyUse.type'|translate}}</label>
                         <select clrSelect name="type" formControlName="type">
-                            <option value="Kubernetes">K8s Cluster</option>
+                            <option value="Kubernetes">Kubernetes Cluster</option>
                         </select>
                         <clr-control-error *ngIf="updateInfraForm.get('type')?.errors">
                             {{updateInfraForm.get('type')?.errors?.emptyMessage | translate}}</clr-control-error>

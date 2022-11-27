@@ -2,9 +2,11 @@
 
 FedLCM是一个基于Web的联邦学习的联邦生命周期管理服务，支持联邦学习组件和应用的部署管理，联邦网络创建以及底层基础设施的安装配置等。
 
+[文档](./doc) | [English](./README.md)
+
 ## 使用 Docker Compose 部署
 
-**系统要求**：安装有 docker 18+ 以及 docker-compose 1.24+ 的 Linux 系统
+**系统要求**：安装有 docker 18+ 以及 docker-compose 1.28+ 的 Linux 系统
 
 * 在 release 页面下载 `fedlcm-docker-compose-<version>.tgz` 安装包，并解压到指定文件夹。或者直接在本仓库目录下执行如下操作。
 * **(可选)** 若使用自定义的镜像仓库或镜像，请修改 `.env` 文件中的镜像名称。
