@@ -1,5 +1,6 @@
 .PHONY: all clean format swag swag-bin server-unittest server frontend run
 
+RELEASE_VERSION ?= ${shell git describe --tags}
 TAG ?= v0.2.0
 
 SERVER_NAME ?= federatedai/site-portal-server
@@ -15,6 +16,7 @@ GOBIN=$(shell go env GOBIN)
 endif
 
 OUTPUT_DIR = output
+RELEASE_DIR = ${OUTPUT_DIR}/release
 ifeq ($(OS),Windows_NT)
 BUILD_MODE = -buildmode=exe
 OUTPUT_FILE = ${OUTPUT_DIR}/site-portal.exe
@@ -90,3 +92,8 @@ docker-push:
 clean:
 	rm -rf ${OUTPUT_DIR}
 	rm -rf frontend/dist
+
+release:
+	rm -rf ${RELEASE_DIR}
+	mkdir -p ${RELEASE_DIR}
+	tar -czvf ${RELEASE_DIR}/site-portal-docker-compose-${RELEASE_VERSION}.tgz .env docker-compose.yml docker-compose-https.yml tls
