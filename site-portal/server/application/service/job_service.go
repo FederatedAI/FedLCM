@@ -322,6 +322,12 @@ func (app *JobApp) GetJobDetail(uuid string) (*JobDetail, error) {
 	switch jobAggregate.Job.Type {
 	case entity.JobTypeTraining:
 		jobDetail.ResultInfo.TrainingResult = jobAggregate.Job.GetTrainingResultSummary()
+		if prettyConfig, err := app.generateIndentedJsonStr(jobDetail.ConfJson); err == nil {
+			jobDetail.ConfJson = prettyConfig
+		}
+		if prettyDSL, err := app.generateIndentedJsonStr(jobDetail.DSLJson); err == nil {
+			jobDetail.DSLJson = prettyDSL
+		}
 	case entity.JobTypePredict:
 		header, data, count := jobAggregate.Job.GetPredictingResultPreview()
 		jobDetail.ResultInfo.PredictingResult = PredictingJobResultInfo{
