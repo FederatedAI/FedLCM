@@ -51,4 +51,13 @@ export class DataService {
   putMetaUpdate(putidmeta: any, data_id: string): Observable<Id_Meta> {
     return this.http.put<any>('/data/' + data_id + '/idmetainfo', putidmeta);
   }
+
+  addExistingtable(data: {
+    description: string,
+    name: string,
+    table_name: string,
+    table_namespace: string
+  }) {
+    return this.http.post<DataDetailResponse>('/data/associate', data);
+  }
 }

@@ -105,7 +105,8 @@
     "leaving":"离开中",
     "pleasewait": "请等待",
     "drop": "交互式",
-    "json": "JSON"
+    "json": "JSON",
+    "adding": "正在添加..."
   },
   "placeholder": {
     "name": "请输入您的站点名称",
@@ -173,7 +174,8 @@
     "isDeleteData": "您想要删除这条数据吗？",
     "DataCanNotBeRecoveredAfterDeletion": "数据删除后无法被恢复",
     "Featuresize":"特征量",
-    "Samplesize": "样本量"
+    "Samplesize": "样本量",
+    "manageExistingTables": "纳管已存在的Table"
   },
   "dataDetail": {
     "dataDetail" : "数据详情",
@@ -196,7 +198,8 @@
     "deleteData": "删除数据",
     "IMEI":"IMEI",
     "IDFA":"IDFA",
-    "IDFV":"IDFV"
+    "IDFV":"IDFV",
+    "note":"注释: 纳管的Table暂不提供数据预览"
   },
   "modelMg": {
     "modelID": "模型 ID",
