@@ -322,7 +322,8 @@
     "fmlManagerServerName":"FML Manager Server Name",
     "fmlManagerServerNameHelper1":"Site Portal uses 'FML Manager Server Name' to verify FML Manager's server certificate.",
     "fmlManagerServerNameHelper2":"If you leave it empty, server name will be 'FML Manager Endpoint' address.",
-    "fmlManagerServerNameIPHelper":"You may need to provide 'Server Name' when 'FML Manager Endpoint' is an IP address."
+    "fmlManagerServerNameIPHelper":"You may need to provide 'Server Name' when 'FML Manager Endpoint' is an IP address.",
+    "unregisterModal": "Logout from FML Manager? All the joined projects will be closed."
   },
   "login": {
     "loginOut": "Log Out Success",
