@@ -36,7 +36,7 @@ spec:
     spec:
       containers:
         - name: site-portal-server
-          image: {{ with .Values.image.registry }}{{ printf "%s/" . }}{{ end }}{{ .Values.modules.sitePortalServer.image | default "site-portal-server" }}:{{ .Values.modules.sitePortalServer.imageTag | default "latest"}}
+          image: {{ .Values.modules.sitePortalServer.image | default (printf "%s/%s"  .Values.image.registry "site-portal-server" ) }}:{{ .Values.modules.sitePortalServer.imageTag | default (printf "%s" (include "sitePortal.images.tag" .)) }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
           {{ if .Values.modules.sitePortalServer.tlsEnabled }}

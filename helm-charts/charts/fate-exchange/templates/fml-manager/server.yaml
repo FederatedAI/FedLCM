@@ -36,7 +36,7 @@ spec:
     spec:
       containers:
         - name: fml-manager-server
-          image: {{ with .Values.image.registry }}{{ printf "%s/" . }}{{ end }}{{ .Values.modules.fmlManagerServer.image | default "fml-manager-server" }}:{{ .Values.modules.fmlManagerServer.imageTag | default "latest"}}
+          image: {{ .Values.modules.fmlManagerServer.image | default (printf "%s/%s"  .Values.image.registry "fml-manager-server" ) }}:{{ .Values.modules.fmlManagerServer.imageTag | default (printf "%s" (include "fmlManager.images.tag" .)) }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
           {{ if .Values.modules.fmlManagerServer.tlsEnabled }}
