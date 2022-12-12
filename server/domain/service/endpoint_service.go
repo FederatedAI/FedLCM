@@ -595,6 +595,11 @@ func (s *EndpointService) ensureEndpointExist(infraUUID string, namespace string
 		install,
 		entity.EndpointKubeFATEIngressControllerServiceModeModeNonexistent)
 
+	if err != nil {
+		// TODO: if error due to name conflict, generated a new name and retry
+		return "", errors.Wrap(err, "failed to add endpoint")
+	}
+
 	var installErr error
 	if err := utils.ExecuteWithTimeout(func() bool {
 		log.Info().Msgf("checking kubefate endpoint status...")

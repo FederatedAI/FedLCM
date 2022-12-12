@@ -969,7 +969,8 @@ func (s *ParticipantOpenFLService) configEnvoyInfra(req *ParticipantOpenFLEnvoyR
 	} else if errors.Is(err, repo.ErrProviderExist) {
 		infraProviderInstance, err := s.InfraRepo.GetByConfigSHA256(infraProvider.Config.SHA2565())
 		if err != nil {
-			return nil, errors.Wrap(err, "failed to load infra provider")
+			// TODO: if error due to name conflicts, retry by using a new, generated name
+			return nil, errors.Wrap(err, "failed to load infra provider: this may be caused by existing same-name infra with different config")
 		}
 		infraProvider = infraProviderInstance.(*entity.InfraProviderKubernetes)
 	} else {
