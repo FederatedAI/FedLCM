@@ -29,6 +29,8 @@ By default, the web UI is exposed via a NodePort service that listens on port 30
 
 Refer to the [getting started guide](./doc/Getting_Started_FATE.md) for FATE federation management.
 
+The [Site Portal README](./site-portal/README.md) and [FML Manager README](./fml-manager/README.md) provide information on how to use Site Portal directly without using FedLCM.
+
 ## Development
 ### Build
 ```

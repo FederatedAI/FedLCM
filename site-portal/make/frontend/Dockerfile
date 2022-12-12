@@ -15,9 +15,7 @@ RUN tdnf install -y nginx shadow gettext >> /dev/null \
 COPY --from=builder /build_dir/output/frontend /usr/share/nginx/html
 COPY --from=builder /build_dir/make/frontend/nginx.conf.template /etc/nginx/conf.d/nginx.conf.template
 
-RUN groupadd -r -g 10000 nginx && useradd --no-log-init -r -g 10000 -u 10000 nginx \
-    && chown -R nginx:nginx /etc/nginx \
-    && chown -R nginx:nginx /usr/share/nginx/html
+RUN chown -R nginx:nginx /etc/nginx && chown -R nginx:nginx /usr/share/nginx/html
 
 VOLUME /var/cache/nginx /var/log/nginx /run
 

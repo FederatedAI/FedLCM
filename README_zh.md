@@ -4,7 +4,9 @@ FedLCM是一个基于Web的联邦学习的联邦生命周期管理服务，支�
 
 [文档](./doc) | [English](./README.md)
 
-## 使用 Docker Compose 部署
+FedLCM同时包含有一个Site Portal服务，用于进行图形化的建模、数据、模型管理等功能。Site Portal可以通过FedLCM部署，也可以不部署FedLCM，直接使用Docker Compose运行 Site Portal，关于如何直接使用该服务，请参阅 [Site Portal 使用手册](./doc/Site_Portal_Manual_zh.md)。
+
+## 使用 Docker Compose 部署 FedLCM
 
 **系统要求**：安装有 docker 18+ 以及 docker-compose 1.28+ 的 Linux 系统
 
@@ -32,9 +34,11 @@ kubectl apply -f k8s_deploy.yaml
 
 Web 界面默认使用 NodePort 服务并监听 30008 端口。待所有资源都成功创建并运行后，可以通过 `<NodeAddress>:30008` 访问 FedLCM 界面。如需修改相关配置，请自行调整上述 YAML 文件的内容。
 
-## 快速开始
+## 快速开始使用 FedLCM
 
 参见 [FATE 联邦管理指南](./doc/Getting_Started_FATE_zh.md)。
+
+如果我们希望不通过FedLCM部署Site Portal，请参阅 [Site Portal 使用手册](./doc/Site_Portal_Manual_zh.md)。
 
 ## 本地开发
 

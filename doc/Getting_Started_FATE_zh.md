@@ -110,6 +110,7 @@ KubeFATE 服务的运行以及交互依赖 Ingress 和 Ingress Controllers，如
 > * 如需自定义证书，则在选择证书一栏选择手动安装，否则勾选“为我安装证书”来使用内置证书签发服务。
 > * 如果集群不支持负载均衡则需要选择“节点端口”服务类型。
 > * 如果集群没有开启[容器安全策略](https://kubernetes.io/docs/concepts/security/pod-security-policy/) ，则无需在相应配置项中启用。
+> * 如果使用的Infrastructure和Endpoint仅有特定namespace权限时，我们在创建Exchange时将会固定使用该namespace，无法修改。
 
 最后，生成 YAML 文件并检查其内容，点击 `提交` 并等待其创建完成：
 
@@ -126,7 +127,10 @@ KubeFATE 服务的运行以及交互依赖 Ingress 和 Ingress Controllers，如
 </div>
 
 > * 多数配置与上述 Exchange 的配置过程相似，详情参见以上介绍。
+> * 如果使用的Infrastructure和Endpoint仅有特定namespace权限时，我们在创建Cluster时将会固定使用该namespace，无法修改。
 > * 如需使用 site-portal 服务，则在 Chart 一栏选择"chart for FATE cluster v1.9.1 with site-portal"。
+
+在默认情况下，FedLCM将会同时以容器的形式部署外部基础引擎，包括Spark、HDFS和Pulsar，如果我们的环境中已经有已存在的这些外部引擎，我们也可以让FedLCM直接使用这些引擎服务。关于如何在"选择外部的引擎"那里进行配置，可以参考[这篇文档](./FATE_External_Engine_zh.md)。
 
 最后，生成 YAML 文件并检查，点击 `提交` 保存设置。
 
