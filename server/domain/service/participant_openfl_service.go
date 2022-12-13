@@ -717,7 +717,7 @@ func (s *ParticipantOpenFLService) HandleRegistrationRequest(req *ParticipantOpe
 		operationLog.Info().Msgf("creating envoy %s with UUID %s", req.Name, envoy.UUID)
 		if err := func() (err error) {
 			// TODO: check the namespace passed here
-			endpointUUID, err := s.EndpointService.ensureEndpointExist(infraProvider.UUID, "")
+			endpointUUID, err := s.EndpointService.ensureEndpointExist(infraProvider.UUID, "", req.RegistryConfig)
 			if err != nil {
 				return err
 			}

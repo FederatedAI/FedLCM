@@ -301,6 +301,8 @@ registryConfig:
     password: "type: string"
 ```
 
+> The registryConfig will affect both KubeFATE and OpenFL related images. Make sure you have all the images in your customized registry.
+
 ### Start Registration and Envoy Deployment 
 
 Assume on the device/node/machine we have the `openfl-device-agent` program, we can start the registration process

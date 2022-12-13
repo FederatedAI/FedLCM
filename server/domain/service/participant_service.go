@@ -300,5 +300,5 @@ type ParticipantEndpointServiceInt interface {
 	TestKubeFATE(uuid string) error
 
 	buildKubeFATEClientManagerFromEndpointUUID(uuid string) (kubefate.ClientManager, error)
-	ensureEndpointExist(infraUUID string, namespace string) (string, error)
+	ensureEndpointExist(infraUUID string, namespace string, registryConfig valueobject.KubeRegistryConfig) (string, error)
 }

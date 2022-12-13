@@ -70,7 +70,7 @@ func TestCreateExchange_PosWithNewCert(t *testing.T) {
 
 	exchange, wg, err := service.CreateExchange(&ParticipantFATEExchangeCreationRequest{
 		ParticipantFATEExchangeYAMLCreationRequest: ParticipantFATEExchangeYAMLCreationRequest{
-			ChartUUID:   "3ce13cb2-5543-4b01-a5e4-9e4c4baa5973", // from the chart test repo
+			ChartUUID:   "242bf84c-548c-43d4-9f34-15f6d4dc0f33", // from the chart test repo
 			Name:        "test-exchange",
 			Namespace:   "test-ns",
 			ServiceType: entity.ParticipantDefaultServiceTypeLoadBalancer,
@@ -79,7 +79,7 @@ func TestCreateExchange_PosWithNewCert(t *testing.T) {
 			Description:  "",
 			EndpointUUID: "",
 			DeploymentYAML: `chartName: fate-exchange
-chartVersion: v1.6.1-fedlcm-v0.2.0
+chartVersion: v1.9.1-fedlcm-v0.2.0
 fmlManagerServer:
   image: federatedai/fml-manager-server
   imageTag: v0.2.0
@@ -226,7 +226,7 @@ func TestParticipantFATEService_GetClusterDeploymentYAML(t *testing.T) {
 			args: args{
 				req: &ParticipantFATEClusterYAMLCreationRequest{
 					ParticipantFATEExchangeYAMLCreationRequest: ParticipantFATEExchangeYAMLCreationRequest{
-						ChartUUID:   "c32411c7-3744-46ee-bb74-046d99ce3385", // from the chart test repo
+						ChartUUID:   "7a51112a-b0ad-4c26-b2c0-1e6f7eca6073", // from the chart test repo
 						Name:        "test-fate",
 						Namespace:   "test-fate-ns",
 						ServiceType: entity.ParticipantDefaultServiceTypeNodePort,
@@ -264,8 +264,9 @@ func TestParticipantFATEService_GetClusterDeploymentYAML(t *testing.T) {
 			want: `name: test-fate
 namespace: test-fate-ns
 chartName: fate
-chartVersion: v1.9.0
+chartVersion: v1.8.0
 partyId: 8888
+# imageTag: "1.8.0-release"
 persistence: false
 # pullPolicy:
 podSecurityPolicy:
@@ -280,11 +281,7 @@ modules:
   - client
   - nginx
 
-computing: Spark
-federation: Pulsar
-storage: HDFS
-algorithm: Basic
-device: CPU
+backend: spark_pulsar
 
 ingress:
   fateboard:
@@ -339,12 +336,6 @@ python:
   # tolerations:
   # affinity:
   # resources:
-    # requests:
-      # cpu: "2"
-      # memory: "4Gi"
-    # limits:
-      # cpu: "4"
-      # memory: "8Gi"
   # logLevel: INFO
   spark: 
     cores_per_node: 8
@@ -422,7 +413,7 @@ client:
 			args: args{
 				req: &ParticipantFATEClusterYAMLCreationRequest{
 					ParticipantFATEExchangeYAMLCreationRequest: ParticipantFATEExchangeYAMLCreationRequest{
-						ChartUUID:   "c32411c7-3744-46ee-bb74-046d99ce3385", // from the chart test repo
+						ChartUUID:   "8d1b15c1-cc7e-460b-8563-fa732457a049", // from the chart test repo
 						Name:        "test-fate",
 						Namespace:   "test-fate-ns",
 						ServiceType: entity.ParticipantDefaultServiceTypeNodePort,
@@ -439,14 +430,12 @@ client:
 			want: `name: test-fate
 namespace: test-fate-ns
 chartName: fate
-chartVersion: v1.9.0
+chartVersion: v1.9.1-fedlcm-v0.2.0
 partyId: 7777
 persistence: false
-# pullPolicy:
+# pullPolicy: IfNotPresent
 podSecurityPolicy:
   enabled: false
-
-# ingressClassName: nginx
 
 modules:
   - mysql
@@ -457,12 +446,18 @@ modules:
   - hdfs
   - pulsar
   - nginx
+  - frontend
+  - sitePortalServer
+  - postgres
 
 computing: Spark
 federation: Pulsar
 storage: HDFS
 algorithm: Basic
 device: CPU
+
+skippedKeys:
+- route_table
 
 ingress:
   fateboard:
@@ -478,41 +473,21 @@ ingress:
     hosts:
     - name: test-fate.pulsar.test.example.com
 
-nginx:
-  type: NodePort
-  exchange:
-    ip: 127.0.1.1
-    httpPort: 9370
-  # nodeSelector:
-  # tolerations:
-  # affinity:
-  # loadBalancerIP:
-  # httpNodePort: 30093
-  # grpcNodePort: 30098
-pulsar:
-  publicLB:
-    enabled: true
-  env:
-    - name: PULSAR_MEM
-      value: "-Xms4g -Xmx4g -XX:MaxDirectMemorySize=8g"
-  confs:
-      brokerDeleteInactiveTopicsFrequencySeconds: 60
-      backlogQuotaDefaultLimitGB: 10
-  exchange:
-    ip: 127.0.1.2
-    port: 6651
-    domain: test.example.com
-  size: 1Gi
-  storageClass: 
-  existingClaim: ""
-  accessMode: ReadWriteOnce
-  # nodeSelector:
-  # tolerations:
-  # affinity:
+python:
   # type: ClusterIP
-  # httpNodePort: 30094
-  # httpsNodePort: 30099
+  # httpNodePort: 
+  # grpcNodePort: 
   # loadBalancerIP:
+  # serviceAccountName: ""
+  # resources:
+  # nodeSelector:
+  # tolerations:
+  # affinity:
+  # logLevel: INFO
+  existingClaim: ""
+  storageClass: 
+  accessMode: ReadWriteOnce
+  size: 10Gi
   # resources:
     # requests:
       # cpu: "2"
@@ -520,13 +495,49 @@ pulsar:
     # limits:
       # cpu: "4"
       # memory: "8Gi"
+  spark: 
+    cores_per_node: 20
+    nodes: 2
+    master: spark://spark-master:7077
+    driverHost:
+    driverHostType:
+    portMaxRetries:
+    driverStartPort:
+    blockManagerStartPort:
+    pysparkPython:
+  hdfs:
+    name_node: hdfs://namenode:9000
+    path_prefix:
+  pulsar:
+    host: pulsar
+    mng_port: 8080
+    port: 6650
+  nginx:
+    host: nginx
+    http_port: 9300
+    grpc_port: 9310
+
+fateboard: 
+  type: ClusterIP
+  username: admin
+  password: admin
+
+client:
+  subPath: "client"
+  existingClaim: ""
+  accessMode: ReadWriteOnce
+  size: 1Gi
+  storageClass: 
+  # nodeSelector:
+  # tolerations:
+  # affinity:
 
 mysql:
+  subPath: "mysql"
   size: 1Gi
   storageClass: 
   existingClaim: ""
   accessMode: ReadWriteOnce
-  subPath: "mysql"
   # nodeSelector:
   # tolerations:
   # affinity:
@@ -535,89 +546,25 @@ mysql:
   # database: eggroll_meta
   # user: fate
   # password: fate_dev
-
-python:
-  size: 10Gi
-  storageClass: 
-  existingClaim: ""
-  accessMode: ReadWriteOnce
-  # httpNodePort:
-  # grpcNodePort:
-  # loadBalancerIP:
-  # serviceAccountName: ""
-  # nodeSelector:
-  # tolerations:
-  # affinity:
-  # resources:
-    # requests:
-      # cpu: "2"
-      # memory: "4Gi"
-    # limits:
-      # cpu: "4"
-      # memory: "8Gi"
-  # logLevel: INFO
-  # spark: 
-    # cores_per_node: 20
-    # nodes: 2
-    # master: spark://spark-master:7077
-    # driverHost: 
-    # driverHostType: 
-    # portMaxRetries: 
-    # driverStartPort: 
-    # blockManagerStartPort: 
-    # pysparkPython:
-  # hdfs:
-    # name_node: hdfs://namenode:9000
-    # path_prefix:
-  # pulsar:
-    # host: pulsar
-    # mng_port: 8080
-    # port: 6650
-  # nginx:
-    # host: nginx
-    # http_port: 9300
-    # grpc_port: 9310
-
-client:
-  size: 1Gi
-  storageClass: 
-  existingClaim: ""
-  accessMode: ReadWriteOnce
-  subPath: "client"
-  # nodeSelector:
-  # tolerations:
-  # affinity:
-hdfs:
-  namenode:
-    storageClass: 
-    size: 3Gi
-    existingClaim: ""
-    accessMode: ReadWriteOnce
-    # nodeSelector:
-    # tolerations:
-    # affinity:
-    # type: ClusterIP
-    # nodePort: 30900
-  datanode:
-    size: 10Gi
-    storageClass: 
-    existingClaim: ""
-    accessMode: ReadWriteOnce
-    # replicas: 3
-    # nodeSelector:
-    # tolerations:
-    # affinity:
-    # type: ClusterIP
 spark:
-  # master:
-    # replicas: 1
+  master:
+    # image: "federatedai/spark-master"
+    # imageTag: "1.9.1-release"
+    replicas: 1
     # resources:
+      # requests:
+        # cpu: "1"
+        # memory: "2Gi"
+      # limits:
+        # cpu: "1"
+        # memory: "2Gi"
     # nodeSelector:
     # tolerations:
     # affinity:
     # type: ClusterIP
-    # nodePort: 30977
   worker:
+    # image: "federatedai/spark-worker"
+    # imageTag: "1.9.1-release"
     replicas: 2
     # resources:
       # requests:
@@ -629,7 +576,107 @@ spark:
     # nodeSelector:
     # tolerations:
     # affinity:
-    # type: ClusterIP`,
+    # type: ClusterIP
+hdfs:
+  namenode:
+    existingClaim: ""
+    accessMode: ReadWriteOnce
+    size: 1Gi
+    storageClass: 
+    # nodeSelector:
+    # tolerations:
+    # affinity:
+    # type: ClusterIP
+    # nodePort: 30900
+  datanode:
+    existingClaim: ""
+    accessMode: ReadWriteOnce
+    size: 1Gi
+    storageClass: 
+    # nodeSelector:
+    # tolerations:
+    # affinity:
+    # type: ClusterIP
+nginx:
+  type: NodePort
+  exchange:
+    ip: 127.0.1.1
+    httpPort: 9370
+  # nodeSelector:
+  # tolerations:
+  # affinity:
+  # loadBalancerIP:
+  # httpNodePort:
+  # grpcNodePort:
+pulsar:
+  existingClaim: ""
+  accessMode: ReadWriteOnce
+  size: 1Gi
+  storageClass: 
+  publicLB:
+    enabled: true
+  exchange:
+    ip: 127.0.1.2
+    port: 6651
+    domain: test.example.com
+  # nodeSelector:
+  # tolerations:
+  # affinity:
+  # type: ClusterIP
+  # httpNodePort: 
+  # httpsNodePort: 
+  # loadBalancerIP:
+postgres:
+  user: site_portal
+  password: site_portal
+  db: site_portal
+  existingClaim: ""
+  accessMode: ReadWriteOnce
+  size: 1Gi
+  storageClass: 
+  # type: ClusterIP
+  # nodeSelector:
+  # tolerations:
+  # affinity:
+  # user: site_portal
+  # password: site_portal
+  # db: site_portal
+  # subPath: ""
+
+frontend:
+  type: NodePort
+  type: NodePort
+  # nodeSelector:
+  # tolerations:
+  # affinity:
+  # nodePort: 
+  # loadBalancerIP:
+ 
+sitePortalServer:
+  existingClaim: ""
+  storageClass: 
+  accessMode: ReadWriteOnce
+  size: 1Gi
+  # type: ClusterIP
+  # nodeSelector:
+  # tolerations:
+  # affinity:
+  # postgresHost: postgres
+  # postgresPort: 5432
+  # postgresDb: site_portal
+  # postgresUser: site_portal
+  # postgresPassword: site_portal
+  # adminPassword: admin
+  # userPassword: user
+  # serverCert: /var/lib/site-portal/cert/server.crt
+  # serverKey: /var/lib/site-portal/cert/server.key
+  # clientCert: /var/lib/site-portal/cert/client.crt
+  # clientKey: /var/lib/site-portal/cert/client.key
+  # caCert: /var/lib/site-portal/cert/ca.crt
+  # tlsEnabled: 'true'
+  # tlsPort: 8443
+  tlsCommonName: site-7777.server.test.example.com
+`,
 			wantErr: false,
 		},
 	}

@@ -258,7 +258,7 @@ skippedKeys:
 # spark:
   # master:
     # Image: "federatedai/spark-master"
-    # ImageTag: "1.6.1-release"
+    # ImageTag: "1.9.1-release"
     # replicas: 1
     # resources:
       # requests:
@@ -274,7 +274,7 @@ skippedKeys:
     # nodePort: 30977
   # worker:
     # Image: "federatedai/spark-worker"
-    # ImageTag: "1.6.1-release"
+    # ImageTag: "1.9.1-release"
     # replicas: 2
     # resources:
       # requests:

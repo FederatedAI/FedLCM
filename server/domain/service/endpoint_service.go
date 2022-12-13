@@ -561,7 +561,7 @@ func (s *EndpointService) GetIngressControllerDeploymentYAML(mode entity.Endpoin
 }
 
 // ensureEndpointExist returns try to add/install a KubeFATE into the specified cluster
-func (s *EndpointService) ensureEndpointExist(infraUUID string, namespace string) (string, error) {
+func (s *EndpointService) ensureEndpointExist(infraUUID string, namespace string, registryConfig valueobject.KubeRegistryConfig) (string, error) {
 	endpointScanResult, err := s.FindKubeFATEEndpoint(infraUUID, namespace)
 	if err != nil {
 		return "", err
@@ -588,10 +588,17 @@ func (s *EndpointService) ensureEndpointExist(infraUUID string, namespace string
 	if err != nil {
 		return "", err
 	}
+	yaml := ""
+	if install {
+		yaml, err = s.GetDeploymentYAML(namespace, "admin", "admin", "kubefate.net", registryConfig)
+		if err != nil {
+			return "", err
+		}
+	}
 	endpointUUID, err := s.CreateKubeFATEEndpoint(infraUUID, namespace,
 		fmt.Sprintf("kubefate-%s", u.Hostname()),
 		fmt.Sprintf("Automatically added KubeFATE on Kubernetes %s.", u.Hostname()),
-		"",
+		yaml,
 		install,
 		entity.EndpointKubeFATEIngressControllerServiceModeModeNonexistent)
 
