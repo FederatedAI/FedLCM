@@ -171,11 +171,6 @@ export class DataMgComponent implements OnInit, OnDestroy {
       this.isUploadFailed = true;
       return;
     }
-    if (!this.form.valid) {
-      this.errorMessage = 'Invalid information.';
-      this.isUploadFailed = true;
-      return;
-    }
     var formData: any = new FormData();
     formData.append('name', this.form.get('name')!.value);
     formData.append('description', this.form.get('description')!.value);
