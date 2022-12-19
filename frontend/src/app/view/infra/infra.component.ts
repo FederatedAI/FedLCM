@@ -225,20 +225,15 @@ export class InfraComponent implements OnInit {
         }
       })
     }
-    if (this.newInfraForm.get('kubeconfig')?.valid) {
-      this.infraservice.testK8sConnection(data).subscribe(() => {
-        this.testPassed = true;
-        this.testClick = true;
-      },
-        err => {
-          this.isTestFailed = true;
-          this.testPassed = false;
-          this.errorMessage = err.error.message;
-        });
-    } else {
-      this.errorMessage = "invalid kubeconfig input";
+    this.infraservice.testK8sConnection(data).subscribe(() => {
+      this.testPassed = true;
+      this.testClick = true;
+    },
+    err => {
+      this.isTestFailed = true;
       this.testPassed = false;
-    }
+      this.errorMessage = err.error.message;
+    });
   }
 
   //testConnectionDisable is to test the k8s connection by using kubeconfig disable
