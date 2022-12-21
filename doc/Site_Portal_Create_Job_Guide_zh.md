@@ -158,6 +158,7 @@
 <img src="images/portal-prediction-succeed.png"  alt="" width="936"/>
 </div>
 
+> 有时预测结果预览在任务成功后不会马上显示，请稍候刷新页面查看。
 
 ## 3. 隐私集合求交（PSI）
 

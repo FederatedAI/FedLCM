@@ -247,7 +247,7 @@
     "nginx" : "Nginx",
     "host" : "Host",
     "port" : "Port",
-    "chooseExternalSpark": "Select External Engine",
+    "chooseExternalSpark": "Whether to Use Existing External Engine Service",
     "spark": "Spark",
     "hdfs": "HDFS",
     "Pulsar": "Pulsar",

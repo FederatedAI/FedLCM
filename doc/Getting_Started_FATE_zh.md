@@ -38,7 +38,7 @@ FedLCM 服务本身的部署支持 docker-compose 运行的方式或者在 K8s �
 
 ## 配置 CA
 
-FedLCM 服务需要通过一个 CA 服务来向各组件签发证书。因此我们需要配置它与一个 CA 服务的连接：在证书页面点击“新建”按钮添加新的证书颁发机构。目前使用 docker-compose 部署 或者 K8s 部署出来的 FedLCM 都会默认内置一个可以直接使用的 StepCA 服务，本文档直接使用这个内置的 CA。
+FedLCM 服务需要通过一个 CA 服务来向各组件签发证书。因此我们需要配置它与一个 CA 服务的连接：在证书页面点击“新建”按钮添加新的证书颁发机构。目前使用 docker-compose 部署或者 K8s 部署出来的 FedLCM 都会默认内置一个可以直接使用的 StepCA 服务，本文档直接使用这个内置的 CA。
 
 <div style="text-align:center">
 <img src="images/fate-new-ca_zh.png"  alt="" width="936"/>
@@ -46,11 +46,13 @@ FedLCM 服务需要通过一个 CA 服务来向各组件签发证书。因此我
 
 点击 `提交` 保存配置。
 
+> 如果未配置CA服务，则在创建FATE Exchange和Cluster时，不能选择"为我生成证书"。只能自行签发证书后以K8s Secret的形式注入集群供FATE相关组件使用。
+
 ## 添加基础设施
 
 在 FedLCM 服务中，Kubernetes 集群被称作基础设施，所有安装活动都是在这些集群上进行。要部署 KubeFATE 和 FATE，必须将目标 K8s 集群添加为基础设施。
 
-切换到“基础设施”页面点击`新建`按钮，填写该基础设施的一些信息，特别是 kubeconfig 文件的内容。或者，如果我们想把当前FedLCM运行的K8s作为基础设置添加的话，可以选择"使用当前服务的Service Account"。
+切换到“基础设施”页面点击`新建`按钮，填写该基础设施的一些信息，特别是 kubeconfig 文件的内容。或者，如果我们想把当前FedLCM运行的K8s作为基础设施添加的话，可以选择"使用当前服务的Service Account"。
 
 FedLCM默认认为提供的kubeconfig或Service Account有着cluster-admin的权限，如果我们的实际权限只有某些namespace的admin权限，那么需要打开"限定命名空间"的开关，并以逗号为间隔填入对应的namespace。
 
@@ -80,7 +82,7 @@ FedLCM默认认为提供的kubeconfig或Service Account有着cluster-admin的权
 
 KubeFATE 服务的运行以及交互依赖 Ingress 和 Ingress Controllers，如有需要，您可以选择让 FedLCM 在集群中安装一个基本的 [Ingress-NGINX Controller](https://kubernetes.github.io/ingress-nginx/) 。
 
-> 同一个基础设施上，不同namespace的服务端点应当使用不同的主机名称。
+> 同一个基础设施上，不同namespace的服务端点应当使用不同的Ingress主机名称。
 
 点击 `提交` 并等待服务端点的状态变为“准备就绪”。我们可以在服务端点详情页面的“事件”栏中查看日志信息。用户可以继续在其他 K8s 集群上安装 KubeFATE 。
 
@@ -130,7 +132,7 @@ KubeFATE 服务的运行以及交互依赖 Ingress 和 Ingress Controllers，如
 > * 如果使用的Infrastructure和Endpoint仅有特定namespace权限时，我们在创建Cluster时将会固定使用该namespace，无法修改。
 > * 如需使用 site-portal 服务，则在 Chart 一栏选择"chart for FATE cluster v1.9.1 with site-portal"。
 
-在默认情况下，FedLCM将会同时以容器的形式部署外部基础引擎，包括Spark、HDFS和Pulsar，如果我们的环境中已经有已存在的这些外部引擎，我们也可以让FedLCM直接使用这些引擎服务。关于如何在"选择外部的引擎"那里进行配置，可以参考[这篇文档](./FATE_External_Engine_zh.md)。
+在默认情况下，FedLCM将会同时以容器的形式部署外部基础引擎，包括Spark、HDFS和Pulsar，如果我们的环境中已经有已存在的这些外部引擎，我们也可以让FedLCM直接使用这些引擎服务。关于如何在"选择是否使用已存在的基础引擎服务"那里进行配置，可以参考[这篇文档](./FATE_External_Engine_zh.md)。
 
 最后，生成 YAML 文件并检查，点击 `提交` 保存设置。
 

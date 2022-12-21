@@ -46,6 +46,8 @@ The FedLCM service depends on a CA service to issue certificates for the deploye
 
 Click `SUBMIT` to save the CA configuration.
 
+> If CA is not configured, we cannot use "Install certificates for me" when deploying FATE Exchange and Cluster later. We have to inject our signed certificates and keys in to K8s clusters as Secrets manually.
+
 ## Adding Infrastructure
 
 Kubernetes clusters are considered as Infrastructures in the FedLCM service. All the other installation activities are performed on these K8s clusters. To deploy other services, including KubeFATE and FATE clusters, you must add the target K8s cluster as infrastructure.

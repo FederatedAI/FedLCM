@@ -247,7 +247,7 @@
     "nginx" : "Nginx",
     "host" : "Host",
     "port" : "Port",
-    "chooseExternalSpark": "选择外部的引擎",
+    "chooseExternalSpark": "选择是否使用已存在的基础引擎服务",
     "spark": "Spark",
     "hdfs": "HDFS",
     "Pulsar": "Pulsar",

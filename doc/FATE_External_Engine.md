@@ -16,7 +16,9 @@ Then create a cluster.
 
 And when following the steps, choose "select certificates"  > "Skip, I will manually install certificates".
 
-Then in the step Select External engine. Add the configuration information of the external engine.
+Then in the step "Whether to Use Existing External Engine Service". Turn on the switch for which we want to use existing external engine, and add the configuration information of the external engine.
+
+> By default, all the switches are off, meaning FedLCM will deploy all this services.
 
 ***If using an external engine, all three engine information needs to be filled in, including Spark HDFS and Pulsar. If any of them is still to be deployed by FedLCM, please open an Issue to get information on how to do the additional configuration***
 

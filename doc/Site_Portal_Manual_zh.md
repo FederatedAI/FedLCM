@@ -192,6 +192,8 @@ Site Portal已经内置有两个用户，默认用户名密码是`Admin:admin`�
 <img src="images/portal-data-add-table-zh.png"  alt="" height="447"/>
 </div>
 
+> 注意，如果FATE系统发生重置或者其中数据已经删除，则Site Portal中对应的数据条目可能已经失效，需要删除后重新上传。
+
 ## 4. 创建项目
 在“项目管理”页面，我们可以创建新的项目，刚刚创建的项目可以被认为是一个“本地”项目，FML Manager以及其他方还不知道这个项目的信息，只有我们向其他方发出邀请时，项目信息才会被同步过去。
 
