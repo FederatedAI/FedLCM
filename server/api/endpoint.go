@@ -224,6 +224,7 @@ func (controller *EndpointController) checkKubeFATE(c *gin.Context) {
 // @Router   /endpoint/kubefate/yaml [get]
 func (controller *EndpointController) getKubeFATEDeploymentYAML(c *gin.Context) {
 	if yaml, err := func() (string, error) {
+		namespace := c.DefaultQuery("namespace", "")
 		serviceUsername := c.DefaultQuery("service_username", "admin")
 		servicePassword := c.DefaultQuery("service_password", "admin")
 		hostname := c.DefaultQuery("hostname", "kubefate.net")
@@ -248,7 +249,7 @@ func (controller *EndpointController) getKubeFATEDeploymentYAML(c *gin.Context) 
 		if useRegistrySecret && (registryServerURL == "" || registryUsername == "" || registryPassword == "") {
 			return "", errors.New("missing registry secret credentials")
 		}
-		return controller.endpointAppService.GetKubeFATEDeploymentYAML(serviceUsername, servicePassword, hostname, valueobject.KubeRegistryConfig{
+		return controller.endpointAppService.GetKubeFATEDeploymentYAML(namespace, serviceUsername, servicePassword, hostname, valueobject.KubeRegistryConfig{
 			UseRegistry:       useRegistry,
 			Registry:          registry,
 			UseRegistrySecret: useRegistrySecret,

@@ -202,6 +202,8 @@ definitions:
         type: string
       name:
         type: string
+      namespace:
+        type: string
       type:
         type: string
     type: object
@@ -224,6 +226,8 @@ definitions:
       kubefate_version:
         type: string
       name:
+        type: string
+      namespace:
         type: string
       status:
         type: integer
@@ -250,6 +254,8 @@ definitions:
         type: string
       name:
         type: string
+      namespace:
+        type: string
       status:
         type: integer
       type:
@@ -260,6 +266,8 @@ definitions:
   service.EndpointScanRequest:
     properties:
       infra_provider_uuid:
+        type: string
+      namespace:
         type: string
       type:
         type: string
@@ -277,6 +285,51 @@ definitions:
       type:
         type: integer
       uuid:
+        type: string
+    type: object
+  service.ExternalHDFS:
+    properties:
+      enable:
+        type: boolean
+      name_node:
+        type: string
+      path_prefix:
+        type: string
+    type: object
+  service.ExternalPulsar:
+    properties:
+      enable:
+        type: boolean
+      host:
+        type: string
+      mng_port:
+        type: integer
+      port:
+        type: integer
+      sslport:
+        type: integer
+    type: object
+  service.ExternalSpark:
+    properties:
+      blockManagerStartPort:
+        type: integer
+      cores_per_node:
+        type: integer
+      driverHost:
+        type: string
+      driverHostType:
+        type: string
+      driverStartPort:
+        type: integer
+      enable:
+        type: boolean
+      master:
+        type: string
+      nodes:
+        type: integer
+      portMaxRetries:
+        type: integer
+      pysparkPython:
         type: string
     type: object
   service.FATEClusterDetail:
@@ -466,15 +519,27 @@ definitions:
     properties:
       api_server:
         type: string
+      is_in_cluster:
+        type: boolean
       kubeconfig_content:
         type: string
+      namespaces_list:
+        items:
+          type: string
+        type: array
       registry_config_fate:
         $ref: '#/definitions/valueobject.KubeRegistryConfig'
     type: object
   service.InfraProviderKubernetesConfig:
     properties:
+      is_in_cluster:
+        type: boolean
       kubeconfig_content:
         type: string
+      namespaces_list:
+        items:
+          type: string
+        type: array
       registry_config_fate:
         $ref: '#/definitions/valueobject.KubeRegistryConfig'
     type: object
@@ -612,6 +677,12 @@ definitions:
         type: boolean
       endpoint_uuid:
         type: string
+      externalHDFS:
+        $ref: '#/definitions/service.ExternalHDFS'
+      externalPulsar:
+        $ref: '#/definitions/service.ExternalPulsar'
+      externalSpark:
+        $ref: '#/definitions/service.ExternalSpark'
       federation_uuid:
         type: string
       name:
@@ -883,8 +954,19 @@ definitions:
     type: object
   valueobject.KubeConfig:
     properties:
+      is_in_cluster:
+        description: IsInCluster indicates this config can be used for in cluster
+          actions, meaning the KubeConfig content can be empty
+        type: boolean
       kubeconfig_content:
+        description: KubeConfigContent stores the kubeconfig file of a K8s cluster
         type: string
+      namespaces_list:
+        description: NamespacesList stores namespaces the user in KubeConfigContent
+          can access
+        items:
+          type: string
+        type: array
     type: object
   valueobject.KubeRegistryConfig:
     properties:
@@ -2049,6 +2131,94 @@ paths:
         name: use_registry
         required: true
         type: boolean
+      - description: enable link an external Spark
+        in: query
+        name: enable_external_spark
+        required: true
+        type: boolean
+      - description: external Spark info
+        in: query
+        name: external_spark_cores_per_node
+        required: true
+        type: integer
+      - description: external Spark info
+        in: query
+        name: external_spark_node
+        required: true
+        type: integer
+      - description: external Spark info
+        in: query
+        name: external_spark_master
+        required: true
+        type: string
+      - description: external Spark info
+        in: query
+        name: external_spark_driverHost
+        required: true
+        type: string
+      - description: external Spark info
+        in: query
+        name: external_spark_driverHostType
+        required: true
+        type: string
+      - description: external Spark info
+        in: query
+        name: external_spark_portMaxRetries
+        required: true
+        type: integer
+      - description: external Spark info
+        in: query
+        name: external_spark_driverStartPort
+        required: true
+        type: integer
+      - description: external spark info
+        in: query
+        name: external_spark_blockManagerStartPort
+        required: true
+        type: integer
+      - description: external spark info
+        in: query
+        name: external_spark_pysparkPython
+        type: string
+      - description: enable link an external HDFS
+        in: query
+        name: enable_external_hdfs
+        required: true
+        type: boolean
+      - description: external HDFS info
+        in: query
+        name: external_hdfs_name_node
+        required: true
+        type: string
+      - description: external HDFS info
+        in: query
+        name: external_hdfs_path_prefix
+        type: string
+      - description: enable link an external Pulsar
+        in: query
+        name: enable_external_pulsar
+        required: true
+        type: boolean
+      - description: external Pulsar info
+        in: query
+        name: external_pulsar_host
+        required: true
+        type: string
+      - description: external Pulsar info
+        in: query
+        name: external_pulsar_mng_port
+        required: true
+        type: integer
+      - description: external Pulsar info
+        in: query
+        name: external_pulsar_port
+        required: true
+        type: integer
+      - description: external Pulsar info
+        in: query
+        name: external_pulsar_ssl_port
+        required: true
+        type: integer
       - description: choose if use the FATE registry secret saved in the infra provider
         in: query
         name: use_registry_secret

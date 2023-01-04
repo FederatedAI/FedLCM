@@ -1487,6 +1487,130 @@ const docTemplate = `{
                     },
                     {
                         "type": "boolean",
+                        "description": "enable link an external Spark",
+                        "name": "enable_external_spark",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "external Spark info",
+                        "name": "external_spark_cores_per_node",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "external Spark info",
+                        "name": "external_spark_node",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "external Spark info",
+                        "name": "external_spark_master",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "external Spark info",
+                        "name": "external_spark_driverHost",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "external Spark info",
+                        "name": "external_spark_driverHostType",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "external Spark info",
+                        "name": "external_spark_portMaxRetries",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "external Spark info",
+                        "name": "external_spark_driverStartPort",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "external spark info",
+                        "name": "external_spark_blockManagerStartPort",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "external spark info",
+                        "name": "external_spark_pysparkPython",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "enable link an external HDFS",
+                        "name": "enable_external_hdfs",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "external HDFS info",
+                        "name": "external_hdfs_name_node",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "external HDFS info",
+                        "name": "external_hdfs_path_prefix",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "enable link an external Pulsar",
+                        "name": "enable_external_pulsar",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "external Pulsar info",
+                        "name": "external_pulsar_host",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "external Pulsar info",
+                        "name": "external_pulsar_mng_port",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "external Pulsar info",
+                        "name": "external_pulsar_port",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "external Pulsar info",
+                        "name": "external_pulsar_ssl_port",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
                         "description": "choose if use the FATE registry secret saved in the infra provider",
                         "name": "use_registry_secret",
                         "in": "query",
@@ -3944,6 +4068,9 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
+                "namespace": {
+                    "type": "string"
+                },
                 "type": {
                     "type": "string"
                 }
@@ -3977,6 +4104,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "name": {
+                    "type": "string"
+                },
+                "namespace": {
                     "type": "string"
                 },
                 "status": {
@@ -4017,6 +4147,9 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
+                "namespace": {
+                    "type": "string"
+                },
                 "status": {
                     "type": "integer"
                 },
@@ -4032,6 +4165,9 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "infra_provider_uuid": {
+                    "type": "string"
+                },
+                "namespace": {
                     "type": "string"
                 },
                 "type": {
@@ -4058,6 +4194,75 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "uuid": {
+                    "type": "string"
+                }
+            }
+        },
+        "service.ExternalHDFS": {
+            "type": "object",
+            "properties": {
+                "enable": {
+                    "type": "boolean"
+                },
+                "name_node": {
+                    "type": "string"
+                },
+                "path_prefix": {
+                    "type": "string"
+                }
+            }
+        },
+        "service.ExternalPulsar": {
+            "type": "object",
+            "properties": {
+                "enable": {
+                    "type": "boolean"
+                },
+                "host": {
+                    "type": "string"
+                },
+                "mng_port": {
+                    "type": "integer"
+                },
+                "port": {
+                    "type": "integer"
+                },
+                "sslport": {
+                    "type": "integer"
+                }
+            }
+        },
+        "service.ExternalSpark": {
+            "type": "object",
+            "properties": {
+                "blockManagerStartPort": {
+                    "type": "integer"
+                },
+                "cores_per_node": {
+                    "type": "integer"
+                },
+                "driverHost": {
+                    "type": "string"
+                },
+                "driverHostType": {
+                    "type": "string"
+                },
+                "driverStartPort": {
+                    "type": "integer"
+                },
+                "enable": {
+                    "type": "boolean"
+                },
+                "master": {
+                    "type": "string"
+                },
+                "nodes": {
+                    "type": "integer"
+                },
+                "portMaxRetries": {
+                    "type": "integer"
+                },
+                "pysparkPython": {
                     "type": "string"
                 }
             }
@@ -4347,8 +4552,17 @@ const docTemplate = `{
                 "api_server": {
                     "type": "string"
                 },
+                "is_in_cluster": {
+                    "type": "boolean"
+                },
                 "kubeconfig_content": {
                     "type": "string"
+                },
+                "namespaces_list": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 },
                 "registry_config_fate": {
                     "$ref": "#/definitions/valueobject.KubeRegistryConfig"
@@ -4358,8 +4572,17 @@ const docTemplate = `{
         "service.InfraProviderKubernetesConfig": {
             "type": "object",
             "properties": {
+                "is_in_cluster": {
+                    "type": "boolean"
+                },
                 "kubeconfig_content": {
                     "type": "string"
+                },
+                "namespaces_list": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 },
                 "registry_config_fate": {
                     "$ref": "#/definitions/valueobject.KubeRegistryConfig"
@@ -4569,6 +4792,15 @@ const docTemplate = `{
                 },
                 "endpoint_uuid": {
                     "type": "string"
+                },
+                "externalHDFS": {
+                    "$ref": "#/definitions/service.ExternalHDFS"
+                },
+                "externalPulsar": {
+                    "$ref": "#/definitions/service.ExternalPulsar"
+                },
+                "externalSpark": {
+                    "$ref": "#/definitions/service.ExternalSpark"
                 },
                 "federation_uuid": {
                     "type": "string"
@@ -4976,8 +5208,20 @@ const docTemplate = `{
         "valueobject.KubeConfig": {
             "type": "object",
             "properties": {
+                "is_in_cluster": {
+                    "description": "IsInCluster indicates this config can be used for in cluster actions, meaning the KubeConfig content can be empty",
+                    "type": "boolean"
+                },
                 "kubeconfig_content": {
+                    "description": "KubeConfigContent stores the kubeconfig file of a K8s cluster",
                     "type": "string"
+                },
+                "namespaces_list": {
+                    "description": "NamespacesList stores namespaces the user in KubeConfigContent can access",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },

@@ -26,7 +26,6 @@ import (
 	"github.com/rs/zerolog/log"
 	"math/rand"
 	"net/url"
-	"os"
 	"strings"
 	"sync"
 	"text/template"
@@ -41,7 +40,6 @@ import (
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 	uuid "github.com/satori/go.uuid"
-	"gorm.io/gorm"
 	corev1 "k8s.io/api/core/v1"
 	apierr "k8s.io/apimachinery/pkg/api/errors"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -288,7 +286,7 @@ func (s *ParticipantOpenFLService) CreateDirector(req *ParticipantOpenFLDirector
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		operationLog := zerolog.New(os.Stderr).With().Timestamp().Str("action", "installing openfl director").Str("uuid", director.UUID).Logger().
+		operationLog := log.Logger.With().Timestamp().Str("action", "installing openfl director").Str("uuid", director.UUID).Logger().
 			Hook(zerolog.HookFunc(func(e *zerolog.Event, level zerolog.Level, message string) {
 				eventLvl := entity.EventLogLevelInfo
 				if level == zerolog.ErrorLevel {
@@ -500,7 +498,7 @@ func (s *ParticipantOpenFLService) RemoveDirector(uuid string, force bool) (*syn
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		operationLog := zerolog.New(os.Stderr).With().Timestamp().Str("action", "uninstalling openfl director").Str("uuid", director.UUID).Logger().
+		operationLog := log.Logger.With().Timestamp().Str("action", "uninstalling openfl director").Str("uuid", director.UUID).Logger().
 			Hook(zerolog.HookFunc(func(e *zerolog.Event, level zerolog.Level, message string) {
 				eventLvl := entity.EventLogLevelInfo
 				if level == zerolog.ErrorLevel {
@@ -650,7 +648,7 @@ func (s *ParticipantOpenFLService) HandleRegistrationRequest(req *ParticipantOpe
 	if req.Namespace == "" {
 		req.Namespace = fmt.Sprintf("%s-envoy", toDeploymentName(req.federation.Name))
 	}
-	K8sClient, err := kubernetes.NewKubernetesClient("", infraProvider.Config.KubeConfigContent)
+	K8sClient, err := kubernetes.NewKubernetesClient("", infraProvider.Config.KubeConfigContent, infraProvider.Config.IsInCluster)
 	if err != nil {
 		return nil, err
 	}
@@ -707,7 +705,7 @@ func (s *ParticipantOpenFLService) HandleRegistrationRequest(req *ParticipantOpe
 	}
 
 	go func() {
-		operationLog := zerolog.New(os.Stderr).With().Timestamp().Str("action", "installing envoy").Str("uuid", envoy.UUID).Logger().
+		operationLog := log.Logger.With().Timestamp().Str("action", "installing envoy").Str("uuid", envoy.UUID).Logger().
 			Hook(zerolog.HookFunc(func(e *zerolog.Event, level zerolog.Level, message string) {
 				eventLvl := entity.EventLogLevelInfo
 				if level == zerolog.ErrorLevel {
@@ -718,7 +716,8 @@ func (s *ParticipantOpenFLService) HandleRegistrationRequest(req *ParticipantOpe
 		req.operationLog = &operationLog
 		operationLog.Info().Msgf("creating envoy %s with UUID %s", req.Name, envoy.UUID)
 		if err := func() (err error) {
-			endpointUUID, err := s.EndpointService.ensureEndpointExist(infraProvider.UUID)
+			// TODO: check the namespace passed here
+			endpointUUID, err := s.EndpointService.ensureEndpointExist(infraProvider.UUID, "", req.RegistryConfig)
 			if err != nil {
 				return err
 			}
@@ -842,7 +841,7 @@ func (s *ParticipantOpenFLService) RemoveEnvoy(uuid string, force bool) error {
 	_ = s.EventService.CreateEvent(entity.EventTypeLogMessage, entity.EntityTypeOpenFLEnvoy, envoy.UUID, "start removing envoy", entity.EventLogLevelInfo)
 
 	go func() {
-		operationLog := zerolog.New(os.Stderr).With().Timestamp().Str("action", "uninstalling openfl envoy").Str("uuid", envoy.UUID).Logger().
+		operationLog := log.Logger.With().Timestamp().Str("action", "uninstalling openfl envoy").Str("uuid", envoy.UUID).Logger().
 			Hook(zerolog.HookFunc(func(e *zerolog.Event, level zerolog.Level, message string) {
 				eventLvl := entity.EventLogLevelInfo
 				if level == zerolog.ErrorLevel {
@@ -952,28 +951,30 @@ func (s *ParticipantOpenFLService) configEnvoyInfra(req *ParticipantOpenFLEnvoyR
 		return nil, err
 	}
 
-	var infraProvider *entity.InfraProviderKubernetes
-	infraProviderInstance, err := s.InfraRepo.GetByAddress(infraAPIHost)
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			infraProvider = &entity.InfraProviderKubernetes{
-				InfraProviderBase: entity.InfraProviderBase{
-					Name:        u.Hostname(),
-					Description: "added during registering OpenFL envoy",
-					Type:        entity.InfraProviderTypeK8s,
-				},
-				Config: kubeconfig,
-				Repo:   s.InfraRepo,
-			}
-			log.Info().Msgf("creating infra provider during envoy registration, name: %s", infraProvider.Name)
-			if err := infraProvider.Create(); err != nil {
-				return nil, err
-			}
-		} else {
+	infraProvider := &entity.InfraProviderKubernetes{
+		InfraProviderBase: entity.InfraProviderBase{
+			Name:        u.Hostname(),
+			Description: "added during registering OpenFL envoy",
+			Type:        entity.InfraProviderTypeK8s,
+		},
+		Config: kubeconfig,
+		Repo:   s.InfraRepo,
+	}
+
+	if err := s.InfraRepo.ProviderExists(infraProvider); err == nil {
+		log.Info().Msgf("creating infra provider during envoy registration, name: %s", infraProvider.Name)
+		if err := infraProvider.Create(); err != nil {
 			return nil, err
 		}
-	} else {
+	} else if errors.Is(err, repo.ErrProviderExist) {
+		infraProviderInstance, err := s.InfraRepo.GetByConfigSHA256(infraProvider.Config.SHA2565())
+		if err != nil {
+			// TODO: if error due to name conflicts, retry by using a new, generated name
+			return nil, errors.Wrap(err, "failed to load infra provider: this may be caused by existing same-name infra with different config")
+		}
 		infraProvider = infraProviderInstance.(*entity.InfraProviderKubernetes)
+	} else {
+		return nil, errors.Wrap(err, "failed to check provider existence")
 	}
 	return infraProvider, nil
 }

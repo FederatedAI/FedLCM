@@ -170,6 +170,7 @@ export class SiteConfigComponent implements OnInit, AfterViewChecked, AfterConte
   panelOpen1: boolean = true;
   panelOpen2: boolean = true;
   panelOpen3: boolean = true;
+  unregisterModal = false
   errorMessage: string = "";
   isUpdateFailed: boolean = false;
   isUpdateSubmit: boolean = false;
@@ -267,6 +268,21 @@ export class SiteConfigComponent implements OnInit, AfterViewChecked, AfterConte
           this.errorMessage = err.error.message;
           this.isConnectFailed = true;
         });
+  }
+
+  // unregisterToFMLManager is to send a deregistration request to the fml manager
+  unregisterToFMLManager() {
+    this.siteConfigService.unregisterFML().subscribe(
+      data => {
+        this.reloadCurrentRoute();
+      },
+      err => {
+        this.errorMessage = err.error.message;
+        this.unregisterModal = false
+        this.isConnectFailed = true;
+        this.isRegisterToFMLManagerSubmitted = true;
+      }
+    )
   }
 
   testFATEFlowSuccess = false

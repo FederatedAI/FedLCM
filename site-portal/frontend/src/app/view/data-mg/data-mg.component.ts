@@ -14,7 +14,7 @@ import { UploadFileComponent } from '../../components/upload-file/upload-file.co
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import '@cds/core/icon/register.js';
-import { addTextIcon, ClarityIcons, searchIcon, uploadIcon } from '@cds/core/icon';
+import { addTextIcon, ClarityIcons, searchIcon, uploadIcon, collapseCardIcon } from '@cds/core/icon';
 import '@cds/core/file/register.js';
 import { DataService } from '../../service/data.service';
 import { MessageService } from '../../components/message/message.service'
@@ -24,7 +24,7 @@ import { CustomComparator } from 'src/utils/comparator';
 import { SiteService } from 'src/app/service/site.service';
 import { HttpEvent, HttpEventType, HttpHeaderResponse, HttpResponse } from '@angular/common/http';
 
-ClarityIcons.addIcons(searchIcon, addTextIcon, uploadIcon);
+ClarityIcons.addIcons(searchIcon, addTextIcon, uploadIcon, collapseCardIcon);
 
 export interface DataListResponse {
   code: number;
@@ -75,6 +75,14 @@ export class DataMgComponent implements OnInit, OnDestroy {
           name: 'file',
           type: ['']
         },
+        {
+          name: 'namespace',
+          type: ['word']
+        },
+        {
+          name: 'table',
+          type: ['word']
+        }
       ])
     );
   }
@@ -138,6 +146,9 @@ export class DataMgComponent implements OnInit, OnDestroy {
   description: string = "";
   uploadfile: string = "";
   openModal = false;
+
+  isAddManageExistingTableModal = false
+
   filterSearchValue = "";
   submitted: boolean = false;
   loading: boolean = false;
@@ -157,11 +168,6 @@ export class DataMgComponent implements OnInit, OnDestroy {
     }
     if (!this.fileCof.isUploaded) {
       this.errorMessage = "Please upload a file.";
-      this.isUploadFailed = true;
-      return;
-    }
-    if (!this.form.valid) {
-      this.errorMessage = 'Invalid information.';
       this.isUploadFailed = true;
       return;
     }
@@ -194,6 +200,30 @@ export class DataMgComponent implements OnInit, OnDestroy {
         this.isUploadFailed = true;
 
 
+      }
+    );
+  }
+  //addTableData is to submit Add Existing Table data request
+  addTableData() {
+    const name = this.form.controls['name'].value.trim()
+    const namespace = this.form.controls['namespace'].value.trim()
+    const table = this.form.controls['table'].value.trim()
+    const description = this.form.controls['description'].value.trim()
+    if ( name === '' || namespace === '' ||table === '') {
+      return
+    }
+    this.submitted = true;
+    this.loading = true;
+    this.dataservice.addExistingtable({name, description, table_name: table, table_namespace: namespace}).subscribe(
+      (data) => {
+        setTimeout(() => {
+          this.reloadCurrentRoute();
+        }, 500)
+      },
+      err => {
+        this.errorMessage = err.error.message;
+        this.isUploadFailed = true;
+        this.loading = false;   
       }
     );
   }
@@ -248,6 +278,18 @@ export class DataMgComponent implements OnInit, OnDestroy {
 
   //openUploadDataModal is to open 'update local data modal'
   openUploadDataModal() {
+    this.isAddManageExistingTableModal = false
+    this.openModal = true
+    //send request to confirm the current authenticate is not expired
+    this.siteService.getCurrentUser().subscribe(
+      data => { },
+      err => { }
+    )
+  }
+
+  // openManageExistingTablesModal is open '"Add Existing Table"'
+  openManageExistingTablesModal() {
+    this.isAddManageExistingTableModal = true
     this.openModal = true
     //send request to confirm the current authenticate is not expired
     this.siteService.getCurrentUser().subscribe(

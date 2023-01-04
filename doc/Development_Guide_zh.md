@@ -4,11 +4,11 @@
 
 本地搭建 FedLCM 开发环境所需工具最低版本要求以及推荐版本如下：
 
-| 开发工具  | 下载链接 | 最低版本 | 推荐版本 |
-|---|---|---|---|
-| npm | [link](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) | >= 6 | >= 7 |
-| NodeJS | [link](https://nodejs.org/en/) | >= 14 | >= 16 |
-| golang | [link](https://go.dev/dl/) | >= 1.17 | >= 1.17 |
+| 开发工具   | 下载链接                                                                      | 最低版本    | 推荐版本    |
+|--------|---------------------------------------------------------------------------|---------|---------|
+| npm    | [link](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) | >= 6    | >= 7    |
+| NodeJS | [link](https://nodejs.org/en/)                                            | >= 14   | >= 16   |
+| golang | [link](https://go.dev/dl/)                                                | >= 1.19 | >= 1.19 |
 
 ## 其他依赖服务
 
@@ -26,13 +26,13 @@ git clone $URL
 
 配置连接数据库所需的环境变量：
 
-| 变量名 | 备注 | 是否必需 |
-|---|---|---|
-| POSTGRES_HOST | postgres 数据库地址 | 是 |
-| POSTGRES_PORT | postgres 数据库端口 | 是 |
-| POSTGRES_USER | 数据库用户名 | 是 |
-| POSTGRES_PASSWORD | 数据库密码 | 是 |
-| POSTGRES_DB | 数据库名称 | 是 |
+| 变量名               | 备注             | 是否必需 |
+|-------------------|----------------|------|
+| POSTGRES_HOST     | postgres 数据库地址 | 是    |
+| POSTGRES_PORT     | postgres 数据库端口 | 是    |
+| POSTGRES_USER     | 数据库用户名         | 是    |
+| POSTGRES_PASSWORD | 数据库密码          | 是    |
+| POSTGRES_DB       | 数据库名称          | 是    |
 
 在命令行切换到 `./server` 目录并执行如下指令:
 
@@ -89,15 +89,15 @@ make docker-push
 
 ## 其他环境变量
 
-| 变量名 | 备注 | 是否必需 |
-|---|---|---|
-| POSTGRES_DEBUG | 是否开启 postgres 数据库 debug 级别日志 | 否，默认为 false |
-| POSTGRES_SSLMODE | 是否使用 ssl 连接数据库 | 否，默认为 false |
-| LIFECYCLEMANAGER_INITIAL_ADMIN_PASSWORD | 初始 admin 账户密码，只在第一次启动时生效 | 否，默认为 "admin" |
-| LIFECYCLEMANAGER_SECRETKEY | 加密数据库敏感数据所用密钥 | 否，默认为 "passphrase123456" |
-| LIFECYCLEMANAGER_DEBUG | 是否开启 debug 级别日志 | 否，默认为 false |
-| LIFECYCLEMANAGER_EXPERIMENT_ENABLED | 是否开启 OpenFL 管理服务 | 否，默认为 false |
-| LIFECYCLEMANAGER_JWT_KEY | 生成 JWT token 的密钥 | 否，默认为随机值 |
+| 变量名                                     | 备注                           | 是否必需                     |
+|-----------------------------------------|------------------------------|--------------------------|
+| POSTGRES_DEBUG                          | 是否开启 postgres 数据库 debug 级别日志 | 否，默认为 false              |
+| POSTGRES_SSLMODE                        | 是否使用 ssl 连接数据库               | 否，默认为 false              |
+| LIFECYCLEMANAGER_INITIAL_ADMIN_PASSWORD | 初始 admin 账户密码，只在第一次启动时生效     | 否，默认为 "admin"            |
+| LIFECYCLEMANAGER_SECRETKEY              | 加密数据库敏感数据所用密钥                | 否，默认为 "passphrase123456" |
+| LIFECYCLEMANAGER_DEBUG                  | 是否开启 debug 级别日志              | 否，默认为 false              |
+| LIFECYCLEMANAGER_EXPERIMENT_ENABLED     | 是否开启 OpenFL 管理服务             | 否，默认为 false              |
+| LIFECYCLEMANAGER_JWT_KEY                | 生成 JWT token 的密钥             | 否，默认为随机值                 |
 
 ## 技术栈简介
 

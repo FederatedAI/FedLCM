@@ -23,7 +23,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"os"
 
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
@@ -54,8 +53,7 @@ func NewSelfHttpExchange() *selfHttpExchange {
 			endpoint: fmt.Sprintf("https://localhost:%s", tlsPort),
 		}
 	}
-	// gin's default port
-	port := os.Getenv("PORT")
+	port := viper.GetString("siteportal.port")
 	if port == "" {
 		port = "8080"
 	}

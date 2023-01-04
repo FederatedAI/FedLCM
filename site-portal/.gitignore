@@ -12,4 +12,5 @@ dist/
 *.tgz
 *.tar
 /vendor/
-tls/cert
+tls/cert/*.crt
+tls/cert/*.key

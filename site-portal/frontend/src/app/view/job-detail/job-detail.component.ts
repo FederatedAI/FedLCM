@@ -62,9 +62,12 @@ export class JobDetailComponent implements OnInit, OnDestroy {
   jobStatus = JOBSTATUS
   jobType = JOBTYPE
   metrics_key: any;
+  projidFromRoute = ''
   ngOnInit(): void {
-    const routeParams = this.route.snapshot.paramMap;
+    const routeParams = this.route.snapshot.paramMap;    
     const jobIdFromRoute = String(routeParams.get('jobid'));
+    this.projidFromRoute = String(routeParams.get('projid'));
+    
     this.showJobDetail(jobIdFromRoute);
   }
   ngAfterViewChecked() {
@@ -90,18 +93,20 @@ export class JobDetailComponent implements OnInit, OnDestroy {
           }
         }
         if (this.job.type === this.jobType.Predict) {
-          for (let sample of this.job.result_info.predicting_result.data) {
-            const data_list = [];
-            for (let data of sample) {
-              if (data === null) {
-                data_list.push('N/A');
-              } else if (data === Object(data)) {
-                data_list.push(JSON.stringify(data));
-              } else {
-                data_list.push(data);
+          if (this.job.result_info.predicting_result.data) {
+            for (let sample of this.job.result_info.predicting_result.data) {
+              const data_list = [];
+              for (let data of sample) {
+                if (data === null) {
+                  data_list.push('N/A');
+                } else if (data === Object(data)) {
+                  data_list.push(JSON.stringify(data));
+                } else {
+                  data_list.push(data);
+                }
               }
+              this.predicting_result_list.push(data_list);
             }
-            this.predicting_result_list.push(data_list);
           }
         }
       },
@@ -201,17 +206,18 @@ export class JobDetailComponent implements OnInit, OnDestroy {
   isDownloadFailed: boolean = false;
   //downloadPredictResult is to download the result of prediction job 
   downloadPredictResult(job_id: string, job_name: string) {
-    this.isDownloadSubmit = true;
-    this.isDownloadFailed = false;
-    this.projectservice.downloadPredictJobResult(job_id)
-      .subscribe((data: any) => {
-        this.isDownloadSubmit = true;
-        let blob: any = new Blob([data], { type: 'text/plain' });
-        const url = window.URL.createObjectURL(blob);
-        fileSaver.saveAs(blob, job_name);
-      }), (error: any) => {
-        this.isDownloadFailed = true;
-        this.errorMessage = 'Error downloading the file';
-      }
+    window.open(window.location.origin + '/api/v1/job/' + job_id + '/data-result/download')
+  //   this.isDownloadSubmit = true;
+  //   this.isDownloadFailed = false;
+    // this.projectservice.downloadPredictJobResult(job_id)
+    //   .subscribe((data: any) => {
+    //     this.isDownloadSubmit = true;
+    //     let blob: any = new Blob([data], { type: 'text/plain' });
+    //     const url = window.URL.createObjectURL(blob);
+    //     fileSaver.saveAs(blob, job_name);
+    //   }), (error: any) => {
+    //     this.isDownloadFailed = true;
+    //     this.errorMessage = 'Error downloading the file';
+    //   }
   };
 }

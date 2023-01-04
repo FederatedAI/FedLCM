@@ -127,6 +127,8 @@ const (
 	JobAlgorithmTypeUnknown JobAlgorithmType = iota
 	JobAlgorithmTypeHomoLR
 	JobAlgorithmTypeHomoSBT
+	JobAlgorithmTypeHeteroLR
+	JobAlgorithmTypeHeteroSBT
 )
 
 const (
@@ -162,8 +164,7 @@ func (job *Job) Validate() error {
 		if !strings.Contains(job.DSL, "Evaluation") {
 			return errors.New("training job must contain an Evaluation module")
 		}
-		if !(strings.Contains(job.DSL, "HomoLR") ||
-			strings.Contains(job.DSL, "HomoSecureboost")) {
+		if !(strings.Contains(job.DSL, "HomoLR") || strings.Contains(job.DSL, "HomoSecureBoost") || strings.Contains(job.DSL, "HeteroLR") || strings.Contains(job.DSL, "HeteroSecureBoost")) {
 			return errors.Errorf("training job must contain at least one algorithm component")
 		}
 	} else if job.Type == JobTypePredict {
@@ -412,6 +413,10 @@ func (job *Job) UpdateResultInfo(partyID uint, role JobParticipantRole) error {
 		return err
 	}
 	if job.Type == JobTypeTraining {
+		// For hetero job, we don't need to create the model on host side because predict job cannot be launched from the host side.
+		if (job.AlgorithmType == JobAlgorithmTypeHeteroLR || job.AlgorithmType == JobAlgorithmTypeHeteroSBT) && job.IsInitiatingSite == false {
+			return nil
+		}
 		eventExchange := event.NewSelfHttpExchange()
 		return eventExchange.PostEvent(event.ModelCreationEvent{
 			Name:                   job.ModelName,

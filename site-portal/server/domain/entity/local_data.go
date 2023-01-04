@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"io"
 	"mime/multipart"
+	"net/http"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -251,17 +252,11 @@ func (d *LocalData) Upload(fileHeader *multipart.FileHeader) error {
 		log.Info().Msgf("uploading data file %s to FATE", dst.Name())
 		fateClient := fateclient.NewFATEFlowClient(d.UploadContext.FATEFlowHost, d.UploadContext.FATEFlowPort, d.UploadContext.FATEFlowIsHttps)
 		d.ChangeJobStatus(UploadJobStatusCreating)
-		// 2 stands for SPARK_PULSAR
-		backend := 2
-		if viper.GetBool("siteportal.fate.eggroll.enabled") {
-			backend = 0
-		}
+
 		uploadConf := fateclient.DataUploadRequest{
 			File:      dst.Name(),
 			Head:      1,
 			Partition: 8, // XXX: use viper configuration instead of a hard-code one
-			WorkMode:  1,
-			Backend:   backend,
 			Namespace: d.TableNamespace,
 			TableName: d.TableName,
 			Drop:      1,
@@ -315,8 +310,11 @@ func (d *LocalData) ChangeJobStatus(newStatus UploadJobStatus) {
 
 // GetAbsFilePath returns the absolute path the local date file
 func (d *LocalData) GetAbsFilePath() (string, error) {
+	if d.LocalFilePath == "" {
+		return "", errors.Errorf("this data was not uploaded via this service")
+	}
 	absPath := filepath.Join(getBaseDir(), d.LocalFilePath)
-	if _, err := os.Stat(absPath); err == nil {
+	if s, err := os.Stat(absPath); err == nil && !s.IsDir() {
 		return absPath, nil
 	} else if os.IsNotExist(err) {
 		return "", errors.Errorf("file no longer exists")
@@ -325,24 +323,36 @@ func (d *LocalData) GetAbsFilePath() (string, error) {
 	}
 }
 
+// GetFlowDataDownloadRequest returns the absolute path the local date file
+func (d *LocalData) GetFlowDataDownloadRequest() (*http.Request, error) {
+	if d.UploadContext.FATEFlowHost == "" || d.UploadContext.FATEFlowPort == 0 {
+		return nil, errors.Errorf("cannot find valid FATE flow connection info")
+	}
+	fateClient := fateclient.NewFATEFlowClient(d.UploadContext.FATEFlowHost, d.UploadContext.FATEFlowPort, d.UploadContext.FATEFlowIsHttps)
+	return fateClient.GetDataDownloadRequest(d.TableNamespace, d.TableName)
+}
+
 func (d *LocalData) Destroy() error {
 	log.Info().Str("data uuid", d.UUID).Msgf("removing data")
 	// remove the data file
-	absPath := filepath.Join(getBaseDir(), d.LocalFilePath)
-	if err := func() error {
-		if _, err := os.Stat(absPath); err != nil {
-			if os.IsNotExist(err) {
-				return nil
-			} else {
-				return errors.Wrap(err, "error checking file stat")
+	if d.LocalFilePath != "" {
+		absPath := filepath.Join(getBaseDir(), d.LocalFilePath)
+		log.Info().Msgf("removing local file %s", absPath)
+		if err := func() error {
+			if _, err := os.Stat(absPath); err != nil {
+				if os.IsNotExist(err) {
+					return nil
+				} else {
+					return errors.Wrap(err, "error checking file stat")
+				}
 			}
+			if err := os.RemoveAll(filepath.Dir(absPath)); err != nil {
+				return err
+			}
+			return nil
+		}(); err != nil {
+			return errors.Wrapf(err, "error deleting file")
 		}
-		if err := os.RemoveAll(filepath.Dir(absPath)); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrapf(err, "error deleting file")
 	}
 	log.Info().Msgf("deleting table %s namespace: %s from FATE", d.TableName, d.TableNamespace)
 	fateClient := fateclient.NewFATEFlowClient(d.UploadContext.FATEFlowHost, d.UploadContext.FATEFlowPort, d.UploadContext.FATEFlowIsHttps)
@@ -358,6 +368,49 @@ func (d *LocalData) Destroy() error {
 func (d *LocalData) UpdateIDMetaInfo(info *valueobject.IDMetaInfo) error {
 	d.IDMetaInfo = info
 	return d.Repo.UpdateIDMetaInfoByUUID(d.UUID, d.IDMetaInfo)
+}
+
+// CreateFromExistingTable updates the local data info based on the existing table info in FATE and saves to the repo
+func (d *LocalData) CreateFromExistingTable() error {
+	if d.UploadContext.FATEFlowHost == "" || d.UploadContext.FATEFlowPort == 0 {
+		return errors.Errorf("cannot find valid FATE flow connection info")
+	}
+	if err := d.Repo.CheckNameConflict(d.Name); err != nil {
+		return err
+	}
+	fateClient := fateclient.NewFATEFlowClient(d.UploadContext.FATEFlowHost, d.UploadContext.FATEFlowPort, d.UploadContext.FATEFlowIsHttps)
+	info, err := fateClient.QueryTableInfo(d.TableNamespace, d.TableName)
+	if err != nil {
+		return errors.Wrapf(err, "failed to query table %s, namespace %s", d.TableName, d.TableNamespace)
+	}
+	if info.Exist <= 0 {
+		return errors.Errorf("table %s, namespace %s doesn't exists", d.TableName, d.TableNamespace)
+	}
+
+	d.UUID = uuid.NewV4().String()
+	d.Count = uint64(info.Count)
+	d.Preview = ""
+	d.LocalFilePath = ""
+	d.JobStatus = UploadJobStatusSucceeded
+	d.IDMetaInfo = nil
+
+	headers := strings.Split(info.Schema.Header, ",")
+	for i := range headers {
+		headers[i] = strings.TrimSpace(headers[i])
+		if strings.ToLower(headers[i]) == "id" || strings.ToLower(headers[i]) == "y" {
+			continue
+		}
+		d.Features = append(d.Features, headers[i])
+	}
+	d.Column = headers
+	if info.Schema.Sid != "" {
+		d.Column = append(d.Column, info.Schema.Sid)
+	}
+	d.Preview = "[]"
+	if err := d.Repo.Create(d); err != nil {
+		return err
+	}
+	return nil
 }
 
 func getBaseDir() string {

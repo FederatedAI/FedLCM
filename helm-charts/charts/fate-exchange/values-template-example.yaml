@@ -1,10 +1,9 @@
 name: fate-exchange
 namespace: fate-exchange
 chartName: fate-exchange
-chartVersion: v1.6.1-fedlcm-v0.1.0
+chartVersion: v1.9.1-fedlcm-v0.2.0
 partyId: 0
 registry: ""
-pullPolicy: 
 imagePullSecrets: 
 - name: myregistrykey
 persistence: false
@@ -13,62 +12,70 @@ istio:
 podSecurityPolicy:
   enabled: false
 modules:
+  # - rollsite
   - trafficServer
   - nginx
   - postgres
   - fmlManagerServer
 
+# rollsite: 
+#   type: NodePort
+#   nodePort: 30001
+#   loadBalancerIP: 192.168.0.1
+#   enableTLS: false
+#   partyList:
+#   - partyId: 10000
+#     partyIp: 192.168.10.1
+#     partyPort: 30101
+#   nodeSelector:
+#   tolerations:
+#   affinity:
+
 # trafficServer:
-  # image: federatedai/trafficServer
-  # imageTag: latest
-  # replicas: 3
-  # nodeSelector:
-  # tolerations:
-  # affinity:
-  # type: NodePort
-  # nodePort: 30007
-  # loadBalancerIP: 192.168.0.1
-  # route_table: 
-    # sni:
-    # - fqdn: 10000.fate.org
-      # tunnelRoute: 192.168.0.2:30109
-    # - fqdn: 9999.fate.org
-      # tunnelRoute: 192.168.0.3:30099
+#   replicas: 3
+#   nodeSelector:
+#   tolerations:
+#   affinity:
+#   type: NodePort
+#   nodePort: 30007
+#   loadBalancerIP: 192.168.0.1
+#   route_table: 
+#     sni:
+#     - fqdn: 10000.fate.org
+#       tunnelRoute: 192.168.0.2:30109
+#     - fqdn: 9999.fate.org
+#       tunnelRoute: 192.168.0.3:30099
 
 # nginx:
-  # image: federatedai/nginx
-  # imageTag: 1.6.1-release
-  # replicas: 3
-  # nodeSelector:
-  # tolerations:
-  # affinity:
-  # type: NodePort
-  # httpNodePort: 30003
-  # grpcNodePort: 30008
-  # loadBalancerIP: 192.168.0.1
-  # route_table: 
-    # 9999: 
-      # proxy: 
-        # - host: 192.168.9.1 
-          # http_port: 30093
-          # grpc_port: 30098 
-      # fateflow: 
-        # - host: 192.168.9.1
-          # http_port: 30097
-          # grpc_port: 30092
-    # 10000: 
-      # proxy: 
-        # - host: 192.168.10.1 
-          # http_port: 30103
-          # grpc_port: 30108 
-      # fateflow: 
-        # - host: 192.168.10.1
-          # http_port: 30107
-          # grpc_port: 30102
+#   replicas: 3
+#   nodeSelector:
+#   tolerations:
+#   affinity:
+#   type: NodePort
+#   httpNodePort: 30003
+#   grpcNodePort: 30008
+#   loadBalancerIP: 192.168.0.1
+#   route_table: 
+#     9999: 
+#       proxy: 
+#         - host: 192.168.9.1 
+#           http_port: 30093
+#           grpc_port: 30098 
+#       fateflow: 
+#         - host: 192.168.9.1
+#           http_port: 30097
+#           grpc_port: 30092
+#     10000: 
+#       proxy: 
+#         - host: 192.168.10.1 
+#           http_port: 30103
+#           grpc_port: 30108 
+#       fateflow: 
+#         - host: 192.168.10.1
+#           http_port: 30107
+#           grpc_port: 30102
 
 # postgres:
-  # image: postgres
-  # imageTag: 13.3
   # nodeSelector:
   # tolerations:
   # affinity:
@@ -82,8 +89,6 @@ modules:
   # size: 1Gi
 
 # fmlManagerServer:
-  # image: federatedai/fml-manager-server
-  # imageTag: v0.1.0
   # nodeSelector:
   # tolerations:
   # affinity:

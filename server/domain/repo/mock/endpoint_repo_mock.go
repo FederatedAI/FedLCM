@@ -17,13 +17,21 @@ package mock
 import "github.com/FederatedAI/FedLCM/server/domain/repo"
 
 type EndpointKubeFATERepoMock struct {
-	CreateFn                  func(instance interface{}) error
-	ListFn                    func() (interface{}, error)
-	DeleteByUUIDFn            func(uuid string) error
-	GetByUUIDFn               func(uuid string) (interface{}, error)
-	ListByInfraProviderUUIDFn func(uuid string) (interface{}, error)
-	UpdateStatusByUUIDFn      func(instance interface{}) error
-	UpdateInfoByUUIDFn        func(instance interface{}) error
+	CreateFn                              func(instance interface{}) error
+	ListFn                                func() (interface{}, error)
+	DeleteByUUIDFn                        func(uuid string) error
+	GetByUUIDFn                           func(uuid string) (interface{}, error)
+	ListByInfraProviderUUIDFn             func(uuid string) (interface{}, error)
+	UpdateStatusByUUIDFn                  func(instance interface{}) error
+	UpdateInfoByUUIDFn                    func(instance interface{}) error
+	ListByInfraProviderUUIDAndNamespaceFn func(string, string) (interface{}, error)
+}
+
+func (m *EndpointKubeFATERepoMock) ListByInfraProviderUUIDAndNamespace(uuid string, namespace string) (interface{}, error) {
+	if m.ListByInfraProviderUUIDAndNamespaceFn != nil {
+		return m.ListByInfraProviderUUIDAndNamespaceFn(uuid, namespace)
+	}
+	return nil, nil
 }
 
 func (m *EndpointKubeFATERepoMock) Create(instance interface{}) error {

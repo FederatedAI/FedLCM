@@ -17,6 +17,8 @@ package entity
 import (
 	"database/sql/driver"
 	"encoding/json"
+	"github.com/pkg/errors"
+	"gopkg.in/yaml.v3"
 )
 
 // ParticipantFATE represent a FATE type participant
@@ -28,6 +30,23 @@ type ParticipantFATE struct {
 	CertConfig  ParticipantFATECertConfig       `gorm:"type:text"`
 	AccessInfo  ParticipantFATEModulesAccessMap `gorm:"type:text"`
 	IngressInfo ParticipantFATEIngressMap       `gorm:"type:text"`
+}
+
+// GetSitePortalAdminPassword returns the admin password of the deployed site portal service
+func (p ParticipantFATE) GetSitePortalAdminPassword() (string, error) {
+	var m map[string]interface{}
+	err := yaml.Unmarshal([]byte(p.DeploymentYAML), &m)
+	if err != nil {
+		return "", errors.Wrapf(err, "failed to unmarshal deployment yaml")
+	}
+	password := "admin"
+	if serverConfigInt, ok := m["sitePortalServer"]; ok {
+		serverConfig := serverConfigInt.(map[string]interface{})
+		if passwordInt, ok := serverConfig["adminPassword"]; ok {
+			password = passwordInt.(string)
+		}
+	}
+	return password, err
 }
 
 // ParticipantFATECertConfig contains all the certificate configuration of a FATE participant

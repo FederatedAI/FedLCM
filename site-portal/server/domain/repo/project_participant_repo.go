@@ -36,4 +36,6 @@ type ProjectParticipantRepository interface {
 	// UpdateParticipantInfoBySiteUUID takes an *entity.ProjectParticipant as template and
 	// updates sites info of the records containing the specified site uuid
 	UpdateParticipantInfoBySiteUUID(interface{}) error
+	// GetBySiteUUID returns a []entity.ProjectParticipant of the specified site
+	GetBySiteUUID(string) (interface{}, error)
 }

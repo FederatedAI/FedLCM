@@ -204,7 +204,7 @@ spec:
               subPath: entrypoint.sh
               name: stepca-entrypoint
         - name: server
-          image: federatedai/fedlcm-server:v0.1.0
+          image: federatedai/fedlcm-server:v0.2.0
           imagePullPolicy: IfNotPresent
           securityContext:
             runAsUser: 1000
@@ -312,7 +312,7 @@ spec:
       serviceAccountName: fedlcm-admin
       containers:
         - name: frontend
-          image: federatedai/fedlcm-frontend:v0.1.0
+          image: federatedai/fedlcm-frontend:v0.2.0
           imagePullPolicy: IfNotPresent
           env:
             - name: LIFECYCLEMANAGER_SERVER_HOST

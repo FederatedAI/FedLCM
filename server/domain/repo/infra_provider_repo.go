@@ -14,6 +14,11 @@
 
 package repo
 
+import "github.com/pkg/errors"
+
+// ErrProviderExist means new provider cannot be created due to the existence of the same-name provider
+var ErrProviderExist = errors.New("provider already exists")
+
 // InfraProviderRepository is the interface to handle infra provider's persistence related actions
 type InfraProviderRepository interface {
 	// Create takes a *entity.InfraProviderBase's derived struct and creates a provider info record in the repository
@@ -26,8 +31,8 @@ type InfraProviderRepository interface {
 	GetByUUID(string) (interface{}, error)
 	// UpdateByUUID takes an *entity.InfraProviderBase or its derived struct and updates the infra provider config by uuid
 	UpdateByUUID(interface{}) error
-	// GetByAddress returns an *entity.InfraProviderBase or its derived struct who contains the specified address
-	GetByAddress(string) (interface{}, error)
+	// GetByConfigSHA256 returns an *entity.InfraProviderBase or its derived struct who contains the specified kubeconfig content
+	GetByConfigSHA256(string) (interface{}, error)
 	// ProviderExists checks if a provider already exists in the  database
 	ProviderExists(interface{}) error
 }

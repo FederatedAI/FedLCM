@@ -36,7 +36,7 @@ spec:
     spec:
       containers:
         - name: postgres
-          image: {{ with .Values.image.registry }}{{ printf "%s/" . }}{{ end }}{{ .Values.modules.postgres.image | default "postgres" }}:{{ .Values.modules.postgres.imageTag | default "13.3"}}
+          image: {{ .Values.modules.postgres.image | default (printf "%s/%s"  .Values.image.registry "postgres" ) }}:{{ .Values.modules.postgres.imageTag | default "13.3" }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
           - name: POSTGRES_USER

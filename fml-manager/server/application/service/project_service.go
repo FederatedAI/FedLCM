@@ -411,6 +411,37 @@ func (app *ProjectApp) ProcessParticipantDismissal(projectUUID, siteUUID string)
 	return projectService.HandleParticipantDismissal(projectUUID, targetSite, otherSiteList)
 }
 
+// ProcessParticipantUnregistration handles participant unregistration event
+func (app *ProjectApp) ProcessParticipantUnregistration(siteUUID string) error {
+	list, err := app.SiteRepo.GetSiteList()
+	if err != nil {
+		return errors.Wrapf(err, "failed to list all sites")
+	}
+	allSites := list.([]entity.Site)
+
+	projectService := service.ProjectService{
+		ProjectRepo:     app.ProjectRepo,
+		InvitationRepo:  app.InvitationRepo,
+		ParticipantRepo: app.ParticipantRepo,
+		ProjectDataRepo: app.ProjectDataRepo,
+	}
+	allSitesInfo := make([]service.ProjectParticipantSiteInfo, len(allSites))
+	for index, site := range allSites {
+		allSitesInfo[index] = service.ProjectParticipantSiteInfo{
+			Name:         site.Name,
+			Description:  site.Description,
+			UUID:         site.UUID,
+			PartyID:      site.PartyID,
+			ExternalHost: site.ExternalHost,
+			ExternalPort: site.ExternalPort,
+			HTTPS:        site.HTTPS,
+			ServerName:   site.ServerName,
+		}
+	}
+
+	return projectService.HandleParticipantUnregistration(siteUUID, allSitesInfo)
+}
+
 // ProcessDataAssociation handles new data association
 func (app *ProjectApp) ProcessDataAssociation(projectUUID string, data *ProjectDataAssociation) error {
 	projectService := service.ProjectService{

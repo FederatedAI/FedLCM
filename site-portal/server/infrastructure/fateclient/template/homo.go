@@ -45,8 +45,15 @@ const homoPredictingJobConf = `
   },
   "job_parameters": {
     "common": {
-      "work_mode": 1,
-      "backend": 2,
+      "task_parallelism": 2,
+      "eggroll_run": {
+        "eggroll.session.processors.per.node": 2
+      },
+      "spark_run": {
+        "num-executors": 2,
+        "executor-cores": 1,
+        "total-executor-cores": 2
+      },
       "job_type": "predict",
       "model_id": "%s",
       "model_version": "%s"

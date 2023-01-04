@@ -105,7 +105,8 @@
     "leaving":"Leaving",
     "pleasewait": "Please wait",
     "drop": "Interactive",
-    "json": "JSON"
+    "json": "JSON",
+    "adding": "adding..."
   },
   "placeholder": {
     "name": "Enter your Site name",
@@ -173,7 +174,8 @@
     "isDeleteData": "Do you want to delete the data?",
     "DataCanNotBeRecoveredAfterDeletion": "Data can not be recovered after deletion.",
     "Featuresize":"Feature size",
-    "Samplesize": "Sample size"
+    "Samplesize": "Sample size",
+    "manageExistingTables": "Add Existing Table"
   },
   "dataDetail": {
     "dataDetail" : "Data Detail",
@@ -196,7 +198,8 @@
     "deleteData": "Delete data",
     "IMEI":"IMEI",
     "IDFA":"IDFA",
-    "IDFV":"IDFV"
+    "IDFV":"IDFV",
+    "note": "Note: Preview not available for data not uploaded locally."
   },
   "modelMg": {
     "modelID": "Model ID",
@@ -240,6 +243,8 @@
     "algorithm": "Algorithm",
     "homoLogisticRegression": "Homo Logistic Regression",
     "homoSecureBoost": "Homo SecureBoost",
+    "heteroLogisticRegression": "Hetero Logistic Regression",
+    "heteroSecureBoost": "Hetero SecureBoost",
     "generateConfiguration": "Generate Configuration",
     "algorithmConfiguration": "Algorithm Configuration",
     "workflowDSL": "Workflow DSL",
@@ -317,7 +322,8 @@
     "fmlManagerServerName":"FML Manager Server Name",
     "fmlManagerServerNameHelper1":"Site Portal uses 'FML Manager Server Name' to verify FML Manager's server certificate.",
     "fmlManagerServerNameHelper2":"If you leave it empty, server name will be 'FML Manager Endpoint' address.",
-    "fmlManagerServerNameIPHelper":"You may need to provide 'Server Name' when 'FML Manager Endpoint' is an IP address."
+    "fmlManagerServerNameIPHelper":"You may need to provide 'Server Name' when 'FML Manager Endpoint' is an IP address.",
+    "unregisterModal": "Logout from FML Manager? All the joined projects will be closed."
   },
   "login": {
     "loginOut": "Log Out Success",

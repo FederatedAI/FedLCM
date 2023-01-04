@@ -16,13 +16,14 @@ package service
 
 import (
 	"github.com/FederatedAI/FedLCM/pkg/kubefate"
+	"github.com/FederatedAI/FedLCM/server/domain/valueobject"
 )
 
 type mockParticipantFATEEndpointServiceInt struct {
 	// TODO add stubs
 }
 
-func (m *mockParticipantFATEEndpointServiceInt) ensureEndpointExist(string) (string, error) {
+func (m *mockParticipantFATEEndpointServiceInt) ensureEndpointExist(string, string, valueobject.KubeRegistryConfig) (string, error) {
 	return "", nil
 }
 

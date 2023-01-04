@@ -6,9 +6,21 @@
     <button class="btn btn-outline" (click)="openUploadDataModal()">
       <cds-icon shape="upload"></cds-icon> {{'dataMg.uploadLocalData' | translate}}
     </button>
+
+    <button class="btn btn-outline" (click)="openManageExistingTablesModal()">
+      <cds-icon shape="collapse-card"></cds-icon> {{'dataMg.manageExistingTables' | translate}}
+    </button>
   </div>
   <clr-modal [(clrModalOpen)]="openModal" [clrModalClosable]="false">
-    <h3 class="modal-title">{{'dataMg.uploadLocalData' | translate}}</h3>
+    <h3 class="modal-title">
+      <span *ngIf="!isAddManageExistingTableModal">
+        {{'dataMg.uploadLocalData' | translate}}
+      </span>
+      <span *ngIf="isAddManageExistingTableModal">
+        {{'dataMg.manageExistingTables' | translate}}
+      </span>
+      
+    </h3>
     <div class="modal-body">
       <div *ngIf="(submitted && isUploadFailed) || (isDownloadSubmit && isDownloadFailed)" class="alert alert-danger"
         role="alert">
@@ -23,7 +35,7 @@
           </div>
         </div>
       </div>
-      <form clrForm [formGroup]="form" enctype="multipart/form-data" (ngSubmit)="uploadData()">
+      <form clrForm [formGroup]="form" enctype="multipart/form-data">
         <clr-input-container>
           <label>{{'CommonlyUse.name' | translate}}</label>
           <input clrInput class="t1" [(ngModel)]="name" name="name" formControlName="name" required />
@@ -42,16 +54,41 @@
           <textarea clrTextarea class="t2" [(ngModel)]="description" name="description"
             formControlName="description"></textarea>
         </clr-textarea-container>
-        <app-upload-file [progress]='progress' #file></app-upload-file>
+
+        <app-upload-file *ngIf="!isAddManageExistingTableModal" [progress]='progress' #file></app-upload-file>
+
+        <!-- AddManageExistingTableModal -->
+        <div class="manage-existing" *ngIf="isAddManageExistingTableModal">
+
+          <clr-input-container>
+            <label>Namespace</label>
+            <input clrInput class="t1" name="namespace" formControlName="namespace" required />
+            <clr-control-error *ngIf="form.get('namespace')?.errors">
+              {{form.get('namespace')?.errors?.emptyMessage || form.get('namespace')?.errors?.message | translate}}
+            </clr-control-error>
+          </clr-input-container>
+
+          <clr-input-container>
+            <label>Table</label>
+            <input clrInput class="t1"  name="table" formControlName="table" required />
+            <clr-control-error *ngIf="!form.get('table')?.errors?.minlength && !form.get('table')?.errors?.maxlength">
+              {{form.get('table')?.errors?.emptyMessage || form.get('table')?.errors?.message | translate}}
+            </clr-control-error>
+
+          </clr-input-container>
+
+        </div>
         <div class="modal-footer">
           <div *ngIf="submitted && !isUploadFailed">
-            <span>{{'CommonlyUse.uploading' | translate}} ... </span>
+            <span *ngIf="!isAddManageExistingTableModal">{{'CommonlyUse.uploading' | translate}} ... </span>
+            <span *ngIf="isAddManageExistingTableModal">{{'CommonlyUse.adding' | translate}} ... </span>
             <clr-spinner [clrInline]="true"></clr-spinner>
           </div>
           <button type="button" class="btn btn-outline" (click)="reloadCurrentRoute();">{{'CommonlyUse.cancel' |
             translate}}</button>
-          <button type="submit" class="btn btn-primary">{{'CommonlyUse.upload' | translate}}</button>
-        </div>
+            <button (click)="uploadData()" *ngIf="!isAddManageExistingTableModal" type="submit" class="btn btn-primary">{{'CommonlyUse.upload' | translate}}</button>
+            <button (click)="addTableData()" *ngIf="isAddManageExistingTableModal" type="submit" class="btn btn-primary">{{'CommonlyUse.add' | translate}}</button>
+          </div>
       </form>
     </div>
   </clr-modal>

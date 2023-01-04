@@ -43,9 +43,7 @@ export class InfraService {
   }
 
   testK8sConnection(kubeconfig_content:any){
-    return this.http.post('/infra/kubernetes/connect',{
-      kubeconfig_content
-    });
+    return this.http.post('/infra/kubernetes/connect', kubeconfig_content);
   }
 
 }

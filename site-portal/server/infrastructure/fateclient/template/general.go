@@ -42,12 +42,15 @@ const trainingGeneralConf = `
   "job_parameters": {
     "common": {
       "job_type": "train",
-      "backend": 2,
-      "work_mode": 1,
+      "task_parallelism": 2,
+      "computing_partitions": 8,
+      "eggroll_run": {
+        "eggroll.session.processors.per.node": 2
+      },
       "spark_run": {
-        "num-executors": 1,
+        "num-executors": 2,
         "executor-cores": 1,
-        "total-executor-cores": 1
+        "total-executor-cores": 2
       }
     }
   }

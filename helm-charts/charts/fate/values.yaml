@@ -1,6 +1,8 @@
 
 image:
-  registry: 
+  registry: federatedai
+  isThridParty:
+  tag: 1.9.1-release
   pullPolicy: IfNotPresent
   imagePullSecrets: 
 #  - name: 
@@ -8,54 +10,121 @@ image:
 partyId: 9999
 partyName: fate-9999
 
+# Computing : Eggroll, Spark, Spark_local
+computing: Eggroll
+# Federation: Eggroll(computing: Eggroll), Pulsar/RabbitMQ(computing: Spark/Spark_local)
+federation: Eggroll
+# Storage: Eggroll(computing: Eggroll), HDFS(computing: Spark), LocalFS(computing: Spark_local)
+storage: Eggroll
+# Algorithm: Basic, NN
+algorithm: Basic
+# Device: CPU, IPCL
+device: IPCL
+
 istio:
   enabled: false
 
 podSecurityPolicy:
   enabled: false
 
+ingressClassName: nginx
+
 ingress:
-  fateboard: 
-    # annotations: 
+  fateboard:
+    # annotations:
     hosts:
-    - name: fateboard.kubefate.net
+    - name: fateboard.example.com
       path: /
     tls: []
     # - secretName: my-tls-secret
       # hosts:
-        # - fateboard.kubefate.net
-  client: 
-    # annotations: 
+        # - fateboard.example.com
+  client:
+    # annotations:
     hosts:
-    - name: notebook.kubefate.net
+    - name: notebook.example.com
       path: /
     tls: [] 
-  spark: 
-    # annotations: 
+  spark:
+    # annotations:
     hosts:
-    - name: spark.kubefate.net
+    - name: spark.example.com
       path: /
     tls: [] 
-  pulsar: 
+  rabbitmq:
+    # annotations:
+    hosts:
+    - name: rabbitmq.example.com
+      path: /
+    tls: [] 
+  pulsar:
     # annotations: 
     hosts:
-    - name:  pulsar.kubefate.net
+    - name:  pulsar.example.com
       path: /
     tls: []
-  frontend: 
+  frontend:
     # annotations: 
     hosts:
     - name:  frontend.example.com
       path: /
     tls: []
+    
+exchange:
+  partyIp: 192.168.1.1
+  partyPort: 30001
+
+exchangeList:
+- id: 9991
+  ip: 192.168.1.1
+  port: 30910
+
+partyList:
+- partyId: 8888
+  partyIp: 192.168.8.1
+  partyPort: 30081
+- partyId: 10000
+  partyIp: 192.168.10.1
+  partyPort: 30101
 
 persistence:
   enabled: false
 
 modules:
+  rollsite: 
+    include: true
+    ip: rollsite
+    type: ClusterIP
+    nodePort: 30091
+    loadBalancerIP:
+    enableTLS: false
+    nodeSelector:
+    tolerations:
+    affinity:
+    polling:
+      enabled: false
+      
+      # type: client
+      # server:
+        # ip: 192.168.9.1
+        # port: 9370
+      
+      # type: server
+      # clientList:
+      # - partID: 9999
+      # concurrency: 50
+      
+  lbrollsite:
+    include: true
+    ip: rollsite
+    type: ClusterIP
+    nodePort: 30091
+    loadBalancerIP: 
+    size: "2M"
+    nodeSelector:
+    tolerations:
+    affinity:
   python: 
-    image: federatedai/python-spark
-    imageTag: 1.6.1-release
     include: true
     type: ClusterIP
     httpNodePort: 30097
@@ -65,12 +134,11 @@ modules:
     nodeSelector:
     tolerations:
     affinity:
-    backend: eggroll
-    enabledNN: false
+    logLevel: INFO
     # subPath: ""
-    existingClaim: ""
+    existingClaim:
     claimName: python-data
-    storageClass: "python"
+    storageClass:
     accessMode: ReadWriteOnce
     size: 1Gi
     clustermanager:
@@ -103,34 +171,57 @@ modules:
       host: nginx
       http_port: 9300
       grpc_port: 9310
-
-  fateboard:
+  client:
     include: true
-    image: federatedai/fateboard
-    imageTag: 1.6.1-release
-    type: ClusterIP
-    username: admin
-    password: admin
-
-  client: 
-    include: true
-    image: federatedai/client
-    imageTag: 1.6.1-release
     ip: client
     type: ClusterIP
     nodeSelector:
     tolerations:
     affinity:
     subPath: "client"
-    existingClaim: ""
-    storageClass: "client"
+    existingClaim:
+    storageClass:
+    accessMode: ReadWriteOnce
+    size: 1Gi
+  clustermanager: 
+    include: true
+    ip: clustermanager
+    type: ClusterIP
+    nodeSelector:
+    tolerations:
+    affinity:
+  nodemanager:  
+    include: true
+    replicas: 2
+    nodeSelector:
+    tolerations:
+    affinity:
+    sessionProcessorsPerNode: 2
+    subPath: "nodemanager"
+    storageClass:
+    accessMode: ReadWriteOnce
+    size: 1Gi
+    existingClaim:
+    resources:
+      requests:
+        cpu: "2"
+        memory: "4Gi"
+
+  client: 
+    include: true
+    ip: client
+    type: ClusterIP
+    nodeSelector:
+    tolerations:
+    affinity:
+    subPath: "client"
+    existingClaim:
+    storageClass:
     accessMode: ReadWriteOnce
     size: 1Gi
 
   mysql: 
     include: true
-    image: mysql
-    imageTag: 8
     type: ClusterIP
     nodeSelector:
     tolerations:
@@ -141,12 +232,11 @@ modules:
     user: fate
     password: fate_dev
     subPath: "mysql"
-    existingClaim: ""
+    existingClaim:
     claimName: mysql-data
-    storageClass: "mysql"
+    storageClass:
     accessMode: ReadWriteOnce
     size: 1Gi
-
   serving:
     ip: 192.168.9.1
     port: 30095
@@ -155,12 +245,17 @@ modules:
       hosts:
         - serving-zookeeper.fate-serving-9999:2181
       use_acl: false
+  fateboard:
+    include: true
+    type: ClusterIP
+    username: admin
+    password: admin
 
   spark:
     include: true
     master:
-      image: "federatedai/spark-master"
-      imageTag: "1.6.1-release"
+      Image: ""
+      ImageTag: ""
       replicas: 1
       nodeSelector:
       tolerations:
@@ -168,49 +263,41 @@ modules:
       type: ClusterIP
       nodePort: 30977
     worker:
-      image: "federatedai/spark-worker"
-      imageTag: "1.6.1-release"
+      Image: ""
+      ImageTag: ""
       replicas: 2
-      resources:
-        requests:
-          cpu: "1"
-          memory: "2Gi"
-        limits:
-          cpu: "2"
-          memory: "4Gi"
       nodeSelector:
       tolerations:
       affinity:
       type: ClusterIP
+      resources:
+        requests:
+          cpu: "2"
+          memory: "4Gi"
   hdfs:
     include: true
     namenode:
-      image: federatedai/hadoop-namenode
-      imageTag: 2.0.0-hadoop2.7.4-java8
       nodeSelector:
       tolerations:
       affinity:
       type: ClusterIP
       nodePort: 30900
-      existingClaim: ""
+      existingClaim:
+      storageClass:
       accessMode: ReadWriteOnce
       size: 1Gi
-      storageClass: hdfs
     datanode:
-      image: federatedai/hadoop-datanode
-      imageTag: 2.0.0-hadoop2.7.4-java8
+      replicas: 3
       nodeSelector:
       tolerations:
       affinity:
       type: ClusterIP
-      existingClaim: ""
+      existingClaim:
+      storageClass:
       accessMode: ReadWriteOnce
       size: 1Gi
-      storageClass: hdfs
   nginx:
     include: true
-    image: federatedai/nginx
-    imageTag: 1.6.1-release
     nodeSelector:
     tolerations:
     affinity:
@@ -232,24 +319,40 @@ modules:
 #        - host: 192.168.10.1  
 #          http_port: 30107
 #          grpc_port: 30102
-
-  pulsar:
+  rabbitmq:
     include: true
-    image: federatedai/pulsar
-    imageTag: 2.7.0
     nodeSelector:
     tolerations:
     affinity:
     type: ClusterIP
+    nodePort: 30094
+    loadBalancerIP: 
+    default_user: fate
+    default_pass: fate
+    user: fate
+    password: fate
+    route_table: 
+#      10000:
+#        host: 192.168.10.1 
+#        port: 30104
+
+  pulsar:
+    include: true
+    nodeSelector:
+    tolerations:
+    env:
+    confs:
+    affinity:
+    type: ClusterIP
     httpNodePort: 30094
     httpsNodePort: 30099
-    loadBalancerIP: 
+    loadBalancerIP:
+    existingClaim:
+    accessMode: ReadWriteOnce
+    storageClass:
+    size: 1Gi
     publicLB:
       enabled: false
-    existingClaim: ""
-    storageClass: "pulsar"
-    accessMode: ReadWriteOnce
-    size: 1Gi
     # exchange:
       # ip: 192.168.10.1
       # port: 30000
@@ -263,7 +366,7 @@ modules:
 #   
 
   postgres:
-    include: true
+    include: false
     image: postgres
     imageTag: 13.3
     # nodeSelector:
@@ -282,9 +385,9 @@ modules:
     size: 1Gi
   
   frontend:
-    include: true
+    include: false
     image: federatedai/site-portal-frontend
-    imageTag: v0.1.0
+    imageTag: v0.2.0
     # nodeSelector:
     # tolerations:
     # affinity:
@@ -294,9 +397,9 @@ modules:
     # loadBalancerIP:
     
   sitePortalServer:
-    include: true
-    image: federatedai/site-portal-server
-    imageTag: v0.1.0
+    include: false
+    image: site-portal-server
+    imageTag: v0.2.0
     # nodeSelector:
     # tolerations:
     # affinity:
@@ -322,7 +425,6 @@ modules:
     tlsEnabled: 'true'
     tlsPort: 8443
     tlsCommonName: site-1.server.example.com
-
 
 # externalMysqlIp: mysql
 # externalMysqlPort: 3306

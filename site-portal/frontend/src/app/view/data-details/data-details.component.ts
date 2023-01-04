@@ -20,7 +20,7 @@ ClarityIcons.addIcons(trashIcon, downloadIcon);
 export interface DataDetailResponse {
   Code: number;
   Message: string;
-  Data: DataDetail;
+  data: DataDetail;
 }
 export interface DataDetail {
   creation_time: string,
@@ -35,6 +35,7 @@ export interface DataDetail {
   sample_size: number,
   table_name: string,
   upload_job_status: string
+  not_uploaded_locally: boolean
 }
 export interface Id_Meta {
   id_encryption_type: number,
@@ -76,9 +77,9 @@ export class DataDetailsComponent implements OnInit, OnDestroy {
     preview_array: '',
     sample_size: 0,
     table_name: '',
-    upload_job_status: ''
+    upload_job_status: '',
+    not_uploaded_locally: false
   };
-
   dataDetailResponse: any;
   dataDetailList: DataDetail[] = [];
   errorMessage: string = "";
@@ -87,12 +88,15 @@ export class DataDetailsComponent implements OnInit, OnDestroy {
   key: any;
   isPageLoading: boolean = true;
   isShowDataDetailFailed: boolean = false;
+  // not_uploaded_locally flag
+  uploadLocally = false;
   //showDataDetail is to get the Data Detail
   showDataDetail() {
     const routeParams = this.route.snapshot.paramMap;
     const productIdFromRoute = String(routeParams.get('data_id'));
     this.dataservice.getDataDetail(productIdFromRoute)
       .subscribe((data: DataDetailResponse) => {
+        this.uploadLocally = data.data.not_uploaded_locally
         this.dataDetailResponse = data;
         this.datadetail = this.dataDetailResponse.data;
         this.displayMeta();
@@ -131,20 +135,21 @@ export class DataDetailsComponent implements OnInit, OnDestroy {
   isDownloadFailed: boolean = false;
   //downloadData is to request for downloading data 
   downloadData(data_id: string, data_name: string) {
-    this.isDownloadSubmit = true;
-    this.isDownloadFailed = false;
-    this.dataservice.downloadDataDetail(data_id)
-      .subscribe((data: any) => {
-        this.msg.success('serverMessage.download200', 1000)
-        this.isDownloadSubmit = true;
-        let blob: any = new Blob([data], { type: 'text/plain' });
-        const url = window.URL.createObjectURL(blob);
-        fileSaver.saveAs(blob, data_name);
-      }), (error: any) => {
-        this.isDownloadFailed = true;
-        this.errorMessage = 'Error downloading the file';
-      }
-      , () => console.info('Data downloaded successfully');
+    window.open(window.location.origin + '/api/v1/data/'+ data_id +'/file')
+    // this.isDownloadSubmit = true;
+    // this.isDownloadFailed = false;
+    // this.dataservice.downloadDataDetail(data_id)
+    //   .subscribe((data: any) => {
+    //     this.msg.success('serverMessage.download200', 1000)
+    //     this.isDownloadSubmit = true;
+    //     let blob: any = new Blob([data], { type: 'text/plain' });
+    //     const url = window.URL.createObjectURL(blob);
+    //     fileSaver.saveAs(blob, data_name);
+    //   }), (error: any) => {
+    //     this.isDownloadFailed = true;
+    //     this.errorMessage = 'Error downloading the file';
+    //   }
+    //   , () => console.info('Data downloaded successfully');
   };
 
   metaOnChange: boolean = false;

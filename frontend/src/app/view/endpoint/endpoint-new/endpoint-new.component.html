@@ -40,6 +40,12 @@
       <clr-step-title>{{'EndpointNew.endpointConfiguration'| translate}}</clr-step-title>
       <clr-step-description></clr-step-description>
       <clr-step-content *clrIfExpanded>
+        <clr-select-container class="no-warp" *ngIf="endpointNamespaceList && endpointNamespaceList.length > 0">
+          <label>{{'NewCluster.namespace'| translate}}</label>
+          <select clrSelect name="endpoint_namespace" formControlName="endpoint_namespace" (change)="postEndpointScan($event)">
+            <option [value]="ns" *ngFor="let ns of endpointNamespaceList">{{ns}}</option>
+          </select>
+        </clr-select-container>
         <clr-select-container class="no-warp">
           <label>{{'EndpointNew.endpointType'| translate}}</label>
           <select clrSelect name="endpoint_type" formControlName="endpoint_type" (change)="postEndpointScan($event)"
@@ -82,9 +88,10 @@
             </div>
           </div>
         </div>
-        <button clrStepButton="next" [disabled]="!needAdd && !needInstall" *ngIf="!selectedEndpoint?.is_managed" (click)="onClickNext()"><span
-            *ngIf="needAdd">{{'CommonlyUse.add'| translate}}</span><span *ngIf="!needAdd">{{'CommonlyUse.next'|
-            translate}}</span></button>
+        <button clrStepButton="next" [disabled]="endpointDisabled" *ngIf="!selectedEndpoint?.is_managed" (click)="onClickNext()">
+          <span *ngIf="needAdd">{{'CommonlyUse.add'| translate}}</span>
+          <span *ngIf="!needAdd">{{'CommonlyUse.next'| translate}}</span>
+        </button>
         <button class="btn btn-primary" *ngIf="selectedEndpoint?.is_managed"
           [routerLink]="['/endpoint-detail', selectedEndpoint?.uuid]">{{'CommonlyUse.finish'| translate}}</button>
       </clr-step-content>
@@ -131,12 +138,18 @@
               (ngModelChange)="selectChange($event)" />
             <clr-control-error>{{ 'validator.empty' | translate}}</clr-control-error>
           </clr-input-container>
-          <clr-input-container class="no-warp no-warp2" *ngIf="!needAdd">
-            <label>{{'EndpointNew.hostname'| translate}}</label>
-            <input clrInput name="hostname" formControlName="hostname" required
+          <div style="display: flex; align-items: flex-end;" *ngIf="!needAdd">
+            <clr-input-container class="no-warp no-warp2" >
+              <label>{{'EndpointNew.hostname'| translate}}</label>
+              <input clrInput name="hostname" formControlName="hostname" required
               (ngModelChange)="selectChange($event)" />
-            <clr-control-error>{{ 'validator.empty' | translate}}</clr-control-error>
-          </clr-input-container>
+              <clr-control-error>{{ 'validator.empty' | translate}}</clr-control-error>
+            </clr-input-container>
+            <div style="font-size: 12px; color: #666; margin-left: 20px;">
+              <cds-icon style="color: hsl(198, 80%, 46%);" class="alert-icon" shape="info-circle"></cds-icon>
+              {{'EndpointNew.ingressRule' | translate}}
+            </div>
+          </div>
         </ul>
         <br>
         <h5 *ngIf="!needAdd"><b>{{'EndpointNew.registryConfiguration'| translate}}</b></h5>
@@ -216,7 +229,7 @@
             required></textarea>
         </clr-textarea-container>
         <br>
-        <clr-checkbox-container *ngIf="!needAdd" class="no-warp no-warp3">
+        <clr-checkbox-container *ngIf="showIngressControllerService" class="no-warp no-warp3">
           <label>{{'EndpointNew.ingressControllerService' | translate}}:</label>
           <clr-checkbox-wrapper>
             <input type="checkbox" clrCheckbox value="need_ingress" name="need_ingress" formControlName="need_ingress"

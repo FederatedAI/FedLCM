@@ -67,21 +67,13 @@ export class FedService {
     return this.http.post('/federation/fate/'+ fed_uuid +'/partyID/check', {},{params: params});
   }
 
-  getClusterYaml(federation_uuid:string, chart_uuid:string, party_id:number, namespace:string, name:string, service_type: number, registry: string, use_registry: boolean, use_registry_secret: boolean, enable_persistence: boolean, storage_class: string, enable_psp: boolean) {
-    let params = new HttpParams()
-    .set('chart_uuid', chart_uuid)
-    .set('federation_uuid', federation_uuid)
-    .set('party_id', party_id)
-    .set('namespace', namespace)
-    .set('name', name)
-    .set('service_type', service_type)
-    .set('registry', registry)
-    .set('use_registry', use_registry)
-    .set('use_registry_secret', use_registry_secret)
-    .set('enable_persistence', enable_persistence)
-    .set('storage_class', storage_class)
-    .set('enable_psp', enable_psp);
-    return this.http.get<any>('/federation/fate/cluster/yaml',{params: params});
+  getClusterYaml(queryList: any[]) {
+    let baseurl = '/federation/fate/cluster/yaml?'
+    queryList.forEach(query => {
+      baseurl += query.key + '=' + query.value + '&'
+    });
+    baseurl.slice(0, -1)    
+    return this.http.get<any>(baseurl);
   }
 
   createCluster(fed_uuid:string, clusterInfo:any): Observable<any> {

@@ -41,7 +41,7 @@ func (r *ProjectParticipantRepo) GetByProjectUUID(uuid string) (interface{}, err
 	var participantList []entity.ProjectParticipant
 	err := db.Where("project_uuid = ?", uuid).Find(&participantList).Error
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 	return participantList, nil
 }
@@ -57,6 +57,15 @@ func (r *ProjectParticipantRepo) GetByProjectAndSiteUUID(projectUUID, siteUUID s
 		return nil, err
 	}
 	return participant, nil
+}
+
+func (r *ProjectParticipantRepo) GetBySiteUUID(siteUUID string) (interface{}, error) {
+	var participantList []entity.ProjectParticipant
+	err := db.Where("site_uuid = ?", siteUUID).Find(&participantList).Error
+	if err != nil {
+		return nil, err
+	}
+	return participantList, nil
 }
 
 func (r *ProjectParticipantRepo) Create(instance interface{}) error {

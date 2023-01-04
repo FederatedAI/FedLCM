@@ -114,7 +114,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: {{ with .Values.image.registry }}{{ printf "%s/" . }}{{ end }}{{ .Values.modules.frontend.image | default "site-portal-frontend" }}:{{ .Values.modules.frontend.imageTag | default "latest"}}
+          image: {{ .Values.modules.frontend.image | default (printf "%s/%s"  .Values.image.registry "site-portal-frontend" ) }}:{{ .Values.modules.frontend.imageTag | default (printf "%s" (include "sitePortal.images.tag" .)) }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
           {{ if .Values.modules.sitePortalServer.tlsEnabled }}

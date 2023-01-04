@@ -83,13 +83,17 @@ export class ClusterNewComponent implements OnInit {
         ])
       ),
       certificate: this.formBuilder.group({
-        cert: ['skip'],
-        site_portal_client_cert_mode: [1],
+        cert: ['use'],
+        site_portal_client_cert_mode: ['1'],
         site_portal_client_cert_uuid: [''],
-        site_portal_server_cert_mode: [1],
+        site_portal_client_cert_mode_radio: {value: 'new'},
+
+        site_portal_server_cert_mode: ['1'],
         site_portal_server_cert_uuid: [''],
-        pulsar_server_cert_info: [1],
-        pulsar_server_cert_uuid: ['']
+        site_portal_server_cert_mode_radio: {value: 'new'},
+        pulsar_server_cert_info: ['1'],
+        pulsar_server_cert_uuid: [''],
+        pulsar_server_cert_info_radio: {value: 'new'},
       }),
       serviceType: this.formBuilder.group({
         serviceType: [null],
@@ -98,12 +102,12 @@ export class ClusterNewComponent implements OnInit {
         ValidatorGroup([
           {
             name: 'enablePersistence',
-            type: [''],
+            type: ['notRequired'],
             value: false
           },
           {
             name: 'storageClassName',
-            type: ['noSpace'],
+            type: ['notRequired','noSpace'],
             value: ""
           },
         ])
@@ -112,12 +116,12 @@ export class ClusterNewComponent implements OnInit {
         ValidatorGroup([
           {
             name: 'useRegistry',
-            type: [''],
+            type: ['notRequired'],
             value: false
           },
           {
             name: 'useRegistrySecret',
-            type: [''],
+            type: ['notRequired'],
             value: false
           },
           {
@@ -145,6 +149,99 @@ export class ClusterNewComponent implements OnInit {
       psp: this.formBuilder.group({
         enablePSP: [false],
       }),
+      externalSpark: this.formBuilder.group(ValidatorGroup([
+        {
+          name: 'enable_external_spark',
+          type: ['notRequired'],
+          value: false
+        },
+        {
+          name: 'enable_external_hdfs',
+          type: ['notRequired'],
+          value: false
+        },
+        {
+          name: 'enable_external_pulsar',
+          type: [''],
+          value: false
+        },
+        {
+          name: 'external_spark_cores_per_node',
+          type: ['notRequired', 'atLeastOne'],
+          value: ''
+        },
+        {
+          name: 'external_spark_node',
+          type: ['notRequired','atLeastOne'],
+          value: ''
+        },
+        {
+          name: 'external_spark_master',
+          type: ['notRequired','not-compliant'],
+          value: ""
+        },
+        {
+          name: 'external_spark_driverHost',
+          type: ['notRequired','ip'],
+          value: ""
+        },
+        {
+          name: 'external_spark_driverHostType',
+          type: [''],
+          value: "NodePort"
+        },
+        {
+          name: 'external_spark_portMaxRetries',
+          type: ['notRequired','atLeastOne'],
+          value: ''
+        },
+        {
+          name: 'external_spark_driverStartPort',
+          type: ['notRequired','numberPort'],
+          value: ''
+        },
+        {
+          name: 'external_spark_blockManagerStartPort',
+          type: ['notRequired','numberPort'],
+          value: ''
+        },
+        {
+          name: 'external_spark_pysparkPython',
+          type: [''],
+          value: ""
+        },
+        {
+          name: 'external_hdfs_name_node',
+          type: ['notRequired','not-compliant'],
+          value: ""
+        },
+        {
+          name: 'external_hdfs_path_prefix',
+          type: [''],
+          value: ""
+        },
+        {
+          name: 'external_pulsar_host',
+          type: ['notRequired', 'ip'],
+          value: ""
+        },
+        {
+          name: 'external_pulsar_mng_port',
+          type: ['notRequired','numberPort'],
+          value: ''
+        },
+        {
+          name: 'external_pulsar_port',
+          type: ['notRequired','numberPort'],
+          value: ''
+        },
+        {
+          name: 'external_pulsar_ssl_port',
+          type: ['notRequired','numberPort'],
+          value: ''
+        }
+      ])),
+
       yaml: this.formBuilder.group({
         yaml: [''],
       })
@@ -152,6 +249,7 @@ export class ClusterNewComponent implements OnInit {
 
     this.showEndpointList();
     this.showChartList();
+    
   }
 
   ngOnInit(): void {
@@ -173,6 +271,150 @@ export class ClusterNewComponent implements OnInit {
   //submitExternalClusterDisable returns true when the input provided for adding an external Cluster is invaid
   get submitExternalClusterDisable() {
     return !this.form.controls['external'].valid || (this.isCreatedExternalSubmit && !this.isCreatedExternalFailed)
+  }
+  // set Namespace Disabled 
+  get setNamespaceDisabled() {
+    if (this.selectedEndpoint && this.selectedEndpoint.namespace) {
+      this.form.get('namespace')?.get('namespace')?.setValue(this.selectedEndpoint.namespace)
+      return true
+    } else {
+      return false
+    }
+  }
+
+  // external_spark_disabled returns true when the input provided for adding external spark is invalid
+  get external_spark_disabled() {
+    const result = []
+    result[0] = this.form.get('externalSpark')?.get('enable_external_spark')?.value
+    result[1] = this.form.get('externalSpark')?.get('enable_external_hdfs')?.value
+    result[2] = this.form.get('externalSpark')?.get('enable_external_pulsar')?.value
+    if (result.every(item => item == false)) {
+      return false
+    } else {
+      const arg: string[] = []
+      result.forEach((res, index) => {
+        if (res) {
+          switch (index) {
+            case 0:
+              arg.push('Spark')
+              break;
+            case 1:
+              arg.push('Hdfs')
+              break;
+            case 2:
+              arg.push('Pulsar')
+              break;
+                
+            default:
+              break;
+          }
+        }
+      });      
+      return this.externalSparkExtraction(arg)
+    }
+  }
+  // Extraction function to determine whether the Select External Spark next button is disabled
+  externalSparkExtraction (arg: string[]) {
+    const key1 = arg[0]
+    const key2 = arg[1]
+    const key3 = arg[2]
+    const {sparkValuess, hdfsValues, pulsarValues} = this.extractSparkHandler(false)
+    const result: any = {
+      resultSpark: false,
+      resultHdfs: false,
+      resultPulsar: false
+    }
+    result.resultSpark = sparkValuess.every(item => item.value !== '' && item.value !== null)
+    result.resultHdfs = hdfsValues.every(item => item.value !== '' && item.value !== null)
+    result.resultPulsar = pulsarValues.every(item => item.value !== '' && item.value !== null)
+    
+    if (key3) {
+      if ((!result['result' + key1]) || (!result['result' + key2]) || (!result['result' + key3])) {
+        return true
+      }
+    } else if (key2) {
+      if ((!result['result' + key1]) || (!result['result' + key2])) {
+        return true
+      }
+    } else {
+      if (!(result['result' + key1])) {
+        return true
+      }
+    }
+    return false
+  }
+
+  // Extract spark related word break values.
+  extractSparkHandler(bool: boolean) {
+    const sparkValuess = []
+    sparkValuess[0] = {
+      key: 'external_spark_node',
+      value: this.form.get('externalSpark')?.get('external_spark_node')?.value
+    }
+    sparkValuess[1] = {
+      key: 'external_spark_master',
+      value: this.form.get('externalSpark')?.get('external_spark_master')?.value
+    }
+    sparkValuess[2] = {
+      key: 'external_spark_cores_per_node',
+      value: this.form.get('externalSpark')?.get('external_spark_cores_per_node')?.value
+    }
+    sparkValuess[3] = {
+      key: 'external_spark_driverHostType',
+      value: this.form.get('externalSpark')?.get('external_spark_driverHostType')?.value
+    }
+    sparkValuess[4] = {
+      key: 'external_spark_portMaxRetries',
+      value: this.form.get('externalSpark')?.get('external_spark_portMaxRetries')?.value
+    }
+    sparkValuess[5] = {
+      key: 'external_spark_driverStartPort',
+      value: this.form.get('externalSpark')?.get('external_spark_driverStartPort')?.value
+    }
+    sparkValuess[6] = {
+      key: 'external_spark_blockManagerStartPort',
+      value: this.form.get('externalSpark')?.get('external_spark_blockManagerStartPort')?.value
+    }
+    sparkValuess[7] = {
+      key: 'external_spark_driverHost',
+      value: this.form.get('externalSpark')?.get('external_spark_driverHost')?.value
+    }
+    const hdfsValues = []
+    const pulsarValues = []
+
+    pulsarValues[0] = {
+      key: 'external_pulsar_mng_port',
+      value: this.form.get('externalSpark')?.get('external_pulsar_mng_port')?.value
+    }
+    pulsarValues[1] = {
+      key: 'external_pulsar_port',
+      value: this.form.get('externalSpark')?.get('external_pulsar_port')?.value
+    }
+    pulsarValues[2] = {
+      key: 'external_pulsar_ssl_port',
+      value: this.form.get('externalSpark')?.get('external_pulsar_ssl_port')?.value
+    }
+    pulsarValues[3] = {
+      key: 'external_pulsar_host',
+      value: this.form.get('externalSpark')?.get('external_pulsar_host')?.value
+    }
+
+    if (bool) {
+      sparkValuess[8] = {
+        key: 'external_spark_pysparkPython',
+        value: this.form.get('externalSpark')?.get('external_spark_pysparkPython')?.value
+      }
+      hdfsValues[0] = {
+        key: 'external_hdfs_name_node',
+        value: this.form.get('externalSpark')?.get('external_hdfs_name_node')?.value
+      }
+      hdfsValues[1] = {
+        key: 'external_hdfs_path_prefix',
+        value: this.form.get('externalSpark')?.get('external_hdfs_path_prefix')?.value
+      }
+
+    }
+    return {sparkValuess, hdfsValues, pulsarValues}
   }
 
   isCreatedExternalSubmit = false;
@@ -222,6 +464,7 @@ export class ClusterNewComponent implements OnInit {
   isShowEndpointFailed: boolean = false;
   isPageLoading: boolean = true;
   noEndpoint = false;
+
   //showEndpointList is to get the ready endpoint list
   showEndpointList() {
     this.isShowEndpointFailed = false;
@@ -263,7 +506,7 @@ export class ClusterNewComponent implements OnInit {
     }
   }
 
-  use_cert: boolean = false;
+  use_cert: boolean = true;
   skip_cert: boolean = false;
   //setRadioDisplay is trigger when the selection of certificate's mode is changed
   setRadioDisplay(val: any) {
@@ -282,11 +525,30 @@ export class ClusterNewComponent implements OnInit {
 
   //cert_disabled is to validate the configuration of certificate section and disabled the 'Next' button if needed
   get cert_disabled() {
-    var case1 = this.use_cert && this.isChartContainsPortalservices && (this.form.controls['certificate'].get('pulsar_server_cert_info')?.value === 1 ||
-      this.form.controls['certificate'].get('site_portal_server_cert_mode')?.value === 1
-      || this.form.controls['certificate'].get('site_portal_client_cert_mode')?.value === 1)
-    var case2 = this.use_cert && !this.isChartContainsPortalservices && this.form.controls['certificate'].get('pulsar_server_cert_info')?.value === 1
-    return (case1 || case2)
+    // cert is skip
+    if (this.form.get('certificate')?.get('cert')?.value === 'skip') {
+      return false
+    } else {
+      // isChartContainsPortalservices value is true
+      if (this.isChartContainsPortalservices) {
+        const pulsar_server_cert_info_radio = this.form.get('certificate')?.get('pulsar_server_cert_info_radio')?.value
+        const site_portal_server_cert_mode_radio = this.form.get('certificate')?.get('site_portal_server_cert_mode_radio')?.value
+        const site_portal_client_cert_mode_radio = this.form.get('certificate')?.get('site_portal_client_cert_mode_radio')?.value
+        if (pulsar_server_cert_info_radio && site_portal_server_cert_mode_radio && site_portal_client_cert_mode_radio) {
+          return false
+        } else {
+          return true
+        }
+      } else {
+        const pulsar_server_cert_info_radio = this.form.get('certificate')?.get('pulsar_server_cert_info_radio')?.value
+        if (pulsar_server_cert_info_radio) {
+          return false
+        } else {
+          return true
+        }
+      }
+    }
+
   }
 
   //service_type_disabled is to validate the configuration of Service type section and disabled the 'Next' button if needed
@@ -531,8 +793,8 @@ export class ClusterNewComponent implements OnInit {
   //resetCert is triggered when the selection of chart is changed
   resetCert() {
     this.formResetChild('certificate');
-    this.form.get('certificate')?.get('cert')?.setValue("skip");
-    this.setRadioDisplay("skip");
+    this.form.get('certificate')?.get('cert')?.setValue("use");
+    this.setRadioDisplay("use");
   }
 
   //enablePSP returns if enable the pod secrurity policy
@@ -546,16 +808,92 @@ export class ClusterNewComponent implements OnInit {
   //generateYaml is to get the exchange initial yaml based on the configuration provided by user
   generateClusterYaml() {
     this.isGenerateSubmit = true;
-    var chart_id = this.form.controls['chart'].get('chart_uuid')?.value;
-    var namespace = this.form.controls['namespace'].get('namespace')?.value?.trim();
-    var party_id = this.form.controls['party'].get('party_id')?.value;
-    var name = this.form.controls['info'].get('name')?.value?.trim();
-    var service_type = Number(this.form.controls['serviceType'].get('serviceType')?.value);
-    var enable_persistence = this.form.controls['persistence'].get('enablePersistence')?.value;
-    if (enable_persistence === null) enable_persistence = false;
-    var storage_class = this.enablePersistence ? this.form.controls['persistence'].get('storageClassName')?.value?.trim() : "";
-    if (namespace === '') namespace = 'fate-' + this.form.controls['party'].get('party_id')?.value;
-    this.fedservice.getClusterYaml(this.fed_uuid, chart_id, party_id, namespace, name, service_type, this.registryConfig, this.useRegistry, this.useRegistrySecret, enable_persistence, storage_class, this.enablePSP).subscribe(
+    const spark = this.form.get('externalSpark')?.get('enable_external_spark')?.value
+    const hdfs = this.form.get('externalSpark')?.get('enable_external_hdfs')?.value
+    const pulsar = this.form.get('externalSpark')?.get('enable_external_pulsar')?.value
+    const {sparkValuess, hdfsValues, pulsarValues} = this.extractSparkHandler(true)
+    // Build the passed query parameter list
+    const queryList: any = [
+      {
+        key: 'federation_uuid',
+        value: this.fed_uuid
+      },
+      {
+        key: 'chart_uuid',
+        value: this.form.controls['chart'].get('chart_uuid')?.value
+      },
+      {
+        key: 'party_id',
+        value: this.form.controls['party'].get('party_id')?.value
+      },
+      {
+        key: 'namespace',
+        value: this.form.controls['namespace'].get('namespace')?.value?.trim()
+      },
+      {
+        key: 'name',
+        value: this.form.controls['info'].get('name')?.value?.trim()
+      },
+      {
+        key: 'service_type',
+        value: Number(this.form.controls['serviceType'].get('serviceType')?.value)
+      },
+      {
+        key: 'registry',
+        value: this.registryConfig
+      },
+      {
+        key: 'use_registry',
+        value: this.useRegistry
+      },
+      {
+        key: 'use_registry_secret',
+        value: this.useRegistrySecret
+      },
+      {
+        key: 'enable_persistence',
+        value: this.form.controls['persistence'].get('enablePersistence')?.value
+      },
+      {
+        key: 'storage_class',
+        value: this.enablePersistence ? this.form.controls['persistence'].get('storageClassName')?.value?.trim() : ""
+      },
+      {
+        key: 'enable_psp',
+        value: this.enablePSP
+      },
+      {
+        key: 'enable_external_spark',
+        value: spark
+      },
+      {
+        key: 'enable_external_hdfs',
+        value: hdfs
+      },
+      {
+        key: 'enable_external_pulsar',
+        value: pulsar
+      }
+    ]
+    if (spark) {
+      sparkValuess.forEach(item => {
+        queryList.push(item)
+      })
+    }
+    if (hdfs) {
+      hdfsValues.forEach(item => {
+        queryList.push(item)
+      })
+    }
+    if (pulsar) {
+      pulsarValues.forEach(item => {
+        queryList.push(item)
+      })
+    }
+
+    this.fedservice.getClusterYaml(queryList).
+    subscribe(
+
       data => {
         this.form.get('yaml')?.get('yaml')?.setValue(data.data);
         // if code mirror object and yaml DOM are existing, just set value to the code mirror object
@@ -629,6 +967,28 @@ export class ClusterNewComponent implements OnInit {
   createNewCluster() {
     this.isCreatedFailed = false;
     this.isCreatedSubmit = true;
+    if (this.isChartContainsPortalservices) {
+      if(this.use_cert) {
+        this.form.controls['certificate'].get('pulsar_server_cert_info')?.setValue('3')
+        this.form.controls['certificate'].get('site_portal_client_cert_mode')?.setValue('3')
+        this.form.controls['certificate'].get('site_portal_server_cert_mode')?.setValue('3')
+      } else {
+        this.form.controls['certificate'].get('pulsar_server_cert_info')?.setValue('1')
+        this.form.controls['certificate'].get('site_portal_client_cert_mode')?.setValue('1')
+        this.form.controls['certificate'].get('site_portal_server_cert_mode')?.setValue('1')
+      }
+    } else {
+      if(this.use_cert) {
+        this.form.controls['certificate'].get('pulsar_server_cert_info')?.setValue('3')
+        this.form.controls['certificate'].get('site_portal_client_cert_mode')?.setValue('1')
+        this.form.controls['certificate'].get('site_portal_server_cert_mode')?.setValue('1')
+      } else {
+        this.form.controls['certificate'].get('pulsar_server_cert_info')?.setValue('1')
+        this.form.controls['certificate'].get('site_portal_client_cert_mode')?.setValue('1')
+        this.form.controls['certificate'].get('site_portal_server_cert_mode')?.setValue('1')
+      }
+    }
+
     const clusterInfo = {
       chart_uuid: this.form.controls['chart'].get('chart_uuid')?.value,
       deployment_yaml: this.codeMirror.getTextArea().value,
@@ -664,6 +1024,8 @@ export class ClusterNewComponent implements OnInit {
         uuid: this.form.controls['certificate'].get('site_portal_server_cert_uuid')?.value
       }
     }
+
+
     this.fedservice.createCluster(this.fed_uuid, clusterInfo)
       .subscribe(
         data => {
@@ -707,6 +1069,11 @@ export class ClusterNewComponent implements OnInit {
   //valid_server_url return if the the server url is valid or not
   get valid_server_url() {
     return this.form.get('registry.server_url')?.valid && this.form.controls['registry'].get('server_url')?.value?.trim() != ''
+  }
+
+  // onChange_use_registry fires when the value of the incoming 'type' changes
+  onChange_external_spark(data: Boolean, type: 'spark' | 'hdfs' | 'pulsar') {
+
   }
 
 }

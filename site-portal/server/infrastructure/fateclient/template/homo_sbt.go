@@ -17,65 +17,65 @@ package template
 const homoSBTDSL = `
 {
   "components": {
-    "reader_0": {
-      "output": {
-        "data": [
-          "data"
-        ]
+      "reader_0": {
+          "module": "Reader",
+          "output": {
+              "data": [
+                  "data"
+              ]
+          }
       },
-      "module": "Reader"
-    },
-    "evaluation_0": {
-      "output": {
-        "data": [
-          "data"
-        ]
+      "DataTransform_0": {
+          "module": "DataTransform",
+          "input": {
+              "data": {
+                  "data": [
+                      "reader_0.data"
+                  ]
+              }
+          },
+          "output": {
+              "data": [
+                  "data"
+              ],
+              "model": [
+                  "model"
+              ]
+          }
       },
-      "input": {
-        "data": {
-          "data": [
-            "HomoSecureboost_0.data"
-          ]
-        }
+      "HomoSecureBoost_0": {
+          "module": "HomoSecureBoost",
+          "input": {
+              "data": {
+                  "train_data": [
+                      "DataTransform_0.data"
+                  ]
+              }
+          },
+          "output": {
+              "data": [
+                  "data"
+              ],
+              "model": [
+                  "model"
+              ]
+          }
       },
-      "module": "Evaluation"
-    },
-    "dataio_0": {
-      "output": {
-        "data": [
-          "data"
-        ],
-        "model": [
-          "model"
-        ]
-      },
-      "input": {
-        "data": {
-          "data": [
-            "reader_0.data"
-          ]
-        }
-      },
-      "module": "DataIO"
-    },
-    "HomoSecureboost_0": {
-      "output": {
-        "data": [
-          "data"
-        ],
-        "model": [
-          "model"
-        ]
-      },
-      "input": {
-        "data": {
-          "train_data": [
-            "dataio_0.data"
-          ]
-        }
-      },
-      "module": "HomoSecureboost"
-    }
+      "Evaluation_0": {
+          "module": "Evaluation",
+          "input": {
+              "data": {
+                  "data": [
+                      "HomoSecureBoost_0.data"
+                  ]
+              }
+          },
+          "output": {
+              "data": [
+                  "data"
+              ]
+          }
+      }
   }
 }
 `
@@ -101,36 +101,39 @@ const homoSBTConf = `
   "job_parameters": {
     "common": {
       "job_type": "train",
-      "backend": 2,
-      "work_mode": 1,
+      "task_parallelism": 2,
+      "computing_partitions": 8,
+      "eggroll_run": {
+        "eggroll.session.processors.per.node": 2
+      },
       "spark_run": {
-        "num-executors": 1,
+        "num-executors": 2,
         "executor-cores": 1,
-        "total-executor-cores": 1
+        "total-executor-cores": 2
       }
     }
   },
   "component_parameters": {
     "common": {
-      "evaluation_0": {
-        "eval_type": "binary"
-      },
-      "HomoSecureboost_0": {
-        "task_type": "classification",
-        "objective_param": {
-          "objective": "cross_entropy"
-        },
-        "num_trees": 3,
-        "validation_freqs": 1,
-        "tree_param": {
-          "max_depth": 3
-        }
-      },
-      "dataio_0": {
+      "DataTransform_0": {
         "with_label": true,
         "output_format": "dense",
-        "label_type": "int",
-        "label_name": "%s"
+		    "label_type": "int",
+    	  "label_name": "%s"
+      },
+      "HomoSecureBoost_0": {
+          "task_type": "classification",
+          "objective_param": {
+              "objective": "cross_entropy"
+          },
+          "num_trees": 3,
+          "validation_freqs": 1,
+          "tree_param": {
+              "max_depth": 3
+          }
+      },
+      "Evaluation_0": {
+          "eval_type": "binary"
       }
     },
     "role": {
@@ -153,7 +156,33 @@ const homoSBTConf = `
 const homoSBTHomoDataSplitDSL = `
 {
   "components": {
-    "homo_data_split_0": {
+    "reader_0": {
+      "module": "Reader",
+      "output": {
+        "data": [
+          "data"
+        ]
+      }
+    },
+    "DataTransform_0": {
+      "module": "DataTransform",
+      "input": {
+        "data": {
+          "data": [
+            "reader_0.data"
+          ]
+        }
+      },
+      "output": {
+        "data": [
+          "data"
+        ],
+        "model": [
+          "model"
+        ]
+      }
+    },
+    "HomoDataSplit_0": {
       "output": {
         "data": [
           "train_data",
@@ -164,73 +193,47 @@ const homoSBTHomoDataSplitDSL = `
       "input": {
         "data": {
           "data": [
-            "dataio_0.data"
+            "DataTransform_0.data"
           ]
         }
       },
       "module": "HomoDataSplit"
     },
-    "reader_0": {
-      "output": {
-        "data": [
-          "data"
-        ]
-      },
-      "module": "Reader"
-    },
-    "evaluation_0": {
-      "output": {
-        "data": [
-          "data"
-        ]
-      },
-      "input": {
-        "data": {
-          "data": [
-            "HomoSecureboost_0.data"
-          ]
+    "HomoSecureBoost_0": {
+        "module": "HomoSecureBoost",
+        "input": {
+            "data": {
+              "validate_data": [
+                "HomoDataSplit_0.validate_data"
+              ],
+              "train_data": [
+                "HomoDataSplit_0.train_data"
+              ]
+            }
+        },
+        "output": {
+            "data": [
+                "data"
+            ],
+            "model": [
+                "model"
+            ]
         }
-      },
-      "module": "Evaluation"
     },
-    "dataio_0": {
-      "output": {
-        "data": [
-          "data"
-        ],
-        "model": [
-          "model"
-        ]
-      },
-      "input": {
-        "data": {
-          "data": [
-            "reader_0.data"
-          ]
+    "Evaluation_0": {
+        "module": "Evaluation",
+        "input": {
+            "data": {
+                "data": [
+                    "HomoSecureBoost_0.data"
+                ]
+            }
+        },
+        "output": {
+            "data": [
+                "data"
+            ]
         }
-      },
-      "module": "DataIO"
-    },
-    "HomoSecureboost_0": {
-      "output": {
-        "data": [
-          "data"
-        ],
-        "model": [
-          "model"
-        ]
-      },
-      "input": {
-        "data": {
-          "validate_data": [
-            "homo_data_split_0.validate_data"
-          ],
-          "train_data": [
-            "homo_data_split_0.train_data"
-          ]
-        }
-      },
-      "module": "HomoSecureboost"
     }
   }
 }
@@ -257,18 +260,21 @@ const homoSBTHomoDataSplitConf = `
   "job_parameters": {
     "common": {
       "job_type": "train",
-      "backend": 2,
-      "work_mode": 1,
+      "task_parallelism": 2,
+      "computing_partitions": 8,
+      "eggroll_run": {
+        "eggroll.session.processors.per.node": 2
+      },
       "spark_run": {
-        "num-executors": 1,
+        "num-executors": 2,
         "executor-cores": 1,
-        "total-executor-cores": 1
+        "total-executor-cores": 2
       }
     }
   },
   "component_parameters": {
     "common": {
-      "homo_data_split_0": {
+      "HomoDataSplit_0": {
         "validate_size": %s,
         "split_points": [
           0,
@@ -277,13 +283,13 @@ const homoSBTHomoDataSplitConf = `
         "test_size": 0,
         "stratified": true
       },
-      "dataio_0": {
+      "DataTransform_0": {
         "with_label": true,
         "output_format": "dense",
-		"label_type": "int",
-		"label_name": "%s"
+		    "label_type": "int",
+    	  "label_name": "%s"
       },
-      "HomoSecureboost_0": {
+      "HomoSecureBoost_0": {
         "task_type": "classification",
         "objective_param": {
           "objective": "cross_entropy"
@@ -294,7 +300,7 @@ const homoSBTHomoDataSplitConf = `
           "max_depth": 3
         }
       },
-      "evaluation_0": {
+      "Evaluation_0": {
         "eval_type": "binary"
       }
     },

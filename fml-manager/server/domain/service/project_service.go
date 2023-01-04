@@ -601,3 +601,52 @@ func (s *ProjectService) HandleProjectClosing(projectUUID string, otherSiteList 
 	}()
 	return nil
 }
+
+// HandleParticipantUnregistration changes the status of all the impacted project on one of its participants unregistration
+func (s *ProjectService) HandleParticipantUnregistration(siteUUID string, allSites []ProjectParticipantSiteInfo) error {
+	listInstance, err := s.ParticipantRepo.GetBySiteUUID(siteUUID)
+	if err != nil {
+		return errors.Wrap(err, "error retrieving participants info by site uuid")
+	}
+	participantList := listInstance.([]entity.ProjectParticipant)
+	for _, participant := range participantList {
+		// 1. dismiss data
+		if listInstance, err := s.ProjectDataRepo.GetListByProjectAndSiteUUID(participant.ProjectUUID, participant.SiteUUID); err != nil {
+			log.Err(err).Msgf("failed to query project data from project %v and site %v, continue", participant.ProjectUUID, siteUUID)
+		} else {
+			projectDataList := listInstance.([]entity.ProjectData)
+			for _, data := range projectDataList {
+				if data.Status != entity.ProjectDataStatusDismissed {
+					if err := s.HandleDataDismissal(participant.ProjectUUID, data.DataUUID, nil); err != nil {
+						log.Err(err).Msgf("failed to process project data dismissal, project %v and data %v, continue", participant.ProjectUUID, data.DataUUID)
+					}
+				}
+			}
+		}
+		// 2. close or leave project
+		if participant.Status == entity.ProjectParticipantStatusOwner {
+			if err := s.HandleProjectClosing(participant.ProjectUUID, nil); err != nil {
+				log.Err(err).Msgf("failed to process project closing for site: %v(%v), project: %v, continue", participant.SiteName, siteUUID, participant.ProjectUUID)
+			}
+		} else {
+			if err := s.HandleParticipantLeaving(participant.ProjectUUID, siteUUID, nil); err != nil {
+				log.Err(err).Msgf("failed to process participant leaving for site: %v(%v), project: %v, continue", participant.SiteName, siteUUID, participant.ProjectUUID)
+			}
+		}
+	}
+	// TODO: process related invitation entities?
+
+	go func() {
+		// XXX: we are issuing the event to all sites. Better to only issue the event to "impacted" sites
+		for _, targetSite := range allSites {
+			go func(site ProjectParticipantSiteInfo) {
+				log.Info().Msgf("sending site unregistration event to site: %s(%s)", site.Name, site.UUID)
+				client := siteportal.NewSitePortalClient(site.ExternalHost, site.ExternalPort, site.HTTPS, site.ServerName)
+				if err := client.SendProjectParticipantUnregistration(siteUUID); err != nil {
+					log.Err(err).Msgf("failed to send site unregistration event to site: %s(%s)", site.Name, site.UUID)
+				}
+			}(targetSite)
+		}
+	}()
+	return nil
+}

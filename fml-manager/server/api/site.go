@@ -48,6 +48,7 @@ func (controller *SiteController) Route(r *gin.RouterGroup) {
 	{
 		site.GET("", controller.getSite)
 		site.POST("", controller.postSite)
+		site.DELETE(":uuid", controller.deleteSite)
 	}
 }
 
@@ -92,6 +93,32 @@ func (controller *SiteController) postSite(c *gin.Context) {
 			return err
 		}
 		return controller.siteAppService.RegisterSite(updatedSiteInfo)
+	}(); err != nil {
+		resp := &GeneralResponse{
+			Code:    constants.RespInternalErr,
+			Message: err.Error(),
+		}
+		c.JSON(http.StatusInternalServerError, resp)
+	} else {
+		resp := &GeneralResponse{
+			Code: constants.RespNoErr,
+		}
+		c.JSON(http.StatusOK, resp)
+	}
+}
+
+// deleteSite removes a site
+// @Summary Remove a site, all related projects will be impacted
+// @Tags Site
+// @Produce json
+// @Param uuid path string true "The site UUID"
+// @Success 200 {object} GeneralResponse "Success"
+// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
+// @Router /site/{uuid} [delete]
+func (controller *SiteController) deleteSite(c *gin.Context) {
+	if err := func() error {
+		siteUUID := c.Param("uuid")
+		return controller.siteAppService.UnregisterSite(siteUUID)
 	}(); err != nil {
 		resp := &GeneralResponse{
 			Code:    constants.RespInternalErr,

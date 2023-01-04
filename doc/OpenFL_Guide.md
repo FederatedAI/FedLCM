@@ -14,6 +14,8 @@ The high-level steps are
 3. FedLCM deploys the KubeFATE service and the OpenFL envoy components onto the device/node/machine's K8s cluster.
 4. the envoy is configured with the address of the director service, so it will register to the director service upon started.
 
+> Currently the core images for FedLCM's OpenFL federations are not made public yet, please talk with the maintainer for the access details.
+
 ## Prerequisite
 
 * Basic understanding of the [director-based](https://openfl.readthedocs.io/en/latest/running_the_federation.html#director-based-workflow) workflow of the OpenFL project.
@@ -25,7 +27,7 @@ The high-level steps are
 ## Running FedLCM Service
 
 ### Deployment
-The FedLCM service can be deployed via docker-compose or in a K8s cluster. Refer to the [README](../README.md) doc for the steps.
+The FedLCM service can be deployed via docker-compose or in a K8s cluster. Refer to the [README](../README.md) doc for the steps. As currently OpenFL support in FedLCM is in experimental phase, we need to set `LIFECYCLEMANAGER_EXPERIMENT_ENABLED` to `true` to enable it when running FedLCM.
 
 After deploying the FedLCM, access the web UI from a browser:
 <div style="text-align:center">
@@ -59,7 +61,7 @@ With the service running and CA configured, we can start create the OpenFL feder
 Kubernetes clusters are considered as Infrastructures in the FedLCM service. All the other installation are performed on these K8s clusters. To deploy the director, one must firstly add the target K8s into the system.
 Go to the "Infrastructure" section and click the "NEW" button. What needs to be filled is the KubeConfig content that FedLCM will use to connect the K8s cluster.
 
-**The user configured in the KubeConfig should have the privilege to create all core K8s resource including namespace, deployment, configmap, role, secret, etc. We haven't tested the exact rules. If not sure, use the cluster-admin ClusterRole**
+**Even though for FATE we can support namespace-wide admin, the user configured in the KubeConfig for OpenFL should have the privilege to create all core K8s resource including namespace, deployment, configmap, role, secret, etc. We haven't tested the exact rules. If not sure, use the cluster-admin ClusterRole**
 
 <div style="text-align:center">
 <img src="images/fedlcm-new-infra.jpg"  alt="" width="1000"/>
@@ -298,6 +300,8 @@ registryConfig:
     username: "type: string"
     password: "type: string"
 ```
+
+> The registryConfig will affect both KubeFATE and OpenFL related images. Make sure you have all the images in your customized registry.
 
 ### Start Registration and Envoy Deployment 
 

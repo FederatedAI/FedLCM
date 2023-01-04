@@ -57,6 +57,8 @@ type InfraProviderListItemKubernetes struct {
 // InfraProviderKubernetesConfig contains kubernetes provider details properties
 type InfraProviderKubernetesConfig struct {
 	KubeConfig         string                         `json:"kubeconfig_content"`
+	Namespaces         []string                       `json:"namespaces_list"`
+	IsInCluster        bool                           `json:"is_in_cluster"`
 	RegistryConfigFATE valueobject.KubeRegistryConfig `json:"registry_config_fate"`
 }
 
@@ -95,10 +97,6 @@ func (app *InfraProviderApp) GetProviderList() ([]InfraProviderListItem, error) 
 	}
 	domainProviderList := domainProviderListInstance.([]entity.InfraProviderKubernetes)
 	for _, p := range domainProviderList {
-		APIServer, err := p.Config.APIHost()
-		if err != nil {
-			return nil, err
-		}
 		providerList = append(providerList, InfraProviderListItem{
 			InfraProviderItemBase: InfraProviderItemBase{
 				InfraProviderEditableItem: InfraProviderEditableItem{
@@ -110,7 +108,7 @@ func (app *InfraProviderApp) GetProviderList() ([]InfraProviderListItem, error) 
 				CreatedAt: p.CreatedAt,
 			},
 			KubernetesProviderInfo: InfraProviderListItemKubernetes{
-				APIServer: APIServer,
+				APIServer: p.APIHost,
 			},
 		})
 	}
@@ -134,6 +132,8 @@ func (app *InfraProviderApp) CreateProvider(providerInfo *InfraProviderCreationR
 			},
 			Config: valueobject.KubeConfig{
 				KubeConfigContent: providerInfo.KubernetesProviderInfo.KubeConfig,
+				IsInCluster:       providerInfo.KubernetesProviderInfo.IsInCluster,
+				NamespacesList:    providerInfo.KubernetesProviderInfo.Namespaces,
 			},
 			RegistryConfigFATE: providerInfo.KubernetesProviderInfo.RegistryConfigFATE,
 			Repo:               app.InfraProviderKubernetesRepo,
@@ -165,7 +165,6 @@ func (app *InfraProviderApp) GetProviderDetail(uuid string) (*InfraProviderDetai
 	}
 	domainProvider := domainProviderInstance.(*entity.InfraProviderKubernetes)
 
-	apiHost, err := domainProvider.Config.APIHost()
 	if err != nil {
 		return nil, err
 	}
@@ -181,10 +180,12 @@ func (app *InfraProviderApp) GetProviderDetail(uuid string) (*InfraProviderDetai
 		},
 		KubernetesProviderInfo: InfraProviderInfoKubernetes{
 			InfraProviderListItemKubernetes: InfraProviderListItemKubernetes{
-				APIServer: apiHost,
+				APIServer: domainProvider.APIHost,
 			},
 			InfraProviderKubernetesConfig: InfraProviderKubernetesConfig{
 				KubeConfig:         domainProvider.Config.KubeConfigContent,
+				Namespaces:         domainProvider.Config.NamespacesList,
+				IsInCluster:        domainProvider.Config.IsInCluster,
 				RegistryConfigFATE: domainProvider.RegistryConfigFATE,
 			},
 		},
@@ -204,6 +205,8 @@ func (app *InfraProviderApp) UpdateProvider(uuid string, updateProviderInfo *Inf
 			},
 			Config: valueobject.KubeConfig{
 				KubeConfigContent: updateProviderInfo.KubernetesProviderInfo.KubeConfig,
+				NamespacesList:    updateProviderInfo.KubernetesProviderInfo.Namespaces,
+				IsInCluster:       updateProviderInfo.KubernetesProviderInfo.IsInCluster,
 			},
 			RegistryConfigFATE: updateProviderInfo.KubernetesProviderInfo.RegistryConfigFATE,
 			Repo:               app.InfraProviderKubernetesRepo,

@@ -14,7 +14,10 @@
     "match":"Passwords do not match.",
     "password":"Password should be 8-20 characters long with at least 1 uppercase, 1 lowercase and 1 number.",
     "fileSize": "The maximum upload file size is d%",
-    "fileFormat": "The upload file format can only be: d%"
+    "fileFormat": "The upload file format can only be: d%",
+    "notCompliant": "The content is not compliant, please fill in according to the regulations.",
+    "atLeastOne": "At Least 1",
+    "portRange": "port fill in the range is 0-65535"
   },
   "serverMessage": {
     "default200": "Successful operation",
@@ -142,7 +145,8 @@
     "ingressControllerService": "Install an Ingress Controller for me",
     "notCompatible": "This endpoint is not compatible, please manually uninstall it before proceeding.",
     "registryConfiguration": "Registry Configuration",
-    "serviceConfiguration": "Service Configuration"
+    "serviceConfiguration": "Service Configuration",
+    "ingressRule": "Please make sure there is no existing Ingress rule using same host address on this infrastructure."
   },
   "EndpointDetail": {
     "name": "Endpoint Detail",
@@ -176,7 +180,12 @@
     "password": "Password",
     "toSubmit": "To submit, you need to pass the Kubeconfig test.",
     "urlSuggestion": "You may want to use:",
-    "togglePlacerHolder": "Toggle to 'false' to use the deafult registry from Docker Hub"
+    "togglePlacerHolder": "Toggle to 'false' to use the deafult registry from Docker Hub",
+    "namespaceList": "Namespace List",
+    "namespacePlaceholder": "To specify multiple namespaces, use ',' to separate them",
+    "namespaceSwitch": "Limited to certain namespaces",
+    "inputKubeconfigContent": "Input Kubeconfig Content",
+    "useIn_clusterServiceAccount": "Use in-cluster Service Account"
   },
   "Federation": {
     "name": "Federation",
@@ -213,7 +222,7 @@
     "selectChart": "Select a Chart",
     "setPartyID": "Set a Party ID",
     "setNamespace": "Set a Namespace",
-    "namespace": "Namespace",
+    "namespace": "Namespaces",
     "selectCertificates": "Select Certificates",
     "useCertificates": "Install certificates for me",
     "skip": "Skip, I will manually install certificates",
@@ -237,7 +246,26 @@
     "pulsar": "Pulsar Public TLS",
     "nginx" : "Nginx",
     "host" : "Host",
-    "port" : "Port"
+    "port" : "Port",
+    "chooseExternalSpark": "Whether to Use Existing External Engine Service",
+    "spark": "Spark",
+    "hdfs": "HDFS",
+    "Pulsar": "Pulsar",
+    "node": "Node",
+    "master": "Master",
+    "driverHost": "Driver Host",
+    "driverHostType": "Driver Host Type",
+    "portMaxRetries": "Port Max Retries",
+    "driverStartPort": "Driver Start Port",
+    "blockManagerStartPort": "Block Manager Start Port",
+    "pysparkPython": "Pyspark Python",
+    "hdfsNameNode": "Name Node",
+    "hdfsPathPrefix": "Path Prefix",
+    "pulsarHost": "Host",
+    "pulsarMngPort": "Manager Port",
+    "pulsarPort": "Port",
+    "sslPort": "SSL Port",
+    "coresPerNode": "Cores Per Node"
   },
   "ExchangeNew": {
     "name": "Create a New Exchange",

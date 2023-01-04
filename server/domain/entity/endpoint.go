@@ -21,6 +21,7 @@ type EndpointBase struct {
 	gorm.Model
 	UUID              string       `json:"uuid" gorm:"type:varchar(36);index;unique"`
 	InfraProviderUUID string       `gorm:"type:varchar(36)"`
+	Namespace         string       `json:"namespace" gorm:"type:varchar(255)"`
 	Name              string       `json:"name" gorm:"type:varchar(255);unique;not null"`
 	Description       string       `json:"description" gorm:"type:text"`
 	Version           string       `json:"version" gorm:"type:varchar(255)"`

@@ -14,7 +14,10 @@
     "match":"两次密码不相同",
     "password":"新密码长度必须在8-20之间，至少有一个大写字母，一个小写字母，和一个数字",
     "fileSize": "文件最大容量是d%",
-    "fileFormat": "文件格式只能为：d%"
+    "fileFormat": "文件格式只能为：d%",
+    "notCompliant": "填写内容不合规，请按规定填写",
+    "atLeastOne": "至少需要1个",
+    "portRange": "port 填写范围是0-65535"
   },
   "serverMessage": {
     "default200": "操作成功",
@@ -142,7 +145,8 @@
     "ingressControllerService": "为我安装Ingress控制器",
     "notCompatible": "这个服务端点不兼容，请手动卸载后再继续。",
     "registryConfiguration": "Registry 配置",
-    "serviceConfiguration": "服务配置"
+    "serviceConfiguration": "服务配置",
+    "ingressRule": "请确保在此基础架构上没有使用相同主机地址的现有 Ingress 规则"
   },
   "EndpointDetail": {
     "name": "服务端点详情",
@@ -176,7 +180,12 @@
     "password": "密码",
     "toSubmit": "你需要先通过Kubeconfig测试后才能提交。",
     "urlSuggestion": "你或许想用:",
-    "togglePlacerHolder": "将按钮置为'false' 来使用默认的DockerHub Registry"
+    "togglePlacerHolder": "将按钮置为'false' 来使用默认的DockerHub Registry",
+    "namespaceList": "命名空间列表",
+    "namespacePlaceholder": "多个namespace 请使用用 , 隔开",
+    "namespaceSwitch": "限定命名空间",
+    "inputKubeconfigContent": "手动输入Kubeconfig",
+    "useIn_clusterServiceAccount": "使用当前服务的Service Account"
   },
   "Federation": {
     "name": "联邦",
@@ -237,7 +246,26 @@
     "pulsar": "Pulsar Public TLS",
     "nginx" : "Nginx",
     "host" : "Host",
-    "port" : "Port"
+    "port" : "Port",
+    "chooseExternalSpark": "选择是否使用已存在的基础引擎服务",
+    "spark": "Spark",
+    "hdfs": "HDFS",
+    "Pulsar": "Pulsar",
+    "node": "节点数",
+    "master": "Master",
+    "driverHost": "Driver Host 地址",
+    "driverHostType": "Driver Host 服务类型",
+    "portMaxRetries": "端口最大尝试次数",
+    "driverStartPort": "Driver 起始端口",
+    "blockManagerStartPort": "Block Manager 起始端口",
+    "pysparkPython": "Pyspark Python 路径",
+    "hdfsNameNode": "NameNode地址",
+    "hdfsPathPrefix": "路径前缀",
+    "pulsarHost": "主机地址",
+    "pulsarMngPort": "管理端口",
+    "pulsarPort": "端口",
+    "sslPort": "SSL 端口",
+    "coresPerNode": "单个节点核心数"
   },
   "ExchangeNew": {
     "name": "创建Exchange",
@@ -275,7 +303,6 @@
     "noAccessInformation" :"无访问信息",
     "certificateInformation": "证书信息",
     "isDelete": "确定删除这个Exchange?"
-
   },
   "ClusterDetail":{
     "detail": "Cluster详情",

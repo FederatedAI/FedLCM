@@ -51,6 +51,11 @@ definitions:
       uuid:
         type: string
     type: object
+  event.ProjectParticipantUnregistrationEvent:
+    properties:
+      siteUUID:
+        type: string
+    type: object
   event.ProjectParticipantUpdateEvent:
     properties:
       description:
@@ -633,6 +638,39 @@ paths:
       summary: Process participant leaving
       tags:
       - Project
+  /project/event/participant/unregister:
+    post:
+      parameters:
+      - description: Unregistered site info
+        in: body
+        name: site
+        required: true
+        schema:
+          $ref: '#/definitions/event.ProjectParticipantUnregistrationEvent'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Process participant unregistration event, called by this FML manager's
+        site context only
+      tags:
+      - Project
   /project/event/participant/update:
     post:
       parameters:
@@ -844,6 +882,33 @@ paths:
                   type: integer
               type: object
       summary: Create or update site info
+      tags:
+      - Site
+  /site/{uuid}:
+    delete:
+      parameters:
+      - description: The site UUID
+        in: path
+        name: uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Remove a site, all related projects will be impacted
       tags:
       - Site
 swagger: "2.0"

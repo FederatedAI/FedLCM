@@ -2,6 +2,10 @@
 
 Managing FATE jobs from each site.
 
+## Supported FATE versions
+
+The current Site Portal v0.2.0 has been verified to work with FATE v1.9.1. In theory, it should work with FATE v1.7+ including future v1.x versions. We welcome feedbacks from community on how it works with other versions.
+
 ## Build
 ```
 make all
@@ -44,22 +48,20 @@ step ca root
 ```
 2. Then `cd` to `tls/cert` folder, run commands below to create certificates and keys (replace `<CommonName>`(e.g. 1.fate.org), `<CertValidTime>`(e.g. 8760h) with your site configuration):
 ```
-step ca certificate <CommonName> --san localhost server.crt server.key --not-after=<CertValidTime>
+step ca certificate <CommonName> --san localhost --san <ServerName> server.crt server.key --not-after=<CertValidTime>
 
 step ca certificate <CommonName> client.crt client.key --not-after=<CertValidTime>
 ```
 
 * For the server cert, the `localhost` SAN name is required because our sever may call itself via the localhost address.
+* For the server cert, the `<ServerName>` should be the address that FML Manager use to connect to this service.
 * You can optionally add your other address and dns names as SANs in the command line.
 
-**If you want to use other methods to generate the certificates and keys**
-* For server.crt server.key, make sure to include `<CommonName>` and <SAN> `localhost`.
-    1. If you have a usable FQDN, you can use it as your `<CommonName>`, and set <SAN> `localhost`
-    2. If you don't have a usable FQDN, set your `<CommonName>` with your preference. Then append <SAN> with `localhost`.
-* For client.crt client.key, make sure to include `<CommonName>`
+**If you want to use other methods to generate the certificates and keys**, one thing to note is for server.crt server.key, make sure the SAN field includes the `localhost` and a valid `<ServerName>`.
 
 ### Run Site Portal
 * `cd` to the project root folder
+* Change the `SITEPORTAL_TLS_COMMON_NAME` value to the `<ServerName>` we configured before.
 ```
 docker-compose -f docker-compose-https.yml up
 ```
@@ -96,16 +98,17 @@ Firstly, in the "Site Configuration" page, we need to configure the basic inform
   * When FedLCM is used, we can simply input the follow info:
     * FATE-Flow address should be `fateflow`
     * HTTP port should be `9380`
-  * If Site Portal is not deployed along with FATE cluster via KubeFATE, then users need to find the exposed ip and port of the FATE-Flow service. Currently it can only works with FATE v1.6.1 using Spark and Pulsar as backend.
+  * If Site Portal is not deployed along with FATE cluster via KubeFATE, then users need to find the exposed ip and port of the FATE-Flow service.
 * The Kubeflow configuration is for deploying horizontal models to KFServing system. They are optional and require an installation of MinIO and KFServing. Currently they are not used.
 * After saving the configuration, click "register" button next to the FML Manager configuration section to register this service to the FML Manager.
   * In the future, if we have changed some site settings, the connection status to FML Manager will change to not connected. We need to register again to update our new site information to FML Manager.
   * This means if you want to disconnect ourselves from FML Manager, then you can clean the FML Manager endpoint settings and save again.
 
-### 3. Upload local data in the "data management" page
+### 3. Upload/Add local data in the "data management" page
 * CSV files can be uploaded to the system via this page.
 * Site Portal needs to upload the data to the FATE cluster, so the "Upload Job Status" field of each data is the status of the "uploading to FATE" job.
   * Only data in "Succeeded" status can be used in future FATE training and predicting jobs.
+* Or, we can add existing table from FATE system into site portal so we can use them from the portal.
 
 ### 4. Create project in the "project management" page
 Once created, this project can be viewed as a "local" project. Its information will not be sent to FML Manager, until we invite other parties to join this project.
@@ -127,7 +130,7 @@ Once created, this project can be viewed as a "local" project. Its information w
 ### 8. Work with trained models
 * Models can be viewed in the "model management" tab in project or "model management" page in the main page.
 * They can be used in "prediction" type of job.
-* Currently the publish function will return error as FATE v1.6.1 does not support such operation. This is a placeholder for future integration with newer FATE versions.
+* Currently the publish function is a placeholder for future integration with newer FATE versions.
 
 ### 9. Other operations
 * All parties can dismiss their own data association so it won't be used for futurre jobs.

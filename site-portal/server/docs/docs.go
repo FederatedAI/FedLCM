@@ -141,6 +141,60 @@ const docTemplate = `{
                 }
             }
         },
+        "/data/associate": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "LocalData"
+                ],
+                "summary": "Associate flow data table to a local data",
+                "parameters": [
+                    {
+                        "description": "Local data association request",
+                        "name": "project",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/service.LocalDataAssociateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success, the data field is the data UUID",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized operation",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/data/{uuid}": {
             "get": {
                 "produces": [
@@ -1678,6 +1732,58 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/service.ProjectCreationRequest"
                         }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized operation",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/project/internal/all/participant/{siteUUID}/unregister": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Project"
+                ],
+                "summary": "Process participant unregistration event, called by FML manager only",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Participant Site UUID",
+                        "name": "siteUUID",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -3695,6 +3801,49 @@ const docTemplate = `{
                 }
             }
         },
+        "/site/fmlmanager/unregister": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Site"
+                ],
+                "summary": "Unregister from the fml manager",
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized operation",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/site/kubeflow/connect": {
             "post": {
                 "produces": [
@@ -4735,6 +4884,23 @@ const docTemplate = `{
                 }
             }
         },
+        "service.LocalDataAssociateRequest": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "table_name": {
+                    "type": "string"
+                },
+                "table_namespace": {
+                    "type": "string"
+                }
+            }
+        },
         "service.LocalDataDetail": {
             "type": "object",
             "properties": {
@@ -4764,6 +4930,9 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
+                },
+                "not_uploaded_locally": {
+                    "type": "boolean"
                 },
                 "preview_array": {
                     "type": "string"

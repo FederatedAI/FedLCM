@@ -133,7 +133,7 @@
         </li>
       </ul>
     </div>
-    <div class="card">
+    <div class="card" *ngIf="!uploadLocally">
       <div class="card-block">
         <h6 class="card-title">{{'dataDetail.dataPreview' | translate}}:</h6>
       </div>
@@ -144,6 +144,10 @@
         </clr-dg-row> 
       </clr-datagrid>        
     </div>
+    <h4 *ngIf="uploadLocally" style="color: #333; font-weight: 500; font-size: .7rem;">
+      <cds-icon shape="exclamation-triangle"></cds-icon>
+      {{'dataDetail.note'| translate}}
+    </h4>
     <br>
     <!-- <button class="btn" (click)="openModal=true">{{'dataDetail.deleteData' | translate}}</button> -->
     <!-- <button *ngIf="metaOnChange" class="btn" (click)='putIDmetaUpdate(datadetail.data_id)'>Save ID Metadata</button>  -->

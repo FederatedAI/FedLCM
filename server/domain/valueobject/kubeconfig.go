@@ -15,19 +15,26 @@
 package valueobject
 
 import (
+	"context"
 	"crypto/sha256"
 	"database/sql/driver"
 	"encoding/json"
 	"fmt"
+	"github.com/pkg/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/FederatedAI/FedLCM/pkg/kubernetes"
 	"github.com/rs/zerolog/log"
 )
 
 // KubeConfig contains necessary information needed to work with a kubernetes cluster
-// Currently only the kubeconfig content is included
 type KubeConfig struct {
+	// KubeConfigContent stores the kubeconfig file of a K8s cluster
 	KubeConfigContent string `json:"kubeconfig_content"`
+	// IsInCluster indicates this config can be used for in cluster actions, meaning the KubeConfig content can be empty
+	IsInCluster bool `json:"is_in_cluster"`
+	// NamespacesList stores namespaces the user in KubeConfigContent can access
+	NamespacesList []string `json:"namespaces_list"`
 }
 
 func (c KubeConfig) Value() (driver.Value, error) {
@@ -39,9 +46,9 @@ func (c *KubeConfig) Scan(v interface{}) error {
 	return json.Unmarshal([]byte(v.(string)), c)
 }
 
-// Validate checks if the config can be used to connect to a K8s cluster
+// Validate checks if the config can be used to connect to a K8s cluster and if the user has enough privilege
 func (c *KubeConfig) Validate() error {
-	client, err := kubernetes.NewKubernetesClient("", c.KubeConfigContent)
+	client, err := kubernetes.NewKubernetesClient("", c.KubeConfigContent, c.IsInCluster)
 	if err != nil {
 		return err
 	}
@@ -50,13 +57,30 @@ func (c *KubeConfig) Validate() error {
 		return err
 	}
 	log.Info().Msgf("got k8s server version: %s", versionInfo.String())
+
+	if len(c.NamespacesList) != 0 {
+		log.Info().Msgf("check admin privilege by getting rolebindings in namespaces %v", c.NamespacesList)
+		for _, namespace := range c.NamespacesList {
+			roleBindingList, err := client.GetClientSet().RbacV1().RoleBindings(namespace).List(context.Background(), metav1.ListOptions{})
+			if err != nil {
+				log.Error().Msgf("cannot get role bindings in namespace: %s", namespace)
+				return errors.Wrapf(err, "not enough privileges in namespace: %s", namespace)
+			}
+			log.Info().Msgf("got %d role bindings in namespace: %s", len(roleBindingList.Items), namespace)
+		}
+	} else if clusterRoleBindingList, err := client.GetClientSet().RbacV1().ClusterRoleBindings().List(context.Background(), metav1.ListOptions{}); err != nil {
+		log.Error().Msgf("no namespace was provided")
+		return errors.New("expect namespaces")
+	} else {
+		log.Info().Msgf("get %d cluster role bindings success", len(clusterRoleBindingList.Items))
+	}
 	// TODO: check other conditions like permissions, ingress installation status etc.
 	return nil
 }
 
 // APIHost returns the address for the API server connection
 func (c *KubeConfig) APIHost() (string, error) {
-	client, err := kubernetes.NewKubernetesClient("", c.KubeConfigContent)
+	client, err := kubernetes.NewKubernetesClient("", c.KubeConfigContent, c.IsInCluster)
 	if err != nil {
 		return "", err
 	}

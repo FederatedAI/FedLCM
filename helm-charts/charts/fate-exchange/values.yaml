@@ -2,10 +2,15 @@ partyId: 1
 partyName: fate-exchange
 
 image:
-  registry: 
+  registry: federatedai
+  isThridParty:
+  tag: 1.9.1-release
   pullPolicy: IfNotPresent
   imagePullSecrets: 
-#  - name:
+#  - name: 
+  
+partyId: 9999
+partyName: fate-9999
 
 podSecurityPolicy:
   enabled: false
@@ -13,18 +18,42 @@ podSecurityPolicy:
 persistence:
   enabled: false
 
+partyList:
+- partyId: 8888
+  partyIp: 192.168.8.1
+  partyPort: 30081
+- partyId: 10000
+  partyIp: 192.168.10.1
+  partyPort: 30101
+
 modules:
-  nginx:
-    include: true
-    image: federatedai/nginx
-    imageTag: 1.6.1-release
+  rollsite: 
+    include: false
+    ip: rollsite
     type: ClusterIP
-    # httpNodePort:  30003
-    # grpcNodePort:  30008
-    # loadBalancerIP: 
-    # nodeSelector: 
-    # tolerations:
-    # affinity:
+    nodePort: 30001
+    loadBalancerIP:
+    enableTLS: false
+    nodeSelector:
+    tolerations:
+    affinity:
+    # partyList is used to configure the cluster information of all parties that join in the exchange deployment mode. (When eggroll was used as the calculation engine at the time)
+    partyList:
+    # - partyId: 8888
+      # partyIp: 192.168.8.1
+      # partyPort: 30081
+    # - partyId: 10000
+      # partyIp: 192.168.10.1
+      # partyPort: 30101
+  nginx:
+    include: false
+    type: NodePort
+    httpNodePort:  30003
+    grpcNodePort:  30008
+    loadBalancerIP: 
+    nodeSelector: 
+    tolerations:
+    affinity:
     # route_table is used to configure the cluster information of all parties that join in the exchange deployment mode. (When Spark was used as the calculation engine at the time)
     route_table:
       # 10000: 
@@ -46,22 +75,21 @@ modules:
           # host: 192.168.9.1
           # http_port: 30093
   trafficServer:
-    image: federatedai/trafficserver
-    imageTag: latest
-    include: true
+    include: false
     type: ClusterIP
-    # nodePort: 30007
-    # loadBalancerIP: 
-    # nodeSelector: 
-    # tolerations:
-    # affinity:
+    nodePort: 30007
+    loadBalancerIP: 
+    nodeSelector: 
+    tolerations:
+    affinity:
     # route_table is used to configure the cluster information of all parties that join in the exchange deployment mode. (When Spark was used as the calculation engine at the time)
     route_table: 
-      sni:
+      # sni:
       # - fqdn: 10000.fate.org
         # tunnelRoute: 192.168.0.2:30109
       # - fqdn: 9999.fate.org
         # tunnelRoute: 192.168.0.3:30099
+
   postgres:
     include: true
     type: ClusterIP
@@ -82,7 +110,7 @@ modules:
   fmlManagerServer:
     include: true
     image: federatedai/fml-manager-server
-    imageTag: v0.1.0
+    imageTag: v0.2.0
     # nodeSelector:
     # tolerations:
     # affinity:

@@ -46,11 +46,24 @@ type DataUploadRequest struct {
 	File      string `json:"file"`
 	Head      int    `json:"head"`
 	Partition int    `json:"partition"`
-	WorkMode  int    `json:"work_mode"`
-	Backend   int    `json:"backend"`
 	Namespace string `json:"namespace"`
 	TableName string `json:"table_name"`
 	Drop      int    `json:"drop"`
+}
+
+// TableSchema is schema description of the data table
+type TableSchema struct {
+	Header string `json:"header"`
+	Sid    string `json:"sid"`
+}
+
+// TableInfo is response data of the table info query api
+type TableInfo struct {
+	Count     int         `json:"count"`
+	Exist     int         `json:"partition"`
+	Namespace string      `json:"namespace"`
+	TableName string      `json:"table_name"`
+	Schema    TableSchema `json:"schema"`
 }
 
 // ComponentTrackingCommonRequest is the request to query the metric of a component
@@ -169,6 +182,51 @@ func (c *client) UploadData(request DataUploadRequest) (string, error) {
 	return uploadDataResponse.JobID, nil
 }
 
+// QueryTableInfo returns the specified table's info
+func (c *client) QueryTableInfo(tableNamespace, tableName string) (*TableInfo, error) {
+	resp, err := c.postJSON("table/table_info",
+		fmt.Sprintf(`{"namespace": "%s", "table_name": "%s"}`, tableNamespace, tableName))
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	body, err := c.parseResponse(resp)
+	if err != nil {
+		return nil, err
+	}
+	type TableInfoResponse struct {
+		CommonResponse
+		Data TableInfo `json:"data"`
+	}
+	var tableInfoResp TableInfoResponse
+	err = json.Unmarshal(body, &tableInfoResp)
+	if err != nil {
+		return nil, err
+	}
+	if tableInfoResp.RetCode != 0 {
+		return nil, errors.Errorf("error return code: %d, msg: %s", tableInfoResp.RetCode, tableInfoResp.RetMsg)
+	}
+	return &tableInfoResp.Data, nil
+}
+
+// GetDataDownloadRequest returns a *http.Request object to be used to download the data table
+func (c *client) GetDataDownloadRequest(tableNamespace, tableName string) (*http.Request, error) {
+	body := struct {
+		Namespace string `json:"namespace"`
+		Name      string `json:"name"`
+	}{
+		Namespace: tableNamespace,
+		Name:      tableName,
+	}
+	payload, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	req, _ := http.NewRequest("GET", c.genURL("table/download"), bytes.NewBuffer(payload))
+	req.Header.Set("Content-Type", "application/json")
+	return req, nil
+}
+
 // DeleteTable deletes a table in fate
 func (c *client) DeleteTable(tableNamespace, tableName string) error {
 	resp, err := c.postJSON("table/delete",
@@ -260,10 +318,12 @@ func (c *client) QueryJobStatus(jobID string) (string, error) {
 func (c *client) SubmitJob(conf, dsl string) (string, *ModelInfo, error) {
 	var confObj map[string]interface{}
 	if err := json.Unmarshal([]byte(conf), &confObj); err != nil {
+		log.Err(err).Str("conf", conf).Msg("Unmarshal conf")
 		return "", nil, err
 	}
 	var dslObj map[string]interface{}
 	if err := json.Unmarshal([]byte(dsl), &dslObj); err != nil {
+		log.Err(err).Msg("Unmarshal dsl")
 		return "", nil, err
 	}
 	jobSubmissionBody := map[string]interface{}{
@@ -272,6 +332,7 @@ func (c *client) SubmitJob(conf, dsl string) (string, *ModelInfo, error) {
 	}
 	resp, err := c.postJSON("job/submit", jobSubmissionBody)
 	if err != nil {
+		log.Err(err).Msg("postJSON job/submit")
 		return "", nil, err
 	}
 	defer resp.Body.Close()
@@ -300,11 +361,13 @@ func (c *client) SubmitJob(conf, dsl string) (string, *ModelInfo, error) {
 func (c *client) DeployModel(request ModelDeployRequest) (*ModelInfo, error) {
 	resp, err := c.postJSON("model/deploy", request)
 	if err != nil {
+		log.Err(err).Msg("postJSON")
 		return nil, err
 	}
 	defer resp.Body.Close()
 	body, err := c.parseResponse(resp)
 	if err != nil {
+		log.Err(err).Msg("parseResponse")
 		return nil, err
 	}
 	type ModelDeployResponse struct {
@@ -313,6 +376,7 @@ func (c *client) DeployModel(request ModelDeployRequest) (*ModelInfo, error) {
 	}
 	var response ModelDeployResponse
 	if err := json.Unmarshal(body, &response); err != nil {
+		log.Err(err).Msg("Unmarshal")
 		return nil, err
 	}
 	if response.RetCode != 0 {

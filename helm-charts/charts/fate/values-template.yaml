@@ -1,6 +1,7 @@
 
 image:
-  registry: {{ .registry | default "" }}
+  registry: {{ .registry | default "federatedai" }}
+  isThridParty: {{ empty .registry | ternary  "false" "true" }}
   pullPolicy: {{ .pullPolicy | default "IfNotPresent" }}
   {{- with .imagePullSecrets }}
   imagePullSecrets:
@@ -10,22 +11,20 @@ image:
 partyId: {{ .partyId | int64 | toString }}
 partyName: {{ .name }}
 
-{{- with .istio }}
-istio:
-  enabled: {{ .enabled | default false }}
-{{- end }}
+computing: {{ .computing }}
+federation: {{ .federation }}
+storage: {{ .storage }}
+algorithm: {{ .algorithm }}
+device: {{ .device }}
 
-{{- with .podSecurityPolicy }}
-podSecurityPolicy:
-  enabled: {{ .enabled | default false }}
-{{- end }}
+{{- $partyId := (.partyId | int64 | toString) }}
 
 {{- with .ingress }}
 ingress:
   {{- with .fateboard }}
-  fateboard: 
+  fateboard:
     {{- with .annotations }}
-    annotations: 
+    annotations:
 {{ toYaml . | indent 6 }}
     {{- end }}
     {{- with .hosts }}
@@ -39,9 +38,9 @@ ingress:
   {{- end }}
   
   {{- with .client }}
-  client: 
+  client:
     {{- with .annotations }}
-    annotations: 
+    annotations:
 {{ toYaml . | indent 6 }}
     {{- end }}
     {{- with .hosts }}
@@ -55,9 +54,25 @@ ingress:
   {{- end }}
   
   {{- with .spark }}
-  spark: 
+  spark:
     {{- with .annotations }}
-    annotations: 
+    annotations:
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    {{- with .hosts }}
+    hosts:
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    {{- with .tls }}
+    tls: 
+{{ toYaml . | indent 6 }}
+    {{- end }}
+  {{- end }}
+  
+  {{- with .rabbitmq }}
+  rabbitmq:
+    {{- with .annotations }}
+    annotations:
 {{ toYaml . | indent 6 }}
     {{- end }}
     {{- with .hosts }}
@@ -71,9 +86,9 @@ ingress:
   {{- end }}
   
   {{- with .pulsar }}
-  pulsar: 
+  pulsar:
     {{- with .annotations }}
-    annotations: 
+    annotations:
 {{ toYaml . | indent 6 }}
     {{- end }}
     {{- with .hosts }}
@@ -85,12 +100,11 @@ ingress:
 {{ toYaml . | indent 6 }}
     {{- end }}
   {{- end }}
-  
-  {{- if not .tlsEnabled}}
+
   {{- with .frontend }}
-  frontend: 
+  frontend:
     {{- with .annotations }}
-    annotations: 
+    annotations:
 {{ toYaml . | indent 6 }}
     {{- end }}
     {{- with .hosts }}
@@ -102,25 +116,128 @@ ingress:
 {{ toYaml . | indent 6 }}
     {{- end }}
   {{- end }}
-  {{- end }}
+
+{{- end }}
+
+{{- with .istio }}
+istio:
+  enabled: {{ .enabled | default false }}
+{{- end }}
+
+{{- with .podSecurityPolicy }}
+podSecurityPolicy:
+  enabled: {{ .enabled | default false }}
+{{- end }}
+
+ingressClassName: {{ .ingressClassName | default "nginx"}}
+
+exchange:
+{{- with .rollsite }}
+{{- with .exchange }}
+  partyIp: {{ .ip }}
+  partyPort: {{ .port }}
+{{- end }}
+{{- end }}
+
+exchangeList:
+{{- with .lbrollsite }}
+{{- range .exchangeList }}
+  - id: {{ .id }}
+    ip: {{ .ip }}
+    port: {{ .port }}
+{{- end }}
+{{- end }}
+
+partyList:
+{{- with .rollsite }}
+{{- range .partyList }}
+  - partyId: {{ .partyId }}
+    partyIp: {{ .partyIp }}
+    partyPort: {{ .partyPort }}
+{{- end }}
 {{- end }}
 
 persistence:
   enabled: {{ .persistence | default "false" }}
 
 modules:
-
-
-  python: 
-    include: {{ has "python" .modules }}
-    backend: {{ default "spark" .backend }}
-    {{- with .python }}
-    image: {{ .image }}
-    imageTag: {{ .imageTag }}
+  rollsite: 
+    include: {{ has "rollsite" .modules }}
+    {{- with .rollsite }}
+    ip: rollsite
+    type: {{ .type | default "ClusterIP" }}
+    nodePort: {{ .nodePort }}
+    loadBalancerIP: {{ .loadBalancerIP }}
+    enableTLS: {{ .enableTLS | default false}}
+    {{- with .nodeSelector }}
+    nodeSelector: 
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    {{- with .tolerations }}
+    tolerations:
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    {{- with .affinity }}
+    affinity:
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    {{- with .polling }}
+    polling:
+      enabled: {{ .enabled }}
+      type: {{ .type }}
+      {{- with .server }}
+      server:
+        ip: {{ .ip }}
+        port: {{ .port }}
+      {{- end }}
+      {{- with .clientList }}
+      clientList:
+{{ toYaml . | indent 6 }}
+      {{- end }}
+      concurrency: {{ .concurrency }}
+    {{- end }}
     {{- with .resources }}
     resources:
 {{ toYaml . | indent 6 }}
     {{- end }}
+    {{- end }}
+
+
+  lbrollsite:
+    include: {{ has "lbrollsite" .modules }}
+    {{- with .lbrollsite }}
+    ip: rollsite
+    type: {{ .type | default "ClusterIP" }}
+    loadBalancerIP: {{ .loadBalancerIP }}
+    nodePort: {{ .nodePort }}
+    size: {{ .size | default "2M" }}
+    {{- with .nodeSelector }}
+    nodeSelector:
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    {{- with .tolerations }}
+    tolerations:
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    {{- with .affinity }}
+    affinity:
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    {{- with .resources }}
+    resources:
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    {{- end }}
+
+
+  python: 
+    include: {{ has "python" .modules }}
+    {{- with .python }}
+    {{- with .resources }}
+    resources:
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    logLevel: {{ .logLevel | default "INFO" }}
     type: {{ .type | default "ClusterIP" }}
     httpNodePort: {{ .httpNodePort }}
     grpcNodePort: {{ .grpcNodePort }}
@@ -138,8 +255,8 @@ modules:
     affinity:
 {{ toYaml . | indent 6 }}
     {{- end }}
-    enabledNN: {{ .enabledNN | default false }}
     existingClaim: {{ .existingClaim  }}
+    claimName: {{ .claimName | default "python-data" }}
     storageClass: {{ .storageClass | default "python" }}
     accessMode: {{ .accessMode | default "ReadWriteOnce" }}
     size: {{ .size | default "1Gi" }}
@@ -181,22 +298,62 @@ modules:
     {{- end }}
 
 
-  fateboard:
-    include: {{ has "fateboard" .modules }}
-    {{- with .fateboard }}
-    image: {{ .image }}
-    imageTag: {{ .imageTag }}
-    type: {{ .type }}
-    username: {{ .username }}
-    password: {{ .password }}
-    {{- end}}
+  clustermanager: 
+    include: {{ has "clustermanager" .modules }}
+    {{- with .clustermanager }}
+    ip: clustermanager
+    type: "ClusterIP"
+    enableTLS: {{ .enableTLS | default false }}
+  {{- with .nodeSelector }}
+    nodeSelector: 
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    {{- with .tolerations }}
+    tolerations:
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    {{- with .affinity }}
+    affinity:
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    {{- with .resources }}
+    resources:
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    {{- end }}
+
+
+  nodemanager:  
+    include: {{ has "nodemanager" .modules }}
+    {{- with .nodemanager }}
+    sessionProcessorsPerNode: {{ .sessionProcessorsPerNode }}
+    replicas: {{ .replicas | default 2 }}
+    subPath: {{ .subPath }}
+    storageClass: {{ .storageClass  | default "client" }}
+    accessMode: {{ .accessMode  | default "ReadWriteOnce" }}
+    size: {{ .size  | default "1Gi" }}
+    {{- with .nodeSelector }}
+    nodeSelector: 
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    {{- with .tolerations }}
+    tolerations:
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    {{- with .affinity }}
+    affinity:
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    {{- with .resources }}
+    resources:
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    {{- end }}
 
 
   client: 
     include: {{ has "client" .modules }}
     {{- with .client }}
-    image: {{ .image }}
-    imageTag: {{ .imageTag }}
     subPath: {{ .subPath }}
     existingClaim: {{ .existingClaim }}
     storageClass: {{ .storageClass  | default "client" }}
@@ -220,8 +377,6 @@ modules:
   mysql: 
     include: {{ has "mysql" .modules }}
     {{- with .mysql }}
-    image: {{ .image }}
-    imageTag: {{ .imageTag }}
     type: {{ .type  | default "ClusterIP" }}
     {{- with .nodeSelector }}
     nodeSelector: 
@@ -247,6 +402,7 @@ modules:
     size: {{ .size | default "1Gi" }}
     {{- end }}
 
+
   serving:
     ip: {{ .servingIp }}
     port: {{ .servingPort }}
@@ -256,13 +412,21 @@ modules:
 {{ toYaml .zookeeper | indent 6 }}
     {{- end}}
 
+  fateboard:
+    include: {{ has "fateboard" .modules }}
+    {{- with .fateboard }}
+    type: {{ .type }}
+    username: {{ .username }}
+    password: {{ .password }}
+    {{- end}}
+
   spark:
     include: {{ has "spark" .modules }}
     {{- with .spark }}
     {{- if .master }}
     master:
-      image: "{{ .master.image }}"
-      imageTag: "{{ .master.imageTag }}"
+      Image: "{{ .master.Image }}"
+      ImageTag: "{{ .master.ImageTag }}"
       replicas: {{ .master.replicas }}
       {{- with .master.resources }}
       resources:
@@ -280,12 +444,13 @@ modules:
       affinity:
 {{ toYaml . | indent 8 }}
       {{- end }}
-      type: {{ .master.type | default "ClusterIP" }}
+      type: {{ .master.type }}
+      nodePort: {{ .master.nodePort }}
     {{- end }}
     {{- if .worker }}
     worker:
-      image: "{{ .worker.image }}"
-      imageTag: "{{ .worker.imageTag }}"
+      Image: "{{ .worker.Image }}"
+      ImageTag: "{{ .worker.ImageTag }}"
       replicas: {{ .worker.replicas }}
       {{- with .worker.resources }}
       resources:
@@ -312,8 +477,6 @@ modules:
     include: {{ has "hdfs" .modules }}
     {{- with .hdfs }}
     namenode:
-      image: {{ .namenode.image }}
-      imageTag: {{ .namenode.imageTag }}
       {{- with .namenode.nodeSelector }}
       nodeSelector: 
 {{ toYaml . | indent 8 }}
@@ -333,8 +496,7 @@ modules:
       accessMode: {{ .namenode.accessMode  | default "ReadWriteOnce"  }}
       size: {{ .namenode.size | default "1Gi" }}
     datanode:
-      image: {{ .datanode.image }}
-      imageTag: {{ .datanode.imageTag }}
+      replicas: {{ .datanode.replicas | default 3 }}
       {{- with .datanode.nodeSelector }}
       nodeSelector: 
 {{ toYaml . | indent 8 }}
@@ -358,8 +520,6 @@ modules:
   nginx:
     include: {{ has "nginx" .modules }}
     {{- with .nginx }}
-    image: {{ .image }}
-    imageTag: {{ .imageTag }}
     {{- with .nodeSelector }}
     nodeSelector: 
 {{ toYaml . | indent 6 }}
@@ -390,11 +550,55 @@ modules:
     {{- end }}
 
 
+  rabbitmq:
+    include: {{ has "rabbitmq" .modules }}
+    {{- with .rabbitmq }}
+    {{- with .resources }}
+    resources:
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    {{- with .nodeSelector }}
+    nodeSelector:
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    {{- with .tolerations }}
+    tolerations:
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    {{- with .affinity }}
+    affinity:
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    type: {{ .type | default "ClusterIP" }}
+    nodePort: {{ .nodePort }}
+    default_user: {{ .default_user }}
+    default_pass: {{ .default_pass }}
+    loadBalancerIP: {{ .loadBalancerIP }}
+    user: {{ .user }}
+    password: {{ .password }}
+    route_table:
+      {{- range $key, $val := .route_table }}
+      {{ $key }}: 
+{{ toYaml $val | indent 8 }}
+      {{- end }}
+    {{- end }}
+
+
   pulsar:
     include: {{ has "pulsar" .modules }}
     {{- with .pulsar }}
-    image: {{ .image }}
-    imageTag: {{ .imageTag }}
+    {{- with .resources }}
+    resources:
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    {{- with .env }}
+    env:
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    {{- with .confs }}
+    confs:
+{{ toYaml . | indent 6 }}
+    {{- end }}    
     {{- with .nodeSelector }}
     nodeSelector:
 {{ toYaml . | indent 6 }}
@@ -432,7 +636,6 @@ modules:
     size: {{ .size | default "1Gi" }}
     {{- end }}
 
-
   postgres:
     include: {{ has "postgres" .modules }}
     {{- with .postgres }}
@@ -462,6 +665,7 @@ modules:
     accessMode: {{ .accessMode }}
     size: {{ .size }}
     {{- end }}
+
   frontend:
     include: {{ has "frontend" .modules }}
     {{- with .frontend }}
@@ -483,7 +687,7 @@ modules:
     nodePort: {{ .nodePort }}
     loadBalancerIP: {{ .loadBalancerIP }}
     {{- end }}
-    
+
   sitePortalServer:
     include: {{ has "sitePortalServer" .modules }}
     {{- with .sitePortalServer }}
@@ -524,7 +728,6 @@ modules:
     tlsPort: {{ .tlsPort | default "8443" }}
     tlsCommonName: {{ .tlsCommonName | default "site-1.server.example.com" }}
     {{- end }}
-
 
 externalMysqlIp: {{ .externalMysqlIp }}
 externalMysqlPort: {{ .externalMysqlPort }}

@@ -38,13 +38,10 @@ export class EndpointService {
   checkEndpoint (uuid:string) {
     return this.http.post('/endpoint/'+uuid+'/kubefate/check', {});
   }
-  postEndpointScan (uuid:string, type: string) {
-    return this.http.post('/endpoint/scan', {
-      infra_provider_uuid: uuid,
-      type: type
-    });
+  postEndpointScan (data: any) {
+    return this.http.post('/endpoint/scan', data);
   }
-  getKubefateYaml(service_username: string, service_password: string, hostname: string, use_registry: boolean, registry: string, use_registry_secret: boolean, registry_server_url: string, registry_username: string, registry_password: string) {
+  getKubefateYaml(service_username: string, service_password: string, hostname: string, use_registry: boolean, registry: string, use_registry_secret: boolean, registry_server_url: string, registry_username: string, registry_password: string, namespace: string) {
     let params = new HttpParams()
     .set('service_username', service_username)
     .set('service_password', service_password)
@@ -55,6 +52,9 @@ export class EndpointService {
     .set('registry_server_url', registry_server_url)
     .set('registry_username', registry_username)
     .set('registry_password', registry_password);
+    if (namespace) {
+      params = params.set('namespace', namespace)
+    }
     return this.http.get<any>('/endpoint/kubefate/yaml',{params: params});
   }
 

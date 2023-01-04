@@ -10,47 +10,80 @@ kind: ServiceAccount
 metadata:
   name: fedlcm-admin
   namespace: fedlcm
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
-metadata:
-  name: fedlcm-binding
-  namespace: fedlcm
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: Role
-  name: fedlcm-role
-subjects:
-  - kind: ServiceAccount
-    name: fedlcm-admin
-    namespace: fedlcm
----
-apiVersion: policy/v1beta1
-kind: PodSecurityPolicy
-metadata:
-  name: fedlcm-psp
-  namespace: fedlcm
-spec:
-  privileged: false
-  seLinux:
-    rule: RunAsAny
-  supplementalGroups:
-    rule: RunAsAny
-  runAsUser:
-    rule: RunAsAny
-  fsGroup:
-    rule: RunAsAny
-  volumes:
-  - '*'
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
-metadata:
-  name: fedlcm-role
-  namespace: fedlcm
-rules:
-- apiGroups: ['policy']
-  resources: ['podsecuritypolicies']
-  verbs:     ['use']
-  resourceNames:
-  - fedlcm-psp
+
+# uncomment bellow settings until the end of the fedlcm-role definition if you want to use psp in your cluster
+#---
+#apiVersion: rbac.authorization.k8s.io/v1
+#kind: RoleBinding
+#metadata:
+#  name: fedlcm-binding
+#  namespace: fedlcm
+#roleRef:
+#  apiGroup: rbac.authorization.k8s.io
+#  kind: Role
+#  name: fedlcm-role
+#subjects:
+#  - kind: ServiceAccount
+#    name: fedlcm-admin
+#    namespace: fedlcm
+#---
+#apiVersion: policy/v1beta1
+#kind: PodSecurityPolicy
+#metadata:
+#  name: fedlcm-psp
+#  namespace: fedlcm
+#spec:
+#  privileged: false
+#  seLinux:
+#    rule: RunAsAny
+#  supplementalGroups:
+#    rule: RunAsAny
+#  runAsUser:
+#    rule: RunAsAny
+#  fsGroup:
+#    rule: RunAsAny
+#  volumes:
+#  - '*'
+#---
+#apiVersion: rbac.authorization.k8s.io/v1
+#kind: Role
+#metadata:
+#  name: fedlcm-role
+#  namespace: fedlcm
+#rules:
+#- apiGroups: ['policy']
+#  resources: ['podsecuritypolicies']
+#  verbs:     ['use']
+#  resourceNames:
+#  - fedlcm-psp
+
+# add below settings to enable FedLCM to operator in the specified namespace when adding the cluster as an infra using in-cluster-config
+# ---
+# apiVersion: rbac.authorization.k8s.io/v1
+# kind: RoleBinding
+# metadata:
+#   name: admin-binding-for-fedlcm
+#   namespace: <your namespace>
+# roleRef:
+#   apiGroup: rbac.authorization.k8s.io
+#   kind: ClusterRole
+#   name: admin
+# subjects:
+#   - kind: ServiceAccount
+#     name: fedlcm-admin
+#     namespace: fedlcm
+
+# un-comment below settings to enable FedLCM to operator on the entire cluster when adding the cluster as an infra using in-cluster-config
+# ---
+# apiVersion: rbac.authorization.k8s.io/v1
+# kind: ClusterRoleBinding
+# metadata:
+#   name: cluster-admin-binding-for-fedlcm
+# roleRef:
+#   apiGroup: rbac.authorization.k8s.io
+#   kind: ClusterRole
+#   name: cluster-admin
+# subjects:
+#   - kind: ServiceAccount
+#     name: fedlcm-admin
+#     namespace: fedlcm

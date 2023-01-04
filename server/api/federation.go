@@ -320,8 +320,8 @@ func (controller *FederationController) getFATEExchangeDeploymentYAML(c *gin.Con
 // @Param    uuid             path      string                                          true  "federation UUID"
 // @Param    creationRequest  body      service.ParticipantFATEExchangeCreationRequest  true  "The creation requests"
 // @Success  200              {object}  GeneralResponse                                 "Success, the data field is the created exchange's uuid"
-// @Failure  401              {object}  GeneralResponse                                        "Unauthorized operation"
-// @Failure  500              {object}  GeneralResponse{code=int}                              "Internal server error"
+// @Failure  401              {object}  GeneralResponse                                 "Unauthorized operation"
+// @Failure  500              {object}  GeneralResponse{code=int}                       "Internal server error"
 // @Router   /federation/fate/:uuid/exchange [post]
 func (controller *FederationController) createFATEExchange(c *gin.Context) {
 	if exchangeUUID, err := func() (string, error) {
@@ -446,21 +446,39 @@ func (controller *FederationController) deleteFATEExchange(c *gin.Context) {
 // @Summary  Get FATE cluster deployment yaml
 // @Tags     Federation
 // @Produce  json
-// @Param    chart_uuid           query     string                        true  "the chart uuid"
-// @Param    federation_uuid      query     string                        true  "the federation uuid"
-// @Param    party_id             query     int                           true  "party id"
-// @Param    name                 query     string                        true  "name of the deployment"
-// @Param    namespace            query     string                        true  "namespace of the deployment"
-// @Param    service_type         query     int                           true  "type of the service to be exposed"
-// @Param    use_registry         query     bool                          true  "choose if use the FATE registry config saved in the infra provider"
-// @Param    use_registry_secret  query     bool                          true  "choose if use the FATE registry secret saved in the infra provider"
-// @Param    registry             query     string                        true  "FATE registry config saved in the infra provider"
-// @Param    enable_persistence   query     bool                          true  "choose if use the persistent volume"
-// @Param    storage_class        query     string                        true  "provide the name of StorageClass"
-// @Param    enable_psp           query     bool                          true  "choose if enable the podSecurityPolicy"
-// @Success  200                  {object}  GeneralResponse{data=string}  "Success, the data field is the yaml content"
-// @Failure  401                  {object}  GeneralResponse               "Unauthorized operation"
-// @Failure  500                  {object}  GeneralResponse{code=int}     "Internal server error"
+// @Param    chart_uuid                            query     string                        true   "the chart uuid"
+// @Param    federation_uuid                       query     string                        true   "the federation uuid"
+// @Param    party_id                              query     int                           true   "party id"
+// @Param    name                                  query     string                        true   "name of the deployment"
+// @Param    namespace                             query     string                        true   "namespace of the deployment"
+// @Param    service_type                          query     int                           true   "type of the service to be exposed"
+// @Param    use_registry                          query     bool                          true   "choose if use the FATE registry config saved in the infra provider"
+// @Param    enable_external_spark                 query     bool                          true   "enable link an external Spark"
+// @Param    external_spark_cores_per_node         query     int                           true   "external Spark info"
+// @Param    external_spark_node                   query     int                           true   "external Spark info"
+// @Param    external_spark_master                 query     string                        true   "external Spark info"
+// @Param    external_spark_driverHost             query     string                        true   "external Spark info"
+// @Param    external_spark_driverHostType         query     string                        true   "external Spark info"
+// @Param    external_spark_portMaxRetries         query     int                           true   "external Spark info"
+// @Param    external_spark_driverStartPort        query     int                           true   "external Spark info"
+// @Param    external_spark_blockManagerStartPort  query     int                           true   "external spark info"
+// @Param    external_spark_pysparkPython          query     string                        false  "external spark info"
+// @Param    enable_external_hdfs                  query     bool                          true   "enable link an external HDFS"
+// @Param    external_hdfs_name_node               query     string                        true   "external HDFS info"
+// @Param    external_hdfs_path_prefix             query     string                        false  "external HDFS info"
+// @Param    enable_external_pulsar                query     bool                          true   "enable link an external Pulsar"
+// @Param    external_pulsar_host                  query     string                        true   "external Pulsar info"
+// @Param    external_pulsar_mng_port              query     int                           true   "external Pulsar info"
+// @Param    external_pulsar_port                  query     int                           true   "external Pulsar info"
+// @Param    external_pulsar_ssl_port              query     int                           true   "external Pulsar info"
+// @Param    use_registry_secret                   query     bool                          true   "choose if use the FATE registry secret saved in the infra provider"
+// @Param    registry                              query     string                        true   "FATE registry config saved in the infra provider"
+// @Param    enable_persistence                    query     bool                          true   "choose if use the persistent volume"
+// @Param    storage_class                         query     string                        true   "provide the name of StorageClass"
+// @Param    enable_psp                            query     bool                          true   "choose if enable the podSecurityPolicy"
+// @Success  200                                   {object}  GeneralResponse{data=string}  "Success, the data field is the yaml content"
+// @Failure  401                                   {object}  GeneralResponse               "Unauthorized operation"
+// @Failure  500                                   {object}  GeneralResponse{code=int}     "Internal server error"
 // @Router   /federation/fate/cluster/yaml [get]
 func (controller *FederationController) getFATEClusterDeploymentYAML(c *gin.Context) {
 	if yaml, err := func() (string, error) {
@@ -507,6 +525,62 @@ func (controller *FederationController) getFATEClusterDeploymentYAML(c *gin.Cont
 		if err != nil {
 			return "", err
 		}
+
+		// Spark
+		enableExternalSpark, err := strconv.ParseBool(c.DefaultQuery("enable_external_spark", "false"))
+		if err != nil {
+			return "", err
+		}
+		externalSparkCoresPerNode, err := strconv.Atoi(c.DefaultQuery("external_spark_cores_per_node", "8"))
+		if err != nil {
+			return "", errors.Errorf("invalid external_spark_cores_per_node parameter: %s", err)
+		}
+		externalSparkNode, err := strconv.Atoi(c.DefaultQuery("external_spark_node", "1"))
+		if err != nil {
+			return "", errors.Errorf("invalid external_spark_node parameter: %s", err)
+		}
+		externalSparkMaster := c.DefaultQuery("external_spark_master", "spark://spark-master:7077")
+		externalSparkDriverHost := c.DefaultQuery("external_spark_driverHost", "fateflow")
+		externalSparkDriverHostType := c.DefaultQuery("external_spark_driverHostType", "NodePort")
+		externalSparkPortMaxRetries, err := strconv.Atoi(c.DefaultQuery("external_spark_portMaxRetries", "30"))
+		if err != nil {
+			return "", errors.Errorf("invalid external_spark_portMaxRetries parameter: %s", err)
+		}
+		externalSparkDriverStartPort, err := strconv.Atoi(c.DefaultQuery("external_spark_driverStartPort", "31000"))
+		if err != nil {
+			return "", errors.Errorf("invalid external_spark_driverStartPort parameter: %s", err)
+		}
+		externalSparkBlockManagerStartPort, err := strconv.Atoi(c.DefaultQuery("external_spark_blockManagerStartPort", "31100"))
+		if err != nil {
+			return "", errors.Errorf("invalid external_spark_blockManagerStartPort parameter: %s", err)
+		}
+		externalSparkPysparkPython := c.DefaultQuery("external_spark_pysparkPython", "")
+		// HDFS
+		enableExternalHDFS, err := strconv.ParseBool(c.DefaultQuery("enable_external_hdfs", "false"))
+		if err != nil {
+			return "", err
+		}
+		externalHDFSNameNode := c.DefaultQuery("external_hdfs_name_node", "hdfs://namenode:9000")
+		externalHDFSPathPrefix := c.DefaultQuery("external_hdfs_path_prefix", "")
+		// Pulsar
+		enableExternalPulsar, err := strconv.ParseBool(c.DefaultQuery("enable_external_pulsar", "false"))
+		if err != nil {
+			return "", err
+		}
+		externalPulsarHost := c.DefaultQuery("external_pulsar_host", "pulsar")
+		externalPulsarMngPort, err := strconv.Atoi(c.DefaultQuery("external_pulsar_mng_port", "8080"))
+		if err != nil {
+			return "", err
+		}
+		externalPulsarPort, err := strconv.Atoi(c.DefaultQuery("external_pulsar_port", "6650"))
+		if err != nil {
+			return "", err
+		}
+		externalPulsarSSLPort, err := strconv.Atoi(c.DefaultQuery("external_pulsar_ssl_port", "6651"))
+		if err != nil {
+			return "", err
+		}
+
 		return controller.participantAppService.GetFATEClusterDeploymentYAML(&domainService.ParticipantFATEClusterYAMLCreationRequest{
 			ParticipantFATEExchangeYAMLCreationRequest: domainService.ParticipantFATEExchangeYAMLCreationRequest{
 				ChartUUID:   chartUUID,
@@ -524,6 +598,30 @@ func (controller *FederationController) getFATEClusterDeploymentYAML(c *gin.Cont
 			PartyID:           partyID,
 			EnablePersistence: enablePersistence,
 			StorageClass:      storageClass,
+			ExternalSpark: domainService.ExternalSpark{
+				Enable:                enableExternalSpark,
+				Cores_per_node:        externalSparkCoresPerNode,
+				Nodes:                 externalSparkNode,
+				Master:                externalSparkMaster,
+				DriverHost:            externalSparkDriverHost,
+				DriverHostType:        externalSparkDriverHostType,
+				PortMaxRetries:        externalSparkPortMaxRetries,
+				DriverStartPort:       externalSparkDriverStartPort,
+				BlockManagerStartPort: externalSparkBlockManagerStartPort,
+				PysparkPython:         externalSparkPysparkPython,
+			},
+			ExternalHDFS: domainService.ExternalHDFS{
+				Enable:      enableExternalHDFS,
+				Name_node:   externalHDFSNameNode,
+				Path_prefix: externalHDFSPathPrefix,
+			},
+			ExternalPulsar: domainService.ExternalPulsar{
+				Enable:   enableExternalPulsar,
+				Host:     externalPulsarHost,
+				Mng_port: externalPulsarMngPort,
+				Port:     externalPulsarPort,
+				SSLPort:  externalPulsarSSLPort,
+			},
 		})
 	}(); err != nil {
 		resp := &GeneralResponse{
@@ -614,8 +712,8 @@ func (controller *FederationController) deleteFATECluster(c *gin.Context) {
 // @Param    uuid             path      string                                                 true  "federation UUID"
 // @Param    creationRequest  body      service.ParticipantFATEExternalClusterCreationRequest  true  "The creation requests"
 // @Success  200              {object}  GeneralResponse                                        "Success, the data field is the created cluster's uuid"
-// @Failure  401              {object}  GeneralResponse                                 "Unauthorized operation"
-// @Failure  500              {object}  GeneralResponse{code=int}                       "Internal server error"
+// @Failure  401              {object}  GeneralResponse                                        "Unauthorized operation"
+// @Failure  500              {object}  GeneralResponse{code=int}                              "Internal server error"
 // @Router   /federation/fate/:uuid/cluster/external [post]
 func (controller *FederationController) createExternalFATECluster(c *gin.Context) {
 	if clusterUUID, err := func() (string, error) {

@@ -2,8 +2,10 @@
 
 A web application to manage FML deployments lifecycles
 
+[DOC](./doc) | [中文](./README_zh.md)
+
 ## Deploy & Run Using Docker Compose
-**System requirements:** On a Linux host with docker 18+ and docker-compose 1.24+ .
+**System requirements:** On a Linux host with docker 18+ and docker-compose 1.28+ .
 * Download the `fedlcm-docker-compose-<version>.tgz` package from the releases pages, unzip the files into a folder. Or clone the whole project and execute in the project root folder.
 * **(Optional)** modify `.env` file to change the image names. Only do this if you want to use your customized registry or images.
 * Then
@@ -26,6 +28,8 @@ By default, the web UI is exposed via a NodePort service that listens on port 30
 ## Getting Started
 
 Refer to the [getting started guide](./doc/Getting_Started_FATE.md) for FATE federation management.
+
+The [Site Portal README](./site-portal/README.md) and [FML Manager README](./fml-manager/README.md) provide information on how to use Site Portal directly without using FedLCM.
 
 ## Development
 ### Build

@@ -150,6 +150,9 @@
                             {{form.get('fml_manager_server_name')?.errors?.message | translate}}</clr-control-error>
                     </clr-input-container>
                     <br>
+                    <button *ngIf="fml_manager_connected" (click)="unregisterModal = true"
+                    class="btn btn-sm btn-outline">
+                    {{'CommonlyUse.unregister' | translate}} </button>
                     <button *ngIf="!fml_manager_connected" (click)="registerToFMLManager()"
                         class="btn btn-sm btn-outline">
                         {{'CommonlyUse.register' | translate}} </button>
@@ -280,4 +283,17 @@
         <span *ngIf="isUpdateSubmit && !isUpdateFailed">{{'CommonlyUse.saving' | translate}} ... </span>
         <clr-spinner [clrInline]="true" *ngIf="isUpdateSubmit && !isUpdateFailed"></clr-spinner>
     </form>
+    <!-- unregister modal -->
+    <clr-modal [(clrModalOpen)]="unregisterModal" [clrModalClosable]="false">
+        <h3 class="modal-title">{{'CommonlyUse.unregister' | translate}}</h3>
+        <div class="modal-body">
+          <p>{{'site.unregisterModal'| translate}}</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" (click)="unregisterModal = false">{{'CommonlyUse.cancel' |
+            translate}}</button>
+          <button type="submit" class="btn btn-primary" (click)="unregisterToFMLManager()">{{'CommonlyUse.unregister' | translate}}</button>
+        </div>
+      </clr-modal>
+
 </div>

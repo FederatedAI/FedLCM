@@ -17,6 +17,7 @@ export interface EndpointType {
   kubefate_address: string,
   kubefate_host: string,
   name: string,
+  namespace: string
   status: number,
   type: string,
   uuid: string,

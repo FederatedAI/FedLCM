@@ -30,8 +30,8 @@ import (
 // @Produce  json
 // @Param    federation  body      service.FederationOpenFLCreationRequest  true  "The federation info"
 // @Success  200         {object}  GeneralResponse                          "Success, the data field is the created federation's uuid"
-// @Failure  401    {object}  GeneralResponse                           "Unauthorized operation"
-// @Failure  500    {object}  GeneralResponse{code=int}                 "Internal server error"
+// @Failure  401         {object}  GeneralResponse                          "Unauthorized operation"
+// @Failure  500         {object}  GeneralResponse{code=int}                "Internal server error"
 // @Router   /federation/openfl [post]
 func (controller *FederationController) createOpenFL(c *gin.Context) {
 	if uuid, err := func() (string, error) {
@@ -85,10 +85,10 @@ func (controller *FederationController) getOpenFL(c *gin.Context) {
 // @Summary  Delete an OpenFL federation
 // @Tags     Federation
 // @Produce  json
-// @Param    uuid       path      string                     true  "federation UUID"
-// @Success  200        {object}  GeneralResponse            "Success"
-// @Failure  401        {object}  GeneralResponse            "Unauthorized operation"
-// @Failure  500        {object}  GeneralResponse{code=int}  "Internal server error"
+// @Param    uuid  path      string                     true  "federation UUID"
+// @Success  200   {object}  GeneralResponse            "Success"
+// @Failure  401   {object}  GeneralResponse            "Unauthorized operation"
+// @Failure  500   {object}  GeneralResponse{code=int}  "Internal server error"
 // @Router   /federation/openfl/{uuid} [delete]
 func (controller *FederationController) deleteOpenFL(c *gin.Context) {
 	uuid := c.Param("uuid")
@@ -141,8 +141,8 @@ func (controller *FederationController) listOpenFLToken(c *gin.Context) {
 // @Param    uuid   path      string                                    true  "federation UUID"
 // @Param    token  body      service.RegistrationTokenOpenFLBasicInfo  true  "The federation info"
 // @Success  200    {object}  GeneralResponse                           "Success"
-// @Failure  401         {object}  GeneralResponse                          "Unauthorized operation"
-// @Failure  500         {object}  GeneralResponse{code=int}                "Internal server error"
+// @Failure  401    {object}  GeneralResponse                           "Unauthorized operation"
+// @Failure  500    {object}  GeneralResponse{code=int}                 "Internal server error"
 // @Router   /federation/openfl/{uuid}/token [post]
 func (controller *FederationController) createOpenFLToken(c *gin.Context) {
 	if err := func() error {
@@ -170,11 +170,11 @@ func (controller *FederationController) createOpenFLToken(c *gin.Context) {
 // @Summary  Delete an OpenFL federation registration token
 // @Tags     Federation
 // @Produce  json
-// @Param    uuid  path      string                     true  "federation UUID"
+// @Param    uuid       path      string                     true  "federation UUID"
 // @Param    tokenUUID  path      string                     true  "token UUID"
-// @Success  200   {object}  GeneralResponse            "Success"
-// @Failure  401   {object}  GeneralResponse            "Unauthorized operation"
-// @Failure  500   {object}  GeneralResponse{code=int}  "Internal server error"
+// @Success  200        {object}  GeneralResponse            "Success"
+// @Failure  401        {object}  GeneralResponse            "Unauthorized operation"
+// @Failure  500        {object}  GeneralResponse{code=int}  "Internal server error"
 // @Router   /federation/openfl/{uuid}/token/{tokenUUID} [delete]
 func (controller *FederationController) deleteOpenFLToken(c *gin.Context) {
 	uuid := c.Param("tokenUUID")
@@ -242,9 +242,9 @@ func (controller *FederationController) getOpenFLDirectorDeploymentYAML(c *gin.C
 // @Produce  json
 // @Param    uuid             path      string                                            true  "federation UUID"
 // @Param    creationRequest  body      service.ParticipantOpenFLDirectorCreationRequest  true  "The creation requests"
-// @Success  200                  {object}  GeneralResponse                                    "Success, the data field is the created director's uuid"
-// @Failure  401                  {object}  GeneralResponse                                    "Unauthorized operation"
-// @Failure  500                  {object}  GeneralResponse{code=int}                          "Internal server error"
+// @Success  200              {object}  GeneralResponse                                   "Success, the data field is the created director's uuid"
+// @Failure  401              {object}  GeneralResponse                                   "Unauthorized operation"
+// @Failure  500              {object}  GeneralResponse{code=int}                         "Internal server error"
 // @Router   /federation/openfl/{uuid}/director [post]
 func (controller *FederationController) createOpenFLDirector(c *gin.Context) {
 	if uuid, err := func() (string, error) {
@@ -277,9 +277,9 @@ func (controller *FederationController) createOpenFLDirector(c *gin.Context) {
 // @Param    uuid          path      string                     true   "federation UUID"
 // @Param    directorUUID  path      string                     true   "director UUID"
 // @Param    force         query     bool                       false  "if set to true, will try to remove the director forcefully"
-// @Success  200        {object}  GeneralResponse            "Success"
-// @Failure  401        {object}  GeneralResponse            "Unauthorized operation"
-// @Failure  500        {object}  GeneralResponse{code=int}  "Internal server error"
+// @Success  200           {object}  GeneralResponse            "Success"
+// @Failure  401           {object}  GeneralResponse            "Unauthorized operation"
+// @Failure  500           {object}  GeneralResponse{code=int}  "Internal server error"
 // @Router   /federation/openfl/{uuid}/director/{directorUUID} [delete]
 func (controller *FederationController) deleteOpenFLDirector(c *gin.Context) {
 	directorUUID := c.Param("directorUUID")
@@ -364,9 +364,9 @@ func (controller *FederationController) getOpenFLDirector(c *gin.Context) {
 // @Produce  json
 // @Param    uuid                 path      string                                             true  "federation UUID"
 // @Param    registrationRequest  body      service.ParticipantOpenFLEnvoyRegistrationRequest  true  "The creation requests"
-// @Success  200              {object}  GeneralResponse                                   "Success, the data field is the created director's uuid"
-// @Failure  401              {object}  GeneralResponse                                   "Unauthorized operation"
-// @Failure  500              {object}  GeneralResponse{code=int}                         "Internal server error"
+// @Success  200                  {object}  GeneralResponse                                    "Success, the data field is the created director's uuid"
+// @Failure  401                  {object}  GeneralResponse                                    "Unauthorized operation"
+// @Failure  500                  {object}  GeneralResponse{code=int}                          "Internal server error"
 // @Router   /federation/openfl/envoy/register [post]
 func (controller *FederationController) registerOpenFLEnvoy(c *gin.Context) {
 	if uuid, err := func() (string, error) {
@@ -397,9 +397,9 @@ func (controller *FederationController) registerOpenFLEnvoy(c *gin.Context) {
 // @Param    uuid       path      string                     true   "federation UUID"
 // @Param    envoyUUID  path      string                     true   "envoy UUID"
 // @Param    force      query     bool                       false  "if set to true, will try to envoy the director forcefully"
-// @Success  200           {object}  GeneralResponse            "Success"
-// @Failure  401           {object}  GeneralResponse            "Unauthorized operation"
-// @Failure  500           {object}  GeneralResponse{code=int}  "Internal server error"
+// @Success  200        {object}  GeneralResponse            "Success"
+// @Failure  401        {object}  GeneralResponse            "Unauthorized operation"
+// @Failure  500        {object}  GeneralResponse{code=int}  "Internal server error"
 // @Router   /federation/openfl/{uuid}/envoy/{envoyUUID} [delete]
 func (controller *FederationController) deleteOpenFLEnvoy(c *gin.Context) {
 	envoyUUID := c.Param("envoyUUID")
@@ -429,7 +429,7 @@ func (controller *FederationController) deleteOpenFLEnvoy(c *gin.Context) {
 // @Produce  json
 // @Param    uuid       path      string                                           true  "federation UUID"
 // @Param    envoyUUID  path      string                                           true  "envoy UUID"
-// @Success  200    {object}  GeneralResponse{data=service.OpenFLEnvoyDetail}  "Success"
+// @Success  200        {object}  GeneralResponse{data=service.OpenFLEnvoyDetail}  "Success"
 // @Failure  401        {object}  GeneralResponse                                  "Unauthorized operation"
 // @Failure  500        {object}  GeneralResponse{code=int}                        "Internal server error"
 // @Router   /federation/openfl/{uuid}/envoy/{envoyUUID} [get]
@@ -456,7 +456,7 @@ func (controller *FederationController) getOpenFLEnvoy(c *gin.Context) {
 // @Produce  json
 // @Param    uuid   path      string                                           true  "envoy UUID"
 // @Param    token  query     string                                           true  "token string"
-// @Success  200        {object}  GeneralResponse{data=service.OpenFLEnvoyDetail}  "Success"
+// @Success  200    {object}  GeneralResponse{data=service.OpenFLEnvoyDetail}  "Success"
 // @Failure  401    {object}  GeneralResponse                                  "Unauthorized operation"
 // @Failure  500    {object}  GeneralResponse{code=int}                        "Internal server error"
 // @Router   /federation/openfl/envoy/{uuid} [get]

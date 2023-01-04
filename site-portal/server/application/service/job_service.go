@@ -322,6 +322,12 @@ func (app *JobApp) GetJobDetail(uuid string) (*JobDetail, error) {
 	switch jobAggregate.Job.Type {
 	case entity.JobTypeTraining:
 		jobDetail.ResultInfo.TrainingResult = jobAggregate.Job.GetTrainingResultSummary()
+		if prettyConfig, err := app.generateIndentedJsonStr(jobDetail.ConfJson); err == nil {
+			jobDetail.ConfJson = prettyConfig
+		}
+		if prettyDSL, err := app.generateIndentedJsonStr(jobDetail.DSLJson); err == nil {
+			jobDetail.DSLJson = prettyDSL
+		}
 	case entity.JobTypePredict:
 		header, data, count := jobAggregate.Job.GetPredictingResultPreview()
 		jobDetail.ResultInfo.PredictingResult = PredictingJobResultInfo{
@@ -680,9 +686,11 @@ func (app *JobApp) GeneratePredictingJobParticipants(modelUUID string) ([]JobPar
 func (app *JobApp) SubmitJob(username string, request *JobSubmissionRequest) (*JobListItemBase, error) {
 	jobAggregate, err := app.buildJobAggregate(username, request)
 	if err != nil {
+		log.Error().Err(err).Interface("request", request).Msg("app.buildJobAggregate error")
 		return nil, err
 	}
 	if err := jobAggregate.SubmitJob(); err != nil {
+		log.Error().Err(err).Msg("jobAggregate.SubmitJob error")
 		return nil, err
 	}
 
@@ -858,7 +866,7 @@ func (app *JobApp) buildJobAggregate(username string, request *JobSubmissionRequ
 		}
 	}
 
-	if request.Type == entity.JobTypePredict {
+	if request.Type == entity.JobTypePredict && jobAggregate.Job.IsInitiatingSite {
 		log.Info().Msgf("changing participants role and job info according to original job info")
 		if request.ModelUUID == "" {
 			return nil, errors.New("invalid model uuid")

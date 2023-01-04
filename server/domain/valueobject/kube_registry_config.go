@@ -102,7 +102,7 @@ func (c KubeRegistrySecretConfig) BuildSecretB64String() (string, error) {
 	return secretStr, nil
 }
 
-//  dockerConfigAuth is the dockerconfig containing only the auths filed
+// dockerConfigAuth is the dockerconfig containing only the auths filed
 type dockerConfigAuth struct {
 	AuthMap registryAuthMap `json:"auths"`
 }

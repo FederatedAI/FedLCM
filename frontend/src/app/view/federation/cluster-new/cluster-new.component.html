@@ -4,6 +4,7 @@
   <h2>{{'NewCluster.name'| translate}}</h2>
   <br>
   <form clrStepper [formGroup]="form">
+
     <!-- Step 1 -->
     <clr-stepper-panel formGroupName="info">
       <clr-step-title>{{'NewCluster.basicInformation'| translate}}</clr-step-title>
@@ -121,14 +122,17 @@
             <clr-dg-column [clrDgField]="'name'">{{'CommonlyUse.name'| translate}}</clr-dg-column>
             <clr-dg-column>{{'CommonlyUse.description'| translate}}</clr-dg-column>
             <clr-dg-column>{{'CommonlyUse.type'| translate}}</clr-dg-column>
+            <clr-dg-column>{{'NewCluster.namespace'| translate}}</clr-dg-column>
             <clr-dg-column>{{'CommonlyUse.creationTime'| translate}}</clr-dg-column>
             <clr-dg-column>{{'EndpointMg.infraName'|translate}}</clr-dg-column>
             <clr-dg-column>{{'EndpointMg.endpointURL'|translate}}</clr-dg-column>
             <clr-dg-column>{{'CommonlyUse.status'| translate}}</clr-dg-column>
+            
             <clr-dg-row *clrDgItems="let endpoint of endpointlist" [clrDgItem]="endpoint">
               <clr-dg-cell>{{endpoint?.name}}</clr-dg-cell>
               <clr-dg-cell>{{endpoint?.description}}</clr-dg-cell>
               <clr-dg-cell>{{endpoint?.type}}</clr-dg-cell>
+              <clr-dg-cell>{{endpoint?.namespace}}</clr-dg-cell>
               <clr-dg-cell>{{endpoint?.created_at | date : "medium"}}</clr-dg-cell>
               <clr-dg-cell>{{endpoint?.infra_provider_name}}</clr-dg-cell>
               <clr-dg-cell>{{endpoint?.kubefate_host}}</clr-dg-cell>
@@ -197,6 +201,8 @@
           <clr-input-container class="no-warp">
             <label>{{'NewCluster.namespace'|translate}}</label>
             <input clrInput Placeholder="Default: fate-'Party Id'" formControlName="namespace"
+            [disabled]="setNamespaceDisabled"
+            [class]="{disabled: setNamespaceDisabled}"
               (ngModelChange)="selectChange($event)" />
           </clr-input-container>
           <button clrStepButton="next">{{'CommonlyUse.next'| translate}}</button>
@@ -223,14 +229,14 @@
           <div *ngIf="use_cert">
             <h5>1. {{'NewCluster.pulsarServerCertificate'|translate}}:</h5>
             <clr-radio-container clrInline class="no-warp">
-              <label>{{'NewCluster.server'|translate}}:</label>
+              <label>{{'NewCluster.server'|translate}}: </label>
               <clr-radio-wrapper>
-                <input type="radio" clrRadio name="pulsar_server_cert_info" formControlName="pulsar_server_cert_info"
-                  required value=3>
+                <input type="radio" value='new' clrRadio name="pulsar_server_cert_info_radio" formControlName="pulsar_server_cert_info_radio"
+                   >
                 <label>{{'NewCluster.addNew'|translate}}</label>
               </clr-radio-wrapper>
               <clr-radio-wrapper>
-                <input type="radio" clrRadio name="pulsar_server_cert_info" disabled required value=2 />
+                <input type="radio" clrRadio name="pulsar_server_cert_info_radio"  disabled  value=2 />
                 <label>{{'NewCluster.useExist'|translate}}</label>
               </clr-radio-wrapper>
             </clr-radio-container>
@@ -240,24 +246,24 @@
               <clr-radio-container clrInline class="no-warp">
                 <label>{{'NewCluster.server'|translate}}:</label>
                 <clr-radio-wrapper>
-                  <input type="radio" clrRadio name="site_portal_server_cert_mode"
-                    formControlName="site_portal_server_cert_mode" required value=3 />
+                  <input type="radio" value='new' clrRadio name="site_portal_server_cert_mode_radio"
+                    formControlName="site_portal_server_cert_mode_radio"  />
                   <label>{{'NewCluster.addNew'|translate}}</label>
                 </clr-radio-wrapper>
                 <clr-radio-wrapper>
-                  <input type="radio" clrRadio name="site_portal_server_cert_mode" disabled required value=2 />
+                  <input type="radio" clrRadio name="site_portal_server_cert_mode_radio" disabled  value=2 />
                   <label>{{'NewCluster.useExist'|translate}}</label>
                 </clr-radio-wrapper>
               </clr-radio-container>
               <clr-radio-container clrInline class="no-warp">
                 <label>{{'NewCluster.client'|translate}}:</label>
                 <clr-radio-wrapper>
-                  <input type="radio" clrRadio name="site_portal_client_cert_mode"
-                    formControlName="site_portal_client_cert_mode" required value=3 />
+                  <input type="radio" value='new' clrRadio name="site_portal_client_cert_mode_radio"
+                    formControlName="site_portal_client_cert_mode_radio"  />
                   <label>{{'NewCluster.addNew'|translate}}</label>
                 </clr-radio-wrapper>
                 <clr-radio-wrapper>
-                  <input type="radio" clrRadio name="site_portal_client_cert_mode" disabled required value=2 />
+                  <input type="radio" clrRadio name="site_portal_client_cert_mode_radio" disabled  value=2 />
                   <label>{{'NewCluster.useExist'|translate}}</label>
                 </clr-radio-wrapper>
               </clr-radio-container>
@@ -394,7 +400,7 @@
       </clr-stepper-panel>
 
       <!-- Step 11 -->
-      <clr-stepper-panel formGroupName="psp" class="yaml-warp">
+      <clr-stepper-panel formGroupName="psp" class="yaml-warp" *ngIf="!setNamespaceDisabled">
         <clr-step-title>{{'PSP.pspConfigTitle' | translate}}</clr-step-title>
         <clr-step-description></clr-step-description>
         <clr-step-content *clrIfExpanded>
@@ -411,6 +417,167 @@
       </clr-stepper-panel>
 
       <!-- Step 12 -->
+      <clr-stepper-panel formGroupName="externalSpark">
+        <clr-step-title>{{'NewCluster.chooseExternalSpark'|translate}}</clr-step-title>
+        <clr-step-description></clr-step-description>
+        <clr-step-content *clrIfExpanded>
+          <clr-toggle-container clrInline class="no-warp no-warp2">
+            <label>{{'NewCluster.spark'|translate}}:</label>
+            <clr-toggle-wrapper>
+              <input type="checkbox" clrToggle name="enable_external_spark"
+                formControlName="enable_external_spark" (ngModelChange)="onChange_external_spark($event, 'spark')" />
+              <label></label>
+            </clr-toggle-wrapper>
+          </clr-toggle-container>
+
+          <div *ngIf="form.get('externalSpark')?.get('enable_external_spark')?.value">
+            <clr-input-container class="no-warp3">
+              <label>{{'NewCluster.coresPerNode'| translate}}:</label>
+              <input clrInput placeholder="8" formControlName="external_spark_cores_per_node" name="external_spark_cores_per_node" />
+              <clr-control-error> {{ form.controls['externalSpark'].get('external_spark_cores_per_node')?.errors?.emptyMessage ||
+                form.controls['externalSpark'].get('external_spark_cores_per_node')?.errors?.message | translate}}
+              </clr-control-error>
+            </clr-input-container>
+
+            <clr-input-container class="no-warp3">
+              <label>{{'NewCluster.node'| translate}}:</label>
+              <input clrInput placeholder="1" formControlName="external_spark_node" name="external_spark_node" />
+              <clr-control-error> {{ form.controls['externalSpark'].get('external_spark_node')?.errors?.emptyMessage ||
+                form.controls['externalSpark'].get('external_spark_node')?.errors?.message | translate}}
+              </clr-control-error>
+            </clr-input-container>
+
+            <clr-input-container class="no-warp3">
+              <label>{{'NewCluster.master'| translate}}:</label>
+              <input clrInput placeholder="spark://spark-master:7077" name="external_spark_master" formControlName="external_spark_master" />
+              <clr-control-error> {{ form.controls['externalSpark'].get('external_spark_master')?.errors?.emptyMessage ||
+                form.controls['externalSpark'].get('external_spark_master')?.errors?.message | translate}}
+              </clr-control-error>
+            </clr-input-container>
+
+            <clr-input-container class="no-warp3">
+              <label>{{'NewCluster.driverHost'| translate}}:</label>
+              <input clrInput placeholder="192.168.0.1" name="external_spark_driverHost" formControlName="external_spark_driverHost"/>
+              <clr-control-error> {{ form.controls['externalSpark'].get('external_spark_driverHost')?.errors?.emptyMessage ||
+                form.controls['externalSpark'].get('external_spark_driverHost')?.errors?.message | translate}}
+              </clr-control-error>
+            </clr-input-container>
+
+            <div style="display: flex; margin-top: 20px;">
+              <label
+                style="color: #454545;
+                width: 150px;
+                font-weight: 600;
+                font-size: 0.65rem;"
+              >{{'NewCluster.driverHostType'| translate}}</label>
+              <clr-radio-wrapper style="flex-direction: row;">
+                <input type="radio"  clrRadio value="NodePort" formControlName="external_spark_driverHostType" name="external_spark_driverHostType" />
+                <label>NodePort</label>
+              </clr-radio-wrapper>
+            </div>
+
+            <clr-input-container class="no-warp3">
+              <label>{{'NewCluster.portMaxRetries'| translate}}:</label>
+              <input clrInput placeholder="16" formControlName="external_spark_portMaxRetries" name="external_spark_portMaxRetries"  />
+              <clr-control-error> {{ form.controls['externalSpark'].get('external_spark_portMaxRetries')?.errors?.emptyMessage ||
+                form.controls['externalSpark'].get('external_spark_portMaxRetries')?.errors?.message | translate}}
+              </clr-control-error>            </clr-input-container>
+
+            <clr-input-container class="no-warp3">
+              <label>{{'NewCluster.driverStartPort'| translate}}:</label>
+              <input clrInput placeholder="30000-32767" formControlName="external_spark_driverStartPort" name="external_spark_driverStartPort"/>
+              <clr-control-error> {{ form.controls['externalSpark'].get('external_spark_driverStartPort')?.errors?.emptyMessage ||
+                form.controls['externalSpark'].get('external_spark_driverStartPort')?.errors?.message | translate}}
+              </clr-control-error>
+            </clr-input-container>
+
+            <clr-input-container class="no-warp3">
+              <label>{{'NewCluster.blockManagerStartPort'| translate}}:</label>
+              <input clrInput placeholder="30000-32767" formControlName="external_spark_blockManagerStartPort" name="external_spark_blockManagerStartPort"/>
+              <clr-control-error> {{ form.controls['externalSpark'].get('external_spark_blockManagerStartPort')?.errors?.emptyMessage ||
+                form.controls['externalSpark'].get('external_spark_blockManagerStartPort')?.errors?.message | translate}}
+              </clr-control-error>
+            </clr-input-container>
+
+            <clr-input-container class="no-warp3">
+              <label>{{'NewCluster.pysparkPython'| translate}}:</label>
+              <input clrInput formControlName="external_spark_pysparkPython" name="external_spark_pysparkPython" />
+            </clr-input-container>
+          </div>
+
+          <clr-toggle-container clrInline class="no-warp no-warp2">
+            <label>{{'NewCluster.hdfs'|translate}}: </label>
+            <clr-toggle-wrapper>
+              <input type="checkbox" clrToggle name="enable_external_hdfs"
+                formControlName="enable_external_hdfs" (ngModelChange)="onChange_external_spark($event, 'hdfs')" />
+              <label></label>
+            </clr-toggle-wrapper>
+          </clr-toggle-container>
+
+
+          <div *ngIf="form.get('externalSpark')?.get('enable_external_hdfs')?.value">
+            <clr-input-container class="no-warp3">
+              <label>{{'NewCluster.hdfsNameNode'| translate}}:</label>
+              <input clrInput placeholder="hdfs://namenode:9000" formControlName="external_hdfs_name_node" name="external_hdfs_name_node" />
+              <clr-control-error> {{ form.controls['externalSpark'].get('external_hdfs_name_node')?.errors?.emptyMessage ||
+                form.controls['externalSpark'].get('external_hdfs_name_node')?.errors?.message | translate}}
+              </clr-control-error>
+            </clr-input-container>
+
+            <clr-input-container class="no-warp3">
+              <label>{{'NewCluster.hdfsPathPrefix'| translate}}:</label>
+              <input clrInput formControlName="external_hdfs_path_prefix" name="external_hdfs_path_prefix" />
+            </clr-input-container>
+
+          </div>
+
+          <clr-toggle-container clrInline class="no-warp no-warp2">
+            <label>{{'NewCluster.Pulsar'|translate}}: </label>
+            <clr-toggle-wrapper>
+              <input type="checkbox" clrToggle name="enable_external_pulsar" 
+                formControlName="enable_external_pulsar" (ngModelChange)="onChange_external_spark($event, 'pulsar')" />
+              <label></label>
+            </clr-toggle-wrapper>
+          </clr-toggle-container>
+
+          <div *ngIf="form.get('externalSpark')?.get('enable_external_pulsar')?.value">
+            <clr-input-container class="no-warp3">
+              <label>{{'NewCluster.pulsarHost'| translate}}:</label>
+              <input placeholder="192.168.0.1" clrInput formControlName="external_pulsar_host" name="external_pulsar_host" />
+              <clr-control-error> {{ form.controls['externalSpark'].get('external_pulsar_host')?.errors?.emptyMessage ||
+                form.controls['externalSpark'].get('external_pulsar_host')?.errors?.message | translate}}
+              </clr-control-error>
+            </clr-input-container>
+
+            <clr-input-container class="no-warp3">
+              <label>{{'NewCluster.pulsarMngPort'| translate}}:</label>
+              <input clrInput placeholder="8080" formControlName="external_pulsar_mng_port" name="external_pulsar_mng_port" />
+              <clr-control-error> {{ form.controls['externalSpark'].get('external_pulsar_mng_port')?.errors?.emptyMessage ||
+                form.controls['externalSpark'].get('external_pulsar_mng_port')?.errors?.message | translate}}
+              </clr-control-error>
+            </clr-input-container>
+
+            <clr-input-container class="no-warp3">
+              <label>{{'NewCluster.pulsarPort'| translate}}:</label>
+              <input placeholder="6650" clrInput formControlName="external_pulsar_port"  name="external_pulsar_port" />
+              <clr-control-error> {{ form.controls['externalSpark'].get('external_pulsar_port')?.errors?.emptyMessage ||
+                form.controls['externalSpark'].get('external_pulsar_port')?.errors?.message | translate}}
+              </clr-control-error>
+            </clr-input-container>
+
+            <clr-input-container class="no-warp3">
+              <label>{{'NewCluster.sslPort'| translate}}:</label>
+              <input clrInput placeholder="6651" formControlName="external_pulsar_ssl_port"  name="external_pulsar_ssl_port" />
+              <clr-control-error> {{ form.controls['externalSpark'].get('external_pulsar_ssl_port')?.errors?.emptyMessage ||
+                form.controls['externalSpark'].get('external_pulsar_ssl_port')?.errors?.message | translate}}
+              </clr-control-error>
+            </clr-input-container>
+
+          </div>
+        </clr-step-content>
+        <button clrStepButton="next" [disabled]="external_spark_disabled">{{'CommonlyUse.next' | translate}}</button>
+      </clr-stepper-panel>
+      <!-- Step 13 -->
       <clr-stepper-panel formGroupName="yaml" class="yaml-warp">
         <clr-step-title>{{'NewCluster.checkYAML'|translate}}</clr-step-title>
         <clr-step-description></clr-step-description>

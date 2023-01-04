@@ -289,7 +289,7 @@ export class JobNewComponent implements OnInit, OnDestroy, AfterViewInit {
   displayPredictParticipant: any = [];
   predictParticipantList: any;
   newPredictParticipantList: PartyUser[] = [];
-  // Automatically calculate the width of the artboard in drag mode 
+  // Automatically calculate the width of the artboard in drag mode
   get width() {
     if (this.dag.count > 3) {
       return (this.dag.count - 3) * 200
@@ -386,7 +386,7 @@ export class JobNewComponent implements OnInit, OnDestroy, AfterViewInit {
               } else {
                 this.currentModuleAttrForm[el.name] = JSON.stringify(obj.value)
               }
-  
+
             } else if (Object.prototype.toString.call(obj.value) === '[object Array]') {
               this.currentModuleAttrForm[el.name] = JSON.stringify(obj.value)
             } else {
@@ -432,7 +432,7 @@ export class JobNewComponent implements OnInit, OnDestroy, AfterViewInit {
               } else {
                 this.currentModuleAttrForm[key] = JSON.stringify(obj[key])
               }
-    
+
             } else if (Object.prototype.toString.call(obj[key]) === '[object Array]') {
               this.currentModuleAttrForm[key] = JSON.stringify(obj[key])
             } else {
@@ -520,7 +520,7 @@ export class JobNewComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.cdRef.detectChanges(); 
+    this.cdRef.detectChanges();
   }
   addOptRelationship(item: inputModuleType) {
     item.optRelationships.push({
@@ -565,8 +565,12 @@ export class JobNewComponent implements OnInit, OnDestroy, AfterViewInit {
     }]
     if (e.previousContainer.data[e.previousIndex].moduleName === 'HomoLR') {
       this.JobAlgorithmType = 1
-    } else if (e.previousContainer.data[e.previousIndex].moduleName === 'HomoSecureboost') {
+    } else if (e.previousContainer.data[e.previousIndex].moduleName === 'HomoSecureBoost') {
       this.JobAlgorithmType = 2
+    } else if (e.previousContainer.data[e.previousIndex].moduleName === 'HeteroLR') {
+      this.JobAlgorithmType = 3
+    } else if (e.previousContainer.data[e.previousIndex].moduleName === 'HeteroSecureBoost') {
+      this.JobAlgorithmType = 4
     }
     // true Indicates a new drag and drop
     this.bulletFrame(true, '')
@@ -683,16 +687,11 @@ export class JobNewComponent implements OnInit, OnDestroy, AfterViewInit {
 
   diffGuestOrHostChangeHandler(num:number) {
     // this.currentDiff = num;
-    console.log('num', num);
-    console.log('algorithmList', this.algorithmList);
     this.algorithmList.forEach(el => {
       if (el.moduleName === this.dag.attrForm.moduleName) {
         this.currentModuleAttrForm = el.parameters
       }
     })
-    console.log('svgData', this.svgData);
-    console.log('currentModuleAttrForm', this.currentModuleAttrForm);
-
   }
   getOutputListHandler(output: any) {
     if (output.model) {
@@ -726,7 +725,7 @@ export class JobNewComponent implements OnInit, OnDestroy, AfterViewInit {
     this.dag.Draw()
     this.program = this.dag.my
     this.program.forEach(el => {
-      if (el.name.indexOf('Evaluation') === -1 && el.name.indexOf('HomoDataSplit') === -1) {
+      if (el.name.indexOf('Evaluation') === -1 && el.name.indexOf('HomoDataSplit') === -1 && el.name.indexOf('HeteroDataSplit') === -1) {
         el.value = true
       } else {
         el.value = false
@@ -911,7 +910,7 @@ export class JobNewComponent implements OnInit, OnDestroy, AfterViewInit {
               } else {
                 this.currentModuleAttrForm[attr] = JSON.stringify(this.svgData[this.dag.attrForm.moduleName].attributes[attr])
               }
-    
+
           } else {
             this.currentModuleAttrForm[attr] = this.svgData[this.dag.attrForm.moduleName].attributes[attr]
           }
@@ -1054,7 +1053,7 @@ export class JobNewComponent implements OnInit, OnDestroy, AfterViewInit {
               }
             }
             this.algorithmList.push(item)
-          });          
+          });
           return el
         })
       }
@@ -1177,6 +1176,9 @@ export class JobNewComponent implements OnInit, OnDestroy, AfterViewInit {
             reqData[key].conditions.output.data.push(el)
           }
         });
+        if (reqData[key].conditions.output.model.length == 0) {
+          delete reqData[key].conditions.output.model
+        }
       } else {
         if (key !== 'reader_0') {
           const diffAttribute = interactive[key].diffAttribute
@@ -1221,6 +1223,9 @@ export class JobNewComponent implements OnInit, OnDestroy, AfterViewInit {
               reqData[key].conditions.output.data.push(el)
             }
           });
+          if (reqData[key].conditions.output.model.length == 0) {
+            delete reqData[key].conditions.output.model
+          }
         } else {
           reqData[key] = {
             attributeType: "diff",
@@ -1253,7 +1258,7 @@ export class JobNewComponent implements OnInit, OnDestroy, AfterViewInit {
 
   }
   // set config
-  setJsonOrDrag() {    
+  setJsonOrDrag() {
     if (this.dropOrJson) {
       this.getDslConf()
     } else {
@@ -1267,8 +1272,8 @@ export class JobNewComponent implements OnInit, OnDestroy, AfterViewInit {
     const keyArr = Object.values(this.svgData)
     this.submitGeneratedFailed = false;
     this.submitGenerated = false
-    if (!keyArr.find(el => el.module === 'HomoLR' || el.module === 'HomoSecureboost')) {
-      this.errorMessage = 'Homolr or homosecureboost module is missing'
+    if (!keyArr.find(el => el.module === 'HomoLR' || el.module === 'HomoSecureBoost' || el.module === 'HeteroLR' || el.module === 'HeteroSecureBoost')) {
+      this.errorMessage = 'Homolr or homosecureboost or heterolr or heterosecureboost module is missing'
       this.submitGeneratedFailed = true;
       this.submitGenerated = true
       return false
@@ -1556,7 +1561,7 @@ export class JobNewComponent implements OnInit, OnDestroy, AfterViewInit {
 
   //saveNewJob is to update the configuration value and submit the request to create the new job
   saveNewJob(submit: boolean) {
-    //update the configuration    
+    //update the configuration
     this.jobDetail.name = this.name;
     this.jobDetail.description = this.desc;
     this.jobDetail.project_uuid = this.projectUUID;
@@ -1588,12 +1593,20 @@ export class JobNewComponent implements OnInit, OnDestroy, AfterViewInit {
         }
         if (this.algorithm === 'al2') {
           this.jobDetail.training_algorithm_type = 2;
-          this.jobDetail.algorithm_component_name = 'HomoSecureboost_0'
+          this.jobDetail.algorithm_component_name = 'HomoSecureBoost_0'
+        }
+        if (this.algorithm === 'al3') {
+          this.jobDetail.training_algorithm_type = 3;
+          this.jobDetail.algorithm_component_name = 'HeteroLR_0'
+        }
+        if (this.algorithm === 'al4') {
+          this.jobDetail.training_algorithm_type = 4;
+          this.jobDetail.algorithm_component_name = 'HeteroSecureBoost_0'
         }
       } else {
         this.jobDetail.training_algorithm_type = this.JobAlgorithmType
         for (const data in this.svgData) {
-          if (data.indexOf('HomoLR') !== -1 || data.indexOf('HomoSecureboost') !== -1) {
+          if (data.indexOf('HomoLR') !== -1 || data.indexOf('HomoSecureBoost') !== -1 || data.indexOf('HeteroLR') !== -1 || data.indexOf('HeteroSecureBoost') !== -1) {
             this.jobDetail.algorithm_component_name = data
           } else if (data.indexOf('Evaluation') !== -1) {
             this.jobDetail.evaluate_component_name = data
@@ -1635,7 +1648,7 @@ export class JobNewComponent implements OnInit, OnDestroy, AfterViewInit {
         this.jobDetail.training_component_list_to_deploy.push(el.name)
       }
     })
-    //if need to submit the request of creating a new job 
+    //if need to submit the request of creating a new job
     if (submit) {
       this.submitNewJob = true;
       this.submitNewJobFailed = false;
@@ -1695,7 +1708,7 @@ export class JobNewComponent implements OnInit, OnDestroy, AfterViewInit {
         this.errorMessage = "Please select a model.";
         return true;
       }
-      if (this.jobDetail.other_site_data.length != this.newPredictParticipantList) {
+      if (this.jobDetail.other_site_data.length != this.newPredictParticipantList.length) {
         this.errorMessage = "Please select participant data.";
         return true;
       }
@@ -1712,8 +1725,8 @@ export class JobNewComponent implements OnInit, OnDestroy, AfterViewInit {
     this.program = this.dagJson.my
   }
 
-  //generateConfig is to get or generate the dsl and algorithm configuration 
-  generateConfig(bool: boolean) {    
+  //generateConfig is to get or generate the dsl and algorithm configuration
+  generateConfig(bool: boolean) {
     // Determine which mode is currently
     if (bool) {// drag
       if (!this.interactiveValidator()) return

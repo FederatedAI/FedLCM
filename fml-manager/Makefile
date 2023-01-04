@@ -1,6 +1,7 @@
 .PHONY: all clean format swag swag-bin server-unittest server run
 
-TAG ?= v0.1.0
+RELEASE_VERSION ?= ${shell git describe --tags}
+TAG ?= v0.2.0
 
 SERVER_NAME ?= federatedai/fml-manager-server
 SERVER_IMG ?= ${SERVER_NAME}:${TAG}
@@ -12,6 +13,7 @@ GOBIN=$(shell go env GOBIN)
 endif
 
 OUTPUT_DIR = output
+RELEASE_DIR = ${OUTPUT_DIR}/release
 ifeq ($(OS),Windows_NT)
 BUILD_MODE = -buildmode=exe
 OUTPUT_FILE = ${OUTPUT_DIR}/fml-manager.exe
@@ -77,3 +79,8 @@ docker-push:
 
 clean:
 	rm -rf ${OUTPUT_DIR}
+
+release:
+	rm -rf ${RELEASE_DIR}
+	mkdir -p ${RELEASE_DIR}
+	tar -czvf ${RELEASE_DIR}/fml-manager-docker-compose-${RELEASE_VERSION}.tgz .env docker-compose.yml docker-compose-https.yml tls

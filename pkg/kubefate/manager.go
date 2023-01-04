@@ -29,7 +29,6 @@ import (
 	appv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/api/core/v1"
-	apiErr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	corev1client "k8s.io/client-go/kubernetes/typed/core/v1"
 	"k8s.io/client-go/tools/portforward"
@@ -156,47 +155,12 @@ func (manager *manager) Install(checkIngress bool) error {
 }
 
 func (manager *manager) Uninstall() error {
-	clientSet := manager.client.GetClientSet()
-	if err := clientSet.RbacV1().ClusterRoleBindings().Delete(context.TODO(), manager.meta.clusterRoleBindingName, metav1.DeleteOptions{}); err != nil && !apiErr.IsNotFound(err) {
-		return errors.Wrapf(err, "failed to delete clusterrolebinding")
+	if err := manager.client.ApplyOrDeleteYAML(manager.meta.yaml, true); err != nil {
+		log.Info().Msgf("failed to delete yaml in namespace: %s", manager.meta.namespace)
+		return errors.Wrapf(err, "error deleting yaml in namespace %s", manager.meta.namespace)
 	}
-	log.Info().Msgf("clusterrolebinding %s deleted", manager.meta.clusterRoleBindingName)
 
-	if err := clientSet.RbacV1().ClusterRoles().Delete(context.TODO(), manager.meta.clusterRoleName, metav1.DeleteOptions{}); err != nil && !apiErr.IsNotFound(err) {
-		return errors.Wrapf(err, "failed to delete clusterrole")
-	}
-	log.Info().Msgf("clusterrole %s deleted", manager.meta.clusterRoleName)
-
-	if err := clientSet.PolicyV1beta1().PodSecurityPolicies().Delete(context.TODO(), manager.meta.pspName, metav1.DeleteOptions{}); err != nil && !apiErr.IsNotFound(err) {
-		return errors.Wrapf(err, "failed to delete psp")
-	}
-	log.Info().Msgf("psp %s deleted", manager.meta.pspName)
-
-	// TODO: explicitly delete other namespaced resources
-
-	if err := clientSet.CoreV1().Namespaces().Delete(context.TODO(), manager.meta.namespace, metav1.DeleteOptions{}); err != nil && !apiErr.IsNotFound(err) {
-		return errors.Wrapf(err, "failed to delete namespace")
-	}
-	log.Info().Msgf("namespace %s deleted", manager.meta.namespace)
-
-	if err := utils.ExecuteWithTimeout(func() bool {
-		log.Info().Msgf("checking namespace %s removing result...", manager.meta.namespace)
-		ns, err := clientSet.CoreV1().Namespaces().Get(context.TODO(), manager.meta.namespace, metav1.GetOptions{})
-		if err != nil {
-			if apiErr.IsNotFound(err) {
-				return true
-			}
-			log.Warn().Err(err).Msgf("error getting namespace status")
-			return false
-		}
-		if ns != nil {
-			log.Info().Msgf("ns %s not deleted yet, status: %s", ns.Name, ns.Status.String())
-		}
-		return false
-	}, time.Minute*30, time.Second*10); err != nil {
-		return errors.Wrapf(err, "error deleting namespace %s", manager.meta.namespace)
-	}
-	log.Info().Msg("kubefate deleted")
+	log.Info().Msgf("delete kubefate deployment yaml success in namespace: %s", manager.meta.namespace)
 	return nil
 }
 

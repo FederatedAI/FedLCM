@@ -25,6 +25,7 @@ export class InfraComponent implements OnInit {
 
   selectedInfraList: any = [];
   openModal: boolean = false;
+  testClick = false;
   //newInfraForm is the form to create an new infra
   newInfraForm = this.fb.group(
     ValidatorGroup([
@@ -42,6 +43,11 @@ export class InfraComponent implements OnInit {
       {
         name: 'type',
         type: ['require']
+      },
+      {
+        name: 'is_in_cluster',
+        type: [''],
+        value: false
       },
       {
         name: 'kubeconfig',
@@ -75,6 +81,16 @@ export class InfraComponent implements OnInit {
       },
       {
         name: 'password',
+        value: '',
+        type: ['']
+      },
+      {
+        name: 'namespace',
+        value: false,
+        type: ['']
+      },
+      {
+        name: 'namespaceList',
         value: '',
         type: ['']
       }
@@ -123,6 +139,7 @@ export class InfraComponent implements OnInit {
     this.errorMessage = "";
     this.newInfraForm.controls['use_registry'].setValue(false);
     this.newInfraForm.controls['use_registry_secret'].setValue(false);
+    this.newInfraForm.controls['is_in_cluster'].setValue(false);
   }
 
   get use_registry_secret() {
@@ -158,7 +175,10 @@ export class InfraComponent implements OnInit {
     this.openDeleteModal = true;
     this.isDeleteSubmit = false;
   }
-
+  // input namespace list change handler
+  namespaceStrChange() {
+    this.testClick = false;
+  }
   //deleteInfra is to delete the selected infra(s)
   deleteInfra() {
     this.isDeleteSubmit = true;
@@ -177,22 +197,65 @@ export class InfraComponent implements OnInit {
 
   isTestFailed: boolean = false;
   testPassed: boolean = false;
+
   //testConnection is to test the k8s connection by using kubeconfig
   testConnection() {
     this.testPassed = false;
     this.isTestFailed = false;
-    if (this.newInfraForm.get('kubeconfig')?.valid) {
-      this.infraservice.testK8sConnection(this.newInfraForm.get('kubeconfig')?.value).subscribe(() => {
-        this.testPassed = true;
-      },
-        err => {
-          this.isTestFailed = true;
-          this.testPassed = false;
-          this.errorMessage = err.error.message;
-        });
-    } else {
-      this.errorMessage = "invalid kubeconfig input";
+    const data: any = {
+      is_in_cluster: this.newInfraForm.controls['is_in_cluster'].value,
+      kubeconfig_content: '',
+      namespaces_list: []
+    }
+    if (!this.newInfraForm.controls['is_in_cluster'].value) {
+      data.kubeconfig_content = this.newInfraForm.get('kubeconfig')?.value
+    }
+    // Non-admin add namespace
+    if (this.newInfraForm.get('namespace')?.value) {
+      const namespaceStr: string = this.newInfraForm.get('namespaceList')?.value
+      const namespaceListMiddle = namespaceStr.split(',')
+      namespaceListMiddle.forEach(ns => {
+        if (ns.indexOf('，') !== -1) {
+          const nsList = ns.split('，')
+          nsList.forEach(n => {
+            data.namespaces_list.push(n.trim())
+          })
+        } else {
+          data.namespaces_list.push(ns.trim())
+        }
+      })
+    }
+    this.infraservice.testK8sConnection(data).subscribe(() => {
+      this.testPassed = true;
+      this.testClick = true;
+    },
+    err => {
+      this.isTestFailed = true;
       this.testPassed = false;
+      this.errorMessage = err.error.message;
+    });
+  }
+
+  //testConnectionDisable is to test the k8s connection by using kubeconfig disable
+  get testConnectionDisable() {
+    const namespace = this.newInfraForm.controls['namespace'].value
+    const namespaceList = this.newInfraForm.controls['namespaceList'].value
+    if (this.newInfraForm.controls['is_in_cluster'].value) {      
+      if (namespace) {
+        if (namespaceList) {
+          return false
+        } else {
+          return true
+        }
+      } else {
+        return false
+      }
+    } else {
+      if (namespace) {
+        return !(this.newInfraForm.get('kubeconfig')?.valid && namespaceList)
+      } else {
+        return !this.newInfraForm.get('kubeconfig')?.valid
+      }
     }
   }
 
@@ -200,10 +263,11 @@ export class InfraComponent implements OnInit {
   //createNewInfra is to create an new infra
   createNewInfra() {
     this.isCreatedFailed = false;
-    var infraInfo = {
+    var infraInfo: any = {
       description: this.newInfraForm.get('description')?.value,
       kubernetes_provider_info: {
-        kubeconfig_content: this.newInfraForm.get('kubeconfig')?.value,
+        is_in_cluster: this.newInfraForm.controls['is_in_cluster'].value,
+        kubeconfig_content: '',
         registry_config_fate: {
           use_registry: this.newInfraForm.get('use_registry')?.value,
           registry: this.use_registry ? this.newInfraForm.get('registry')?.value?.trim() : "",
@@ -218,7 +282,25 @@ export class InfraComponent implements OnInit {
       name: this.newInfraForm.get('infraname')?.value,
       type: this.newInfraForm.get('type')?.value,
     }
-
+    if (!this.newInfraForm.controls['is_in_cluster'].value) {
+      infraInfo.kubernetes_provider_info.kubeconfig_content = this.newInfraForm.get('kubeconfig')?.value
+    }
+    // Non-admin add namespace
+    if (this.newInfraForm.get('namespace')?.value) {
+      infraInfo.kubernetes_provider_info.namespaces_list = []
+      const namespaceStr: string = this.newInfraForm.get('namespaceList')?.value
+      const namespaceListMiddle = namespaceStr.split(',')
+      namespaceListMiddle.forEach(ns => {
+        if (ns.indexOf('，') !== -1) {
+          const nsList = ns.split('，')
+          nsList.forEach(n => {
+            infraInfo.kubernetes_provider_info.namespaces_list.push(n.trim())
+          })
+        } else {
+          infraInfo.kubernetes_provider_info.namespaces_list.push(ns.trim())
+        }
+      })
+    }    
     this.infraservice.createInfra(infraInfo)
       .subscribe(
         data => {
@@ -248,7 +330,7 @@ export class InfraComponent implements OnInit {
       registry_valid = true
     }
     var basics_valid = !this.newInfraForm.controls['infraname'].errors && !this.newInfraForm.controls['type'].errors
-    return !(this.testPassed && registry_secret_valid && registry_valid && basics_valid)
+    return !(this.testPassed && registry_secret_valid && registry_valid && basics_valid && this.testClick)
   }
 
   //refresh is for refresh button

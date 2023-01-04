@@ -19,18 +19,33 @@ func GetDefaultYAML() string {
 	return defaultKubeFATEYAMLVersion180
 }
 
-const defaultKubeFATEYAMLVersion180 = `apiVersion: v1
+const defaultKubeFATEYAMLVersion180 = `{{- if .IsClusterAdmin -}}
+apiVersion: v1
 kind: Namespace
 metadata:
   name: kube-fate
   labels:
     name: kube-fate
 ---
+{{ end -}}
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: kubefate-admin
-  namespace: kube-fate
+  namespace: {{.Namespace}}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: kubefate-secret
+  namespace: {{.Namespace}}
+type: Opaque
+stringData:
+  kubefateUsername: {{.ServiceUserName}}
+  kubefatePassword: {{.ServicePassword}}
+  mariadbUsername: kubefate
+  mariadbPassword: kubefate
+{{- if .IsClusterAdmin}}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -43,37 +58,7 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: kubefate-admin
-    namespace: kube-fate
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: kubefate-secret
-  namespace: kube-fate
-type: Opaque
-stringData:
-  kubefateUsername: {{.ServiceUserName}}
-  kubefatePassword: {{.ServicePassword}}
-  mariadbUsername: kubefate
-  mariadbPassword: kubefate
----
-apiVersion: policy/v1beta1
-kind: PodSecurityPolicy
-metadata:
-  name: kubefate-psp
-  namespace: kube-fate
-spec:
-  privileged: false
-  seLinux:
-    rule: RunAsAny
-  supplementalGroups:
-    rule: RunAsAny
-  runAsUser:
-    rule: RunAsAny
-  fsGroup:
-    rule: RunAsAny
-  volumes:
-  - '*'
+    namespace: {{.Namespace}}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -162,13 +147,29 @@ rules:
   - delete
   - update
   - patch
+{{- else }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: sc-edit-binding
+  namespace: {{.Namespace}}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: admin
+subjects:
+  - kind: ServiceAccount
+    name: kubefate-admin
+    namespace: {{.Namespace}}
+{{- end }}
 {{- if .UseImagePullSecrets}}
 ---
 apiVersion: v1
 kind: Secret
 metadata:
   name: {{.ImagePullSecretsName}}
-  namespace: kube-fate
+  namespace: {{.Namespace}}
 data:
   .dockerconfigjson: {{.RegistrySecretData}}
 type: kubernetes.io/dockerconfigjson
@@ -178,7 +179,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: kubefate
-  namespace: kube-fate
+  namespace: {{.Namespace}}
   labels:
     fate: kubefate
 spec:
@@ -196,9 +197,9 @@ spec:
       serviceAccountName: kubefate-admin
       containers:
         {{- if .UseRegistry}}
-        - image: {{.Registry}}/kubefate:v1.4.4
+        - image: {{.Registry}}/kubefate:v1.4.5
         {{- else }}
-        - image: federatedai/kubefate:v1.4.4
+        - image: federatedai/kubefate:v1.4.5
         {{- end }}
           imagePullPolicy: IfNotPresent
           name: kubefate
@@ -252,6 +253,27 @@ spec:
             requests:
               memory: 512Mi
               cpu: "0.5"
+          livenessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 3
+          readinessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 1
+            successThreshold: 1
+            failureThreshold: 3
+          startupProbe:
+            tcpSocket:
+              port: 8080
+            failureThreshold: 30
+            periodSeconds: 10
       {{- if .UseImagePullSecrets}}
       imagePullSecrets:
         - name: {{.ImagePullSecretsName}}
@@ -262,7 +284,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: mariadb
-  namespace: kube-fate
+  namespace: {{.Namespace}}
   labels:
     fate: mariadb
 spec:
@@ -313,6 +335,26 @@ spec:
           volumeMounts:
             - name: mariadb-data
               mountPath: /var/lib/mysql
+          livenessProbe:
+            exec:
+              command:
+              - mysqladmin
+              - ping
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 3
+          readinessProbe:
+            exec:
+              command:
+              - mysqladmin
+              - ping
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 1
+            successThreshold: 1
+            failureThreshold: 3
       restartPolicy: Always
       {{- if .UseImagePullSecrets}}
       imagePullSecrets:
@@ -332,7 +374,7 @@ spec:
 # kind: PersistentVolumeClaim
 # metadata:
 #   name: mariadb-data
-#   namespace: kube-fate
+#   namespace: {{.Namespace}}
 # spec:
 #   accessModes:
 #   - ReadWriteOnce
@@ -345,7 +387,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: mariadb
-  namespace: kube-fate
+  namespace: {{.Namespace}}
   labels:
     fate: mariadb
 spec:
@@ -362,7 +404,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: kubefate
-  namespace: kube-fate
+  namespace: {{.Namespace}}
   labels:
     fate: kubefate
 spec:
@@ -379,7 +421,7 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: kubefate
-  namespace: kube-fate
+  namespace: {{.Namespace}}
 spec:
   ingressClassName: nginx
   rules:

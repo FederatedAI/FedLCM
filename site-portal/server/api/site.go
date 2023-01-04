@@ -49,6 +49,7 @@ func (controller *SiteController) Route(r *gin.RouterGroup) {
 		site.POST("/fateflow/connect", controller.connectFATEFlow)
 		site.POST("/kubeflow/connect", controller.connectKubeflow)
 		site.POST("/fmlmanager/connect", controller.connectFMLManager)
+		site.POST("/fmlmanager/unregister", controller.unregisterSite)
 	}
 }
 
@@ -185,6 +186,31 @@ func (controller *SiteController) connectFMLManager(c *gin.Context) {
 			return err
 		}
 		return controller.siteAppService.RegisterToFMLManager(connectionInfo)
+	}(); err != nil {
+		resp := &GeneralResponse{
+			Code:    constants.RespInternalErr,
+			Message: err.Error(),
+		}
+		c.JSON(http.StatusInternalServerError, resp)
+	} else {
+		resp := &GeneralResponse{
+			Code: constants.RespNoErr,
+		}
+		c.JSON(http.StatusOK, resp)
+	}
+}
+
+// unregisterSite unregisters the current site from fml manager
+// @Summary Unregister from the fml manager
+// @Tags Site
+// @Produce json
+// @Success 200 {object} GeneralResponse "Success"
+// @Failure 401 {object} GeneralResponse "Unauthorized operation"
+// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
+// @Router /site/fmlmanager/unregister [post]
+func (controller *SiteController) unregisterSite(c *gin.Context) {
+	if err := func() error {
+		return controller.siteAppService.UnregisterFromFMLManager()
 	}(); err != nil {
 		resp := &GeneralResponse{
 			Code:    constants.RespInternalErr,

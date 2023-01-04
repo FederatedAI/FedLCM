@@ -17,14 +17,10 @@ package gorm
 import (
 	"github.com/FederatedAI/FedLCM/server/domain/entity"
 	"github.com/FederatedAI/FedLCM/server/domain/repo"
-	"github.com/pkg/errors"
 )
 
 // InfraProviderKubernetesRepo is the implementation of the repo.InfraProviderRepository interface
 type InfraProviderKubernetesRepo struct{}
-
-// ErrProviderExist means new provider cannot be created due to the existence of the same-name provider
-var ErrProviderExist = errors.New("provider already exists")
 
 var _ repo.InfraProviderRepository = (*InfraProviderKubernetesRepo)(nil)
 
@@ -36,7 +32,7 @@ func (r *InfraProviderKubernetesRepo) ProviderExists(instance interface{}) error
 	db.Model(&entity.InfraProviderKubernetes{}).Where("name = ?", provider.Name).Count(&countName)
 	db.Model(&entity.InfraProviderKubernetes{}).Where("config_sha256 = ?", provider.Config.SHA2565()).Count(&countConfig)
 	if countName > 0 || countConfig > 0 {
-		return ErrProviderExist
+		return repo.ErrProviderExist
 	}
 	return nil
 }
@@ -85,9 +81,9 @@ func (r *InfraProviderKubernetesRepo) UpdateByUUID(instance interface{}) error {
 		Select("name", "description", "type", "config", "registry_config_fate", "api_host", "config_sha256").Updates(provider).Error
 }
 
-func (r *InfraProviderKubernetesRepo) GetByAddress(address string) (interface{}, error) {
+func (r *InfraProviderKubernetesRepo) GetByConfigSHA256(sha256 string) (interface{}, error) {
 	provider := &entity.InfraProviderKubernetes{}
-	if err := db.Where("api_host = ?", address).First(provider).Error; err != nil {
+	if err := db.Where("config_sha256 = ?", sha256).First(provider).Error; err != nil {
 		return nil, err
 	}
 	return provider, nil

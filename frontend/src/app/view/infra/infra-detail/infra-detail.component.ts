@@ -41,6 +41,11 @@ export class InfraDetailComponent implements OnInit {
         type: ['require']
       },
       {
+        name: 'is_in_cluster',
+        type: [''],
+        value: false
+      },
+      {
         name: 'kubeconfig',
         value: '',
         type: ['require']
@@ -74,6 +79,16 @@ export class InfraDetailComponent implements OnInit {
         name: 'password',
         value: '',
         type: ['']
+      },
+      {
+        name: 'namespace',
+        value: false,
+        type: ['']
+      },
+      {
+        name: 'namespaceList',
+        value: '',
+        type: ['']
       }
     ])
 
@@ -92,6 +107,7 @@ export class InfraDetailComponent implements OnInit {
   code: any
   isShowInfraDetailFailed: boolean = false;
   isPageLoading: boolean = true;
+  testClick = false;
   //showInfraDetail is to get the infra detailed information by UUID
   async showInfraDetail(uuid: string) {
     //first, get infra detail
@@ -167,6 +183,11 @@ export class InfraDetailComponent implements OnInit {
     this.updateInfraForm.controls['infraname'].setValue(this.infraDetail.name);
     this.updateInfraForm.controls['type'].setValue(this.infraDetail.type);
     this.updateInfraForm.controls['description'].setValue(this.infraDetail.description);
+    if (this.infraDetail.kubernetes_provider_info.is_in_cluster) {
+      this.updateInfraForm.controls['is_in_cluster'].setValue(this.infraDetail.kubernetes_provider_info.is_in_cluster)
+    } else {
+      this.updateInfraForm.controls['is_in_cluster'].setValue(false)
+    }
     this.updateInfraForm.controls['kubeconfig'].setValue(this.infraDetail.kubernetes_provider_info.kubeconfig_content);
     this.updateInfraForm.controls['use_registry_secret'].setValue(this.infraDetail.kubernetes_provider_info.registry_config_fate.use_registry_secret);
     this.updateInfraForm.controls['server_url'].setValue(this.infraDetail.kubernetes_provider_info.registry_config_fate.registry_secret_config.server_url);
@@ -174,6 +195,11 @@ export class InfraDetailComponent implements OnInit {
     this.updateInfraForm.controls['password'].setValue(this.infraDetail.kubernetes_provider_info.registry_config_fate.registry_secret_config.password);
     this.updateInfraForm.controls['registry'].setValue(this.infraDetail.kubernetes_provider_info.registry_config_fate.registry);
     this.updateInfraForm.controls['use_registry'].setValue(this.infraDetail.kubernetes_provider_info.registry_config_fate.use_registry);
+
+    if (this.infraDetail.kubernetes_provider_info.namespaces_list && this.infraDetail.kubernetes_provider_info.namespaces_list.length > 0) {
+      this.updateInfraForm.controls['namespace'].setValue(true)
+      this.updateInfraForm.controls['namespaceList'].setValue(this.infraDetail.kubernetes_provider_info.namespaces_list.join(','))
+    }
     this.openModal = true;
     this.isTestFailedModal = this.isTestFailed
     this.testPassedModal = this.testPassed
@@ -227,25 +253,64 @@ export class InfraDetailComponent implements OnInit {
   testPassedModal = true
   isTestLoadingModal = false
   errorMessageModal = ""
+
+  // input namespace list change handler
+  namespaceStrChange() {    
+    this.testClick = false;
+  }
+
   //testConnection is to test the k8s connection by using kubeconfig
   testConnection(notUpdate: boolean) {
-    var kubeconfigContent = ""
+    const updateData: any = {
+      is_in_cluster: false,
+      kubeconfig_content: '',
+      namespaces_list: []
+    }
     if (notUpdate) {
-      kubeconfigContent = this.infraDetail.kubernetes_provider_info.kubeconfig_content
+      if (!this.infraDetail.kubernetes_provider_info.is_in_cluster) {
+        updateData.kubeconfig_content = this.infraDetail.kubernetes_provider_info.kubeconfig_content
+      } else {
+        updateData.is_in_cluster = true
+      }
+      updateData.namespaces_list = this.infraDetail.kubernetes_provider_info.namespaces_list
       this.isTestLoading = true;
       this.isTestFailed = false;
     } else {
-      kubeconfigContent = this.updateInfraForm.get('kubeconfig')?.value
+      if (!this.updateInfraForm.controls['is_in_cluster'].value) {
+        updateData.kubeconfig_content = this.updateInfraForm.get('kubeconfig')?.value
+      }
+      // Non-admin add namespace
+      if (this.updateInfraForm.get('namespace')?.value) {
+        const namespaceStr: string = this.updateInfraForm.get('namespaceList')?.value
+        const namespaceListMiddle = namespaceStr.split(',')
+        namespaceListMiddle.forEach(ns => {
+          if (ns.indexOf('，') !== -1) {
+            const nsList = ns.split('，')
+            nsList.forEach(n => {
+              updateData.namespaces_list.push(n.trim())
+            })
+          } else {
+            updateData.namespaces_list.push(ns.trim())
+          }
+        })
+      }
       this.isTestLoadingModal = true;
       this.isTestFailedModal = false;
-    }
-    this.infraservice.testK8sConnection(kubeconfigContent).subscribe(() => {
+      updateData.is_in_cluster = this.updateInfraForm.controls['is_in_cluster'].value
+    }    
+    // const data = {
+    //   kubeconfig_content: kubeconfigContent,
+    //   namespaces_list: this.infraDetail.kubernetes_provider_info.namespaces_list
+    // }
+    this.infraservice.testK8sConnection(updateData).subscribe(() => {
       if (notUpdate) {
         this.testPassed = true
         this.isTestLoading = false
+        this.testClick = true
       } else {
         this.testPassedModal = true
         this.isTestLoadingModal = false
+        this.testClick = true
       }
     },
       err => {
@@ -263,6 +328,29 @@ export class InfraDetailComponent implements OnInit {
       });
   }
 
+  //testConnectionDisable is to test the k8s connection by using kubeconfig disable
+  get testConnectionDisable() {
+    const namespace = this.updateInfraForm.controls['namespace'].value
+    const namespaceList = this.updateInfraForm.controls['namespaceList'].value      
+    if (this.updateInfraForm.controls['is_in_cluster'].value) {
+      if (namespace) {
+        if (namespaceList) {
+          return false
+        } else {
+          return true
+        }
+      } else {
+        return false
+      }
+    } else {
+      if (namespace) {
+        return !(this.updateInfraForm.get('kubeconfig')?.valid && namespaceList)
+      } else {
+        return !this.updateInfraForm.get('kubeconfig')?.valid
+      }
+    }
+  }
+
   //onKubeconfigChange is triggered when the input of kubeconfig is changed
   onKubeconfigChange(val: any) {
     this.testPassedModal = false;
@@ -273,10 +361,11 @@ export class InfraDetailComponent implements OnInit {
   //updateInfra is to update the info of infra
   updateInfra() {
     this.isUpdateFailed = false;
-    var infraInfo = {
+    var infraInfo: any = {
       description: this.updateInfraForm.get('description')?.value,
       kubernetes_provider_info: {
-        kubeconfig_content: this.updateInfraForm.get('kubeconfig')?.value,
+        is_in_cluster: this.updateInfraForm.controls['is_in_cluster'].value,
+        kubeconfig_content: '',
         registry_config_fate: {
           use_registry: this.updateInfraForm.get('use_registry')?.value,
           registry: this.use_registry ? this.updateInfraForm.get('registry')?.value?.trim() : "",
@@ -291,6 +380,26 @@ export class InfraDetailComponent implements OnInit {
       name: this.updateInfraForm.get('infraname')?.value,
       type: this.updateInfraForm.get('type')?.value,
     }
+
+    if (!this.updateInfraForm.controls['is_in_cluster'].value) {
+      infraInfo.kubernetes_provider_info.kubeconfig_content = this.updateInfraForm.get('kubeconfig')?.value
+    }
+    // Non-admin add namespace
+    if (this.updateInfraForm.get('namespace')?.value) {
+      infraInfo.kubernetes_provider_info.namespaces_list = []
+      const namespaceStr: string = this.updateInfraForm.get('namespaceList')?.value
+      const namespaceListMiddle: string[] = namespaceStr.split(',')
+      namespaceListMiddle.forEach(ns => {
+        if (ns.indexOf('，') !== -1) {
+          const nsList = ns.split('，')
+          nsList.forEach(n => {
+            infraInfo.kubernetes_provider_info.namespaces_list.push(n.trim())
+          })
+        } else {
+          infraInfo.kubernetes_provider_info.namespaces_list.push(ns.trim())
+        }
+      })
+    } 
     this.infraservice.updateInfraProvider(infraInfo, this.uuid)
       .subscribe(
         data => {
@@ -318,8 +427,8 @@ export class InfraDetailComponent implements OnInit {
     } else {
       registry_valid = true
     }
-    var basics_valid = !this.updateInfraForm.controls['infraname'].errors && !this.updateInfraForm.controls['type'].errors
-    return !(this.testPassedModal && registry_secret_valid && registry_valid && basics_valid)
+    var basics_valid = !this.updateInfraForm.controls['infraname'].errors && !this.updateInfraForm.controls['type'].errors    
+    return !(this.testPassedModal && registry_secret_valid && registry_valid && basics_valid && this.testClick)
   }
 
   //refresh is for refresh button

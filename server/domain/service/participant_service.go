@@ -17,6 +17,8 @@ package service
 import (
 	"context"
 	"crypto/rsa"
+	"net"
+	"net/url"
 	"regexp"
 	"strings"
 	"time"
@@ -93,16 +95,24 @@ var (
 		}
 
 		getNodePortServiceAccess := func() {
-			nl, _ := client.GetClientSet().CoreV1().Nodes().List(context.TODO(), v1.ListOptions{})
-			node := nl.Items[0]
-			for _, addr := range node.Status.Addresses {
-				if addr.Type == corev1.NodeExternalIP {
-					host = addr.Address
-					break
-				} else if addr.Type == corev1.NodeInternalIP {
-					host = addr.Address
+			nl, err := client.GetClientSet().CoreV1().Nodes().List(context.TODO(), v1.ListOptions{})
+			if err != nil {
+				// TODO: use user specified host
+				clientConfig, _ := client.GetConfig()
+				u, _ := url.Parse(clientConfig.Host)
+				host, _, _ = net.SplitHostPort(u.Host)
+			} else {
+				node := nl.Items[0]
+				for _, addr := range node.Status.Addresses {
+					if addr.Type == corev1.NodeExternalIP {
+						host = addr.Address
+						break
+					} else if addr.Type == corev1.NodeInternalIP {
+						host = addr.Address
+					}
 				}
 			}
+
 			port = nodePort
 		}
 
@@ -290,5 +300,5 @@ type ParticipantEndpointServiceInt interface {
 	TestKubeFATE(uuid string) error
 
 	buildKubeFATEClientManagerFromEndpointUUID(uuid string) (kubefate.ClientManager, error)
-	ensureEndpointExist(infraUUID string) (string, error)
+	ensureEndpointExist(infraUUID string, namespace string, registryConfig valueobject.KubeRegistryConfig) (string, error)
 }

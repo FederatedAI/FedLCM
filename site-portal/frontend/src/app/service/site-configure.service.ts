@@ -29,6 +29,10 @@ export class SiteConfigureService {
     return this.http.post('/site/fmlmanager/connect', connectInfo);
   }
 
+  unregisterFML() {
+    return this.http.post('/site/fmlmanager/unregister', {});
+  }
+
   testFATEFlow(host: string, https: boolean, port: number): Observable<any> {
     return this.http.post('/site/fateflow/connect', { 
       host,

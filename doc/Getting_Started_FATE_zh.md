@@ -16,17 +16,17 @@
 4. 对于某个特定的联邦，FedLCM 通过 KubeFATE 首先在指定的 K8s 集群上部署一个 FATE exchange 服务。
 5. 然后 FedLCM 可以在不同的 K8s 集群上创建多个 FATE cluster 作为不同的参与方。
 6. 每个 FATE cluster 都会创建对应的 Jupyter Notebook，其可以用来创建 FML jobs。
-7. 特别的，对于每个部署的是 FATE v1.6.1 的 cluster，FedLCM 还提供了名为“Site Portal”的服务来方便用户管理FATE的数据、任务、项目等。
+7. 特别的，对于每个部署的是 FATE v1.9.1 的 cluster，FedLCM 还提供了名为“Site Portal”的服务来方便用户管理FATE的数据、任务、项目等。
 
 ## 前置要求
 
 FedLCM 部署 KubeFATE 和 FATE 都是在 Kubernetes 集群中进行。如果您的K8s集群中已经安装有 Ingress Controllers、StorageClass Provisioners 和 LoadBalancer Providers 等服务，那么 FedLCM 能够利用这些服务来提供更丰富的功能和加速FATE的部署。但对于最简 FATE 联邦的部署，这些额外的服务并不是必须的。
 
-> 目前 FedLCM 需要 [cluster-admin 权限和角色](https://kubernetes.io/zh-cn/docs/reference/access-authn-authz/rbac/#user-facing-roles) 来部署以及管理 FATE和 KubeFATE。
+> 目前 FedLCM 支持使用 [cluster-admin 或者某一个或几个 namespace-admin 的权限和角色](https://kubernetes.io/zh-cn/docs/reference/access-authn-authz/rbac/#user-facing-roles) 来部署以及管理 FATE和 KubeFATE。两种权限的不同在后文会给予说明。
 
 ## 部署 FedLCM
 
-FedLCM 服务本身的部署支持 docker-compose 运行的方式或者在 K8s 集群中部署。详细步骤参见 [README](../README.md) 文档。
+FedLCM 服务本身的部署支持 docker-compose 运行的方式或者在 K8s 集群中部署。详细步骤参见 [README](../README.md) 文档。特别的，对于K8s的部署，我们可以修改`rbac_config.yaml`文件来为FedLCM服务的Service Account赋予更多权限，使其可以更为方便地直接在自身所在的K8s集群上部署FATE和KubeFATE。
 
 成功部署 FedLCM 服务后, 用户可通过浏览器访问其 Web 界面:
 
@@ -38,7 +38,7 @@ FedLCM 服务本身的部署支持 docker-compose 运行的方式或者在 K8s �
 
 ## 配置 CA
 
-FedLCM 服务需要通过一个 CA 服务来向各组件签发证书。因此我们需要配置它与一个 CA 服务的连接：在证书页面点击“新建”按钮添加新的证书颁发机构。目前使用 docker-compose 部署 或者 K8s 部署出来的 FedLCM 都会默认内置一个可以直接使用的 StepCA 服务，本文档直接使用这个内置的 CA。
+FedLCM 服务需要通过一个 CA 服务来向各组件签发证书。因此我们需要配置它与一个 CA 服务的连接：在证书页面点击“新建”按钮添加新的证书颁发机构。目前使用 docker-compose 部署或者 K8s 部署出来的 FedLCM 都会默认内置一个可以直接使用的 StepCA 服务，本文档直接使用这个内置的 CA。
 
 <div style="text-align:center">
 <img src="images/fate-new-ca_zh.png"  alt="" width="936"/>
@@ -46,13 +46,15 @@ FedLCM 服务需要通过一个 CA 服务来向各组件签发证书。因此我
 
 点击 `提交` 保存配置。
 
+> 如果未配置CA服务，则在创建FATE Exchange和Cluster时，不能选择"为我生成证书"。只能自行签发证书后以K8s Secret的形式注入集群供FATE相关组件使用。
+
 ## 添加基础设施
 
 在 FedLCM 服务中，Kubernetes 集群被称作基础设施，所有安装活动都是在这些集群上进行。要部署 KubeFATE 和 FATE，必须将目标 K8s 集群添加为基础设施。
 
-切换到“基础设施”页面点击`新建`按钮，填写该基础设施的一些信息，特别是 kubeconfig 文件的内容。
+切换到“基础设施”页面点击`新建`按钮，填写该基础设施的一些信息，特别是 kubeconfig 文件的内容。或者，如果我们想把当前FedLCM运行的K8s作为基础设施添加的话，可以选择"使用当前服务的Service Account"。
 
-> **kubeconfig 中所指定的用户必须有创建相关 K8s 资源的权限, 如 namespace, deployment, configmap, role, secret 等，一般来说只有cluster-admin角色能够有这些权限。**
+FedLCM默认认为提供的kubeconfig或Service Account有着cluster-admin的权限，如果我们的实际权限只有某些namespace的admin权限，那么需要打开"限定命名空间"的开关，并以逗号为间隔填入对应的namespace。
 
 <div style="text-align:center">
 <img src="images/fate-new-infrastructure_zh.png"  alt="" width="936"/>
@@ -70,7 +72,7 @@ FedLCM 服务需要通过一个 CA 服务来向各组件签发证书。因此我
 
 在 `服务端点` 页面，点击 `新建` 以在 K8s 集群上安装 KubeFATE 服务。
 
-首先选则列表中的一个基础设施，FedLCM 会检测该集群上是否已经安装 KubeFATE。若检测到 KubeFATE 已成功安装并在运行，则直接将其添加至数据库中，否则会执行如下安装步骤：
+首先选则列表中的一个基础设施（如果基础设施只包含一个或几个namespace权限，则需同时选择目标namespace），FedLCM 会检测该集群上是否已经安装 KubeFATE。若检测到 KubeFATE 已成功安装并在运行，则直接将其添加至数据库中，否则会执行如下安装步骤：
 
 <div style="text-align:center">
 <img src="images/fate-new-endpoint_zh.png"  alt="" width="936"/>
@@ -79,6 +81,8 @@ FedLCM 服务需要通过一个 CA 服务来向各组件签发证书。因此我
 按照提示配置相关内容，最终生成部署所用 YAML 文件。如需个性化修改默认生成的 YAML 文件，直接在文本框中编辑即可。一般来说默认的 YAML 内容就足够了。
 
 KubeFATE 服务的运行以及交互依赖 Ingress 和 Ingress Controllers，如有需要，您可以选择让 FedLCM 在集群中安装一个基本的 [Ingress-NGINX Controller](https://kubernetes.github.io/ingress-nginx/) 。
+
+> 同一个基础设施上，不同namespace的服务端点应当使用不同的Ingress主机名称。
 
 点击 `提交` 并等待服务端点的状态变为“准备就绪”。我们可以在服务端点详情页面的“事件”栏中查看日志信息。用户可以继续在其他 K8s 集群上安装 KubeFATE 。
 
@@ -96,16 +100,19 @@ KubeFATE 服务的运行以及交互依赖 Ingress 和 Ingress Controllers，如
 
 ## 创建参与方
 
+> 注意： 目前每个命名空间namespace中，只能安装一个FATE参与方（无论是 Exchange 还是 Cluster）。
+
 ### 创建 Exchange
 
 在 FATE 联邦详情页面的 Exchange 一栏点击 `新建` 按钮，按照提示步骤创建 Exchange。
 
 > 注意:
 >
-> * 若要使用 FedLCM 的 Site Portal 服务，需在 chart 一栏选择“chart for FATE exchange v1.6.1 with fml-manager service”。
+> * 若要使用 FedLCM 的 Site Portal 服务，需在 chart 一栏选择“chart for FATE exchange v1.9.1 with fml-manager service”。
 > * 如需自定义证书，则在选择证书一栏选择手动安装，否则勾选“为我安装证书”来使用内置证书签发服务。
 > * 如果集群不支持负载均衡则需要选择“节点端口”服务类型。
 > * 如果集群没有开启[容器安全策略](https://kubernetes.io/docs/concepts/security/pod-security-policy/) ，则无需在相应配置项中启用。
+> * 如果使用的Infrastructure和Endpoint仅有特定namespace权限时，我们在创建Exchange时将会固定使用该namespace，无法修改。
 
 最后，生成 YAML 文件并检查其内容，点击 `提交` 并等待其创建完成：
 
@@ -122,7 +129,10 @@ KubeFATE 服务的运行以及交互依赖 Ingress 和 Ingress Controllers，如
 </div>
 
 > * 多数配置与上述 Exchange 的配置过程相似，详情参见以上介绍。
-> * 如需使用 site-portal 服务，则在 Chart 一栏选择"chart for FATE cluster v1.6.1 with site-portal"。
+> * 如果使用的Infrastructure和Endpoint仅有特定namespace权限时，我们在创建Cluster时将会固定使用该namespace，无法修改。
+> * 如需使用 site-portal 服务，则在 Chart 一栏选择"chart for FATE cluster v1.9.1 with site-portal"。
+
+在默认情况下，FedLCM将会同时以容器的形式部署外部基础引擎，包括Spark、HDFS和Pulsar，如果我们的环境中已经有已存在的这些外部引擎，我们也可以让FedLCM直接使用这些引擎服务。关于如何在"选择是否使用已存在的基础引擎服务"那里进行配置，可以参考[这篇文档](./FATE_External_Engine_zh.md)。
 
 最后，生成 YAML 文件并检查，点击 `提交` 保存设置。
 
@@ -179,7 +189,7 @@ nohup socat TCP-LISTEN:80,fork TCP:localhost:<PORT> > /dev/null 2>&1 &
 <img src="images/fate-fateboard-job-detail.png"  alt="" width="936"/>
 </div>
 
-> 如果部署版本是 FATE v1.8.0，则也可以使用 `flow test toy` 命令快速执行联邦学习测试。
+> 如果部署版本是 FATE v1.8.0+，则也可以使用 `flow test toy` 命令快速执行联邦学习测试。
 
 ## 删除联邦
 
@@ -191,4 +201,4 @@ nohup socat TCP-LISTEN:80,fork TCP:localhost:<PORT> > /dev/null 2>&1 &
 
 1. 上述示例仅为 FedLCM 的最简应用，FedLCM提供包括引入外部FATE连接信息，测试基础设施和服务端点等等其他功能，欢迎提供反馈。
 2. 在部署FATE时，您可以修改默认生成的 YAML 文件来满足个性化需求。
-3. 若部署了带有 Site Portal 的 FATE v1.6.1，我们可以通过这个服务创建和管理 FATE 任务。详细步骤参见[相关文档](./Site_Portal_In_FedLCM_Configuration_Guide_zh.md).
+3. 若部署了带有 Site Portal 的 FATE v1.9.1，我们可以通过这个服务创建和管理 FATE 任务。详细步骤参见[相关文档](./Site_Portal_Manual_zh.md).

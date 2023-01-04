@@ -124,18 +124,8 @@ func (s *ProjectService) ProcessInvitationRevocation(invitationUUID string) erro
 // ProcessParticipantDismissal processes participant dismissal event by updating the repo records
 func (s *ProjectService) ProcessParticipantDismissal(projectUUID, siteUUID string, isCurrentSite bool) error {
 	// dismiss data association
-	dataListInstance, err := s.ProjectDataRepo.GetListByProjectAndSiteUUID(projectUUID, siteUUID)
-	if err != nil {
-		return errors.Wrap(err, "failed to query project data")
-	}
-	dataList := dataListInstance.([]entity.ProjectData)
-	for _, data := range dataList {
-		if data.Status == entity.ProjectDataStatusAssociated {
-			data.Status = entity.ProjectDataStatusDismissed
-			if err := s.ProjectDataRepo.UpdateStatusByUUID(&data); err != nil {
-				return errors.Wrapf(err, "failed to dismiss data %s from site: %s", data.Name, data.SiteName)
-			}
-		}
+	if err := s.dismissProjectData(projectUUID, siteUUID); err != nil {
+		return nil
 	}
 	// update participant status
 	participantInstance, err := s.ParticipantRepo.GetByProjectAndSiteUUID(projectUUID, siteUUID)
@@ -176,6 +166,59 @@ func (s *ProjectService) ProcessProjectClosing(projectUUID string) error {
 
 	if err := s.ProjectRepo.UpdateStatusByUUID(project); err != nil {
 		return errors.Wrapf(err, "failed to update project status")
+	}
+	return nil
+}
+
+// ProcessParticipantUnregistration processes participant unregistration event by update the repo records
+func (s *ProjectService) ProcessParticipantUnregistration(siteUUID string, isCurrentSite bool) error {
+	listInstance, err := s.ParticipantRepo.GetBySiteUUID(siteUUID)
+	if err != nil {
+		return errors.Wrap(err, "error retrieving participants info by site uuid")
+	}
+	participantList := listInstance.([]entity.ProjectParticipant)
+	for _, participant := range participantList {
+		projectInstance, err := s.ProjectRepo.GetByUUID(participant.ProjectUUID)
+		if err != nil {
+			return err
+		}
+		project := projectInstance.(*entity.Project)
+		if project.Type == entity.ProjectTypeLocal {
+			log.Info().Msgf("project %s(%s) is a local project, not impacted by unregistration", project.Name, project.UUID)
+			continue
+		}
+		// 1. dismiss data
+		if err := s.dismissProjectData(participant.ProjectUUID, siteUUID); err != nil {
+			log.Err(err).Msgf("failed to process project data dismissal, project %v and site %v, continue", participant.ProjectUUID, siteUUID)
+		}
+		// 2. mark project as closed or dismiss the participant from the project
+		if participant.Status == entity.ProjectParticipantStatusOwner {
+			project.Status = entity.ProjectStatusClosed
+			if err := s.ProjectRepo.UpdateStatusByUUID(project); err != nil {
+				log.Err(err).Msgf("failed to close project for site: %v(%v), project: %v, continue", participant.SiteName, siteUUID, participant.ProjectUUID)
+			}
+		} else {
+			if err := s.ProcessParticipantDismissal(participant.ProjectUUID, siteUUID, isCurrentSite); err != nil {
+				log.Err(err).Msgf("failed to process participant dismissal for site: %v(%v), project: %v, continue", participant.SiteName, siteUUID, participant.ProjectUUID)
+			}
+		}
+	}
+	return nil
+}
+
+func (s *ProjectService) dismissProjectData(projectUUID, siteUUID string) error {
+	dataListInstance, err := s.ProjectDataRepo.GetListByProjectAndSiteUUID(projectUUID, siteUUID)
+	if err != nil {
+		return errors.Wrap(err, "failed to query project data")
+	}
+	dataList := dataListInstance.([]entity.ProjectData)
+	for _, data := range dataList {
+		if data.Status == entity.ProjectDataStatusAssociated {
+			data.Status = entity.ProjectDataStatusDismissed
+			if err := s.ProjectDataRepo.UpdateStatusByUUID(&data); err != nil {
+				return errors.Wrapf(err, "failed to dismiss data %s from site: %s", data.Name, data.SiteName)
+			}
+		}
 	}
 	return nil
 }

@@ -59,6 +59,8 @@ type Client interface {
 	SendProjectParticipantDismissal(projectUUID string, siteUUID string) error
 	// SendProjectClosing sends the project closing event
 	SendProjectClosing(projectUUID string) error
+	// SendProjectParticipantUnregistration sends the participant unregistration event
+	SendProjectParticipantUnregistration(siteUUID string) error
 	// CheckSiteStatus checks the status of the site
 	CheckSiteStatus() error
 }
@@ -212,6 +214,16 @@ func (c *client) SendJobStatusUpdate(jobUUID string, context string) error {
 
 func (c *client) SendProjectClosing(projectUUID string) error {
 	resp, err := c.postJSON(fmt.Sprintf("project/internal/%s/close", projectUUID), "")
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	_, err = c.parseResponse(resp)
+	return err
+}
+
+func (c *client) SendProjectParticipantUnregistration(siteUUID string) error {
+	resp, err := c.postJSON(fmt.Sprintf("project/internal/all/participant/%s/unregister", siteUUID), "")
 	if err != nil {
 		return err
 	}

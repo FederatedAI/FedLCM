@@ -72,6 +72,15 @@ func (r *EndpointKubeFATERepo) ListByInfraProviderUUID(infraUUID string) (interf
 	return endpoints, nil
 }
 
+func (r *EndpointKubeFATERepo) ListByInfraProviderUUIDAndNamespace(infraUUID string, namespace string) (interface{}, error) {
+	var endpoints []entity.EndpointKubeFATE
+	err := db.Where("infra_provider_uuid = ? AND namespace = ?", infraUUID, namespace).Find(&endpoints).Error
+	if err != nil {
+		return 0, err
+	}
+	return endpoints, nil
+}
+
 func (r *EndpointKubeFATERepo) UpdateStatusByUUID(instance interface{}) error {
 	endpoint := instance.(*entity.EndpointKubeFATE)
 	return db.Model(&entity.EndpointKubeFATE{}).Where("uuid = ?", endpoint.UUID).

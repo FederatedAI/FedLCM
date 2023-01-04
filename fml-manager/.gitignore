@@ -11,4 +11,6 @@ dist/
 *.out
 *.tgz
 *.tar
-tls/cert
+tls/cert/*.crt
+tls/cert/*.key
+

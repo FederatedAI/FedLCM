@@ -89,26 +89,30 @@ const (
 )
 
 // CreateKubeFATEEndpoint install a kubefate endpoint or add an existing kubefate as a managed endpoint
-func (s *EndpointService) CreateKubeFATEEndpoint(infraUUID, name, description, yaml string,
+func (s *EndpointService) CreateKubeFATEEndpoint(infraUUID, namespace, name, description, yaml string,
 	install bool,
 	ingressControllerServiceMode entity.EndpointKubeFATEIngressControllerServiceMode) (string, error) {
-	log.Info().Msgf("creating KubeFATE endpoint with name: %s, install: %v on infra with uuid: %s", name, install, infraUUID)
+	log.Info().Msgf("creating KubeFATE endpoint with name: %s, install: %v in namespace %s on infra with uuid: %s", name, install, namespace, infraUUID)
 	if name == "" {
 		return "", errors.New("name cannot be empty")
 	}
-	endpointListInstance, err := s.EndpointKubeFATERepo.ListByInfraProviderUUID(infraUUID)
+	if namespace != "" {
+		ingressControllerServiceMode = entity.EndpointKubeFATEIngressControllerServiceModeSkip
+	}
+	endpointListInstance, err := s.EndpointKubeFATERepo.ListByInfraProviderUUIDAndNamespace(infraUUID, namespace)
 	if err != nil {
-		return "", errors.Wrapf(err, "failed to query current infra's KubeFATE endpoint info")
+		return "", errors.Wrapf(err, "failed to query current KubeFATE endpoint info in namespace %s of infra %s", namespace, infraUUID)
 	}
 	domainEndpointList := endpointListInstance.([]entity.EndpointKubeFATE)
 	if len(domainEndpointList) != 0 {
-		return "", errors.Errorf("current infra provider %s already contains a KubeFATE endpoint", infraUUID)
+		return "", errors.Errorf("current infra provider %s already contains a KubeFATE endpoint in namespace %s", infraUUID, namespace)
 	}
 
 	endpoint := &entity.EndpointKubeFATE{
 		EndpointBase: entity.EndpointBase{
 			UUID:              uuid.NewV4().String(),
 			InfraProviderUUID: infraUUID,
+			Namespace:         namespace,
 			Name:              name,
 			Description:       description,
 			Version:           "",
@@ -116,9 +120,10 @@ func (s *EndpointService) CreateKubeFATEEndpoint(infraUUID, name, description, y
 			Status:            entity.EndpointStatusCreating,
 		},
 		Config: entity.KubeFATEConfig{
-			IngressAddress:    "",
-			IngressRuleHost:   "",
-			UsePortForwarding: ingressControllerServiceMode == entity.EndpointKubeFATEIngressControllerServiceModeModeNonexistent,
+			IngressAddress:  "",
+			IngressRuleHost: "",
+			UsePortForwarding: ingressControllerServiceMode == entity.EndpointKubeFATEIngressControllerServiceModeModeNonexistent ||
+				ingressControllerServiceMode == entity.EndpointKubeFATEIngressControllerServiceModeSkip,
 		},
 		DeploymentYAML:        "",
 		IngressControllerYAML: "",
@@ -133,15 +138,17 @@ func (s *EndpointService) CreateKubeFATEEndpoint(infraUUID, name, description, y
 				return "", err
 			}
 		}
-		if yaml == "" {
-			log.Info().Msgf("generating default deployment yaml")
-			yaml, err = s.GetDeploymentYAML("admin", "admin", "kubefate.net", valueobject.KubeRegistryConfig{})
-			if err != nil {
-				return "", err
-			}
+	}
+
+	if yaml == "" {
+		log.Info().Msgf("generating default deployment yaml")
+		yaml, err = s.GetDeploymentYAML(namespace, "admin", "admin", "kubefate.net", valueobject.KubeRegistryConfig{})
+		if err != nil {
+			return "", err
 		}
 	}
-	mgr, err := s.BuildKubeFATEManager(infraUUID, yaml, ingressControllerYAML)
+
+	mgr, err := s.BuildKubeFATEManager(infraUUID, namespace, yaml, ingressControllerYAML)
 	if err != nil {
 		return "", errors.Wrapf(err, "failed to build kubefate manager")
 	}
@@ -243,14 +250,14 @@ func (s *EndpointService) CreateKubeFATEEndpoint(infraUUID, name, description, y
 	return endpoint.UUID, nil
 }
 
-// FindKubeFATEEndpoint returns endpoints installation status from an infra provider
-func (s *EndpointService) FindKubeFATEEndpoint(infraUUID string) ([]EndpointScanResult, error) {
+// FindKubeFATEEndpoint returns endpoints installation status from an infra provider within particular namespace
+func (s *EndpointService) FindKubeFATEEndpoint(infraUUID string, namespace string) ([]EndpointScanResult, error) {
 	// 1. find from repo
-	endpointListInstance, err := s.EndpointKubeFATERepo.ListByInfraProviderUUID(infraUUID)
+	endpointInstance, err := s.EndpointKubeFATERepo.ListByInfraProviderUUIDAndNamespace(infraUUID, namespace)
 	if err != nil {
-		return nil, errors.Wrapf(err, "failed to get KubeFATE endpoint list")
+		return nil, errors.Wrapf(err, "failed to get KubeFATE endpoint in namespace %s of infra %s: ", namespace, infraUUID)
 	}
-	domainEndpointList := endpointListInstance.([]entity.EndpointKubeFATE)
+	domainEndpointList := endpointInstance.([]entity.EndpointKubeFATE)
 	if len(domainEndpointList) != 0 {
 		var resultList []EndpointScanResult
 		for _, domainEndpoint := range domainEndpointList {
@@ -259,6 +266,7 @@ func (s *EndpointService) FindKubeFATEEndpoint(infraUUID string) ([]EndpointScan
 					Model:             domainEndpoint.Model,
 					UUID:              domainEndpoint.UUID,
 					InfraProviderUUID: infraUUID,
+					Namespace:         domainEndpoint.Namespace,
 					Name:              domainEndpoint.Name,
 					Description:       domainEndpoint.Description,
 					Type:              domainEndpoint.Type,
@@ -272,14 +280,18 @@ func (s *EndpointService) FindKubeFATEEndpoint(infraUUID string) ([]EndpointScan
 	}
 
 	// 2. scan the infra
-	kubefateMgr, err := s.BuildKubeFATEManager(infraUUID, "", "")
+	yaml, err := s.GetDeploymentYAML(namespace, "admin", "admin", "kubefate.net", valueobject.KubeRegistryConfig{})
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to get deployment yaml ")
+	}
+	kubefateMgr, err := s.BuildKubeFATEManager(infraUUID, namespace, yaml, "")
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to get kubefate manager")
 	}
 	deployment, err := kubefateMgr.GetKubeFATEDeployment()
 	if err != nil {
 		if k8sErr.IsNotFound(err) {
-			log.Info().Msgf("no kubefate endpoint found in infra: %s", infraUUID)
+			log.Info().Msgf("no kubefate endpoint found in namespace %s of infra: %s", namespace, infraUUID)
 			return nil, nil
 		}
 		return nil, errors.Wrapf(err, "error querying kubefate installation")
@@ -403,7 +415,14 @@ func (s *EndpointService) RemoveEndpoint(uuid string, uninstall bool) error {
 	go func() {
 		// continue the removing even if uninstallation failed
 		if uninstall {
-			kubefateMgr, err := s.BuildKubeFATEManager(domainEndpointKubeFATE.InfraProviderUUID, domainEndpointKubeFATE.DeploymentYAML, domainEndpointKubeFATE.IngressControllerYAML)
+			yaml := domainEndpointKubeFATE.DeploymentYAML
+			// yaml is empty means the KubeFATE was not installed by FedLCM but directly added to the database,
+			// so we don't know the actual yaml user applied.
+			// Here we build a default deployment yaml and delete it for future installation.
+			if yaml == "" {
+				yaml, err = s.GetDeploymentYAML(domainEndpointKubeFATE.Namespace, "admin", "admin", "kubefate.net", valueobject.KubeRegistryConfig{})
+			}
+			kubefateMgr, err := s.BuildKubeFATEManager(domainEndpointKubeFATE.InfraProviderUUID, domainEndpointKubeFATE.Namespace, yaml, domainEndpointKubeFATE.IngressControllerYAML)
 			if err != nil {
 				message := "failed to get kubefate manager"
 				log.Err(err).Msgf(message)
@@ -435,23 +454,29 @@ func (s *EndpointService) buildKubeFATEClientManagerFromEndpointUUID(uuid string
 		return nil, errors.Wrapf(err, "failed to get KubeFAET endpoint instance")
 	}
 	endpoint := endpointInstance.(*entity.EndpointKubeFATE)
-	return s.BuildKubeFATEManager(endpoint.InfraProviderUUID, endpoint.DeploymentYAML, endpoint.IngressControllerYAML)
+	if endpoint.DeploymentYAML == "" {
+		endpoint.DeploymentYAML, err = s.GetDeploymentYAML(endpoint.Namespace, "admin", "admin", "kubefate.net", valueobject.KubeRegistryConfig{})
+		if err != nil {
+			return nil, errors.Wrapf(err, "failed to get default deployment yaml")
+		}
+	}
+	return s.BuildKubeFATEManager(endpoint.InfraProviderUUID, endpoint.Namespace, endpoint.DeploymentYAML, endpoint.IngressControllerYAML)
 }
 
 // BuildKubeFATEManager retrieve a KubeFATE manager instance from the provided endpoint uuid
-func (s *EndpointService) BuildKubeFATEManager(infraUUID, yaml, ingressControllerYAML string) (kubefate.Manager, error) {
+func (s *EndpointService) BuildKubeFATEManager(infraUUID, namespace, yaml, ingressControllerYAML string) (kubefate.Manager, error) {
 	providerInstance, err := s.InfraProviderKubernetesRepo.GetByUUID(infraUUID)
 	if err != nil {
 		return nil, errors.Wrapf(err, "error query infra provider")
 	}
 	provider := providerInstance.(*entity.InfraProviderKubernetes)
 
-	client, err := newK8sClientFn("", provider.Config.KubeConfigContent)
+	client, err := newK8sClientFn("", provider.Config.KubeConfigContent, provider.Config.IsInCluster)
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to get kubernetes client")
 	}
 
-	installMeta, err := kubefate.BuildInstallationMetaFromYAML(yaml, ingressControllerYAML)
+	installMeta, err := kubefate.BuildInstallationMetaFromYAML(namespace, yaml, ingressControllerYAML)
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to get kubefate meta")
 	}
@@ -460,10 +485,16 @@ func (s *EndpointService) BuildKubeFATEManager(infraUUID, yaml, ingressControlle
 }
 
 // GetDeploymentYAML returns the default kubefate deployment yaml
-func (s *EndpointService) GetDeploymentYAML(serviceUserName, servicePassword, hostname string, registryConfig valueobject.KubeRegistryConfig) (string, error) {
+func (s *EndpointService) GetDeploymentYAML(namespace, serviceUserName, servicePassword, hostname string, registryConfig valueobject.KubeRegistryConfig) (string, error) {
 	t, err := template.New("kubefate").Parse(kubefate.GetDefaultYAML())
 	if err != nil {
 		return "", err
+	}
+
+	isClusterAdmin := false
+	if namespace == "" {
+		isClusterAdmin = true
+		namespace = "kube-fate"
 	}
 
 	registrySecretData := ""
@@ -474,6 +505,8 @@ func (s *EndpointService) GetDeploymentYAML(serviceUserName, servicePassword, ho
 		}
 	}
 	data := struct {
+		Namespace            string
+		IsClusterAdmin       bool
 		ServiceUserName      string
 		ServicePassword      string
 		Hostname             string
@@ -483,6 +516,8 @@ func (s *EndpointService) GetDeploymentYAML(serviceUserName, servicePassword, ho
 		ImagePullSecretsName string
 		RegistrySecretData   string
 	}{
+		Namespace:            namespace,
+		IsClusterAdmin:       isClusterAdmin,
 		ServiceUserName:      serviceUserName,
 		ServicePassword:      servicePassword,
 		Hostname:             hostname,
@@ -504,6 +539,7 @@ func (s *EndpointService) GetIngressControllerDeploymentYAML(mode entity.Endpoin
 	if mode == entity.EndpointKubeFATEIngressControllerServiceModeSkip {
 		return "", nil
 	}
+	// TODO: specify namespace
 	t, err := template.New("ingress-nginx").Parse(kubefate.GetDefaultIngressControllerYAML())
 	if err != nil {
 		return "", err
@@ -525,8 +561,8 @@ func (s *EndpointService) GetIngressControllerDeploymentYAML(mode entity.Endpoin
 }
 
 // ensureEndpointExist returns try to add/install a KubeFATE into the specified cluster
-func (s *EndpointService) ensureEndpointExist(infraUUID string) (string, error) {
-	endpointScanResult, err := s.FindKubeFATEEndpoint(infraUUID)
+func (s *EndpointService) ensureEndpointExist(infraUUID string, namespace string, registryConfig valueobject.KubeRegistryConfig) (string, error) {
+	endpointScanResult, err := s.FindKubeFATEEndpoint(infraUUID, namespace)
 	if err != nil {
 		return "", err
 	}
@@ -552,12 +588,24 @@ func (s *EndpointService) ensureEndpointExist(infraUUID string) (string, error) 
 	if err != nil {
 		return "", err
 	}
-	endpointUUID, err := s.CreateKubeFATEEndpoint(infraUUID,
+	yaml := ""
+	if install {
+		yaml, err = s.GetDeploymentYAML(namespace, "admin", "admin", "kubefate.net", registryConfig)
+		if err != nil {
+			return "", err
+		}
+	}
+	endpointUUID, err := s.CreateKubeFATEEndpoint(infraUUID, namespace,
 		fmt.Sprintf("kubefate-%s", u.Hostname()),
 		fmt.Sprintf("Automatically added KubeFATE on Kubernetes %s.", u.Hostname()),
-		"",
+		yaml,
 		install,
 		entity.EndpointKubeFATEIngressControllerServiceModeModeNonexistent)
+
+	if err != nil {
+		// TODO: if error due to name conflict, generated a new name and retry
+		return "", errors.Wrap(err, "failed to add endpoint")
+	}
 
 	var installErr error
 	if err := utils.ExecuteWithTimeout(func() bool {
