@@ -1,0 +1,52 @@
+name: FML-Manager docker build and push
+
+on:
+  push:
+    # Publish `main` as Docker `latest` image.
+    branches:
+      - main
+
+    # Publish `v1.2.3` tags as releases.
+    tags:
+      - v*
+
+jobs:
+  # no test is required
+  push:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+
+    steps:
+      - uses: actions/checkout@main
+
+      - name: Prepare the TAG
+        id: prepare-the-tag
+        run: |
+          # strip git ref prefix from version
+          TAG=""
+          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+          if [ $VERSION = "main" ]; then
+            TAG="latest"
+          fi
+          echo "TAG=${TAG}"
+          echo "TAG=${TAG}" >> $GITHUB_OUTPUT
+      - name: Build image
+        run: |
+          TAG=${{steps.prepare-the-tag.outputs.TAG}}
+          if [ ! -z "$TAG" ]; then
+              export TAG=$TAG
+          fi
+          cd fml-manager
+          make docker-build
+
+      - name: Log into DockerHub
+        run: docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Push image
+        run: |
+          TAG=${{steps.prepare-the-tag.outputs.TAG}}
+          if [ ! -z "$TAG" ]; then
+              export TAG=$TAG
+          fi
+          cd fml-manager
+          make docker-push
