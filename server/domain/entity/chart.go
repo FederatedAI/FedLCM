@@ -46,3 +46,17 @@ const (
 	ChartTypeOpenFLDirector
 	ChartTypeOpenFLEnvoy
 )
+
+type ByModelID []Chart
+
+func (c ByModelID) Len() int {
+	return len(c)
+}
+
+func (c ByModelID) Less(i, j int) bool {
+	return c[i].Model.ID < c[j].Model.ID
+}
+
+func (c ByModelID) Swap(i, j int) {
+	c[i], c[j] = c[j], c[i]
+}

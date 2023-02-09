@@ -15,6 +15,7 @@
 package gorm
 
 import (
+	"sort"
 	"time"
 
 	"github.com/FederatedAI/FedLCM/server/domain/entity"
@@ -47,6 +48,7 @@ func (r *ChartMockRepo) List() (interface{}, error) {
 		}
 		chartList = append(chartList, chartMap[uuid])
 	}
+	sort.Sort(entity.ByModelID(chartList))
 	return chartList, nil
 }
 
