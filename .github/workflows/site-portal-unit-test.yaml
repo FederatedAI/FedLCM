@@ -4,7 +4,7 @@ on:
   pull_request:
     paths:
     - ".github/workflows/site-portal-unit-test.yaml"
-    - "site-portal/server/*"
+    - "site-portal/server/**"
 
 jobs:
   Unit-test:

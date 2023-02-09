@@ -4,8 +4,8 @@ on:
   pull_request:
     paths:
     - ".github/workflows/fedlcm-unit-test.yaml"
-    - "server/*"
-    - “pkg/*”
+    - "server/**"
+    - “pkg/**”
 jobs:
   Unit-test:
     name: Unit Test
