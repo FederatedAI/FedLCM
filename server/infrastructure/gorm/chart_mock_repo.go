@@ -1884,7 +1884,7 @@ modules:
   fmlManagerServer:
     include: true
     image: federatedai/fml-manager-server
-    imageTag: v0.2.0
+    imageTag: v0.3.0
     # nodeSelector:
     # tolerations:
     # affinity:
@@ -2850,7 +2850,7 @@ modules:
   frontend:
     include: false
     image: federatedai/site-portal-frontend
-    imageTag: v0.2.0
+    imageTag: v0.3.0
     # nodeSelector:
     # tolerations:
     # affinity:
@@ -2862,7 +2862,7 @@ modules:
   sitePortalServer:
     include: false
     image: site-portal-server
-    imageTag: v0.2.0
+    imageTag: v0.3.0
     # nodeSelector:
     # tolerations:
     # affinity:
