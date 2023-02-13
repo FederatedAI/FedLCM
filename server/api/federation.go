@@ -493,6 +493,7 @@ func (controller *FederationController) getFATEClusterDeploymentYAML(c *gin.Cont
 		if err != nil {
 			return "", err
 		}
+
 		serviceType, err := strconv.Atoi(c.DefaultQuery("service_type", "1"))
 		if err != nil {
 			return "", errors.New("invalid service type parameter")

@@ -12,5 +12,5 @@
 
 {{/* Images Tag: According to the actual version of siteportal */}}
 {{- define "fmlManager.images.tag" -}}
-v0.2.0
+v0.3.0
 {{- end -}}
