@@ -20,6 +20,7 @@ import (
 	"github.com/FederatedAI/FedLCM/server/domain/entity"
 	"github.com/FederatedAI/FedLCM/server/domain/repo"
 	"github.com/FederatedAI/FedLCM/server/domain/service"
+	"github.com/FederatedAI/FedLCM/server/domain/utils"
 	"github.com/pkg/errors"
 )
 
@@ -56,6 +57,7 @@ type ParticipantFATEListItem struct {
 	Namespace         string                                 `json:"namespace"`
 	PartyID           int                                    `json:"party_id"`
 	ClusterUUID       string                                 `json:"cluster_uuid"`
+	Upgradeable       bool                                   `json:"upgradeable"`
 	Status            entity.ParticipantFATEStatus           `json:"status"`
 	AccessInfo        entity.ParticipantFATEModulesAccessMap `json:"access_info"`
 	IsManaged         bool                                   `json:"is_managed"`
@@ -197,6 +199,7 @@ func (app *ParticipantApp) GetFATEParticipantList(federationUUID string) (*Parti
 			PartyID:           domainParticipant.PartyID,
 			ClusterUUID:       domainParticipant.ClusterUUID,
 			Status:            domainParticipant.Status,
+			Upgradeable:       app.checkFATEClusterUpgrade(domainParticipant.ChartUUID) && domainParticipant.Status == entity.ParticipantFATEStatusActive,
 			AccessInfo:        domainParticipant.AccessInfo,
 			IsManaged:         domainParticipant.IsManaged,
 		}
@@ -240,6 +243,7 @@ func (app *ParticipantApp) GetFATEExchangeDetail(uuid string) (*FATEExchangeDeta
 			Namespace:         participant.Namespace,
 			PartyID:           participant.PartyID,
 			ClusterUUID:       participant.ClusterUUID,
+			Upgradeable:       app.checkFATEClusterUpgrade(participant.ChartUUID) && participant.Status == entity.ParticipantFATEStatusActive,
 			Status:            participant.Status,
 			AccessInfo:        participant.AccessInfo,
 			IsManaged:         participant.IsManaged,
@@ -283,6 +287,7 @@ func (app *ParticipantApp) GetFATEClusterDetail(uuid string) (*FATEClusterDetail
 			Namespace:         participant.Namespace,
 			PartyID:           participant.PartyID,
 			ClusterUUID:       participant.ClusterUUID,
+			Upgradeable:       app.checkFATEClusterUpgrade(participant.ChartUUID) && participant.Status == entity.ParticipantFATEStatusActive,
 			Status:            participant.Status,
 			AccessInfo:        participant.AccessInfo,
 			IsManaged:         participant.IsManaged,
@@ -304,4 +309,33 @@ func (app *ParticipantApp) GetFATEClusterDetail(uuid string) (*FATEClusterDetail
 		}
 	}
 	return participantDetail, nil
+}
+
+// checkFATEClusterUpgrade If the type chart corresponding to chartuuid can be upgraded, return true
+// Under what circumstances can it be upgraded: the chartlist contains charts of a higher version of the same type
+func (app *ParticipantApp) checkFATEClusterUpgrade(ChartUUID string) bool {
+	var versionlist []string
+	instance, err := app.ChartRepo.GetByUUID(ChartUUID)
+	if err != nil {
+		return false
+	}
+	domainChart := instance.(*entity.Chart)
+	var domainChartList []entity.Chart
+	if domainChart.Type == entity.ChartTypeUnknown {
+		instanceList, err := app.ChartRepo.List()
+		if err != nil {
+			return false
+		}
+		domainChartList = instanceList.([]entity.Chart)
+	} else {
+		instanceList, err := app.ChartRepo.ListByType(domainChart.Type)
+		if err != nil {
+			return false
+		}
+		domainChartList = instanceList.([]entity.Chart)
+	}
+	for _, domainChart := range domainChartList {
+		versionlist = append(versionlist, domainChart.Version)
+	}
+	return utils.Upgradeable(domainChart.Version, versionlist)
 }
