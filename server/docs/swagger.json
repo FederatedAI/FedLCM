@@ -1176,6 +1176,74 @@
                 }
             }
         },
+        "/federation/fate/:uuid/cluster/:clusterUUID/upgrade": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Federation"
+                ],
+                "summary": "Create a new FATE exchange",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "federation UUID",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "cluster UUID",
+                        "name": "clusteruuid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "upgrade version",
+                        "name": "upgradeVersion",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success, the data field is the upgrade cluster's uuid",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized operation",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/federation/fate/:uuid/cluster/external": {
             "post": {
                 "produces": [
@@ -1261,6 +1329,74 @@
                         "required": true,
                         "schema": {
                             "$ref": "#/definitions/service.ParticipantFATEExchangeCreationRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success, the data field is the created exchange's uuid",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized operation",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/federation/fate/:uuid/exchange/:exchangeUUID/upgrade": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Federation"
+                ],
+                "summary": "Create a new FATE exchange",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "federation UUID",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "exchange UUID",
+                        "name": "exchangeUUID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "upgrade version",
+                        "name": "upgradeVersion",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
                         }
                     }
                 ],
@@ -1910,6 +2046,70 @@
                 }
             }
         },
+        "/federation/fate/{uuid}/cluster/:clusterUUID/upgrade": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Federation"
+                ],
+                "summary": "Get specific info of FATE cluster",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "federation UUID",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/service.FATEClusterUpgradeableVersionList"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized operation",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/federation/fate/{uuid}/cluster/{clusterUUID}": {
             "get": {
                 "produces": [
@@ -2008,6 +2208,70 @@
                         "description": "Success",
                         "schema": {
                             "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized operation",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/federation/fate/{uuid}/exchange/:exchangeUUID/upgrade": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Federation"
+                ],
+                "summary": "Get specific info of FATE cluster",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "federation UUID",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/service.FATEClusterUpgradeableVersionList"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "401": {
@@ -3786,6 +4050,125 @@
                 }
             }
         },
+        "entity.CertificateAuthorityType": {
+            "type": "integer",
+            "enum": [
+                0,
+                1
+            ],
+            "x-enum-varnames": [
+                "CertificateAuthorityTypeUnknown",
+                "CertificateAuthorityTypeStepCA"
+            ]
+        },
+        "entity.CertificateBindingServiceType": {
+            "type": "integer",
+            "enum": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                101,
+                102,
+                103
+            ],
+            "x-enum-varnames": [
+                "CertificateBindingServiceTypeUnknown",
+                "CertificateBindingServiceTypeATS",
+                "CertificateBindingServiceTypePulsarServer",
+                "CertificateBindingServiceFMLManagerServer",
+                "CertificateBindingServiceFMLManagerClient",
+                "CertificateBindingServiceSitePortalServer",
+                "CertificateBindingServiceSitePortalClient",
+                "CertificateBindingServiceTypeOpenFLDirector",
+                "CertificateBindingServiceTypeOpenFLJupyter",
+                "CertificateBindingServiceTypeOpenFLEnvoy"
+            ]
+        },
+        "entity.ChartType": {
+            "type": "integer",
+            "enum": [
+                0,
+                1,
+                2,
+                3,
+                4
+            ],
+            "x-enum-varnames": [
+                "ChartTypeUnknown",
+                "ChartTypeFATEExchange",
+                "ChartTypeFATECluster",
+                "ChartTypeOpenFLDirector",
+                "ChartTypeOpenFLEnvoy"
+            ]
+        },
+        "entity.EndpointKubeFATEIngressControllerServiceMode": {
+            "type": "integer",
+            "enum": [
+                0,
+                1,
+                2,
+                3
+            ],
+            "x-enum-varnames": [
+                "EndpointKubeFATEIngressControllerServiceModeSkip",
+                "EndpointKubeFATEIngressControllerServiceModeLoadBalancer",
+                "EndpointKubeFATEIngressControllerServiceModeModeNodePort",
+                "EndpointKubeFATEIngressControllerServiceModeModeNonexistent"
+            ]
+        },
+        "entity.EndpointStatus": {
+            "type": "integer",
+            "enum": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5
+            ],
+            "x-enum-varnames": [
+                "EndpointStatusUnknown",
+                "EndpointStatusCreating",
+                "EndpointStatusReady",
+                "EndpointStatusDismissed",
+                "EndpointStatusUnavailable",
+                "EndpointStatusDeleting"
+            ]
+        },
+        "entity.EndpointType": {
+            "type": "string",
+            "enum": [
+                "Unknown",
+                "KubeFATE"
+            ],
+            "x-enum-varnames": [
+                "EndpointTypeUnknown",
+                "EndpointTypeKubeFATE"
+            ]
+        },
+        "entity.EntityType": {
+            "type": "integer",
+            "enum": [
+                0,
+                1,
+                2,
+                3,
+                101,
+                102
+            ],
+            "x-enum-varnames": [
+                "EntityTypeUnknown",
+                "EntityTypeEndpoint",
+                "EntityTypeExchange",
+                "EntityTypeCluster",
+                "EntityTypeOpenFLDirector",
+                "EntityTypeOpenFLEnvoy"
+            ]
+        },
         "entity.EventData": {
             "type": "object",
             "properties": {
@@ -3797,11 +4180,59 @@
                 }
             }
         },
+        "entity.EventType": {
+            "type": "integer",
+            "enum": [
+                0,
+                1
+            ],
+            "x-enum-varnames": [
+                "EventTypeUnknown",
+                "EventTypeLogMessage"
+            ]
+        },
+        "entity.FederationType": {
+            "type": "string",
+            "enum": [
+                "FATE",
+                "OpenFL"
+            ],
+            "x-enum-varnames": [
+                "FederationTypeFATE",
+                "FederationTypeOpenFL"
+            ]
+        },
+        "entity.InfraProviderType": {
+            "type": "string",
+            "enum": [
+                "Unknown",
+                "Kubernetes"
+            ],
+            "x-enum-varnames": [
+                "InfraProviderTypeUnknown",
+                "InfraProviderTypeK8s"
+            ]
+        },
+        "entity.ParticipantCertBindingMode": {
+            "type": "integer",
+            "enum": [
+                0,
+                1,
+                2,
+                3
+            ],
+            "x-enum-varnames": [
+                "CertBindingModeUnknown",
+                "CertBindingModeSkip",
+                "CertBindingModeReuse",
+                "CertBindingModeCreate"
+            ]
+        },
         "entity.ParticipantComponentCertInfo": {
             "type": "object",
             "properties": {
                 "binding_mode": {
-                    "type": "integer"
+                    "$ref": "#/definitions/entity.ParticipantCertBindingMode"
                 },
                 "common_name": {
                     "type": "string"
@@ -3810,6 +4241,19 @@
                     "type": "string"
                 }
             }
+        },
+        "entity.ParticipantDefaultServiceType": {
+            "type": "integer",
+            "enum": [
+                0,
+                1,
+                2
+            ],
+            "x-enum-varnames": [
+                "ParticipantDefaultServiceTypeUnknown",
+                "ParticipantDefaultServiceTypeLoadBalancer",
+                "ParticipantDefaultServiceTypeNodePort"
+            ]
         },
         "entity.ParticipantFATEIngress": {
             "type": "object",
@@ -3843,6 +4287,38 @@
                 "$ref": "#/definitions/entity.ParticipantModulesAccess"
             }
         },
+        "entity.ParticipantFATEStatus": {
+            "type": "integer",
+            "enum": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5
+            ],
+            "x-enum-varnames": [
+                "ParticipantFATEStatusUnknown",
+                "ParticipantFATEStatusActive",
+                "ParticipantFATEStatusInstalling",
+                "ParticipantFATEStatusRemoving",
+                "ParticipantFATEStatusReconfiguring",
+                "ParticipantFATEStatusFailed"
+            ]
+        },
+        "entity.ParticipantFATEType": {
+            "type": "integer",
+            "enum": [
+                0,
+                1,
+                2
+            ],
+            "x-enum-varnames": [
+                "ParticipantFATETypeUnknown",
+                "ParticipantFATETypeExchange",
+                "ParticipantFATETypeCluster"
+            ]
+        },
         "entity.ParticipantModulesAccess": {
             "type": "object",
             "properties": {
@@ -3856,7 +4332,7 @@
                     "type": "integer"
                 },
                 "service_type": {
-                    "type": "string"
+                    "$ref": "#/definitions/v1.ServiceType"
                 },
                 "tls": {
                     "type": "boolean"
@@ -3868,6 +4344,42 @@
             "additionalProperties": {
                 "$ref": "#/definitions/entity.ParticipantModulesAccess"
             }
+        },
+        "entity.ParticipantOpenFLStatus": {
+            "type": "integer",
+            "enum": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "x-enum-varnames": [
+                "ParticipantOpenFLStatusUnknown",
+                "ParticipantOpenFLStatusActive",
+                "ParticipantOpenFLStatusRemoving",
+                "ParticipantOpenFLStatusFailed",
+                "ParticipantOpenFLStatusInstallingDirector",
+                "ParticipantOpenFLStatusConfiguringInfra",
+                "ParticipantOpenFLStatusInstallingEndpoint",
+                "ParticipantOpenFLStatusInstallingEnvoy"
+            ]
+        },
+        "entity.ParticipantOpenFLType": {
+            "type": "integer",
+            "enum": [
+                0,
+                1,
+                2
+            ],
+            "x-enum-varnames": [
+                "ParticipantOpenFLTypeUnknown",
+                "ParticipantOpenFLTypeDirector",
+                "ParticipantOpenFLTypeEnvoy"
+            ]
         },
         "service.CertificateAuthorityDetail": {
             "type": "object",
@@ -3886,13 +4398,13 @@
                     "type": "string"
                 },
                 "status": {
-                    "type": "integer"
+                    "$ref": "#/definitions/service.CertificateAuthorityStatus"
                 },
                 "status_message": {
                     "type": "string"
                 },
                 "type": {
-                    "type": "integer"
+                    "$ref": "#/definitions/entity.CertificateAuthorityType"
                 },
                 "uuid": {
                     "type": "string"
@@ -3913,9 +4425,22 @@
                     "type": "string"
                 },
                 "type": {
-                    "type": "integer"
+                    "$ref": "#/definitions/entity.CertificateAuthorityType"
                 }
             }
+        },
+        "service.CertificateAuthorityStatus": {
+            "type": "integer",
+            "enum": [
+                0,
+                1,
+                2
+            ],
+            "x-enum-varnames": [
+                "CertificateAuthorityStatusUnknown",
+                "CertificateAuthorityStatusUnhealthy",
+                "CertificateAuthorityStatusHealthy"
+            ]
         },
         "service.CertificateBindingListItem": {
             "type": "object",
@@ -3924,7 +4449,7 @@
                     "type": "string"
                 },
                 "federation_type": {
-                    "type": "string"
+                    "$ref": "#/definitions/entity.FederationType"
                 },
                 "federation_uuid": {
                     "type": "string"
@@ -3942,7 +4467,7 @@
                     "type": "string"
                 },
                 "service_type": {
-                    "type": "integer"
+                    "$ref": "#/definitions/entity.CertificateBindingServiceType"
                 }
             }
         },
@@ -3994,7 +4519,7 @@
                     "type": "string"
                 },
                 "type": {
-                    "type": "integer"
+                    "$ref": "#/definitions/entity.ChartType"
                 },
                 "uuid": {
                     "type": "string"
@@ -4029,7 +4554,7 @@
                     "type": "string"
                 },
                 "type": {
-                    "type": "integer"
+                    "$ref": "#/definitions/entity.ChartType"
                 },
                 "uuid": {
                     "type": "string"
@@ -4049,7 +4574,7 @@
                     "type": "string"
                 },
                 "ingress_controller_service_mode": {
-                    "type": "integer"
+                    "$ref": "#/definitions/entity.EndpointKubeFATEIngressControllerServiceMode"
                 },
                 "install": {
                     "type": "boolean"
@@ -4064,7 +4589,7 @@
                     "type": "string"
                 },
                 "type": {
-                    "type": "string"
+                    "$ref": "#/definitions/entity.EndpointType"
                 }
             }
         },
@@ -4102,10 +4627,10 @@
                     "type": "string"
                 },
                 "status": {
-                    "type": "integer"
+                    "$ref": "#/definitions/entity.EndpointStatus"
                 },
                 "type": {
-                    "type": "string"
+                    "$ref": "#/definitions/entity.EndpointType"
                 },
                 "uuid": {
                     "type": "string"
@@ -4143,10 +4668,10 @@
                     "type": "string"
                 },
                 "status": {
-                    "type": "integer"
+                    "$ref": "#/definitions/entity.EndpointStatus"
                 },
                 "type": {
-                    "type": "string"
+                    "$ref": "#/definitions/entity.EndpointType"
                 },
                 "uuid": {
                     "type": "string"
@@ -4163,7 +4688,7 @@
                     "type": "string"
                 },
                 "type": {
-                    "type": "string"
+                    "$ref": "#/definitions/entity.EndpointType"
                 }
             }
         },
@@ -4177,13 +4702,13 @@
                     "$ref": "#/definitions/entity.EventData"
                 },
                 "entity_type": {
-                    "type": "integer"
+                    "$ref": "#/definitions/entity.EntityType"
                 },
                 "entity_uuid": {
                     "type": "string"
                 },
                 "type": {
-                    "type": "integer"
+                    "$ref": "#/definitions/entity.EventType"
                 },
                 "uuid": {
                     "type": "string"
@@ -4317,13 +4842,27 @@
                     "$ref": "#/definitions/entity.ParticipantComponentCertInfo"
                 },
                 "status": {
-                    "type": "integer"
+                    "$ref": "#/definitions/entity.ParticipantFATEStatus"
                 },
                 "type": {
-                    "type": "integer"
+                    "$ref": "#/definitions/entity.ParticipantFATEType"
+                },
+                "upgradeable": {
+                    "type": "boolean"
                 },
                 "uuid": {
                     "type": "string"
+                }
+            }
+        },
+        "service.FATEClusterUpgradeableVersionList": {
+            "type": "object",
+            "properties": {
+                "upgradeable_version_list": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },
@@ -4382,10 +4921,13 @@
                     "$ref": "#/definitions/entity.ParticipantComponentCertInfo"
                 },
                 "status": {
-                    "type": "integer"
+                    "$ref": "#/definitions/entity.ParticipantFATEStatus"
                 },
                 "type": {
-                    "type": "integer"
+                    "$ref": "#/definitions/entity.ParticipantFATEType"
+                },
+                "upgradeable": {
+                    "type": "boolean"
                 },
                 "uuid": {
                     "type": "string"
@@ -4422,7 +4964,7 @@
                     "type": "string"
                 },
                 "type": {
-                    "type": "string"
+                    "$ref": "#/definitions/entity.FederationType"
                 },
                 "uuid": {
                     "type": "string"
@@ -4442,7 +4984,7 @@
                     "type": "string"
                 },
                 "type": {
-                    "type": "string"
+                    "$ref": "#/definitions/entity.FederationType"
                 },
                 "uuid": {
                     "type": "string"
@@ -4488,7 +5030,7 @@
                     "$ref": "#/definitions/valueobject.ShardDescriptorConfig"
                 },
                 "type": {
-                    "type": "string"
+                    "$ref": "#/definitions/entity.FederationType"
                 },
                 "use_customized_shard_descriptor": {
                     "type": "boolean"
@@ -4511,7 +5053,7 @@
                     "type": "string"
                 },
                 "type": {
-                    "type": "string"
+                    "$ref": "#/definitions/entity.InfraProviderType"
                 }
             }
         },
@@ -4531,7 +5073,7 @@
                     "type": "string"
                 },
                 "type": {
-                    "type": "string"
+                    "$ref": "#/definitions/entity.InfraProviderType"
                 },
                 "uuid": {
                     "type": "string"
@@ -4597,7 +5139,7 @@
                     "type": "string"
                 },
                 "type": {
-                    "type": "string"
+                    "$ref": "#/definitions/entity.InfraProviderType"
                 },
                 "uuid": {
                     "type": "string"
@@ -4625,7 +5167,7 @@
                     "type": "string"
                 },
                 "type": {
-                    "type": "string"
+                    "$ref": "#/definitions/entity.InfraProviderType"
                 }
             }
         },
@@ -4689,7 +5231,7 @@
                     "type": "string"
                 },
                 "status": {
-                    "type": "integer"
+                    "$ref": "#/definitions/entity.ParticipantOpenFLStatus"
                 },
                 "token_name": {
                     "type": "string"
@@ -4698,7 +5240,7 @@
                     "type": "string"
                 },
                 "type": {
-                    "type": "integer"
+                    "$ref": "#/definitions/entity.ParticipantOpenFLType"
                 },
                 "uuid": {
                     "type": "string"
@@ -4748,7 +5290,7 @@
                     "type": "string"
                 },
                 "status": {
-                    "type": "integer"
+                    "$ref": "#/definitions/entity.ParticipantOpenFLStatus"
                 },
                 "token_name": {
                     "type": "string"
@@ -4757,7 +5299,7 @@
                     "type": "string"
                 },
                 "type": {
-                    "type": "integer"
+                    "$ref": "#/definitions/entity.ParticipantOpenFLType"
                 },
                 "uuid": {
                     "type": "string"
@@ -4811,10 +5353,14 @@
                 },
                 "registry_config": {
                     "description": "RegistrySecretConfig in valueobject.KubeRegistryConfig is not used for generating the yaml content",
-                    "$ref": "#/definitions/valueobject.KubeRegistryConfig"
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/valueobject.KubeRegistryConfig"
+                        }
+                    ]
                 },
                 "service_type": {
-                    "type": "integer"
+                    "$ref": "#/definitions/entity.ParticipantDefaultServiceType"
                 },
                 "site_portal_client_cert_info": {
                     "$ref": "#/definitions/entity.ParticipantComponentCertInfo"
@@ -4865,10 +5411,14 @@
                 },
                 "registry_config": {
                     "description": "RegistrySecretConfig in valueobject.KubeRegistryConfig is not used for generating the yaml content",
-                    "$ref": "#/definitions/valueobject.KubeRegistryConfig"
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/valueobject.KubeRegistryConfig"
+                        }
+                    ]
                 },
                 "service_type": {
-                    "type": "integer"
+                    "$ref": "#/definitions/entity.ParticipantDefaultServiceType"
                 }
             }
         },
@@ -4972,10 +5522,13 @@
                     "type": "integer"
                 },
                 "status": {
-                    "type": "integer"
+                    "$ref": "#/definitions/entity.ParticipantFATEStatus"
                 },
                 "type": {
-                    "type": "integer"
+                    "$ref": "#/definitions/entity.ParticipantFATEType"
+                },
+                "upgradeable": {
+                    "type": "boolean"
                 },
                 "uuid": {
                     "type": "string"
@@ -5020,10 +5573,14 @@
                 },
                 "registry_config": {
                     "description": "for generating the yaml, RegistrySecretConfig is not used in RegistryConfig",
-                    "$ref": "#/definitions/valueobject.KubeRegistryConfig"
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/valueobject.KubeRegistryConfig"
+                        }
+                    ]
                 },
                 "service_type": {
-                    "type": "integer"
+                    "$ref": "#/definitions/entity.ParticipantDefaultServiceType"
                 }
             }
         },
@@ -5118,7 +5675,7 @@
                     "type": "string"
                 },
                 "status": {
-                    "type": "integer"
+                    "$ref": "#/definitions/entity.ParticipantOpenFLStatus"
                 },
                 "token_name": {
                     "type": "string"
@@ -5127,7 +5684,7 @@
                     "type": "string"
                 },
                 "type": {
-                    "type": "integer"
+                    "$ref": "#/definitions/entity.ParticipantOpenFLType"
                 },
                 "uuid": {
                     "type": "string"
@@ -5196,6 +5753,21 @@
                     "type": "string"
                 }
             }
+        },
+        "v1.ServiceType": {
+            "type": "string",
+            "enum": [
+                "ClusterIP",
+                "NodePort",
+                "LoadBalancer",
+                "ExternalName"
+            ],
+            "x-enum-varnames": [
+                "ServiceTypeClusterIP",
+                "ServiceTypeNodePort",
+                "ServiceTypeLoadBalancer",
+                "ServiceTypeExternalName"
+            ]
         },
         "valueobject.KubeConfig": {
             "type": "object",

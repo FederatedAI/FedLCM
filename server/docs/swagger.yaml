@@ -22,6 +22,104 @@ definitions:
       service_url:
         type: string
     type: object
+  entity.CertificateAuthorityType:
+    enum:
+    - 0
+    - 1
+    type: integer
+    x-enum-varnames:
+    - CertificateAuthorityTypeUnknown
+    - CertificateAuthorityTypeStepCA
+  entity.CertificateBindingServiceType:
+    enum:
+    - 0
+    - 1
+    - 2
+    - 3
+    - 4
+    - 5
+    - 6
+    - 101
+    - 102
+    - 103
+    type: integer
+    x-enum-varnames:
+    - CertificateBindingServiceTypeUnknown
+    - CertificateBindingServiceTypeATS
+    - CertificateBindingServiceTypePulsarServer
+    - CertificateBindingServiceFMLManagerServer
+    - CertificateBindingServiceFMLManagerClient
+    - CertificateBindingServiceSitePortalServer
+    - CertificateBindingServiceSitePortalClient
+    - CertificateBindingServiceTypeOpenFLDirector
+    - CertificateBindingServiceTypeOpenFLJupyter
+    - CertificateBindingServiceTypeOpenFLEnvoy
+  entity.ChartType:
+    enum:
+    - 0
+    - 1
+    - 2
+    - 3
+    - 4
+    type: integer
+    x-enum-varnames:
+    - ChartTypeUnknown
+    - ChartTypeFATEExchange
+    - ChartTypeFATECluster
+    - ChartTypeOpenFLDirector
+    - ChartTypeOpenFLEnvoy
+  entity.EndpointKubeFATEIngressControllerServiceMode:
+    enum:
+    - 0
+    - 1
+    - 2
+    - 3
+    type: integer
+    x-enum-varnames:
+    - EndpointKubeFATEIngressControllerServiceModeSkip
+    - EndpointKubeFATEIngressControllerServiceModeLoadBalancer
+    - EndpointKubeFATEIngressControllerServiceModeModeNodePort
+    - EndpointKubeFATEIngressControllerServiceModeModeNonexistent
+  entity.EndpointStatus:
+    enum:
+    - 0
+    - 1
+    - 2
+    - 3
+    - 4
+    - 5
+    type: integer
+    x-enum-varnames:
+    - EndpointStatusUnknown
+    - EndpointStatusCreating
+    - EndpointStatusReady
+    - EndpointStatusDismissed
+    - EndpointStatusUnavailable
+    - EndpointStatusDeleting
+  entity.EndpointType:
+    enum:
+    - Unknown
+    - KubeFATE
+    type: string
+    x-enum-varnames:
+    - EndpointTypeUnknown
+    - EndpointTypeKubeFATE
+  entity.EntityType:
+    enum:
+    - 0
+    - 1
+    - 2
+    - 3
+    - 101
+    - 102
+    type: integer
+    x-enum-varnames:
+    - EntityTypeUnknown
+    - EntityTypeEndpoint
+    - EntityTypeExchange
+    - EntityTypeCluster
+    - EntityTypeOpenFLDirector
+    - EntityTypeOpenFLEnvoy
   entity.EventData:
     properties:
       description:
@@ -29,15 +127,61 @@ definitions:
       log_level:
         type: string
     type: object
+  entity.EventType:
+    enum:
+    - 0
+    - 1
+    type: integer
+    x-enum-varnames:
+    - EventTypeUnknown
+    - EventTypeLogMessage
+  entity.FederationType:
+    enum:
+    - FATE
+    - OpenFL
+    type: string
+    x-enum-varnames:
+    - FederationTypeFATE
+    - FederationTypeOpenFL
+  entity.InfraProviderType:
+    enum:
+    - Unknown
+    - Kubernetes
+    type: string
+    x-enum-varnames:
+    - InfraProviderTypeUnknown
+    - InfraProviderTypeK8s
+  entity.ParticipantCertBindingMode:
+    enum:
+    - 0
+    - 1
+    - 2
+    - 3
+    type: integer
+    x-enum-varnames:
+    - CertBindingModeUnknown
+    - CertBindingModeSkip
+    - CertBindingModeReuse
+    - CertBindingModeCreate
   entity.ParticipantComponentCertInfo:
     properties:
       binding_mode:
-        type: integer
+        $ref: '#/definitions/entity.ParticipantCertBindingMode'
       common_name:
         type: string
       uuid:
         type: string
     type: object
+  entity.ParticipantDefaultServiceType:
+    enum:
+    - 0
+    - 1
+    - 2
+    type: integer
+    x-enum-varnames:
+    - ParticipantDefaultServiceTypeUnknown
+    - ParticipantDefaultServiceTypeLoadBalancer
+    - ParticipantDefaultServiceTypeNodePort
   entity.ParticipantFATEIngress:
     properties:
       addresses:
@@ -59,6 +203,32 @@ definitions:
     additionalProperties:
       $ref: '#/definitions/entity.ParticipantModulesAccess'
     type: object
+  entity.ParticipantFATEStatus:
+    enum:
+    - 0
+    - 1
+    - 2
+    - 3
+    - 4
+    - 5
+    type: integer
+    x-enum-varnames:
+    - ParticipantFATEStatusUnknown
+    - ParticipantFATEStatusActive
+    - ParticipantFATEStatusInstalling
+    - ParticipantFATEStatusRemoving
+    - ParticipantFATEStatusReconfiguring
+    - ParticipantFATEStatusFailed
+  entity.ParticipantFATEType:
+    enum:
+    - 0
+    - 1
+    - 2
+    type: integer
+    x-enum-varnames:
+    - ParticipantFATETypeUnknown
+    - ParticipantFATETypeExchange
+    - ParticipantFATETypeCluster
   entity.ParticipantModulesAccess:
     properties:
       fqdn:
@@ -68,7 +238,7 @@ definitions:
       port:
         type: integer
       service_type:
-        type: string
+        $ref: '#/definitions/v1.ServiceType'
       tls:
         type: boolean
     type: object
@@ -76,6 +246,36 @@ definitions:
     additionalProperties:
       $ref: '#/definitions/entity.ParticipantModulesAccess'
     type: object
+  entity.ParticipantOpenFLStatus:
+    enum:
+    - 0
+    - 1
+    - 2
+    - 3
+    - 4
+    - 5
+    - 6
+    - 7
+    type: integer
+    x-enum-varnames:
+    - ParticipantOpenFLStatusUnknown
+    - ParticipantOpenFLStatusActive
+    - ParticipantOpenFLStatusRemoving
+    - ParticipantOpenFLStatusFailed
+    - ParticipantOpenFLStatusInstallingDirector
+    - ParticipantOpenFLStatusConfiguringInfra
+    - ParticipantOpenFLStatusInstallingEndpoint
+    - ParticipantOpenFLStatusInstallingEnvoy
+  entity.ParticipantOpenFLType:
+    enum:
+    - 0
+    - 1
+    - 2
+    type: integer
+    x-enum-varnames:
+    - ParticipantOpenFLTypeUnknown
+    - ParticipantOpenFLTypeDirector
+    - ParticipantOpenFLTypeEnvoy
   service.CertificateAuthorityDetail:
     properties:
       config:
@@ -88,11 +288,11 @@ definitions:
       name:
         type: string
       status:
-        type: integer
+        $ref: '#/definitions/service.CertificateAuthorityStatus'
       status_message:
         type: string
       type:
-        type: integer
+        $ref: '#/definitions/entity.CertificateAuthorityType'
       uuid:
         type: string
     type: object
@@ -106,14 +306,24 @@ definitions:
       name:
         type: string
       type:
-        type: integer
+        $ref: '#/definitions/entity.CertificateAuthorityType'
     type: object
+  service.CertificateAuthorityStatus:
+    enum:
+    - 0
+    - 1
+    - 2
+    type: integer
+    x-enum-varnames:
+    - CertificateAuthorityStatusUnknown
+    - CertificateAuthorityStatusUnhealthy
+    - CertificateAuthorityStatusHealthy
   service.CertificateBindingListItem:
     properties:
       federation_name:
         type: string
       federation_type:
-        type: string
+        $ref: '#/definitions/entity.FederationType'
       federation_uuid:
         type: string
       participant_name:
@@ -125,7 +335,7 @@ definitions:
       service_description:
         type: string
       service_type:
-        type: integer
+        $ref: '#/definitions/entity.CertificateBindingServiceType'
     type: object
   service.CertificateListItem:
     properties:
@@ -159,7 +369,7 @@ definitions:
       name:
         type: string
       type:
-        type: integer
+        $ref: '#/definitions/entity.ChartType'
       uuid:
         type: string
       values:
@@ -182,7 +392,7 @@ definitions:
       name:
         type: string
       type:
-        type: integer
+        $ref: '#/definitions/entity.ChartType'
       uuid:
         type: string
       version:
@@ -195,7 +405,7 @@ definitions:
       infra_provider_uuid:
         type: string
       ingress_controller_service_mode:
-        type: integer
+        $ref: '#/definitions/entity.EndpointKubeFATEIngressControllerServiceMode'
       install:
         type: boolean
       kubefate_deployment_yaml:
@@ -205,7 +415,7 @@ definitions:
       namespace:
         type: string
       type:
-        type: string
+        $ref: '#/definitions/entity.EndpointType'
     type: object
   service.EndpointDetail:
     properties:
@@ -230,9 +440,9 @@ definitions:
       namespace:
         type: string
       status:
-        type: integer
+        $ref: '#/definitions/entity.EndpointStatus'
       type:
-        type: string
+        $ref: '#/definitions/entity.EndpointType'
       uuid:
         type: string
     type: object
@@ -257,9 +467,9 @@ definitions:
       namespace:
         type: string
       status:
-        type: integer
+        $ref: '#/definitions/entity.EndpointStatus'
       type:
-        type: string
+        $ref: '#/definitions/entity.EndpointType'
       uuid:
         type: string
     type: object
@@ -270,7 +480,7 @@ definitions:
       namespace:
         type: string
       type:
-        type: string
+        $ref: '#/definitions/entity.EndpointType'
     type: object
   service.EventListItem:
     properties:
@@ -279,11 +489,11 @@ definitions:
       data:
         $ref: '#/definitions/entity.EventData'
       entity_type:
-        type: integer
+        $ref: '#/definitions/entity.EntityType'
       entity_uuid:
         type: string
       type:
-        type: integer
+        $ref: '#/definitions/entity.EventType'
       uuid:
         type: string
     type: object
@@ -371,11 +581,20 @@ definitions:
       site_portal_server_cert_info:
         $ref: '#/definitions/entity.ParticipantComponentCertInfo'
       status:
-        type: integer
+        $ref: '#/definitions/entity.ParticipantFATEStatus'
       type:
-        type: integer
+        $ref: '#/definitions/entity.ParticipantFATEType'
+      upgradeable:
+        type: boolean
       uuid:
         type: string
+    type: object
+  service.FATEClusterUpgradeableVersionList:
+    properties:
+      upgradeable_version_list:
+        items:
+          type: string
+        type: array
     type: object
   service.FATEExchangeDetail:
     properties:
@@ -414,9 +633,11 @@ definitions:
       proxy_server_cert_info:
         $ref: '#/definitions/entity.ParticipantComponentCertInfo'
       status:
-        type: integer
+        $ref: '#/definitions/entity.ParticipantFATEStatus'
       type:
-        type: integer
+        $ref: '#/definitions/entity.ParticipantFATEType'
+      upgradeable:
+        type: boolean
       uuid:
         type: string
     type: object
@@ -440,7 +661,7 @@ definitions:
       name:
         type: string
       type:
-        type: string
+        $ref: '#/definitions/entity.FederationType'
       uuid:
         type: string
     type: object
@@ -453,7 +674,7 @@ definitions:
       name:
         type: string
       type:
-        type: string
+        $ref: '#/definitions/entity.FederationType'
       uuid:
         type: string
     type: object
@@ -483,7 +704,7 @@ definitions:
       shard_descriptor_config:
         $ref: '#/definitions/valueobject.ShardDescriptorConfig'
       type:
-        type: string
+        $ref: '#/definitions/entity.FederationType'
       use_customized_shard_descriptor:
         type: boolean
       uuid:
@@ -498,7 +719,7 @@ definitions:
       name:
         type: string
       type:
-        type: string
+        $ref: '#/definitions/entity.InfraProviderType'
     type: object
   service.InfraProviderDetail:
     properties:
@@ -511,7 +732,7 @@ definitions:
       name:
         type: string
       type:
-        type: string
+        $ref: '#/definitions/entity.InfraProviderType'
       uuid:
         type: string
     type: object
@@ -554,7 +775,7 @@ definitions:
       name:
         type: string
       type:
-        type: string
+        $ref: '#/definitions/entity.InfraProviderType'
       uuid:
         type: string
     type: object
@@ -572,7 +793,7 @@ definitions:
       name:
         type: string
       type:
-        type: string
+        $ref: '#/definitions/entity.InfraProviderType'
     type: object
   service.LoginInfo:
     properties:
@@ -614,13 +835,13 @@ definitions:
       namespace:
         type: string
       status:
-        type: integer
+        $ref: '#/definitions/entity.ParticipantOpenFLStatus'
       token_name:
         type: string
       token_str:
         type: string
       type:
-        type: integer
+        $ref: '#/definitions/entity.ParticipantOpenFLType'
       uuid:
         type: string
     type: object
@@ -653,13 +874,13 @@ definitions:
       namespace:
         type: string
       status:
-        type: integer
+        $ref: '#/definitions/entity.ParticipantOpenFLStatus'
       token_name:
         type: string
       token_str:
         type: string
       type:
-        type: integer
+        $ref: '#/definitions/entity.ParticipantOpenFLType'
       uuid:
         type: string
     type: object
@@ -694,11 +915,12 @@ definitions:
       pulsar_server_cert_info:
         $ref: '#/definitions/entity.ParticipantComponentCertInfo'
       registry_config:
-        $ref: '#/definitions/valueobject.KubeRegistryConfig'
+        allOf:
+        - $ref: '#/definitions/valueobject.KubeRegistryConfig'
         description: RegistrySecretConfig in valueobject.KubeRegistryConfig is not
           used for generating the yaml content
       service_type:
-        type: integer
+        $ref: '#/definitions/entity.ParticipantDefaultServiceType'
       site_portal_client_cert_info:
         $ref: '#/definitions/entity.ParticipantComponentCertInfo'
       site_portal_server_cert_info:
@@ -731,11 +953,12 @@ definitions:
       proxy_server_cert_info:
         $ref: '#/definitions/entity.ParticipantComponentCertInfo'
       registry_config:
-        $ref: '#/definitions/valueobject.KubeRegistryConfig'
+        allOf:
+        - $ref: '#/definitions/valueobject.KubeRegistryConfig'
         description: RegistrySecretConfig in valueobject.KubeRegistryConfig is not
           used for generating the yaml content
       service_type:
-        type: integer
+        $ref: '#/definitions/entity.ParticipantDefaultServiceType'
     type: object
   service.ParticipantFATEExternalClusterCreationRequest:
     properties:
@@ -803,9 +1026,11 @@ definitions:
       party_id:
         type: integer
       status:
-        type: integer
+        $ref: '#/definitions/entity.ParticipantFATEStatus'
       type:
-        type: integer
+        $ref: '#/definitions/entity.ParticipantFATEType'
+      upgradeable:
+        type: boolean
       uuid:
         type: string
     type: object
@@ -834,11 +1059,12 @@ definitions:
       namespace:
         type: string
       registry_config:
-        $ref: '#/definitions/valueobject.KubeRegistryConfig'
+        allOf:
+        - $ref: '#/definitions/valueobject.KubeRegistryConfig'
         description: for generating the yaml, RegistrySecretConfig is not used in
           RegistryConfig
       service_type:
-        type: integer
+        $ref: '#/definitions/entity.ParticipantDefaultServiceType'
     type: object
   service.ParticipantOpenFLEnvoyRegistrationRequest:
     properties:
@@ -901,13 +1127,13 @@ definitions:
       namespace:
         type: string
       status:
-        type: integer
+        $ref: '#/definitions/entity.ParticipantOpenFLStatus'
       token_name:
         type: string
       token_str:
         type: string
       type:
-        type: integer
+        $ref: '#/definitions/entity.ParticipantOpenFLType'
       uuid:
         type: string
     type: object
@@ -952,6 +1178,18 @@ definitions:
       uuid:
         type: string
     type: object
+  v1.ServiceType:
+    enum:
+    - ClusterIP
+    - NodePort
+    - LoadBalancer
+    - ExternalName
+    type: string
+    x-enum-varnames:
+    - ServiceTypeClusterIP
+    - ServiceTypeNodePort
+    - ServiceTypeLoadBalancer
+    - ServiceTypeExternalName
   valueobject.KubeConfig:
     properties:
       is_in_cluster:
@@ -1694,6 +1932,48 @@ paths:
       summary: Create a new FATE cluster
       tags:
       - Federation
+  /federation/fate/:uuid/cluster/:clusterUUID/upgrade:
+    post:
+      parameters:
+      - description: federation UUID
+        in: path
+        name: uuid
+        required: true
+        type: string
+      - description: cluster UUID
+        in: path
+        name: clusteruuid
+        required: true
+        type: string
+      - description: upgrade version
+        in: body
+        name: upgradeVersion
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success, the data field is the upgrade cluster's uuid
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Create a new FATE exchange
+      tags:
+      - Federation
   /federation/fate/:uuid/cluster/external:
     post:
       parameters:
@@ -1745,6 +2025,48 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/service.ParticipantFATEExchangeCreationRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success, the data field is the created exchange's uuid
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Create a new FATE exchange
+      tags:
+      - Federation
+  /federation/fate/:uuid/exchange/:exchangeUUID/upgrade:
+    post:
+      parameters:
+      - description: federation UUID
+        in: path
+        name: uuid
+        required: true
+        type: string
+      - description: exchange UUID
+        in: path
+        name: exchangeUUID
+        required: true
+        type: string
+      - description: upgrade version
+        in: body
+        name: upgradeVersion
+        required: true
+        schema:
+          type: string
       produces:
       - application/json
       responses:
@@ -1907,6 +2229,42 @@ paths:
       summary: Get specific info of a FATE federation
       tags:
       - Federation
+  /federation/fate/{uuid}/cluster/:clusterUUID/upgrade:
+    get:
+      parameters:
+      - description: federation UUID
+        in: path
+        name: uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/service.FATEClusterUpgradeableVersionList'
+              type: object
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Get specific info of FATE cluster
+      tags:
+      - Federation
   /federation/fate/{uuid}/cluster/{clusterUUID}:
     delete:
       parameters:
@@ -1965,6 +2323,42 @@ paths:
             - properties:
                 data:
                   $ref: '#/definitions/service.FATEClusterDetail'
+              type: object
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Get specific info of FATE cluster
+      tags:
+      - Federation
+  /federation/fate/{uuid}/exchange/:exchangeUUID/upgrade:
+    get:
+      parameters:
+      - description: federation UUID
+        in: path
+        name: uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/service.FATEClusterUpgradeableVersionList'
               type: object
         "401":
           description: Unauthorized operation

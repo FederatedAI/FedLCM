@@ -88,6 +88,10 @@ type FATEClusterDetail struct {
 	SitePortalClientCertInfo entity.ParticipantComponentCertInfo `json:"site_portal_client_cert_info"`
 }
 
+type FATEClusterUpgradeableVersionList struct {
+	FATEClusterUpgradeableVersionList []string `json:"upgradeable_version_list"`
+}
+
 // CheckFATPartyID returns error if the current party id is taken in the specified federation
 func (app *ParticipantApp) CheckFATPartyID(federationUUID string, partyID int) error {
 	return app.getFATEDomainService().CheckPartyIDConflict(federationUUID, partyID)
@@ -338,4 +342,65 @@ func (app *ParticipantApp) checkFATEClusterUpgrade(ChartUUID string) bool {
 		versionlist = append(versionlist, domainChart.Version)
 	}
 	return utils.Upgradeable(domainChart.Version, versionlist)
+}
+
+func (app *ParticipantApp) getFATEClusterUpgradeableVersionList(ChartUUID string) ([]string, error) {
+	var versionlist []string
+	instance, err := app.ChartRepo.GetByUUID(ChartUUID)
+	if err != nil {
+		return nil, err
+	}
+	domainChart := instance.(*entity.Chart)
+	var domainChartList []entity.Chart
+	if domainChart.Type == entity.ChartTypeUnknown {
+		instanceList, err := app.ChartRepo.List()
+		if err != nil {
+			return nil, err
+		}
+		domainChartList = instanceList.([]entity.Chart)
+	} else {
+		instanceList, err := app.ChartRepo.ListByType(domainChart.Type)
+		if err != nil {
+			return nil, err
+		}
+		domainChartList = instanceList.([]entity.Chart)
+	}
+	for _, domainChart := range domainChartList {
+		versionlist = append(versionlist, domainChart.Version)
+	}
+	return utils.Upgradeablelist(domainChart.Version, versionlist), nil
+}
+
+func (app *ParticipantApp) GetFATEExchangeUpgrade(ChartUUID string) (*FATEClusterUpgradeableVersionList, error) {
+	UpgradeableVersionList, err := app.getFATEClusterUpgradeableVersionList(ChartUUID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &FATEClusterUpgradeableVersionList{FATEClusterUpgradeableVersionList: UpgradeableVersionList}, nil
+}
+
+func (app *ParticipantApp) GetFATEClusterUpgrade(ChartUUID string) (*FATEClusterUpgradeableVersionList, error) {
+	UpgradeableVersionList, err := app.getFATEClusterUpgradeableVersionList(ChartUUID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &FATEClusterUpgradeableVersionList{FATEClusterUpgradeableVersionList: UpgradeableVersionList}, nil
+}
+
+func (app *ParticipantApp) UpgradeFATEExchange(req *service.ParticipantFATEExchangeUpgradeRequest) (string, error) {
+	exchange, _, err := app.getFATEDomainService().UpgradeExchange(req)
+	if err != nil {
+		return "", err
+	}
+	return exchange.UUID, err
+}
+
+func (app *ParticipantApp) UpgradeFATECluster(req *service.ParticipantFATEClusterUpgradeRequest) (string, error) {
+	cluster, _, err := app.getFATEDomainService().UpgradeCluster(req)
+	if err != nil {
+		return "", err
+	}
+	return cluster.UUID, err
 }

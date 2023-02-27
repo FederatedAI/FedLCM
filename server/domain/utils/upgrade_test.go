@@ -11,9 +11,9 @@ func TestUpgradeablelist(t *testing.T) {
 		versionlist []string
 	}
 	tests := []struct {
-		name    string
-		args    args
-		want    []string
+		name string
+		args args
+		want []string
 	}{
 		{
 			name: "mix",
@@ -21,7 +21,7 @@ func TestUpgradeablelist(t *testing.T) {
 				version:     "v1.10.0",
 				versionlist: []string{"v1.10.0", "v1.9.1", "v1.9.0"},
 			},
-			want:    make([]string, 0),
+			want: make([]string, 0),
 		},
 		{
 			name: "min",
@@ -29,7 +29,7 @@ func TestUpgradeablelist(t *testing.T) {
 				version:     "v1.9.0",
 				versionlist: []string{"v1.10.0", "v1.9.1", "v1.9.0"},
 			},
-			want:    []string{"v1.10.0", "v1.9.1"},
+			want: []string{"v1.10.0", "v1.9.1"},
 		},
 		{
 			name: "middle",
@@ -37,7 +37,7 @@ func TestUpgradeablelist(t *testing.T) {
 				version:     "v1.9.1",
 				versionlist: []string{"v1.10.0", "v1.9.1", "v1.9.0"},
 			},
-			want:    []string{"v1.10.0"},
+			want: []string{"v1.10.0"},
 		},
 		{
 			name: "two type min",
@@ -45,7 +45,7 @@ func TestUpgradeablelist(t *testing.T) {
 				version:     "v1.9.1",
 				versionlist: []string{"v1.10.0", "v1.10.0-fedlcm-v0.3.0", "v1.9.1", "v1.9.1-fedlcm-v0.2.0"},
 			},
-			want:    []string{"v1.10.0"},
+			want: []string{"v1.10.0"},
 		},
 		{
 			name: "two type max",
@@ -53,7 +53,7 @@ func TestUpgradeablelist(t *testing.T) {
 				version:     "v1.10.0",
 				versionlist: []string{"v1.10.0", "v1.10.0-fedlcm-v0.3.0", "v1.9.1", "v1.9.1-fedlcm-v0.2.0"},
 			},
-			want:    []string{},
+			want: []string{},
 		},
 		{
 			name: "two type max 1",
@@ -61,7 +61,7 @@ func TestUpgradeablelist(t *testing.T) {
 				version:     "v1.10.0-fedlcm-v0.3.0",
 				versionlist: []string{"v1.10.0", "v1.10.0-fedlcm-v0.3.0", "v1.9.1", "v1.9.1-fedlcm-v0.2.0"},
 			},
-			want:    []string{},
+			want: []string{},
 		},
 		{
 			name: "two type min 1",
@@ -69,7 +69,7 @@ func TestUpgradeablelist(t *testing.T) {
 				version:     "v1.9.1-fedlcm-v0.2.0",
 				versionlist: []string{"v1.10.0", "v1.10.0-fedlcm-v0.3.0", "v1.9.1", "v1.9.1-fedlcm-v0.2.0"},
 			},
-			want:    []string{"v1.10.0-fedlcm-v0.3.0"},
+			want: []string{"v1.10.0-fedlcm-v0.3.0"},
 		},
 	}
 	for _, tt := range tests {

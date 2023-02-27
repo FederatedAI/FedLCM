@@ -106,6 +106,13 @@ func (controller *FederationController) Route(r *gin.RouterGroup) {
 
 		fate.GET("/:uuid/exchange/:exchangeUUID", controller.getFATEExchange)
 		fate.GET("/:uuid/cluster/:clusterUUID", controller.getFATECluster)
+
+		fate.GET("/:uuid/exchange/:exchangeUUID/upgrade", controller.getFATEExchangeUpgrade)
+		fate.GET("/:uuid/cluster/:clusterUUID/upgrade", controller.getFATEClusterUpgrade)
+
+		fate.POST("/:uuid/exchange/:exchangeUUID/upgrade", controller.upgradeFATEExchange)
+		fate.POST("/:uuid/cluster/:clusterUUID/upgrade", controller.upgradeFATECluster)
+
 	}
 
 	openfl := federation.Group("openfl")
@@ -819,6 +826,132 @@ func (controller *FederationController) getFATECluster(c *gin.Context) {
 		resp := &GeneralResponse{
 			Code: constants.RespNoErr,
 			Data: clusterDetail,
+		}
+		c.JSON(http.StatusOK, resp)
+	}
+}
+
+// getFATEExchangeUpgrade returns detailed information of a FATE cluster
+//
+//	@Summary	Get specific info of FATE cluster
+//	@Tags		Federation
+//	@Produce	json
+//	@Param		uuid	path		string															true	"federation UUID"
+//	@Success	200		{object}	GeneralResponse{data=service.FATEClusterUpgradeableVersionList}	"Success"
+//	@Failure	401		{object}	GeneralResponse													"Unauthorized operation"
+//	@Failure	500		{object}	GeneralResponse{code=int}										"Internal server error"
+//	@Router		/federation/fate/{uuid}/exchange/:exchangeUUID/upgrade [get]
+func (controller *FederationController) getFATEExchangeUpgrade(c *gin.Context) {
+	clusterUUID := c.Param("clusterUUID")
+	if clusterDetail, err := controller.participantAppService.GetFATEExchangeUpgrade(clusterUUID); err != nil {
+		resp := &GeneralResponse{
+			Code:    constants.RespInternalErr,
+			Message: err.Error(),
+		}
+		c.JSON(http.StatusInternalServerError, resp)
+	} else {
+		resp := &GeneralResponse{
+			Code: constants.RespNoErr,
+			Data: clusterDetail,
+		}
+		c.JSON(http.StatusOK, resp)
+	}
+}
+
+// getFATEExchangeUpgrade returns detailed information of a FATE cluster
+//
+//	@Summary	Get specific info of FATE cluster
+//	@Tags		Federation
+//	@Produce	json
+//	@Param		uuid	path		string															true	"federation UUID"
+//	@Success	200		{object}	GeneralResponse{data=service.FATEClusterUpgradeableVersionList}	"Success"
+//	@Failure	401		{object}	GeneralResponse													"Unauthorized operation"
+//	@Failure	500		{object}	GeneralResponse{code=int}										"Internal server error"
+//	@Router		/federation/fate/{uuid}/cluster/:clusterUUID/upgrade [get]
+func (controller *FederationController) getFATEClusterUpgrade(c *gin.Context) {
+	clusterUUID := c.Param("clusterUUID")
+	if clusterDetail, err := controller.participantAppService.GetFATEClusterUpgrade(clusterUUID); err != nil {
+		resp := &GeneralResponse{
+			Code:    constants.RespInternalErr,
+			Message: err.Error(),
+		}
+		c.JSON(http.StatusInternalServerError, resp)
+	} else {
+		resp := &GeneralResponse{
+			Code: constants.RespNoErr,
+			Data: clusterDetail,
+		}
+		c.JSON(http.StatusOK, resp)
+	}
+}
+
+// upgradeFATEExchange upgrade the FATE exchange
+//
+//	@Summary	Create a new FATE exchange
+//	@Tags		Federation
+//	@Produce	json
+//	@Param		uuid			path		string						true	"federation UUID"
+//	@Param		exchangeUUID	path		string						true	"exchange UUID"
+//	@Param		upgradeVersion	body		string						true	"upgrade version"
+//	@Success	200				{object}	GeneralResponse				"Success, the data field is the created exchange's uuid"
+//	@Failure	401				{object}	GeneralResponse				"Unauthorized operation"
+//	@Failure	500				{object}	GeneralResponse{code=int}	"Internal server error"
+//	@Router		/federation/fate/:uuid/exchange/:exchangeUUID/upgrade [post]
+func (controller *FederationController) upgradeFATEExchange(c *gin.Context) {
+	if exchangeUUID, err := func() (string, error) {
+		federationUUID := c.Param("uuid")
+		req := &domainService.ParticipantFATEExchangeUpgradeRequest{}
+		if err := c.ShouldBindJSON(req); err != nil {
+			return "", err
+		}
+		req.FederationUUID = federationUUID
+		return controller.participantAppService.UpgradeFATEExchange(req)
+	}(); err != nil {
+		resp := &GeneralResponse{
+			Code:    constants.RespInternalErr,
+			Message: err.Error(),
+		}
+		c.JSON(http.StatusInternalServerError, resp)
+	} else {
+		resp := &GeneralResponse{
+			Code: constants.RespNoErr,
+			Data: exchangeUUID,
+		}
+		c.JSON(http.StatusOK, resp)
+	}
+}
+
+// createFATEExchange upgrade the FATE exchange
+//
+//	@Summary	Create a new FATE exchange
+//	@Tags		Federation
+//	@Produce	json
+//	@Param		uuid			path		string						true	"federation UUID"
+//	@Param		clusteruuid		path		string						true	"cluster UUID"
+//	@Param		upgradeVersion	body		string						true	"upgrade version"
+//	@Success	200				{object}	GeneralResponse				"Success, the data field is the upgrade cluster's uuid"
+//	@Failure	401				{object}	GeneralResponse				"Unauthorized operation"
+//	@Failure	500				{object}	GeneralResponse{code=int}	"Internal server error"
+//	@Router		/federation/fate/:uuid/cluster/:clusterUUID/upgrade [post]
+func (controller *FederationController) upgradeFATECluster(c *gin.Context) {
+	if exchangeUUID, err := func() (string, error) {
+		federationUUID := c.Param("uuid")
+		req := &domainService.ParticipantFATEClusterUpgradeRequest{}
+		if err := c.ShouldBindJSON(req); err != nil {
+			return "", err
+		}
+		req.FederationUUID = federationUUID
+		return controller.participantAppService.UpgradeFATECluster(req)
+	}(); err != nil {
+		resp := &GeneralResponse{
+			Code:    constants.RespInternalErr,
+			Message: err.Error(),
+		}
+		c.JSON(http.StatusInternalServerError, resp)
+	} else {
+		resp := &GeneralResponse{
+			Code: constants.RespNoErr,
+			Data: exchangeUUID,
 		}
 		c.JSON(http.StatusOK, resp)
 	}
