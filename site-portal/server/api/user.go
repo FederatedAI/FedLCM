@@ -57,13 +57,13 @@ func (controller *UserController) Route(r *gin.RouterGroup) {
 }
 
 // listUsers list all users
-// @Summary List all saved users
-// @Tags User
-// @Produce json
-// @Success 200 {object} GeneralResponse{data=[]service.PublicUser} "Success"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /user [get]
+//	@Summary	List all saved users
+//	@Tags		User
+//	@Produce	json
+//	@Success	200	{object}	GeneralResponse{data=[]service.PublicUser}	"Success"
+//	@Failure	401	{object}	GeneralResponse								"Unauthorized operation"
+//	@Failure	500	{object}	GeneralResponse{code=int}					"Internal server error"
+//	@Router		/user [get]
 func (controller *UserController) listUsers(c *gin.Context) {
 	users, err := controller.userAppService.GetUsers()
 	if err != nil {
@@ -83,15 +83,15 @@ func (controller *UserController) listUsers(c *gin.Context) {
 }
 
 // updatePermission update user permission
-// @Summary Update user permission
-// @Tags User
-// @Produce json
-// @Param permission body valueobject.UserPermissionInfo true "Permission, must contain all permissions, otherwise the missing once will be considered as false"
-// @Param id path string true "User ID"
-// @Success 200 {object} GeneralResponse "Success"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /user/{id}/permission [put]
+//	@Summary	Update user permission
+//	@Tags		User
+//	@Produce	json
+//	@Param		permission	body		valueobject.UserPermissionInfo	true	"Permission, must contain all permissions, otherwise the missing once will be considered as false"
+//	@Param		id			path		string							true	"User ID"
+//	@Success	200			{object}	GeneralResponse					"Success"
+//	@Failure	401			{object}	GeneralResponse					"Unauthorized operation"
+//	@Failure	500			{object}	GeneralResponse{code=int}		"Internal server error"
+//	@Router		/user/{id}/permission [put]
 func (controller *UserController) updatePermission(c *gin.Context) {
 	if data, err := func() (interface{}, error) {
 		userId, err := strconv.Atoi(c.Param("id"))
@@ -128,36 +128,36 @@ func (controller *UserController) updatePermission(c *gin.Context) {
 }
 
 // login login to site portal using the provided credentials
-// @Summary login to site portal
-// @Tags User
-// @Produce json
-// @Param credentials body service.LoginInfo true "credentials for login"
-// @Success 200 {object} GeneralResponse "Success"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Router /user/login [post]
+//	@Summary	login to site portal
+//	@Tags		User
+//	@Produce	json
+//	@Param		credentials	body		service.LoginInfo	true	"credentials for login"
+//	@Success	200			{object}	GeneralResponse		"Success"
+//	@Failure	401			{object}	GeneralResponse		"Unauthorized operation"
+//	@Router		/user/login [post]
 func (controller *UserController) login(c *gin.Context) {
 	authMiddleware.LoginHandler(c)
 }
 
 // logout logout from the site portal
-// @Summary logout from the site portal
-// @Tags User
-// @Produce json
-// @Success 200 {object} GeneralResponse "Success"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /user/logout [post]
+//	@Summary	logout from the site portal
+//	@Tags		User
+//	@Produce	json
+//	@Success	200	{object}	GeneralResponse				"Success"
+//	@Failure	500	{object}	GeneralResponse{code=int}	"Internal server error"
+//	@Router		/user/logout [post]
 func (controller *UserController) logout(c *gin.Context) {
 	authMiddleware.LogoutHandler(c)
 }
 
 // getCurrentUser return current user
-// @Summary Return current user in the jwt token
-// @Tags User
-// @Produce json
-// @Success 200 {object} GeneralResponse{data=string} "Success, the name of current user"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /user/current [get]
+//	@Summary	Return current user in the jwt token
+//	@Tags		User
+//	@Produce	json
+//	@Success	200	{object}	GeneralResponse{data=string}	"Success, the name of current user"
+//	@Failure	401	{object}	GeneralResponse					"Unauthorized operation"
+//	@Failure	500	{object}	GeneralResponse{code=int}		"Internal server error"
+//	@Router		/user/current [get]
 func (controller *UserController) getCurrentUsername(c *gin.Context) {
 	if username, err := func() (string, error) {
 		claims := jwt.ExtractClaims(c)
@@ -180,14 +180,14 @@ func (controller *UserController) getCurrentUsername(c *gin.Context) {
 }
 
 // updatePassword update user password
-// @Summary Update user Password
-// @Tags User
-// @Produce json
-// @Param passwordChangeInfo body service.PwdChangeInfo string "current and new password"
-// @Success 200 {object} GeneralResponse "Success"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /user/{id}/password [put]
+//	@Summary	Update user Password
+//	@Tags		User
+//	@Produce	json
+//	@Param		passwordChangeInfo	body		service.PwdChangeInfo		string	"current and new password"
+//	@Success	200					{object}	GeneralResponse				"Success"
+//	@Failure	401					{object}	GeneralResponse				"Unauthorized operation"
+//	@Failure	500					{object}	GeneralResponse{code=int}	"Internal server error"
+//	@Router		/user/{id}/password [put]
 func (controller *UserController) updatePassword(c *gin.Context) {
 	if err := func() error {
 		userId, err := strconv.Atoi(c.Param("id"))

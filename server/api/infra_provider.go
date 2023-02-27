@@ -56,13 +56,14 @@ func (controller *InfraProviderController) Route(r *gin.RouterGroup) {
 }
 
 // list returns the provider list
-// @Summary  Return provider list data
-// @Tags     InfraProvider
-// @Produce  json
-// @Success  200  {object}  GeneralResponse{data=[]service.InfraProviderListItem}  "Success"
-// @Failure  401  {object}  GeneralResponse                                        "Unauthorized operation"
-// @Failure  500  {object}  GeneralResponse{code=int}                              "Internal server error"
-// @Router   /infra [get]
+//
+// @Summary Return provider list data
+// @Tags    InfraProvider
+// @Produce json
+// @Success 200 {object} GeneralResponse{data=[]service.InfraProviderListItem} "Success"
+// @Failure 401 {object} GeneralResponse                                       "Unauthorized operation"
+// @Failure 500 {object} GeneralResponse{code=int}                             "Internal server error"
+// @Router  /infra [get]
 func (controller *InfraProviderController) list(c *gin.Context) {
 	providerList, err := controller.infraProviderAppService.GetProviderList()
 	if err != nil {
@@ -83,14 +84,15 @@ func (controller *InfraProviderController) list(c *gin.Context) {
 }
 
 // create a new provider
-// @Summary  Create a new infra provider
-// @Tags     InfraProvider
-// @Produce  json
-// @Param    provider  body      service.InfraProviderCreationRequest  true  "The provider information, currently for the type field only 'Kubernetes' is supported"
-// @Success  200       {object}  GeneralResponse                       "Success"
-// @Failure  401       {object}  GeneralResponse                       "Unauthorized operation"
-// @Failure  500       {object}  GeneralResponse{code=int}             "Internal server error"
-// @Router   /infra [post]
+//
+// @Summary Create a new infra provider
+// @Tags    InfraProvider
+// @Produce json
+// @Param   provider body     service.InfraProviderCreationRequest true "The provider information, currently for the type field only 'Kubernetes' is supported"
+// @Success 200      {object} GeneralResponse                      "Success"
+// @Failure 401      {object} GeneralResponse                      "Unauthorized operation"
+// @Failure 500      {object} GeneralResponse{code=int}            "Internal server error"
+// @Router  /infra [post]
 func (controller *InfraProviderController) create(c *gin.Context) {
 	if err := func() error {
 		providerInfo := &service.InfraProviderCreationRequest{}
@@ -113,14 +115,15 @@ func (controller *InfraProviderController) create(c *gin.Context) {
 }
 
 // testKubernetes test connection to Kubernetes infra provider
-// @Summary  Test connection to a Kubernetes infra provider
-// @Tags     InfraProvider
-// @Produce  json
-// @Param    permission  body      valueobject.KubeConfig     true  "The kubeconfig content"
-// @Success  200         {object}  GeneralResponse            "Success"
-// @Failure  401         {object}  GeneralResponse            "Unauthorized operation"
-// @Failure  500         {object}  GeneralResponse{code=int}  "Internal server error"
-// @Router   /infra/kubernetes/connect [post]
+//
+// @Summary Test connection to a Kubernetes infra provider
+// @Tags    InfraProvider
+// @Produce json
+// @Param   permission body     valueobject.KubeConfig    true "The kubeconfig content"
+// @Success 200        {object} GeneralResponse           "Success"
+// @Failure 401        {object} GeneralResponse           "Unauthorized operation"
+// @Failure 500        {object} GeneralResponse{code=int} "Internal server error"
+// @Router  /infra/kubernetes/connect [post]
 func (controller *InfraProviderController) testKubernetes(c *gin.Context) {
 	if err := func() error {
 		kubeconfig := &valueobject.KubeConfig{}
@@ -143,14 +146,15 @@ func (controller *InfraProviderController) testKubernetes(c *gin.Context) {
 }
 
 // get returns detailed information of an infra provider
-// @Summary  Get infra provider's detailed info
-// @Tags     InfraProvider
-// @Produce  json
-// @Param    uuid  path      string                                             true  "Provider UUID"
-// @Success  200   {object}  GeneralResponse{data=service.InfraProviderDetail}  "Success"
-// @Failure  401   {object}  GeneralResponse                                    "Unauthorized operation"
-// @Failure  500   {object}  GeneralResponse{code=int}                          "Internal server error"
-// @Router   /infra/{uuid} [get]
+//
+// @Summary Get infra provider's detailed info
+// @Tags    InfraProvider
+// @Produce json
+// @Param   uuid path     string                                            true "Provider UUID"
+// @Success 200  {object} GeneralResponse{data=service.InfraProviderDetail} "Success"
+// @Failure 401  {object} GeneralResponse                                   "Unauthorized operation"
+// @Failure 500  {object} GeneralResponse{code=int}                         "Internal server error"
+// @Router  /infra/{uuid} [get]
 func (controller *InfraProviderController) get(c *gin.Context) {
 	uuid := c.Param("uuid")
 	if providerDetail, err := controller.infraProviderAppService.GetProviderDetail(uuid); err != nil {
@@ -168,15 +172,16 @@ func (controller *InfraProviderController) get(c *gin.Context) {
 	}
 }
 
-// delete the infra provider
-// @Summary  Delete the infra provider
-// @Tags     InfraProvider
-// @Produce  json
-// @Param    uuid  path      string                     true  "Provider UUID"
-// @Success  200   {object}  GeneralResponse            "Success"
-// @Failure  401   {object}  GeneralResponse            "Unauthorized operation"
-// @Failure  500   {object}  GeneralResponse{code=int}  "Internal server error"
-// @Router   /infra/{uuid} [delete]
+//	delete the infra provider
+//
+// @Summary Delete the infra provider
+// @Tags    InfraProvider
+// @Produce json
+// @Param   uuid path     string                    true "Provider UUID"
+// @Success 200  {object} GeneralResponse           "Success"
+// @Failure 401  {object} GeneralResponse           "Unauthorized operation"
+// @Failure 500  {object} GeneralResponse{code=int} "Internal server error"
+// @Router  /infra/{uuid} [delete]
 func (controller *InfraProviderController) delete(c *gin.Context) {
 	uuid := c.Param("uuid")
 	if err := controller.infraProviderAppService.DeleteProvider(uuid); err != nil {
@@ -193,16 +198,17 @@ func (controller *InfraProviderController) delete(c *gin.Context) {
 	}
 }
 
-// update the provider configuration
-// @Summary  Updates the infra provider
-// @Tags     InfraProvider
-// @Produce  json
-// @Param    uuid      path      string                              true  "Provider UUID"
-// @Param    provider  body      service.InfraProviderUpdateRequest  true  "The updated provider information"
-// @Success  200       {object}  GeneralResponse                     "Success"
-// @Failure  401       {object}  GeneralResponse                     "Unauthorized operation"
-// @Failure  500       {object}  GeneralResponse{code=int}           "Internal server error"
-// @Router   /infra/{uuid} [put]
+//	update the provider configuration
+//
+// @Summary Updates the infra provider
+// @Tags    InfraProvider
+// @Produce json
+// @Param   uuid     path     string                             true "Provider UUID"
+// @Param   provider body     service.InfraProviderUpdateRequest true "The updated provider information"
+// @Success 200      {object} GeneralResponse                    "Success"
+// @Failure 401      {object} GeneralResponse                    "Unauthorized operation"
+// @Failure 500      {object} GeneralResponse{code=int}          "Internal server error"
+// @Router  /infra/{uuid} [put]
 func (controller *InfraProviderController) update(c *gin.Context) {
 	if err := func() error {
 		uuid := c.Param("uuid")

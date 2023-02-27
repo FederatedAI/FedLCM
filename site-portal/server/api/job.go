@@ -81,14 +81,14 @@ func (controller *JobController) Route(r *gin.RouterGroup) {
 }
 
 // approveJob approves the job
-// @Summary Approve a pending job
-// @Tags Job
-// @Produce json
-// @Param uuid path string true "Job UUID"
-// @Success 200 {object} GeneralResponse{} "Success"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /job/{uuid}/approve [post]
+//	@Summary	Approve a pending job
+//	@Tags		Job
+//	@Produce	json
+//	@Param		uuid	path		string						true	"Job UUID"
+//	@Success	200		{object}	GeneralResponse{}			"Success"
+//	@Failure	401		{object}	GeneralResponse				"Unauthorized operation"
+//	@Failure	500		{object}	GeneralResponse{code=int}	"Internal server error"
+//	@Router		/job/{uuid}/approve [post]
 func (controller *JobController) approveJob(c *gin.Context) {
 	if err := func() error {
 		jobUUID := c.Param("uuid")
@@ -108,14 +108,14 @@ func (controller *JobController) approveJob(c *gin.Context) {
 }
 
 // rejectJob rejects the job
-// @Summary Disapprove a pending job
-// @Tags Job
-// @Produce json
-// @Param uuid path string true "Job UUID"
-// @Success 200 {object} GeneralResponse{} "Success"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /job/{uuid}/reject [post]
+//	@Summary	Disapprove a pending job
+//	@Tags		Job
+//	@Produce	json
+//	@Param		uuid	path		string						true	"Job UUID"
+//	@Success	200		{object}	GeneralResponse{}			"Success"
+//	@Failure	401		{object}	GeneralResponse				"Unauthorized operation"
+//	@Failure	500		{object}	GeneralResponse{code=int}	"Internal server error"
+//	@Router		/job/{uuid}/reject [post]
 func (controller *JobController) rejectJob(c *gin.Context) {
 	if err := func() error {
 		jobUUID := c.Param("uuid")
@@ -135,14 +135,14 @@ func (controller *JobController) rejectJob(c *gin.Context) {
 }
 
 // refreshJob retrieve the latest job status
-// @Summary Refresh the latest job status
-// @Tags Job
-// @Produce json
-// @Param uuid path string true "Job UUID"
-// @Success 200 {object} GeneralResponse{} "Success"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /job/{uuid}/refresh [post]
+//	@Summary	Refresh the latest job status
+//	@Tags		Job
+//	@Produce	json
+//	@Param		uuid	path		string						true	"Job UUID"
+//	@Success	200		{object}	GeneralResponse{}			"Success"
+//	@Failure	401		{object}	GeneralResponse				"Unauthorized operation"
+//	@Failure	500		{object}	GeneralResponse{code=int}	"Internal server error"
+//	@Router		/job/{uuid}/refresh [post]
 func (controller *JobController) refreshJob(c *gin.Context) {
 	if err := func() error {
 		jobUUID := c.Param("uuid")
@@ -162,14 +162,14 @@ func (controller *JobController) refreshJob(c *gin.Context) {
 }
 
 // get returns detailed information of a job
-// @Summary Get job's detailed info
-// @Tags Job
-// @Produce json
-// @Param uuid path string true "Job UUID"
-// @Success 200 {object} GeneralResponse{data=service.JobDetail} "Success"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /job/{uuid} [get]
+//	@Summary	Get job's detailed info
+//	@Tags		Job
+//	@Produce	json
+//	@Param		uuid	path		string									true	"Job UUID"
+//	@Success	200		{object}	GeneralResponse{data=service.JobDetail}	"Success"
+//	@Failure	401		{object}	GeneralResponse							"Unauthorized operation"
+//	@Failure	500		{object}	GeneralResponse{code=int}				"Internal server error"
+//	@Router		/job/{uuid} [get]
 func (controller *JobController) get(c *gin.Context) {
 	if job, err := func() (*service.JobDetail, error) {
 		jobUUID := c.Param("uuid")
@@ -190,14 +190,14 @@ func (controller *JobController) get(c *gin.Context) {
 }
 
 // generateConf returns job configuration and DSL content
-// @Summary Get a job's config template, used in json template mode
-// @Tags Job
-// @Produce json
-// @Param request body service.JobSubmissionRequest true "Job requests, not all fields are required: only need to fill related ones according to job type"
-// @Success 200 {object} GeneralResponse{data=service.JobConf} "Success"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /job/conf/create [post]
+//	@Summary	Get a job's config template, used in json template mode
+//	@Tags		Job
+//	@Produce	json
+//	@Param		request	body		service.JobSubmissionRequest			true	"Job requests, not all fields are required: only need to fill related ones according to job type"
+//	@Success	200		{object}	GeneralResponse{data=service.JobConf}	"Success"
+//	@Failure	401		{object}	GeneralResponse							"Unauthorized operation"
+//	@Failure	500		{object}	GeneralResponse{code=int}				"Internal server error"
+//	@Router		/job/conf/create [post]
 func (controller *JobController) generateConf(c *gin.Context) {
 	if conf, err := func() (*service.JobConf, error) {
 		request := &service.JobSubmissionRequest{}
@@ -228,14 +228,14 @@ func (controller *JobController) generateConf(c *gin.Context) {
 }
 
 // createRemoteJob creates a new job
-// @Summary Create a new job that is created by other site, only called by FML manager
-// @Tags Job
-// @Produce json
-// @Param request body service.RemoteJobCreationRequest true "Job info"
-// @Success 200 {object} GeneralResponse{} "Success"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /job/internal/create [post]
+//	@Summary	Create a new job that is created by other site, only called by FML manager
+//	@Tags		Job
+//	@Produce	json
+//	@Param		request	body		service.RemoteJobCreationRequest	true	"Job info"
+//	@Success	200		{object}	GeneralResponse{}					"Success"
+//	@Failure	401		{object}	GeneralResponse						"Unauthorized operation"
+//	@Failure	500		{object}	GeneralResponse{code=int}			"Internal server error"
+//	@Router		/job/internal/create [post]
 func (controller *JobController) createRemoteJob(c *gin.Context) {
 	if err := func() error {
 		request := &service.RemoteJobCreationRequest{}
@@ -258,15 +258,15 @@ func (controller *JobController) createRemoteJob(c *gin.Context) {
 }
 
 // handleJobResponse process job approval response
-// @Summary Handle job response from other sites, only called by FML manager
-// @Tags Job
-// @Produce json
-// @Param uuid path string true "Job UUID"
-// @Param context body service.JobApprovalContext true "Approval context, containing the sender UUID and approval status"
-// @Success 200 {object} GeneralResponse{} "Success"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /job/internal/{uuid}/response [post]
+//	@Summary	Handle job response from other sites, only called by FML manager
+//	@Tags		Job
+//	@Produce	json
+//	@Param		uuid	path		string						true	"Job UUID"
+//	@Param		context	body		service.JobApprovalContext	true	"Approval context, containing the sender UUID and approval status"
+//	@Success	200		{object}	GeneralResponse{}			"Success"
+//	@Failure	401		{object}	GeneralResponse				"Unauthorized operation"
+//	@Failure	500		{object}	GeneralResponse{code=int}	"Internal server error"
+//	@Router		/job/internal/{uuid}/response [post]
 func (controller *JobController) handleJobResponse(c *gin.Context) {
 	if err := func() error {
 		jobUUID := c.Param("uuid")
@@ -290,15 +290,15 @@ func (controller *JobController) handleJobResponse(c *gin.Context) {
 }
 
 // handleJobStatusUpdate process job status update
-// @Summary Handle job status updates, only called by FML manager
-// @Tags Job
-// @Produce json
-// @Param uuid path string true "Job UUID"
-// @Param context body service.JobStatusUpdateContext true "Job status update context, containing the latest job and participant status"
-// @Success 200 {object} GeneralResponse{} "Success"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /job/internal/{uuid}/status [post]
+//	@Summary	Handle job status updates, only called by FML manager
+//	@Tags		Job
+//	@Produce	json
+//	@Param		uuid	path		string							true	"Job UUID"
+//	@Param		context	body		service.JobStatusUpdateContext	true	"Job status update context, containing the latest job and participant status"
+//	@Success	200		{object}	GeneralResponse{}				"Success"
+//	@Failure	401		{object}	GeneralResponse					"Unauthorized operation"
+//	@Failure	500		{object}	GeneralResponse{code=int}		"Internal server error"
+//	@Router		/job/internal/{uuid}/status [post]
 func (controller *JobController) handleJobStatusUpdate(c *gin.Context) {
 	if err := func() error {
 		jobUUID := c.Param("uuid")
@@ -322,14 +322,14 @@ func (controller *JobController) handleJobStatusUpdate(c *gin.Context) {
 }
 
 // getPredictingJobParticipant returns participant list for creating a predicting job from a model
-// @Summary Get allowed participants for a predicting job from a model
-// @Tags Job
-// @Produce json
-// @Param modelUUID query string true "UUID of a trained model"
-// @Success 200 {object} GeneralResponse{data=[]service.JobParticipantInfoBase} "Success"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /job/predict/participant [get]
+//	@Summary	Get allowed participants for a predicting job from a model
+//	@Tags		Job
+//	@Produce	json
+//	@Param		modelUUID	query		string													true	"UUID of a trained model"
+//	@Success	200			{object}	GeneralResponse{data=[]service.JobParticipantInfoBase}	"Success"
+//	@Failure	401			{object}	GeneralResponse											"Unauthorized operation"
+//	@Failure	500			{object}	GeneralResponse{code=int}								"Internal server error"
+//	@Router		/job/predict/participant [get]
 func (controller *JobController) getPredictingJobParticipant(c *gin.Context) {
 	if data, err := func() ([]service.JobParticipantInfoBase, error) {
 		modelUUID := c.Query("modelUUID")
@@ -350,13 +350,13 @@ func (controller *JobController) getPredictingJobParticipant(c *gin.Context) {
 }
 
 // downloadDataResult returns predict/PSI job result data
-// @Summary the result data of a Predicting or PSI job, XXX: currently it will return an error message due to a bug in FATE
-// @Tags Job
-// @Produce json
-// @Param uuid path string true "Job UUID"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /job/{uuid}/data-result/download [get]
+//	@Summary	the result data of a Predicting or PSI job, XXX: currently it will return an error message due to a bug in FATE
+//	@Tags		Job
+//	@Produce	json
+//	@Param		uuid	path		string						true	"Job UUID"
+//	@Failure	401		{object}	GeneralResponse				"Unauthorized operation"
+//	@Failure	500		{object}	GeneralResponse{code=int}	"Internal server error"
+//	@Router		/job/{uuid}/data-result/download [get]
 func (controller *JobController) downloadDataResult(c *gin.Context) {
 	if req, err := func() (*http.Request, error) {
 		jobUUID := c.Param("uuid")
@@ -378,14 +378,14 @@ func (controller *JobController) downloadDataResult(c *gin.Context) {
 }
 
 // delete a job
-// @Summary Delete the job. The job will be marked as delete in this site, but still viewable in other sites
-// @Tags Job
-// @Produce json
-// @Param uuid path string true "Job UUID"
-// @Success 200 {object} GeneralResponse{} "Success"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /job/{uuid} [delete]
+//	@Summary	Delete the job. The job will be marked as delete in this site, but still viewable in other sites
+//	@Tags		Job
+//	@Produce	json
+//	@Param		uuid	path		string						true	"Job UUID"
+//	@Success	200		{object}	GeneralResponse{}			"Success"
+//	@Failure	401		{object}	GeneralResponse				"Unauthorized operation"
+//	@Failure	500		{object}	GeneralResponse{code=int}	"Internal server error"
+//	@Router		/job/{uuid} [delete]
 func (controller *JobController) delete(c *gin.Context) {
 	if err := func() error {
 		jobUUID := c.Param("uuid")
@@ -405,13 +405,13 @@ func (controller *JobController) delete(c *gin.Context) {
 }
 
 // getJobComponents returns all the components for a model and their default configs
-// @Summary Get all the components and their default configs. The returned format is json
-// @Tags Job
-// @Produce json
-// @Success 200 {object} GeneralResponse{data=string} "Success"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /job/components [get]
+//	@Summary	Get all the components and their default configs. The returned format is json
+//	@Tags		Job
+//	@Produce	json
+//	@Success	200	{object}	GeneralResponse{data=string}	"Success"
+//	@Failure	401	{object}	GeneralResponse					"Unauthorized operation"
+//	@Failure	500	{object}	GeneralResponse{code=int}		"Internal server error"
+//	@Router		/job/components [get]
 func (controller *JobController) getJobComponents(c *gin.Context) {
 	resp := &GeneralResponse{
 		Code: constants.RespNoErr,
@@ -421,14 +421,14 @@ func (controller *JobController) getJobComponents(c *gin.Context) {
 }
 
 // generateDslFromDag returns the DSL json file from the DAG the user draw
-// @Summary Generate the DSL json file from the DAG the user draw, should be called by UI only
-// @Tags Job
-// @Produce json
-// @Param rawJson body service.JobRawDagJson true "The raw json, the value should be a serialized json string"
-// @Success 200 {object} GeneralResponse{data=string} "Success"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /job/generateDslFromDag [post]
+//	@Summary	Generate the DSL json file from the DAG the user draw, should be called by UI only
+//	@Tags		Job
+//	@Produce	json
+//	@Param		rawJson	body		service.JobRawDagJson			true	"The raw json, the value should be a serialized json string"
+//	@Success	200		{object}	GeneralResponse{data=string}	"Success"
+//	@Failure	401		{object}	GeneralResponse					"Unauthorized operation"
+//	@Failure	500		{object}	GeneralResponse{code=int}		"Internal server error"
+//	@Router		/job/generateDslFromDag [post]
 func (controller *JobController) generateDslFromDag(c *gin.Context) {
 	if rawJson, err := func() (string, error) {
 		request := &service.JobRawDagJson{}
@@ -461,14 +461,14 @@ func (controller *JobController) generateDslFromDag(c *gin.Context) {
 }
 
 // generateConfFromDag returns the conf json file from the DAG the user draw
-// @Summary Generate the conf json file from the DAG the user draw, the conf file can be consumed by Fateflow
-// @Tags Job
-// @Produce json
-// @Param generateJobConfRequest body service.GenerateJobConfRequest true "The request for generate the conf json file"
-// @Success 200 {object} GeneralResponse{data=string} "Success"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /job/generateConfFromDag [post]
+//	@Summary	Generate the conf json file from the DAG the user draw, the conf file can be consumed by Fateflow
+//	@Tags		Job
+//	@Produce	json
+//	@Param		generateJobConfRequest	body		service.GenerateJobConfRequest	true	"The request for generate the conf json file"
+//	@Success	200						{object}	GeneralResponse{data=string}	"Success"
+//	@Failure	401						{object}	GeneralResponse					"Unauthorized operation"
+//	@Failure	500						{object}	GeneralResponse{code=int}		"Internal server error"
+//	@Router		/job/generateConfFromDag [post]
 func (controller *JobController) generateConfFromDag(c *gin.Context) {
 	if generateJobConfRequest, err := func() (*service.GenerateJobConfRequest, error) {
 		request := &service.GenerateJobConfRequest{}

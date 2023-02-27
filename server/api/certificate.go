@@ -61,13 +61,14 @@ func (controller *CertificateController) Route(r *gin.RouterGroup) {
 }
 
 // list returns the certificate list
-// @Summary  Return issued certificate list
-// @Tags     Certificate
-// @Produce  json
-// @Success  200  {object}  GeneralResponse{data=[]service.CertificateListItem}  "Success"
-// @Failure  401  {object}  GeneralResponse                                      "Unauthorized operation"
-// @Failure  500  {object}  GeneralResponse{code=int}                            "Internal server error"
-// @Router   /certificate [get]
+//
+// @Summary Return issued certificate list
+// @Tags    Certificate
+// @Produce json
+// @Success 200 {object} GeneralResponse{data=[]service.CertificateListItem} "Success"
+// @Failure 401 {object} GeneralResponse                                     "Unauthorized operation"
+// @Failure 500 {object} GeneralResponse{code=int}                           "Internal server error"
+// @Router  /certificate [get]
 func (controller *CertificateController) list(c *gin.Context) {
 	if certList, err := controller.certificateApp.List(); err != nil {
 		resp := &GeneralResponse{
@@ -86,14 +87,15 @@ func (controller *CertificateController) list(c *gin.Context) {
 }
 
 // delete removes the certificate which has no participant bindings
-// @Summary  Delete the certificate  which has no participant bindings
-// @Tags     Certificate
-// @Produce  json
-// @Param    uuid  path      string                     true  "Certificate UUID"
-// @Success  200   {object}  GeneralResponse            "Success"
-// @Failure  401   {object}  GeneralResponse            "Unauthorized operation"
-// @Failure  500   {object}  GeneralResponse{code=int}  "Internal server error"
-// @Router   /certificate/{uuid} [delete]
+//
+// @Summary Delete the certificate  which has no participant bindings
+// @Tags    Certificate
+// @Produce json
+// @Param   uuid path     string                    true "Certificate UUID"
+// @Success 200  {object} GeneralResponse           "Success"
+// @Failure 401  {object} GeneralResponse           "Unauthorized operation"
+// @Failure 500  {object} GeneralResponse{code=int} "Internal server error"
+// @Router  /certificate/{uuid} [delete]
 func (controller *CertificateController) delete(c *gin.Context) {
 	uuid := c.Param("uuid")
 	if err := controller.certificateApp.DeleteCertificate(uuid); err != nil {
