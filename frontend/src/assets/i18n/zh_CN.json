@@ -113,7 +113,9 @@
     "expirationDate": "到期时间",
     "filter": "筛选",
     "requirements": "(可选) requirements.txt 文件",
-    "editorModeHelperMessage":"点击文本区域进入编辑器模式"
+    "editorModeHelperMessage":"点击文本区域进入编辑器模式",
+    "upgrade": "升级",
+    "Upgrade": "升级"
   },
   "EndpointMg": {
     "name": "服务端点",

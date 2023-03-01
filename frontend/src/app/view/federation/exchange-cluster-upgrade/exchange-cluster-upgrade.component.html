@@ -1,0 +1,27 @@
+<div class="content-area">
+  <a href="javascript:history.back()">&lt;&lt;{{'CommonlyUse.back'| translate}}</a>
+  <br>
+  <h2>{{title}} {{'CommonlyUse.Upgrade'|translate}}</h2>
+  <br>
+  <form clrStepper [formGroup]="form">
+      <clr-stepper-panel formGroupName="version">
+        <clr-step-title>{{'CommonlyUse.Upgrade'|translate}}</clr-step-title>
+        <clr-step-description></clr-step-description>
+        <clr-step-content *clrIfExpanded>
+          <clr-alert [clrAlertClosable]='false' clrAlertType="danger" *ngIf="isShowChartFailed">
+            <clr-alert-item>
+              {{errorMessage}}
+            </clr-alert-item>
+          </clr-alert>
+          <clr-select-container class="no-warp">
+            <label>{{'CommonlyUse.version'| translate}}</label>
+            <select clrSelect name="version" formControlName="version" required>
+              <option *ngFor="let version of upgradeVersionList" [value]="version">{{version}}</option>
+            </select>
+          </clr-select-container>
+          <button clrStepButton="submit" (click)="upgradeExchangeCluster(fedUuid, upgradeUuid, type)" [disabled]="!form.controls['version'].valid">{{'CommonlyUse.submit'|
+            translate}}</button>
+        </clr-step-content>
+      </clr-stepper-panel>
+  </form>
+</div>

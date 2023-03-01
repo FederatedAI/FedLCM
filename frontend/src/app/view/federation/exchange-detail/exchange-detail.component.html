@@ -1,5 +1,5 @@
 <div class="content-area" [ngClass]="{'hide': isShowDetailFailed && isPageLoading}">
-  <a href="javascript:history.back()">&lt;&lt;{{'CommonlyUse.back'|translate}}</a>
+  <a href="javascript:;" (click)="back()">&lt;&lt;{{'CommonlyUse.back'|translate}}</a>
   <h2>{{'ExchangeDetail.detail'|translate}}</h2>
   <div *ngIf="isShowDetailFailed" class="alert alert-danger" role="alert">
     <div class="alert-items">
@@ -28,6 +28,9 @@
               <button class="btn" (click)="openDeleteConfrimModal()">
                 <cds-icon shape="trash"></cds-icon> {{'CommonlyUse.delete'|translate}}
               </button>
+              <button *ngIf="exchangeDetail.upgradeable"  class="btn" (click)="toUpgrade(exchangeDetail, 'Exchange')">
+                <cds-icon shape="upload"></cds-icon> {{'CommonlyUse.upgrade'|translate}}
+              </button>
             </div>
             <br>
             <div class="card card1">
@@ -54,7 +57,7 @@
                 </li>
                 <li>
                   <span><b>{{'CommonlyUse.status'|translate}}:</b></span>
-                  <span class="label statusLabel" [class.label-info]="exchangeDetail?.status===2"
+                  <span class="label statusLabel" [class.label-info]="exchangeDetail?.status===2 || exchangeDetail?.status===6"
                     [class.label-success]="exchangeDetail?.status===1" [class.label-danger]="exchangeDetail?.status===5"
                     [class.label-warning]="exchangeDetail?.status===3||exchangeDetail?.status===4">{{constantGather('participantFATEstatus',
                     exchangeDetail?.status).name | translate}}</span>

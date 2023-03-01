@@ -1,0 +1,12 @@
+// mark changes
+.no-warp::ng-deep {
+  label {
+      margin-right: 25px;
+      line-height: 24px;
+  }
+  input {
+      width:300px;
+  }
+  flex-direction: row;
+  align-items: center;
+}

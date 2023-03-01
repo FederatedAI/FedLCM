@@ -53,6 +53,7 @@ import { TimeOutServiceComponent } from './components/time-out-service/time-out-
 import { FilterComponent } from './components/filter/filter.component';
 import { EnvoyDetailComponent } from './view/openfl/envoy-detail/envoy-detail.component';
 import { CreateOpenflComponent } from './view/openfl/create-openfl-fed/create-openfl-fed.component';
+import { ExchangeClusterUpgradeComponent } from './view/federation/exchange-cluster-upgrade/exchange-cluster-upgrade.component';
 
 @NgModule({
   declarations: [
@@ -85,7 +86,8 @@ import { CreateOpenflComponent } from './view/openfl/create-openfl-fed/create-op
     DirectorDetailComponent,
     FilterComponent,
     EnvoyDetailComponent,
-    CreateOpenflComponent
+    CreateOpenflComponent,
+    ExchangeClusterUpgradeComponent
   ],
   imports: [
     BrowserModule,
