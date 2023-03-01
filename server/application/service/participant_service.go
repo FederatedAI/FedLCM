@@ -22,6 +22,7 @@ import (
 	"github.com/FederatedAI/FedLCM/server/domain/service"
 	"github.com/FederatedAI/FedLCM/server/domain/utils"
 	"github.com/pkg/errors"
+	"github.com/rs/zerolog/log"
 )
 
 // ParticipantApp provide functions to manage the participants
@@ -344,9 +345,60 @@ func (app *ParticipantApp) checkFATEClusterUpgrade(ChartUUID string) bool {
 	return utils.Upgradeable(domainChart.Version, versionlist)
 }
 
-func (app *ParticipantApp) getFATEClusterUpgradeableVersionList(ChartUUID string) ([]string, error) {
+func (app *ParticipantApp) getFATEExchangeUpgradeableVersionList(ExchangeUUID string) ([]string, error) {
 	var versionlist []string
-	instance, err := app.ChartRepo.GetByUUID(ChartUUID)
+	participantInstance, err := app.ParticipantFATERepo.GetByUUID(ExchangeUUID)
+	if err != nil {
+		log.Err(err).Str("ExchangeUUID", ExchangeUUID).Msg("ParticipantFATERepo.GetByUUID error")
+		return nil, err
+	}
+	participant := participantInstance.(*entity.ParticipantFATE)
+	instance, err := app.ChartRepo.GetByUUID(participant.ChartUUID)
+	if err != nil {
+		log.Err(err).Msg("ChartRepo.GetByUUID error")
+		return nil, err
+	}
+	domainChart := instance.(*entity.Chart)
+	var domainChartList []entity.Chart
+	if domainChart.Type == entity.ChartTypeUnknown {
+		instanceList, err := app.ChartRepo.List()
+		if err != nil {
+			log.Err(err).Msg("ChartRepo.List() error")
+			return nil, err
+		}
+		domainChartList = instanceList.([]entity.Chart)
+	} else {
+		instanceList, err := app.ChartRepo.ListByType(domainChart.Type)
+		if err != nil {
+			log.Err(err).Msg("ChartRepo.ListByType(domainChart.Type)")
+			return nil, err
+		}
+		domainChartList = instanceList.([]entity.Chart)
+	}
+	for _, domainChart := range domainChartList {
+		versionlist = append(versionlist, domainChart.Version)
+	}
+	return utils.Upgradeablelist(domainChart.Version, versionlist), nil
+}
+
+func (app *ParticipantApp) GetFATEExchangeUpgrade(ExchangeUUID string) (*FATEClusterUpgradeableVersionList, error) {
+	UpgradeableVersionList, err := app.getFATEExchangeUpgradeableVersionList(ExchangeUUID)
+	if err != nil {
+		log.Err(err).Msg("GetFATEExchangeUpgrade error")
+		return nil, err
+	}
+
+	return &FATEClusterUpgradeableVersionList{FATEClusterUpgradeableVersionList: UpgradeableVersionList}, nil
+}
+
+func (app *ParticipantApp) getFATEClusterUpgradeableVersionList(ClusterUUID string) ([]string, error) {
+	var versionlist []string
+	participantInstance, err := app.ParticipantFATERepo.GetByUUID(ClusterUUID)
+	if err != nil {
+		return nil, err
+	}
+	participant := participantInstance.(*entity.ParticipantFATE)
+	instance, err := app.ChartRepo.GetByUUID(participant.ChartUUID)
 	if err != nil {
 		return nil, err
 	}
@@ -371,17 +423,8 @@ func (app *ParticipantApp) getFATEClusterUpgradeableVersionList(ChartUUID string
 	return utils.Upgradeablelist(domainChart.Version, versionlist), nil
 }
 
-func (app *ParticipantApp) GetFATEExchangeUpgrade(ChartUUID string) (*FATEClusterUpgradeableVersionList, error) {
-	UpgradeableVersionList, err := app.getFATEClusterUpgradeableVersionList(ChartUUID)
-	if err != nil {
-		return nil, err
-	}
-
-	return &FATEClusterUpgradeableVersionList{FATEClusterUpgradeableVersionList: UpgradeableVersionList}, nil
-}
-
-func (app *ParticipantApp) GetFATEClusterUpgrade(ChartUUID string) (*FATEClusterUpgradeableVersionList, error) {
-	UpgradeableVersionList, err := app.getFATEClusterUpgradeableVersionList(ChartUUID)
+func (app *ParticipantApp) GetFATEClusterUpgrade(ClisterUUID string) (*FATEClusterUpgradeableVersionList, error) {
+	UpgradeableVersionList, err := app.getFATEClusterUpgradeableVersionList(ClisterUUID)
 	if err != nil {
 		return nil, err
 	}

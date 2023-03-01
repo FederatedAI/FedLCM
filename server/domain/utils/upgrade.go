@@ -13,18 +13,18 @@ func Upgradeablelist(version string, versionlist []string) []string {
 	upgradeablelist := make([]string, 0)
 
 	for _, item := range versionlist {
-		if compareVersion(item, version) > 0 && typeVersion(item, version) {
+		if CompareVersion(item, version) > 0 && typeVersion(item, version) {
 			upgradeablelist = append(upgradeablelist, item)
 		}
 	}
 	return upgradeablelist
 }
 
-// compareVersion compare version1 and version2
+// CompareVersion compare version1 and version2
 // If version1 is larger, return 1
 // If version2 is larger, return -1
 // otherwise return 0
-func compareVersion(version1, version2 string) int {
+func CompareVersion(version1, version2 string) int {
 	n, m := len(version1), len(version2)
 	i, j := 0, 0
 	for i < n || j < m {

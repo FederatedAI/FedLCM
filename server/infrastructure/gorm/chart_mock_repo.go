@@ -64,6 +64,15 @@ func (r *ChartMockRepo) GetByUUID(uuid string) (interface{}, error) {
 	}
 }
 
+func (r *ChartMockRepo) GetByNameAndVersion(chartName, version string) (interface{}, error) {
+	for _, chart := range chartMap {
+		if chart.ChartName == chartName && chart.Version == version {
+			return &chart, nil
+		}
+	}
+	return nil, errors.New("chart not found")
+}
+
 func (r *ChartMockRepo) ListByType(instance interface{}) (interface{}, error) {
 	t := instance.(entity.ChartType)
 	var chartList []entity.Chart

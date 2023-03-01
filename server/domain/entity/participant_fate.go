@@ -17,6 +17,7 @@ package entity
 import (
 	"database/sql/driver"
 	"encoding/json"
+
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
 )
@@ -128,6 +129,7 @@ const (
 	ParticipantFATEStatusRemoving
 	ParticipantFATEStatusReconfiguring
 	ParticipantFATEStatusFailed
+	ParticipantFATEStatusUpgrading
 )
 
 func (t ParticipantFATEStatus) String() string {
@@ -142,6 +144,8 @@ func (t ParticipantFATEStatus) String() string {
 		return "Reconfiguring"
 	case ParticipantFATEStatusFailed:
 		return "Failed"
+	case ParticipantFATEStatusUpgrading:
+		return "Upgrading"
 	}
 	return "Unknown"
 }
