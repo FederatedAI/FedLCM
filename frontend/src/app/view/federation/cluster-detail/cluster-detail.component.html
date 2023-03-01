@@ -1,5 +1,5 @@
 <div class="content-area" [ngClass]="{'hide': isShowDetailFailed && isPageLoading}">
-  <a href="javascript:history.back()">&lt;&lt;{{'CommonlyUse.back'|translate}}</a>
+  <a href="javascript:;" (click)="back()">&lt;&lt;{{'CommonlyUse.back'|translate}}</a>
   <h2>{{'ClusterDetail.detail'|translate}}</h2>
   <div *ngIf="isShowDetailFailed" class="alert alert-danger" role="alert">
     <div class="alert-items">
@@ -30,6 +30,9 @@
               <button class="btn" (click)="openDeleteConfrimModal()">
                 <cds-icon shape="trash"></cds-icon> {{'CommonlyUse.delete'|translate}}
               </button>
+              <button *ngIf="clusterDetail.upgradeable"  class="btn" (click)="toUpgrade(clusterDetail, 'Cluster')">
+                <cds-icon shape="upload"></cds-icon> {{'CommonlyUse.upgrade'|translate}}
+              </button>
             </div>
             <div class="card card1">
               <ul class="list">
@@ -59,7 +62,7 @@
                 </li>
                 <li>
                   <span><b>{{'CommonlyUse.status'|translate}}:</b></span>
-                  <span class="label statusLabel" [class.label-info]="clusterDetail.status===2"
+                  <span class="label statusLabel" [class.label-info]="clusterDetail.status===2  || clusterDetail?.status===6"
                     [class.label-success]="clusterDetail.status===1" [class.label-danger]="clusterDetail.status===5"
                     [class.label-warning]="clusterDetail.status===3||clusterDetail.status===4">{{constantGather('participantFATEstatus',
                     clusterDetail.status).name | translate}}</span>
