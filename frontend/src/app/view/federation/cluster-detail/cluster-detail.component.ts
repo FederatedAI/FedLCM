@@ -187,4 +187,13 @@ export class ClusterDetailComponent implements OnInit {
           this.errorMessage = err.error.message;
         });
   }
+
+  // Exchange and cluster jump to the upgrade page through toUpgrade
+  toUpgrade(item: {uuid: string, name: string}, type: string) {
+    this.router.navigate(['/federation', 'fate', this.uuid, 'detail', item.uuid, type+'-'+item.name, 'upgrade'])
+  }
+
+  back() {
+    this.router.navigate(['federation', 'fate', this.uuid])
+  }
 }

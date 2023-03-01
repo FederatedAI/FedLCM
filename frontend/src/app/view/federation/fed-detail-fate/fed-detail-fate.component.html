@@ -103,9 +103,14 @@
               [class.label-danger]="exchange.status===5"
               [class.label-warning]="exchange.status===3||exchange.status===4">{{constantGather('participantFATEstatus',
               exchange.status).name | translate}}</span></td>
-          <td><a href="javascript:void(0)"
-              (click)="openDeleteConfrimModal('exchange',exchange.uuid)">{{'CommonlyUse.delete'|translate}}</a></td>
-        </tr>
+          <td>
+            <a href="javascript:void(0)"
+            (click)="openDeleteConfrimModal('exchange',exchange.uuid)">{{'CommonlyUse.delete'|translate}}</a>
+            &nbsp;
+            <a *ngIf="exchange.upgradeable" href="javascript:void(0)"
+            (click)="toUpgrade(exchange, 'Exchange')">{{'CommonlyUse.Upgrade'|translate}}</a>
+          </td>
+          </tr>
       </tbody>
     </table>
     <br>
@@ -174,7 +179,12 @@
               [class.label-warning]="cluster.status===3||cluster.status===4">{{constantGather('participantFATEstatus',
               cluster.status).name | translate}}</span></td>
           <td><a href="javascript:void(0)"
-              (click)="openDeleteConfrimModal('cluster',cluster.uuid)">{{'CommonlyUse.delete'|translate}}</a></td>
+              (click)="openDeleteConfrimModal('cluster',cluster.uuid)">{{'CommonlyUse.delete'|translate}}</a>
+              &nbsp;
+              <a *ngIf="cluster.upgradeable" href="javascript:void(0)"
+              (click)="toUpgrade(cluster, 'Cluster')">{{'CommonlyUse.Upgrade'|translate}}</a>
+    
+          </td>
         </tr>
       </tbody>
       <tbody *ngIf="!clusterlist || clusterlist.length < 1">
