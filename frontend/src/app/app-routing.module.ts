@@ -34,6 +34,7 @@ import { TimeOutServiceComponent } from './components/time-out-service/time-out-
 import { DirectorNewComponent } from './view/openfl/director-new/director-new.component'
 import { DirectorDetailComponent } from './view/openfl/director-detail/director-detail.component'
 import { EnvoyDetailComponent } from './view/openfl/envoy-detail/envoy-detail.component';
+import { ExchangeClusterUpgradeComponent } from './view/federation/exchange-cluster-upgrade/exchange-cluster-upgrade.component';
 import { AuthService } from './services/common/auth.service';
 import { RouterGuard } from './router-guard';
 
@@ -170,6 +171,14 @@ const routes: Routes = [
         },
 
         component: ClusterDetailComponent
+      },
+      {
+        path: 'federation/fate/:id/detail/:uuid/:name/upgrade',
+        data: {
+          preload: true
+        },
+
+        component: ExchangeClusterUpgradeComponent
       },
       {
         path: 'federation/openfl/:id/envoy/detail/:envoy_uuid',
