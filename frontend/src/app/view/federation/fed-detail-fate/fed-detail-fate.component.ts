@@ -189,8 +189,8 @@ export class FedDetailFateComponent implements OnInit {
   }
 
   // Exchange and cluster jump to the upgrade page through toUpgrade
-  toUpgrade(item: {uuid: string, name: string}, type: string) {
-    this.router.navigate(['/federation', 'fate', this.uuid, 'detail', item.uuid, type+'-'+item.name, 'upgrade'])
+  toUpgrade(item: {uuid: string, name: string, version: string}, type: string) {
+    this.router.navigate(['/federation', 'fate', this.uuid, 'detail', item.uuid, item.version, type+'-'+item.name, 'upgrade'])
   }
 
 }
