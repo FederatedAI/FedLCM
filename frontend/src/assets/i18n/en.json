@@ -214,7 +214,8 @@
     "noexchange": "No exchange, please add one.",
     "noactiveexchange": "You should have an active exchange to create cluster.",
     "accessInfo": "Exposed Services",
-    "forceRemove": "Force remove"
+    "forceRemove": "Force remove",
+    "currentVersion": "Current version"
   },
   "NewCluster": {
     "name": "Create a New Cluster",

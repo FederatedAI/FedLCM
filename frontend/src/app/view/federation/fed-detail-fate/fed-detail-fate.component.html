@@ -63,6 +63,7 @@
           <th *ngIf="exchange?.is_managed"><span>{{'EndpointMg.name'|translate}}</span></th>
           <th *ngIf="exchange?.is_managed"><span>{{'InfraProvider.name'|translate}}</span></th>
           <th *ngIf="exchange?.is_managed"><span>{{'NewCluster.namespace'| translate}}</span></th>
+          <th><span>{{'CommonlyUse.version'| translate}}</span></th>
           <th><span>{{'CommonlyUse.status'|translate}}</span></th>
           <th><span>{{'CommonlyUse.action'|translate}}</span></th>
         </tr>
@@ -99,6 +100,7 @@
           <td *ngIf="exchange?.is_managed">{{exchange.endpoint_name}}</td>
           <td *ngIf="exchange?.is_managed">{{exchange.infra_provider_name}}</td>
           <td *ngIf="exchange?.is_managed">{{exchange.namespace}}</td>
+          <td>{{exchange.version}}</td>
           <td><span class="label" [class.label-info]="exchange.status===2" [class.label-success]="exchange.status===1"
               [class.label-danger]="exchange.status===5"
               [class.label-warning]="exchange.status===3||exchange.status===4">{{constantGather('participantFATEstatus',
@@ -134,6 +136,7 @@
           <th><span>{{'EndpointMg.name'|translate}}</span></th>
           <th><span>{{'InfraProvider.name'|translate}}</span></th>
           <th><span>{{'NewCluster.namespace'| translate}}</span></th>
+          <th><span>{{'CommonlyUse.version'| translate}}</span></th>
           <th><span>{{'FederationDetail.partyId'|translate}}</span></th>
           <th><span>{{'CommonlyUse.status'|translate}}</span></th>
           <th><span>{{'CommonlyUse.action'|translate}}</span></th>
@@ -173,6 +176,7 @@
           <td>{{cluster.endpoint_name}}</td>
           <td>{{cluster.infra_provider_name}}</td>
           <td>{{cluster.namespace}}</td>
+          <td>{{cluster.version}}</td>
           <td>{{cluster.party_id}}</td>
           <td><span class="label" [class.label-info]="cluster.status===2" [class.label-success]="cluster.status===1"
               [class.label-danger]="cluster.status===5"
