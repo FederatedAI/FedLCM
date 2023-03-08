@@ -16,7 +16,9 @@ export class ExchangeClusterUpgradeComponent implements OnInit {
   title = ''
   fedUuid = ''
   upgradeUuid = ''
+  version = ''
   type!: 'cluster' | 'exchange'
+  submiting = false
   constructor(private formBuilder: FormBuilder, private fedservice: FedService, private route: ActivatedRoute, private router: Router) { 
     this.form = this.formBuilder.group({
       version: this.formBuilder.group({
@@ -31,6 +33,7 @@ export class ExchangeClusterUpgradeComponent implements OnInit {
         this.title  = value.name
         this.fedUuid  = value.id
         this.upgradeUuid  = value.uuid
+        this.version = value.version
         this.type = this.title.split('-')[0].toLocaleLowerCase() as 'cluster' | 'exchange'
         this.getExchangeClusterUpgradeVersionList(this.fedUuid, this.upgradeUuid, this.type)
       }
@@ -46,13 +49,16 @@ export class ExchangeClusterUpgradeComponent implements OnInit {
   }
 
   upgradeExchangeCluster(fed_uuid: string, upgrade_uuid: string, type: 'cluster' | 'exchange') {
+    this.submiting = true
     this.fedservice.upgradeExchangeCluster(fed_uuid, upgrade_uuid, type, {upgradeVersion: this.form.controls['version'].get('version')?.value}).subscribe(
       data => {
         this.router.navigate(['federation', 'fate', this.fedUuid, this.type, 'detail', this.upgradeUuid])
+        this.submiting = false
       },
       err => {
         this.errorMessage = err.error.message;
         this.isShowChartFailed = true
+        this.submiting = false
       }
     )
   }

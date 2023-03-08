@@ -173,7 +173,7 @@ const routes: Routes = [
         component: ClusterDetailComponent
       },
       {
-        path: 'federation/fate/:id/detail/:uuid/:name/upgrade',
+        path: 'federation/fate/:id/detail/:uuid/:version/:name/upgrade',
         data: {
           preload: true
         },
