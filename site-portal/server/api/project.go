@@ -130,14 +130,14 @@ func (controller *ProjectController) Route(r *gin.RouterGroup) {
 }
 
 // create Create a new local project
-// @Summary Create a new project
-// @Tags Project
-// @Produce json
-// @Param project body service.ProjectCreationRequest true "Basic project info"
-// @Success 200 {object} GeneralResponse{} "Success"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /project [post]
+//	@Summary	Create a new project
+//	@Tags		Project
+//	@Produce	json
+//	@Param		project	body		service.ProjectCreationRequest	true	"Basic project info"
+//	@Success	200		{object}	GeneralResponse{}				"Success"
+//	@Failure	401		{object}	GeneralResponse					"Unauthorized operation"
+//	@Failure	500		{object}	GeneralResponse{code=int}		"Internal server error"
+//	@Router		/project [post]
 func (controller *ProjectController) create(c *gin.Context) {
 	if err := func() error {
 		claims := jwt.ExtractClaims(c)
@@ -166,13 +166,13 @@ func (controller *ProjectController) create(c *gin.Context) {
 }
 
 // list returns all projects
-// @Summary List all project
-// @Tags Project
-// @Produce json
-// @Success 200 {object} GeneralResponse{data=service.ProjectList} "Success"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /project [get]
+//	@Summary	List all project
+//	@Tags		Project
+//	@Produce	json
+//	@Success	200	{object}	GeneralResponse{data=service.ProjectList}	"Success"
+//	@Failure	401	{object}	GeneralResponse								"Unauthorized operation"
+//	@Failure	500	{object}	GeneralResponse{code=int}					"Internal server error"
+//	@Router		/project [get]
 func (controller *ProjectController) list(c *gin.Context) {
 	if projectList, err := controller.projectApp.List(); err != nil {
 		resp := &GeneralResponse{
@@ -190,15 +190,15 @@ func (controller *ProjectController) list(c *gin.Context) {
 }
 
 // listParticipants returns all participants
-// @Summary List participants
-// @Tags Project
-// @Produce json
-// @Param uuid path string true "project UUID"
-// @Param all query bool false "if set to true, returns all sites, including not joined ones"
-// @Success 200 {object} GeneralResponse{data=[]service.ProjectParticipant} "Success"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /project/{uuid}/participant [get]
+//	@Summary	List participants
+//	@Tags		Project
+//	@Produce	json
+//	@Param		uuid	path		string												true	"project UUID"
+//	@Param		all		query		bool												false	"if set to true, returns all sites, including not joined ones"
+//	@Success	200		{object}	GeneralResponse{data=[]service.ProjectParticipant}	"Success"
+//	@Failure	401		{object}	GeneralResponse										"Unauthorized operation"
+//	@Failure	500		{object}	GeneralResponse{code=int}							"Internal server error"
+//	@Router		/project/{uuid}/participant [get]
 func (controller *ProjectController) listParticipants(c *gin.Context) {
 	queryAll, err := strconv.ParseBool(c.DefaultQuery("all", "false"))
 	if err != nil {
@@ -221,15 +221,15 @@ func (controller *ProjectController) listParticipants(c *gin.Context) {
 }
 
 // inviteParticipant sends project invitation to other projects
-// @Summary Invite other site to this project
-// @Tags Project
-// @Produce json
-// @Param uuid path string true "project UUID"
-// @Param info body service.ProjectParticipantBase true "target site information"
-// @Success 200 {object} GeneralResponse{} "Success"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /project/{uuid}/invitation [post]
+//	@Summary	Invite other site to this project
+//	@Tags		Project
+//	@Produce	json
+//	@Param		uuid	path		string							true	"project UUID"
+//	@Param		info	body		service.ProjectParticipantBase	true	"target site information"
+//	@Success	200		{object}	GeneralResponse{}				"Success"
+//	@Failure	401		{object}	GeneralResponse					"Unauthorized operation"
+//	@Failure	500		{object}	GeneralResponse{code=int}		"Internal server error"
+//	@Router		/project/{uuid}/invitation [post]
 func (controller *ProjectController) inviteParticipant(c *gin.Context) {
 	if err := func() error {
 		projectUUID := c.Param("uuid")
@@ -253,14 +253,14 @@ func (controller *ProjectController) inviteParticipant(c *gin.Context) {
 }
 
 // handleInvitation process a project invitation
-// @Summary Process project invitation, called by FML manager only
-// @Tags Project
-// @Produce json
-// @Param invitation body service.ProjectInvitationRequest true "invitation request"
-// @Success 200 {object} GeneralResponse{} "Success"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /project/internal/invitation [post]
+//	@Summary	Process project invitation, called by FML manager only
+//	@Tags		Project
+//	@Produce	json
+//	@Param		invitation	body		service.ProjectInvitationRequest	true	"invitation request"
+//	@Success	200			{object}	GeneralResponse{}					"Success"
+//	@Failure	401			{object}	GeneralResponse						"Unauthorized operation"
+//	@Failure	500			{object}	GeneralResponse{code=int}			"Internal server error"
+//	@Router		/project/internal/invitation [post]
 func (controller *ProjectController) handleInvitation(c *gin.Context) {
 	if err := func() error {
 		invitationRequest := &service.ProjectInvitationRequest{}
@@ -283,15 +283,15 @@ func (controller *ProjectController) handleInvitation(c *gin.Context) {
 }
 
 // toggleAutoApproval changes project auto-approval status
-// @Summary Change a project's auto-approval status
-// @Tags Project
-// @Produce json
-// @Param status body service.ProjectAutoApprovalStatus true "The auto-approval status, only an 'enabled' field"
-// @Param uuid path string true "Project UUID"
-// @Success 200 {object} GeneralResponse "Success"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /project/{uuid}/autoapprovalstatus [put]
+//	@Summary	Change a project's auto-approval status
+//	@Tags		Project
+//	@Produce	json
+//	@Param		status	body		service.ProjectAutoApprovalStatus	true	"The auto-approval status, only an 'enabled' field"
+//	@Param		uuid	path		string								true	"Project UUID"
+//	@Success	200		{object}	GeneralResponse						"Success"
+//	@Failure	401		{object}	GeneralResponse						"Unauthorized operation"
+//	@Failure	500		{object}	GeneralResponse{code=int}			"Internal server error"
+//	@Router		/project/{uuid}/autoapprovalstatus [put]
 func (controller *ProjectController) toggleAutoApproval(c *gin.Context) {
 	if err := func() error {
 		projectUUID := c.Param("uuid")
@@ -315,14 +315,14 @@ func (controller *ProjectController) toggleAutoApproval(c *gin.Context) {
 }
 
 // get returns detailed information of a project
-// @Summary Get project's detailed info
-// @Tags Project
-// @Produce json
-// @Param uuid path string true "Project UUID"
-// @Success 200 {object} GeneralResponse{data=service.ProjectInfo} "Success"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /project/{uuid} [get]
+//	@Summary	Get project's detailed info
+//	@Tags		Project
+//	@Produce	json
+//	@Param		uuid	path		string										true	"Project UUID"
+//	@Success	200		{object}	GeneralResponse{data=service.ProjectInfo}	"Success"
+//	@Failure	401		{object}	GeneralResponse								"Unauthorized operation"
+//	@Failure	500		{object}	GeneralResponse{code=int}					"Internal server error"
+//	@Router		/project/{uuid} [get]
 func (controller *ProjectController) get(c *gin.Context) {
 	if project, err := func() (*service.ProjectInfo, error) {
 		projectUUID := c.Param("uuid")
@@ -343,14 +343,14 @@ func (controller *ProjectController) get(c *gin.Context) {
 }
 
 // joinProject joins a project
-// @Summary Join a pending/invited project
-// @Tags Project
-// @Produce json
-// @Param uuid path string true "Project UUID"
-// @Success 200 {object} GeneralResponse{} "Success"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /project/{uuid}/join [post]
+//	@Summary	Join a pending/invited project
+//	@Tags		Project
+//	@Produce	json
+//	@Param		uuid	path		string						true	"Project UUID"
+//	@Success	200		{object}	GeneralResponse{}			"Success"
+//	@Failure	401		{object}	GeneralResponse				"Unauthorized operation"
+//	@Failure	500		{object}	GeneralResponse{code=int}	"Internal server error"
+//	@Router		/project/{uuid}/join [post]
 func (controller *ProjectController) joinProject(c *gin.Context) {
 	if err := func() error {
 		projectUUID := c.Param("uuid")
@@ -370,14 +370,14 @@ func (controller *ProjectController) joinProject(c *gin.Context) {
 }
 
 // rejectProject joins a project
-// @Summary Reject to join a pending/invited project
-// @Tags Project
-// @Produce json
-// @Param uuid path string true "Project UUID"
-// @Success 200 {object} GeneralResponse{} "Success"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /project/{uuid}/reject [post]
+//	@Summary	Reject to join a pending/invited project
+//	@Tags		Project
+//	@Produce	json
+//	@Param		uuid	path		string						true	"Project UUID"
+//	@Success	200		{object}	GeneralResponse{}			"Success"
+//	@Failure	401		{object}	GeneralResponse				"Unauthorized operation"
+//	@Failure	500		{object}	GeneralResponse{code=int}	"Internal server error"
+//	@Router		/project/{uuid}/reject [post]
 func (controller *ProjectController) rejectProject(c *gin.Context) {
 	if err := func() error {
 		projectUUID := c.Param("uuid")
@@ -397,14 +397,14 @@ func (controller *ProjectController) rejectProject(c *gin.Context) {
 }
 
 // leaveProject leave the specified project
-// @Summary Leave the joined project created by other site
-// @Tags Project
-// @Produce json
-// @Param uuid path string true "Project UUID"
-// @Success 200 {object} GeneralResponse{} "Success"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /project/{uuid}/leave [post]
+//	@Summary	Leave the joined project created by other site
+//	@Tags		Project
+//	@Produce	json
+//	@Param		uuid	path		string						true	"Project UUID"
+//	@Success	200		{object}	GeneralResponse{}			"Success"
+//	@Failure	401		{object}	GeneralResponse				"Unauthorized operation"
+//	@Failure	500		{object}	GeneralResponse{code=int}	"Internal server error"
+//	@Router		/project/{uuid}/leave [post]
 func (controller *ProjectController) leaveProject(c *gin.Context) {
 	if err := func() error {
 		projectUUID := c.Param("uuid")
@@ -424,14 +424,14 @@ func (controller *ProjectController) leaveProject(c *gin.Context) {
 }
 
 // closeProject close the specified project
-// @Summary Close the managed project, only available to project managing site
-// @Tags Project
-// @Produce json
-// @Param uuid path string true "Project UUID"
-// @Success 200 {object} GeneralResponse{} "Success"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /project/{uuid}/close [post]
+//	@Summary	Close the managed project, only available to project managing site
+//	@Tags		Project
+//	@Produce	json
+//	@Param		uuid	path		string						true	"Project UUID"
+//	@Success	200		{object}	GeneralResponse{}			"Success"
+//	@Failure	401		{object}	GeneralResponse				"Unauthorized operation"
+//	@Failure	500		{object}	GeneralResponse{code=int}	"Internal server error"
+//	@Router		/project/{uuid}/close [post]
 func (controller *ProjectController) closeProject(c *gin.Context) {
 	if err := func() error {
 		projectUUID := c.Param("uuid")
@@ -451,14 +451,14 @@ func (controller *ProjectController) closeProject(c *gin.Context) {
 }
 
 // handleInvitationAcceptance process a project invitation acceptance
-// @Summary Process invitation acceptance response, called by FML manager only
-// @Tags Project
-// @Produce json
-// @Param uuid path string true "Invitation UUID"
-// @Success 200 {object} GeneralResponse{} "Success"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /project/internal/invitation/{uuid}/accept [post]
+//	@Summary	Process invitation acceptance response, called by FML manager only
+//	@Tags		Project
+//	@Produce	json
+//	@Param		uuid	path		string						true	"Invitation UUID"
+//	@Success	200		{object}	GeneralResponse{}			"Success"
+//	@Failure	401		{object}	GeneralResponse				"Unauthorized operation"
+//	@Failure	500		{object}	GeneralResponse{code=int}	"Internal server error"
+//	@Router		/project/internal/invitation/{uuid}/accept [post]
 func (controller *ProjectController) handleInvitationAcceptance(c *gin.Context) {
 	if err := func() error {
 		invitationUUID := c.Param("uuid")
@@ -478,14 +478,14 @@ func (controller *ProjectController) handleInvitationAcceptance(c *gin.Context) 
 }
 
 // handleInvitationRejection process a project invitation rejection
-// @Summary Process invitation rejection response, called by FML manager only
-// @Tags Project
-// @Produce json
-// @Param uuid path string true "Invitation UUID"
-// @Success 200 {object} GeneralResponse{} "Success"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /project/internal/invitation/{uuid}/reject [post]
+//	@Summary	Process invitation rejection response, called by FML manager only
+//	@Tags		Project
+//	@Produce	json
+//	@Param		uuid	path		string						true	"Invitation UUID"
+//	@Success	200		{object}	GeneralResponse{}			"Success"
+//	@Failure	401		{object}	GeneralResponse				"Unauthorized operation"
+//	@Failure	500		{object}	GeneralResponse{code=int}	"Internal server error"
+//	@Router		/project/internal/invitation/{uuid}/reject [post]
 func (controller *ProjectController) handleInvitationRejection(c *gin.Context) {
 	if err := func() error {
 		invitationUUID := c.Param("uuid")
@@ -505,14 +505,14 @@ func (controller *ProjectController) handleInvitationRejection(c *gin.Context) {
 }
 
 // handleInvitationRevocation process a project invitation revocation
-// @Summary Process invitation revocation request, called by FML manager only
-// @Tags Project
-// @Produce json
-// @Param uuid path string true "Invitation UUID"
-// @Success 200 {object} GeneralResponse{} "Success"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /project/internal/invitation/{uuid}/revoke [post]
+//	@Summary	Process invitation revocation request, called by FML manager only
+//	@Tags		Project
+//	@Produce	json
+//	@Param		uuid	path		string						true	"Invitation UUID"
+//	@Success	200		{object}	GeneralResponse{}			"Success"
+//	@Failure	401		{object}	GeneralResponse				"Unauthorized operation"
+//	@Failure	500		{object}	GeneralResponse{code=int}	"Internal server error"
+//	@Router		/project/internal/invitation/{uuid}/revoke [post]
 func (controller *ProjectController) handleInvitationRevocation(c *gin.Context) {
 	if err := func() error {
 		invitationUUID := c.Param("uuid")
@@ -532,15 +532,15 @@ func (controller *ProjectController) handleInvitationRevocation(c *gin.Context) 
 }
 
 // handleParticipantLeaving process a project participant removal event
-// @Summary Process participant leaving request, called by FML manager only
-// @Tags Project
-// @Produce json
-// @Param uuid     path string true "Project UUID"
-// @Param siteUUID path string true "Site UUID"
-// @Success 200 {object} GeneralResponse{} "Success"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /project/internal/{uuid}/participant/{siteUUID}/leave [post]
+//	@Summary	Process participant leaving request, called by FML manager only
+//	@Tags		Project
+//	@Produce	json
+//	@Param		uuid		path		string						true	"Project UUID"
+//	@Param		siteUUID	path		string						true	"Site UUID"
+//	@Success	200			{object}	GeneralResponse{}			"Success"
+//	@Failure	401			{object}	GeneralResponse				"Unauthorized operation"
+//	@Failure	500			{object}	GeneralResponse{code=int}	"Internal server error"
+//	@Router		/project/internal/{uuid}/participant/{siteUUID}/leave [post]
 func (controller *ProjectController) handleParticipantLeaving(c *gin.Context) {
 	if err := func() error {
 		projectUUID := c.Param("uuid")
@@ -561,15 +561,15 @@ func (controller *ProjectController) handleParticipantLeaving(c *gin.Context) {
 }
 
 // handleParticipantDismissal process a project participant dismissal event
-// @Summary Process participant dismissal event, called by FML manager only
-// @Tags Project
-// @Produce json
-// @Param uuid     path string true "Project UUID"
-// @Param siteUUID path string true "Site UUID"
-// @Success 200 {object} GeneralResponse{} "Success"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /project/internal/{uuid}/participant/{siteUUID}/dismiss [post]
+//	@Summary	Process participant dismissal event, called by FML manager only
+//	@Tags		Project
+//	@Produce	json
+//	@Param		uuid		path		string						true	"Project UUID"
+//	@Param		siteUUID	path		string						true	"Site UUID"
+//	@Success	200			{object}	GeneralResponse{}			"Success"
+//	@Failure	401			{object}	GeneralResponse				"Unauthorized operation"
+//	@Failure	500			{object}	GeneralResponse{code=int}	"Internal server error"
+//	@Router		/project/internal/{uuid}/participant/{siteUUID}/dismiss [post]
 func (controller *ProjectController) handleParticipantDismissal(c *gin.Context) {
 	if err := func() error {
 		projectUUID := c.Param("uuid")
@@ -590,15 +590,15 @@ func (controller *ProjectController) handleParticipantDismissal(c *gin.Context) 
 }
 
 // createParticipants receive participants info from FML manager
-// @Summary Create joined participants for a project, called by FML manager only
-// @Tags Project
-// @Produce json
-// @Param uuid path string true "Project UUID"
-// @Param participantList body []entity.ProjectParticipant true "participants list"
-// @Success 200 {object} GeneralResponse{} "Success"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /project/internal/{uuid}/participants [post]
+//	@Summary	Create joined participants for a project, called by FML manager only
+//	@Tags		Project
+//	@Produce	json
+//	@Param		uuid			path		string						true	"Project UUID"
+//	@Param		participantList	body		[]entity.ProjectParticipant	true	"participants list"
+//	@Success	200				{object}	GeneralResponse{}			"Success"
+//	@Failure	401				{object}	GeneralResponse				"Unauthorized operation"
+//	@Failure	500				{object}	GeneralResponse{code=int}	"Internal server error"
+//	@Router		/project/internal/{uuid}/participants [post]
 func (controller *ProjectController) createParticipants(c *gin.Context) {
 	if err := func() error {
 		projectUUID := c.Param("uuid")
@@ -622,15 +622,15 @@ func (controller *ProjectController) createParticipants(c *gin.Context) {
 }
 
 // removeParticipant remove pending or joined participant
-// @Summary Remove pending participant (revoke invitation) or dismiss joined participant
-// @Tags Project
-// @Produce json
-// @Param uuid path string true "Project UUID"
-// @Param participantUUID path string true "Participant UUID"
-// @Success 200 {object} GeneralResponse{} "Success"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /project/{uuid}/participant/{participantUUID} [delete]
+//	@Summary	Remove pending participant (revoke invitation) or dismiss joined participant
+//	@Tags		Project
+//	@Produce	json
+//	@Param		uuid			path		string						true	"Project UUID"
+//	@Param		participantUUID	path		string						true	"Participant UUID"
+//	@Success	200				{object}	GeneralResponse{}			"Success"
+//	@Failure	401				{object}	GeneralResponse				"Unauthorized operation"
+//	@Failure	500				{object}	GeneralResponse{code=int}	"Internal server error"
+//	@Router		/project/{uuid}/participant/{participantUUID} [delete]
 func (controller *ProjectController) removeParticipant(c *gin.Context) {
 	if err := func() error {
 		projectUUID := c.Param("uuid")
@@ -651,14 +651,14 @@ func (controller *ProjectController) removeParticipant(c *gin.Context) {
 }
 
 // handleParticipantInfoUpdate process a participant info update event
-// @Summary Process participant info update event, called by the FML manager only
-// @Tags Project
-// @Produce json
-// @Param participant body service.ProjectParticipantBase true "Updated participant info"
-// @Success 200 {object} GeneralResponse{} "Success"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /project/internal/event/participant/update [post]
+//	@Summary	Process participant info update event, called by the FML manager only
+//	@Tags		Project
+//	@Produce	json
+//	@Param		participant	body		service.ProjectParticipantBase	true	"Updated participant info"
+//	@Success	200			{object}	GeneralResponse{}				"Success"
+//	@Failure	401			{object}	GeneralResponse					"Unauthorized operation"
+//	@Failure	500			{object}	GeneralResponse{code=int}		"Internal server error"
+//	@Router		/project/internal/event/participant/update [post]
 func (controller *ProjectController) handleParticipantInfoUpdate(c *gin.Context) {
 	if err := func() error {
 		var participant service.ProjectParticipantBase
@@ -681,14 +681,14 @@ func (controller *ProjectController) handleParticipantInfoUpdate(c *gin.Context)
 }
 
 // listLocalAvailableData returns a list of local data that can be associated to current project
-// @Summary Get available local data for this project
-// @Tags Project
-// @Produce json
-// @Param uuid path string true "Project UUID"
-// @Success 200 {object} GeneralResponse{data=[]service.ProjectData} "Success"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /project/{uuid}/data/local [get]
+//	@Summary	Get available local data for this project
+//	@Tags		Project
+//	@Produce	json
+//	@Param		uuid	path		string										true	"Project UUID"
+//	@Success	200		{object}	GeneralResponse{data=[]service.ProjectData}	"Success"
+//	@Failure	401		{object}	GeneralResponse								"Unauthorized operation"
+//	@Failure	500		{object}	GeneralResponse{code=int}					"Internal server error"
+//	@Router		/project/{uuid}/data/local [get]
 func (controller *ProjectController) listLocalAvailableData(c *gin.Context) {
 	if data, err := func() ([]service.ProjectData, error) {
 		projectUUID := c.Param("uuid")
@@ -709,15 +709,15 @@ func (controller *ProjectController) listLocalAvailableData(c *gin.Context) {
 }
 
 // listData returns a list of associated data of current project
-// @Summary Get associated data list for this project
-// @Tags Project
-// @Produce json
-// @Param uuid path string true "Project UUID"
-// @Param participant query string false "participant uuid, i.e. the providing site uuid; if set, only returns the associated data of the specified participant"
-// @Success 200 {object} GeneralResponse{data=[]service.ProjectData} "Success"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /project/{uuid}/data [get]
+//	@Summary	Get associated data list for this project
+//	@Tags		Project
+//	@Produce	json
+//	@Param		uuid		path		string										true	"Project UUID"
+//	@Param		participant	query		string										false	"participant uuid, i.e. the providing site uuid; if set, only returns the associated data of the specified participant"
+//	@Success	200			{object}	GeneralResponse{data=[]service.ProjectData}	"Success"
+//	@Failure	401			{object}	GeneralResponse								"Unauthorized operation"
+//	@Failure	500			{object}	GeneralResponse{code=int}					"Internal server error"
+//	@Router		/project/{uuid}/data [get]
 func (controller *ProjectController) listData(c *gin.Context) {
 	if data, err := func() ([]service.ProjectData, error) {
 		projectUUID := c.Param("uuid")
@@ -739,15 +739,15 @@ func (controller *ProjectController) listData(c *gin.Context) {
 }
 
 // addData associate local data
-// @Summary Associate local data to current project
-// @Tags Project
-// @Produce json
-// @Param uuid path string true "project UUID"
-// @Param request body service.ProjectDataAssociationRequest true "Local data info"
-// @Success 200 {object} GeneralResponse{} "Success"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /project/{uuid}/data [post]
+//	@Summary	Associate local data to current project
+//	@Tags		Project
+//	@Produce	json
+//	@Param		uuid	path		string									true	"project UUID"
+//	@Param		request	body		service.ProjectDataAssociationRequest	true	"Local data info"
+//	@Success	200		{object}	GeneralResponse{}						"Success"
+//	@Failure	401		{object}	GeneralResponse							"Unauthorized operation"
+//	@Failure	500		{object}	GeneralResponse{code=int}				"Internal server error"
+//	@Router		/project/{uuid}/data [post]
 func (controller *ProjectController) addData(c *gin.Context) {
 	if err := func() error {
 		projectUUID := c.Param("uuid")
@@ -774,15 +774,15 @@ func (controller *ProjectController) addData(c *gin.Context) {
 }
 
 // removeData dismiss data association
-// @Summary Remove associated data from the current project
-// @Tags Project
-// @Produce json
-// @Param uuid path string true "Project UUID"
-// @Param dataUUID path string true "Data UUID"
-// @Success 200 {object} GeneralResponse{} "Success"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /project/{uuid}/data/{dataUUID} [delete]
+//	@Summary	Remove associated data from the current project
+//	@Tags		Project
+//	@Produce	json
+//	@Param		uuid		path		string						true	"Project UUID"
+//	@Param		dataUUID	path		string						true	"Data UUID"
+//	@Success	200			{object}	GeneralResponse{}			"Success"
+//	@Failure	401			{object}	GeneralResponse				"Unauthorized operation"
+//	@Failure	500			{object}	GeneralResponse{code=int}	"Internal server error"
+//	@Router		/project/{uuid}/data/{dataUUID} [delete]
 func (controller *ProjectController) removeData(c *gin.Context) {
 	if err := func() error {
 		projectUUID := c.Param("uuid")
@@ -806,15 +806,15 @@ func (controller *ProjectController) removeData(c *gin.Context) {
 }
 
 // handleRemoteDataAssociation associate remote data
-// @Summary Add associated remote data to current project, called by FML manager only
-// @Tags Project
-// @Produce json
-// @Param uuid path string true "project UUID"
-// @Param data body []entity.ProjectData true "Remote data information"
-// @Success 200 {object} GeneralResponse{} "Success"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /project/internal/{uuid}/data/associate [post]
+//	@Summary	Add associated remote data to current project, called by FML manager only
+//	@Tags		Project
+//	@Produce	json
+//	@Param		uuid	path		string						true	"project UUID"
+//	@Param		data	body		[]entity.ProjectData		true	"Remote data information"
+//	@Success	200		{object}	GeneralResponse{}			"Success"
+//	@Failure	401		{object}	GeneralResponse				"Unauthorized operation"
+//	@Failure	500		{object}	GeneralResponse{code=int}	"Internal server error"
+//	@Router		/project/internal/{uuid}/data/associate [post]
 func (controller *ProjectController) handleRemoteDataAssociation(c *gin.Context) {
 	if err := func() error {
 		projectUUID := c.Param("uuid")
@@ -841,15 +841,15 @@ func (controller *ProjectController) handleRemoteDataAssociation(c *gin.Context)
 }
 
 // handleRemoteDataDismissal dismiss remote data
-// @Summary Dismiss associated remote data from current project, called by FML manager only
-// @Tags Project
-// @Produce json
-// @Param uuid path string true "project UUID"
-// @Param data body []string true "Data UUID list"
-// @Success 200 {object} GeneralResponse{} "Success"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /project/internal/{uuid}/data/dismiss [post]
+//	@Summary	Dismiss associated remote data from current project, called by FML manager only
+//	@Tags		Project
+//	@Produce	json
+//	@Param		uuid	path		string						true	"project UUID"
+//	@Param		data	body		[]string					true	"Data UUID list"
+//	@Success	200		{object}	GeneralResponse{}			"Success"
+//	@Failure	401		{object}	GeneralResponse				"Unauthorized operation"
+//	@Failure	500		{object}	GeneralResponse{code=int}	"Internal server error"
+//	@Router		/project/internal/{uuid}/data/dismiss [post]
 func (controller *ProjectController) handleRemoteDataDismissal(c *gin.Context) {
 	if err := func() error {
 		projectUUID := c.Param("uuid")
@@ -876,14 +876,14 @@ func (controller *ProjectController) handleRemoteDataDismissal(c *gin.Context) {
 }
 
 // listJob returns a list of jobs in the current project
-// @Summary Get job list for this project
-// @Tags Project
-// @Produce json
-// @Param uuid path string true "Project UUID"
-// @Success 200 {object} GeneralResponse{data=[]service.JobListItemBase} "Success"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /project/{uuid}/job [get]
+//	@Summary	Get job list for this project
+//	@Tags		Project
+//	@Produce	json
+//	@Param		uuid	path		string											true	"Project UUID"
+//	@Success	200		{object}	GeneralResponse{data=[]service.JobListItemBase}	"Success"
+//	@Failure	401		{object}	GeneralResponse									"Unauthorized operation"
+//	@Failure	500		{object}	GeneralResponse{code=int}						"Internal server error"
+//	@Router		/project/{uuid}/job [get]
 func (controller *ProjectController) listJob(c *gin.Context) {
 	if data, err := func() ([]service.JobListItemBase, error) {
 		projectUUID := c.Param("uuid")
@@ -904,15 +904,15 @@ func (controller *ProjectController) listJob(c *gin.Context) {
 }
 
 // submitJob create new job
-// @Summary Create a new job
-// @Tags Project
-// @Produce json
-// @Param uuid path string true "project UUID"
-// @Param request body service.JobSubmissionRequest true "Job requests, only fill related field according to job type"
-// @Success 200 {object} GeneralResponse{data=service.JobListItemBase} "Success"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /project/{uuid}/job [post]
+//	@Summary	Create a new job
+//	@Tags		Project
+//	@Produce	json
+//	@Param		uuid	path		string											true	"project UUID"
+//	@Param		request	body		service.JobSubmissionRequest					true	"Job requests, only fill related field according to job type"
+//	@Success	200		{object}	GeneralResponse{data=service.JobListItemBase}	"Success"
+//	@Failure	401		{object}	GeneralResponse									"Unauthorized operation"
+//	@Failure	500		{object}	GeneralResponse{code=int}						"Internal server error"
+//	@Router		/project/{uuid}/job [post]
 func (controller *ProjectController) submitJob(c *gin.Context) {
 	if job, err := func() (*service.JobListItemBase, error) {
 		projectUUID := c.Param("uuid")
@@ -952,14 +952,14 @@ func (controller *ProjectController) submitJob(c *gin.Context) {
 }
 
 // listModel returns a list of models in the current project
-// @Summary Get model list for this project
-// @Tags Project
-// @Produce json
-// @Param uuid path string true "Project UUID"
-// @Success 200 {object} GeneralResponse{data=[]service.ModelListItem} "Success"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /project/{uuid}/model [get]
+//	@Summary	Get model list for this project
+//	@Tags		Project
+//	@Produce	json
+//	@Param		uuid	path		string											true	"Project UUID"
+//	@Success	200		{object}	GeneralResponse{data=[]service.ModelListItem}	"Success"
+//	@Failure	401		{object}	GeneralResponse									"Unauthorized operation"
+//	@Failure	500		{object}	GeneralResponse{code=int}						"Internal server error"
+//	@Router		/project/{uuid}/model [get]
 func (controller *ProjectController) listModel(c *gin.Context) {
 	if data, err := func() ([]service.ModelListItem, error) {
 		projectUUID := c.Param("uuid")
@@ -980,14 +980,14 @@ func (controller *ProjectController) listModel(c *gin.Context) {
 }
 
 // handleProjectClosing process a project closing event
-// @Summary Process project closing event, called by FML manager only
-// @Tags Project
-// @Produce json
-// @Param uuid     path string true "Project UUID"
-// @Success 200 {object} GeneralResponse{} "Success"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /project/internal/{uuid}/close [post]
+//	@Summary	Process project closing event, called by FML manager only
+//	@Tags		Project
+//	@Produce	json
+//	@Param		uuid	path		string						true	"Project UUID"
+//	@Success	200		{object}	GeneralResponse{}			"Success"
+//	@Failure	401		{object}	GeneralResponse				"Unauthorized operation"
+//	@Failure	500		{object}	GeneralResponse{code=int}	"Internal server error"
+//	@Router		/project/internal/{uuid}/close [post]
 func (controller *ProjectController) handleProjectClosing(c *gin.Context) {
 	if err := func() error {
 		projectUUID := c.Param("uuid")
@@ -1007,14 +1007,14 @@ func (controller *ProjectController) handleProjectClosing(c *gin.Context) {
 }
 
 // handleParticipantSync process a participant info sync event
-// @Summary Process participant info sync event, to sync the participant info from fml manager
-// @Tags Project
-// @Produce json
-// @Param request body service.ProjectResourceSyncRequest true "Info of the project to by synced"
-// @Success 200 {object} GeneralResponse{} "Success"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /project/internal/event/participant/sync [post]
+//	@Summary	Process participant info sync event, to sync the participant info from fml manager
+//	@Tags		Project
+//	@Produce	json
+//	@Param		request	body		service.ProjectResourceSyncRequest	true	"Info of the project to by synced"
+//	@Success	200		{object}	GeneralResponse{}					"Success"
+//	@Failure	401		{object}	GeneralResponse						"Unauthorized operation"
+//	@Failure	500		{object}	GeneralResponse{code=int}			"Internal server error"
+//	@Router		/project/internal/event/participant/sync [post]
 func (controller *ProjectController) handleParticipantSync(c *gin.Context) {
 	if err := func() error {
 		var event service.ProjectResourceSyncRequest
@@ -1037,14 +1037,14 @@ func (controller *ProjectController) handleParticipantSync(c *gin.Context) {
 }
 
 // handleDataSync process a data association sync event
-// @Summary Process data sync event, to sync the data association info from fml manager
-// @Tags Project
-// @Produce json
-// @Param request body service.ProjectResourceSyncRequest true "Info of the project to by synced"
-// @Success 200 {object} GeneralResponse{} "Success"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /project/internal/event/data/sync [post]
+//	@Summary	Process data sync event, to sync the data association info from fml manager
+//	@Tags		Project
+//	@Produce	json
+//	@Param		request	body		service.ProjectResourceSyncRequest	true	"Info of the project to by synced"
+//	@Success	200		{object}	GeneralResponse{}					"Success"
+//	@Failure	401		{object}	GeneralResponse						"Unauthorized operation"
+//	@Failure	500		{object}	GeneralResponse{code=int}			"Internal server error"
+//	@Router		/project/internal/event/data/sync [post]
 func (controller *ProjectController) handleDataSync(c *gin.Context) {
 	if err := func() error {
 		var event service.ProjectResourceSyncRequest
@@ -1067,13 +1067,13 @@ func (controller *ProjectController) handleDataSync(c *gin.Context) {
 }
 
 // handleProjectListSync process a project list sync event
-// @Summary Process list sync event, to sync the projects list status from fml manager
-// @Tags Project
-// @Produce json
-// @Success 200 {object} GeneralResponse{} "Success"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /project/internal/event/list/sync [post]
+//	@Summary	Process list sync event, to sync the projects list status from fml manager
+//	@Tags		Project
+//	@Produce	json
+//	@Success	200	{object}	GeneralResponse{}			"Success"
+//	@Failure	401	{object}	GeneralResponse				"Unauthorized operation"
+//	@Failure	500	{object}	GeneralResponse{code=int}	"Internal server error"
+//	@Router		/project/internal/event/list/sync [post]
 func (controller *ProjectController) handleProjectListSync(c *gin.Context) {
 	if err := controller.projectApp.SyncProject(); err != nil {
 		resp := &GeneralResponse{
@@ -1090,14 +1090,14 @@ func (controller *ProjectController) handleProjectListSync(c *gin.Context) {
 }
 
 // handleParticipantUnregistration process a project participant unregistration event
-// @Summary Process participant unregistration event, called by FML manager only
-// @Tags Project
-// @Produce json
-// @Param siteUUID path string true "Participant Site UUID"
-// @Success 200 {object} GeneralResponse{} "Success"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /project/internal/all/participant/{siteUUID}/unregister [post]
+//	@Summary	Process participant unregistration event, called by FML manager only
+//	@Tags		Project
+//	@Produce	json
+//	@Param		siteUUID	path		string						true	"Participant Site UUID"
+//	@Success	200			{object}	GeneralResponse{}			"Success"
+//	@Failure	401			{object}	GeneralResponse				"Unauthorized operation"
+//	@Failure	500			{object}	GeneralResponse{code=int}	"Internal server error"
+//	@Router		/project/internal/all/participant/{siteUUID}/unregister [post]
 func (controller *ProjectController) handleParticipantUnregistration(c *gin.Context) {
 	if err := func() error {
 		siteUUID := c.Param("siteUUID")

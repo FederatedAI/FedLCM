@@ -587,7 +587,7 @@ func (c *client) parseResponse(response *http.Response) ([]byte, error) {
 		log.Error().Err(err).Msg("read response body error")
 		return body, err
 	}
-	log.Info().Str("body", string(body)).Msg("response body")
+	log.Debug().Str("body", string(body)).Msg("response body")
 	if response.StatusCode != http.StatusOK {
 		log.Error().Msgf("request error: %s", response.Status)
 		m := make(map[string]string)
