@@ -26,6 +26,7 @@ import (
 	"github.com/FederatedAI/FedLCM/server/domain/valueobject"
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
+	"github.com/rs/zerolog/log"
 )
 
 // FederationController handles federation related APIs
@@ -106,6 +107,13 @@ func (controller *FederationController) Route(r *gin.RouterGroup) {
 
 		fate.GET("/:uuid/exchange/:exchangeUUID", controller.getFATEExchange)
 		fate.GET("/:uuid/cluster/:clusterUUID", controller.getFATECluster)
+
+		fate.GET("/:uuid/exchange/:exchangeUUID/upgrade", controller.getFATEExchangeUpgrade)
+		fate.GET("/:uuid/cluster/:clusterUUID/upgrade", controller.getFATEClusterUpgrade)
+
+		fate.POST("/:uuid/exchange/:exchangeUUID/upgrade", controller.upgradeFATEExchange)
+		fate.POST("/:uuid/cluster/:clusterUUID/upgrade", controller.upgradeFATECluster)
+
 	}
 
 	openfl := federation.Group("openfl")
@@ -133,13 +141,14 @@ func (controller *FederationController) Route(r *gin.RouterGroup) {
 }
 
 // list returns the federation list
-// @Summary  Return federation list,
-// @Tags     Federation
-// @Produce  json
-// @Success  200  {object}  GeneralResponse{data=[]service.FederationListItem}  "Success"
-// @Failure  401  {object}  GeneralResponse                                     "Unauthorized operation"
-// @Failure  500  {object}  GeneralResponse{code=int}                           "Internal server error"
-// @Router   /federation [get]
+//
+// @Summary Return federation list,
+// @Tags    Federation
+// @Produce json
+// @Success 200 {object} GeneralResponse{data=[]service.FederationListItem} "Success"
+// @Failure 401 {object} GeneralResponse                                    "Unauthorized operation"
+// @Failure 500 {object} GeneralResponse{code=int}                          "Internal server error"
+// @Router  /federation [get]
 func (controller *FederationController) list(c *gin.Context) {
 	if federationList, err := func() ([]service.FederationListItem, error) {
 		return controller.federationApp.List()
@@ -161,14 +170,15 @@ func (controller *FederationController) list(c *gin.Context) {
 }
 
 // createFATE creates a new FATE federation
-// @Summary  Create a new FATE federation
-// @Tags     Federation
-// @Produce  json
-// @Param    federation  body      service.FederationFATECreationRequest  true  "The federation info"
-// @Success  200         {object}  GeneralResponse                        "Success, the data field is the created federation's uuid"
-// @Failure  401         {object}  GeneralResponse                        "Unauthorized operation"
-// @Failure  500         {object}  GeneralResponse{code=int}              "Internal server error"
-// @Router   /federation/fate [post]
+//
+// @Summary Create a new FATE federation
+// @Tags    Federation
+// @Produce json
+// @Param   federation body     service.FederationFATECreationRequest true "The federation info"
+// @Success 200        {object} GeneralResponse                       "Success, the data field is the created federation's uuid"
+// @Failure 401        {object} GeneralResponse                       "Unauthorized operation"
+// @Failure 500        {object} GeneralResponse{code=int}             "Internal server error"
+// @Router  /federation/fate [post]
 func (controller *FederationController) createFATE(c *gin.Context) {
 	if uuid, err := func() (string, error) {
 		creationInfo := &service.FederationFATECreationRequest{}
@@ -192,14 +202,15 @@ func (controller *FederationController) createFATE(c *gin.Context) {
 }
 
 // getFATE returns detailed information of a FATE federation
-// @Summary  Get specific info of a FATE federation
-// @Tags     Federation
-// @Produce  json
-// @Param    uuid  path      string                                              true  "federation UUID"
-// @Success  200   {object}  GeneralResponse{data=service.FederationFATEDetail}  "Success"
-// @Failure  401   {object}  GeneralResponse                                     "Unauthorized operation"
-// @Failure  500   {object}  GeneralResponse{code=int}                           "Internal server error"
-// @Router   /federation/fate/{uuid} [get]
+//
+// @Summary Get specific info of a FATE federation
+// @Tags    Federation
+// @Produce json
+// @Param   uuid path     string                                             true "federation UUID"
+// @Success 200  {object} GeneralResponse{data=service.FederationFATEDetail} "Success"
+// @Failure 401  {object} GeneralResponse                                    "Unauthorized operation"
+// @Failure 500  {object} GeneralResponse{code=int}                          "Internal server error"
+// @Router  /federation/fate/{uuid} [get]
 func (controller *FederationController) getFATE(c *gin.Context) {
 	uuid := c.Param("uuid")
 	if info, err := controller.federationApp.GetFATEFederation(uuid); err != nil {
@@ -218,14 +229,15 @@ func (controller *FederationController) getFATE(c *gin.Context) {
 }
 
 // deleteFATE deletes the specified federation
-// @Summary  Delete a FATE federation
-// @Tags     Federation
-// @Produce  json
-// @Param    uuid  path      string                     true  "federation UUID"
-// @Success  200   {object}  GeneralResponse            "Success"
-// @Failure  401   {object}  GeneralResponse            "Unauthorized operation"
-// @Failure  500   {object}  GeneralResponse{code=int}  "Internal server error"
-// @Router   /federation/fate/{uuid} [delete]
+//
+// @Summary Delete a FATE federation
+// @Tags    Federation
+// @Produce json
+// @Param   uuid path     string                    true "federation UUID"
+// @Success 200  {object} GeneralResponse           "Success"
+// @Failure 401  {object} GeneralResponse           "Unauthorized operation"
+// @Failure 500  {object} GeneralResponse{code=int} "Internal server error"
+// @Router  /federation/fate/{uuid} [delete]
 func (controller *FederationController) deleteFATE(c *gin.Context) {
 	uuid := c.Param("uuid")
 	if err := controller.federationApp.DeleteFATEFederation(uuid); err != nil {
@@ -243,21 +255,22 @@ func (controller *FederationController) deleteFATE(c *gin.Context) {
 }
 
 // getFATEExchangeDeploymentYAML returns deployment yaml content for deploying FATE exchange
-// @Summary  Get FATE exchange deployment yaml
-// @Tags     Federation
-// @Produce  json
-// @Param    chart_uuid           query     string                        true  "the chart uuid"
-// @Param    name                 query     string                        true  "name of the deployment"
-// @Param    namespace            query     string                        true  "namespace of the deployment"
-// @Param    service_type         query     int                           true  "type of the service to be exposed 1: LoadBalancer 2: NodePort"
-// @Param    registry             query     string                        true  "FATE registry config saved in the infra provider"
-// @Param    use_registry         query     bool                          true  "choose if use the customized registry config"
-// @Param    use_registry_secret  query     bool                          true  "choose if use the customized registry secret"
-// @Param    enable_psp           query     bool                          true  "choose if enable the podSecurityPolicy"
-// @Success  200                  {object}  GeneralResponse{data=string}  "Success, the data field is the yaml content"
-// @Failure  401                  {object}  GeneralResponse               "Unauthorized operation"
-// @Failure  500                  {object}  GeneralResponse{code=int}     "Internal server error"
-// @Router   /federation/fate/exchange/yaml [get]
+//
+// @Summary Get FATE exchange deployment yaml
+// @Tags    Federation
+// @Produce json
+// @Param   chart_uuid          query    string                       true "the chart uuid"
+// @Param   name                query    string                       true "name of the deployment"
+// @Param   namespace           query    string                       true "namespace of the deployment"
+// @Param   service_type        query    int                          true "type of the service to be exposed 1: LoadBalancer 2: NodePort"
+// @Param   registry            query    string                       true "FATE registry config saved in the infra provider"
+// @Param   use_registry        query    bool                         true "choose if use the customized registry config"
+// @Param   use_registry_secret query    bool                         true "choose if use the customized registry secret"
+// @Param   enable_psp          query    bool                         true "choose if enable the podSecurityPolicy"
+// @Success 200                 {object} GeneralResponse{data=string} "Success, the data field is the yaml content"
+// @Failure 401                 {object} GeneralResponse              "Unauthorized operation"
+// @Failure 500                 {object} GeneralResponse{code=int}    "Internal server error"
+// @Router  /federation/fate/exchange/yaml [get]
 func (controller *FederationController) getFATEExchangeDeploymentYAML(c *gin.Context) {
 	if yaml, err := func() (string, error) {
 		chartUUID := c.DefaultQuery("chart_uuid", "")
@@ -314,15 +327,16 @@ func (controller *FederationController) getFATEExchangeDeploymentYAML(c *gin.Con
 }
 
 // createFATEExchange creates a new FATE exchange
-// @Summary  Create a new FATE exchange
-// @Tags     Federation
-// @Produce  json
-// @Param    uuid             path      string                                          true  "federation UUID"
-// @Param    creationRequest  body      service.ParticipantFATEExchangeCreationRequest  true  "The creation requests"
-// @Success  200              {object}  GeneralResponse                                 "Success, the data field is the created exchange's uuid"
-// @Failure  401              {object}  GeneralResponse                                 "Unauthorized operation"
-// @Failure  500              {object}  GeneralResponse{code=int}                       "Internal server error"
-// @Router   /federation/fate/:uuid/exchange [post]
+//
+// @Summary Create a new FATE exchange
+// @Tags    Federation
+// @Produce json
+// @Param   uuid            path     string                                         true "federation UUID"
+// @Param   creationRequest body     service.ParticipantFATEExchangeCreationRequest true "The creation requests"
+// @Success 200             {object} GeneralResponse                                "Success, the data field is the created exchange's uuid"
+// @Failure 401             {object} GeneralResponse                                "Unauthorized operation"
+// @Failure 500             {object} GeneralResponse{code=int}                      "Internal server error"
+// @Router  /federation/fate/:uuid/exchange [post]
 func (controller *FederationController) createFATEExchange(c *gin.Context) {
 	if exchangeUUID, err := func() (string, error) {
 		federationUUID := c.Param("uuid")
@@ -348,15 +362,16 @@ func (controller *FederationController) createFATEExchange(c *gin.Context) {
 }
 
 // createExternalFATEExchange creates an external FATE exchange
-// @Summary  Create an external FATE exchange
-// @Tags     Federation
-// @Produce  json
-// @Param    uuid             path      string                                                        true  "federation UUID"
-// @Param    creationRequest  body      domainService.ParticipantFATEExternalExchangeCreationRequest  true  "The creation requests"
-// @Success  200              {object}  GeneralResponse                                               "Success, the data field is the created exchange's uuid"
-// @Failure  401              {object}  GeneralResponse                                               "Unauthorized operation"
-// @Failure  500              {object}  GeneralResponse{code=int}                                     "Internal server error"
-// @Router   /federation/fate/:uuid/exchange/external [post]
+//
+// @Summary Create an external FATE exchange
+// @Tags    Federation
+// @Produce json
+// @Param   uuid            path     string                                                       true "federation UUID"
+// @Param   creationRequest body     domainService.ParticipantFATEExternalExchangeCreationRequest true "The creation requests"
+// @Success 200             {object} GeneralResponse                                              "Success, the data field is the created exchange's uuid"
+// @Failure 401             {object} GeneralResponse                                              "Unauthorized operation"
+// @Failure 500             {object} GeneralResponse{code=int}                                    "Internal server error"
+// @Router  /federation/fate/:uuid/exchange/external [post]
 func (controller *FederationController) createExternalFATEExchange(c *gin.Context) {
 	if exchangeUUID, err := func() (string, error) {
 		federationUUID := c.Param("uuid")
@@ -382,14 +397,15 @@ func (controller *FederationController) createExternalFATEExchange(c *gin.Contex
 }
 
 // getFATEParticipant returns participant list of the specified federation
-// @Summary  Get participant list of the specified federation
-// @Tags     Federation
-// @Produce  json
-// @Param    uuid  path      string                                                         true  "federation UUID"
-// @Success  200   {object}  GeneralResponse{data=service.ParticipantFATEListInFederation}  "Success"
-// @Failure  401   {object}  GeneralResponse                                                "Unauthorized operation"
-// @Failure  500   {object}  GeneralResponse{code=int}                                      "Internal server error"
-// @Router   /federation/fate/{uuid}/participant [get]
+//
+// @Summary Get participant list of the specified federation
+// @Tags    Federation
+// @Produce json
+// @Param   uuid path     string                                                        true "federation UUID"
+// @Success 200  {object} GeneralResponse{data=service.ParticipantFATEListInFederation} "Success"
+// @Failure 401  {object} GeneralResponse                                               "Unauthorized operation"
+// @Failure 500  {object} GeneralResponse{code=int}                                     "Internal server error"
+// @Router  /federation/fate/{uuid}/participant [get]
 func (controller *FederationController) getFATEParticipant(c *gin.Context) {
 	if participants, err := func() (*service.ParticipantFATEListInFederation, error) {
 		federationUUID := c.Param("uuid")
@@ -410,16 +426,17 @@ func (controller *FederationController) getFATEParticipant(c *gin.Context) {
 }
 
 // deleteFATEExchange deletes the specified FATE exchange
-// @Summary  Delete a FATE exchange
-// @Tags     Federation
-// @Produce  json
-// @Param    uuid          path      string                     true   "federation UUID"
-// @Param    exchangeUUID  path      string                     true   "exchange UUID"
-// @Param    force         query     bool                       false  "if set to true, will try to remove the exchange forcefully"
-// @Success  200           {object}  GeneralResponse            "Success"
-// @Failure  401           {object}  GeneralResponse            "Unauthorized operation"
-// @Failure  500           {object}  GeneralResponse{code=int}  "Internal server error"
-// @Router   /federation/fate/{uuid}/exchange/{exchangeUUID} [delete]
+//
+// @Summary Delete a FATE exchange
+// @Tags    Federation
+// @Produce json
+// @Param   uuid         path     string                    true  "federation UUID"
+// @Param   exchangeUUID path     string                    true  "exchange UUID"
+// @Param   force        query    bool                      false "if set to true, will try to remove the exchange forcefully"
+// @Success 200          {object} GeneralResponse           "Success"
+// @Failure 401          {object} GeneralResponse           "Unauthorized operation"
+// @Failure 500          {object} GeneralResponse{code=int} "Internal server error"
+// @Router  /federation/fate/{uuid}/exchange/{exchangeUUID} [delete]
 func (controller *FederationController) deleteFATEExchange(c *gin.Context) {
 	exchangeUUID := c.Param("exchangeUUID")
 	if err := func() error {
@@ -443,43 +460,44 @@ func (controller *FederationController) deleteFATEExchange(c *gin.Context) {
 }
 
 // getFATEClusterDeploymentYAML returns deployment yaml content for deploying FATE cluster
-// @Summary  Get FATE cluster deployment yaml
-// @Tags     Federation
-// @Produce  json
-// @Param    chart_uuid                            query     string                        true   "the chart uuid"
-// @Param    federation_uuid                       query     string                        true   "the federation uuid"
-// @Param    party_id                              query     int                           true   "party id"
-// @Param    name                                  query     string                        true   "name of the deployment"
-// @Param    namespace                             query     string                        true   "namespace of the deployment"
-// @Param    service_type                          query     int                           true   "type of the service to be exposed"
-// @Param    use_registry                          query     bool                          true   "choose if use the FATE registry config saved in the infra provider"
-// @Param    enable_external_spark                 query     bool                          true   "enable link an external Spark"
-// @Param    external_spark_cores_per_node         query     int                           true   "external Spark info"
-// @Param    external_spark_node                   query     int                           true   "external Spark info"
-// @Param    external_spark_master                 query     string                        true   "external Spark info"
-// @Param    external_spark_driverHost             query     string                        true   "external Spark info"
-// @Param    external_spark_driverHostType         query     string                        true   "external Spark info"
-// @Param    external_spark_portMaxRetries         query     int                           true   "external Spark info"
-// @Param    external_spark_driverStartPort        query     int                           true   "external Spark info"
-// @Param    external_spark_blockManagerStartPort  query     int                           true   "external spark info"
-// @Param    external_spark_pysparkPython          query     string                        false  "external spark info"
-// @Param    enable_external_hdfs                  query     bool                          true   "enable link an external HDFS"
-// @Param    external_hdfs_name_node               query     string                        true   "external HDFS info"
-// @Param    external_hdfs_path_prefix             query     string                        false  "external HDFS info"
-// @Param    enable_external_pulsar                query     bool                          true   "enable link an external Pulsar"
-// @Param    external_pulsar_host                  query     string                        true   "external Pulsar info"
-// @Param    external_pulsar_mng_port              query     int                           true   "external Pulsar info"
-// @Param    external_pulsar_port                  query     int                           true   "external Pulsar info"
-// @Param    external_pulsar_ssl_port              query     int                           true   "external Pulsar info"
-// @Param    use_registry_secret                   query     bool                          true   "choose if use the FATE registry secret saved in the infra provider"
-// @Param    registry                              query     string                        true   "FATE registry config saved in the infra provider"
-// @Param    enable_persistence                    query     bool                          true   "choose if use the persistent volume"
-// @Param    storage_class                         query     string                        true   "provide the name of StorageClass"
-// @Param    enable_psp                            query     bool                          true   "choose if enable the podSecurityPolicy"
-// @Success  200                                   {object}  GeneralResponse{data=string}  "Success, the data field is the yaml content"
-// @Failure  401                                   {object}  GeneralResponse               "Unauthorized operation"
-// @Failure  500                                   {object}  GeneralResponse{code=int}     "Internal server error"
-// @Router   /federation/fate/cluster/yaml [get]
+//
+// @Summary Get FATE cluster deployment yaml
+// @Tags    Federation
+// @Produce json
+// @Param   chart_uuid                           query    string                       true  "the chart uuid"
+// @Param   federation_uuid                      query    string                       true  "the federation uuid"
+// @Param   party_id                             query    int                          true  "party id"
+// @Param   name                                 query    string                       true  "name of the deployment"
+// @Param   namespace                            query    string                       true  "namespace of the deployment"
+// @Param   service_type                         query    int                          true  "type of the service to be exposed"
+// @Param   use_registry                         query    bool                         true  "choose if use the FATE registry config saved in the infra provider"
+// @Param   enable_external_spark                query    bool                         true  "enable link an external Spark"
+// @Param   external_spark_cores_per_node        query    int                          true  "external Spark info"
+// @Param   external_spark_node                  query    int                          true  "external Spark info"
+// @Param   external_spark_master                query    string                       true  "external Spark info"
+// @Param   external_spark_driverHost            query    string                       true  "external Spark info"
+// @Param   external_spark_driverHostType        query    string                       true  "external Spark info"
+// @Param   external_spark_portMaxRetries        query    int                          true  "external Spark info"
+// @Param   external_spark_driverStartPort       query    int                          true  "external Spark info"
+// @Param   external_spark_blockManagerStartPort query    int                          true  "external spark info"
+// @Param   external_spark_pysparkPython         query    string                       false "external spark info"
+// @Param   enable_external_hdfs                 query    bool                         true  "enable link an external HDFS"
+// @Param   external_hdfs_name_node              query    string                       true  "external HDFS info"
+// @Param   external_hdfs_path_prefix            query    string                       false "external HDFS info"
+// @Param   enable_external_pulsar               query    bool                         true  "enable link an external Pulsar"
+// @Param   external_pulsar_host                 query    string                       true  "external Pulsar info"
+// @Param   external_pulsar_mng_port             query    int                          true  "external Pulsar info"
+// @Param   external_pulsar_port                 query    int                          true  "external Pulsar info"
+// @Param   external_pulsar_ssl_port             query    int                          true  "external Pulsar info"
+// @Param   use_registry_secret                  query    bool                         true  "choose if use the FATE registry secret saved in the infra provider"
+// @Param   registry                             query    string                       true  "FATE registry config saved in the infra provider"
+// @Param   enable_persistence                   query    bool                         true  "choose if use the persistent volume"
+// @Param   storage_class                        query    string                       true  "provide the name of StorageClass"
+// @Param   enable_psp                           query    bool                         true  "choose if enable the podSecurityPolicy"
+// @Success 200                                  {object} GeneralResponse{data=string} "Success, the data field is the yaml content"
+// @Failure 401                                  {object} GeneralResponse              "Unauthorized operation"
+// @Failure 500                                  {object} GeneralResponse{code=int}    "Internal server error"
+// @Router  /federation/fate/cluster/yaml [get]
 func (controller *FederationController) getFATEClusterDeploymentYAML(c *gin.Context) {
 	if yaml, err := func() (string, error) {
 		chartUUID := c.DefaultQuery("chart_uuid", "")
@@ -640,15 +658,16 @@ func (controller *FederationController) getFATEClusterDeploymentYAML(c *gin.Cont
 }
 
 // createFATECluster creates a new FATE cluster
-// @Summary  Create a new FATE cluster
-// @Tags     Federation
-// @Produce  json
-// @Param    uuid             path      string                                         true  "federation UUID"
-// @Param    creationRequest  body      service.ParticipantFATEClusterCreationRequest  true  "The creation requests"
-// @Success  200              {object}  GeneralResponse                                "Success, the data field is the created cluster's uuid"
-// @Failure  401              {object}  GeneralResponse                                "Unauthorized operation"
-// @Failure  500              {object}  GeneralResponse{code=int}                      "Internal server error"
-// @Router   /federation/fate/:uuid/cluster [post]
+//
+// @Summary Create a new FATE cluster
+// @Tags    Federation
+// @Produce json
+// @Param   uuid            path     string                                        true "federation UUID"
+// @Param   creationRequest body     service.ParticipantFATEClusterCreationRequest true "The creation requests"
+// @Success 200             {object} GeneralResponse                               "Success, the data field is the created cluster's uuid"
+// @Failure 401             {object} GeneralResponse                               "Unauthorized operation"
+// @Failure 500             {object} GeneralResponse{code=int}                     "Internal server error"
+// @Router  /federation/fate/:uuid/cluster [post]
 func (controller *FederationController) createFATECluster(c *gin.Context) {
 	if exchangeUUID, err := func() (string, error) {
 		federationUUID := c.Param("uuid")
@@ -674,16 +693,17 @@ func (controller *FederationController) createFATECluster(c *gin.Context) {
 }
 
 // deleteFATECluster deletes the specified FATE cluster
-// @Summary  Delete a FATE cluster
-// @Tags     Federation
-// @Produce  json
-// @Param    uuid         path      string                     true   "federation UUID"
-// @Param    clusterUUID  path      string                     true   "cluster UUID"
-// @Param    force        query     bool                       false  "if set to true, will try to remove the cluster forcefully"
-// @Success  200          {object}  GeneralResponse            "Success"
-// @Failure  401          {object}  GeneralResponse            "Unauthorized operation"
-// @Failure  500          {object}  GeneralResponse{code=int}  "Internal server error"
-// @Router   /federation/fate/{uuid}/cluster/{clusterUUID} [delete]
+//
+// @Summary Delete a FATE cluster
+// @Tags    Federation
+// @Produce json
+// @Param   uuid        path     string                    true  "federation UUID"
+// @Param   clusterUUID path     string                    true  "cluster UUID"
+// @Param   force       query    bool                      false "if set to true, will try to remove the cluster forcefully"
+// @Success 200         {object} GeneralResponse           "Success"
+// @Failure 401         {object} GeneralResponse           "Unauthorized operation"
+// @Failure 500         {object} GeneralResponse{code=int} "Internal server error"
+// @Router  /federation/fate/{uuid}/cluster/{clusterUUID} [delete]
 func (controller *FederationController) deleteFATECluster(c *gin.Context) {
 	clusterUUID := c.Param("clusterUUID")
 	if err := func() error {
@@ -707,15 +727,16 @@ func (controller *FederationController) deleteFATECluster(c *gin.Context) {
 }
 
 // createExternalFATECluster creates an external FATE cluster
-// @Summary  Create an external FATE cluster
-// @Tags     Federation
-// @Produce  json
-// @Param    uuid             path      string                                                 true  "federation UUID"
-// @Param    creationRequest  body      service.ParticipantFATEExternalClusterCreationRequest  true  "The creation requests"
-// @Success  200              {object}  GeneralResponse                                        "Success, the data field is the created cluster's uuid"
-// @Failure  401              {object}  GeneralResponse                                        "Unauthorized operation"
-// @Failure  500              {object}  GeneralResponse{code=int}                              "Internal server error"
-// @Router   /federation/fate/:uuid/cluster/external [post]
+//
+// @Summary Create an external FATE cluster
+// @Tags    Federation
+// @Produce json
+// @Param   uuid            path     string                                                true "federation UUID"
+// @Param   creationRequest body     service.ParticipantFATEExternalClusterCreationRequest true "The creation requests"
+// @Success 200             {object} GeneralResponse                                       "Success, the data field is the created cluster's uuid"
+// @Failure 401             {object} GeneralResponse                                       "Unauthorized operation"
+// @Failure 500             {object} GeneralResponse{code=int}                             "Internal server error"
+// @Router  /federation/fate/:uuid/cluster/external [post]
 func (controller *FederationController) createExternalFATECluster(c *gin.Context) {
 	if clusterUUID, err := func() (string, error) {
 		federationUUID := c.Param("uuid")
@@ -741,15 +762,16 @@ func (controller *FederationController) createExternalFATECluster(c *gin.Context
 }
 
 // checkFATEPartyID checks if the party ID is available
-// @Summary  Check if the party ID is available
-// @Tags     Federation
-// @Produce  json
-// @Param    uuid      path      string                     true  "federation UUID"
-// @Param    party_id  query     int                        true  "party ID"
-// @Success  200       {object}  GeneralResponse            "Success"
-// @Failure  401       {object}  GeneralResponse            "Unauthorized operation"
-// @Failure  500       {object}  GeneralResponse{code=int}  "Internal server error"
-// @Router   /federation/fate/:uuid/partyID/check [post]
+//
+// @Summary Check if the party ID is available
+// @Tags    Federation
+// @Produce json
+// @Param   uuid     path     string                    true "federation UUID"
+// @Param   party_id query    int                       true "party ID"
+// @Success 200      {object} GeneralResponse           "Success"
+// @Failure 401      {object} GeneralResponse           "Unauthorized operation"
+// @Failure 500      {object} GeneralResponse{code=int} "Internal server error"
+// @Router  /federation/fate/:uuid/partyID/check [post]
 func (controller *FederationController) checkFATEPartyID(c *gin.Context) {
 	if err := func() error {
 		federationUUID := c.Param("uuid")
@@ -773,14 +795,15 @@ func (controller *FederationController) checkFATEPartyID(c *gin.Context) {
 }
 
 // getFATEExchange returns detailed information of a FATE exchange
-// @Summary  Get specific info of FATE Exchange
-// @Tags     Federation
-// @Produce  json
-// @Param    uuid  path      string                                            true  "federation UUID"
-// @Success  200   {object}  GeneralResponse{data=service.FATEExchangeDetail}  "Success"
-// @Failure  401   {object}  GeneralResponse                                   "Unauthorized operation"
-// @Failure  500   {object}  GeneralResponse{code=int}                         "Internal server error"
-// @Router   /federation/fate/{uuid}/exchange/{exchangeUUID} [get]
+//
+// @Summary Get specific info of FATE Exchange
+// @Tags    Federation
+// @Produce json
+// @Param   uuid path     string                                           true "federation UUID"
+// @Success 200  {object} GeneralResponse{data=service.FATEExchangeDetail} "Success"
+// @Failure 401  {object} GeneralResponse                                  "Unauthorized operation"
+// @Failure 500  {object} GeneralResponse{code=int}                        "Internal server error"
+// @Router  /federation/fate/{uuid}/exchange/{exchangeUUID} [get]
 func (controller *FederationController) getFATEExchange(c *gin.Context) {
 	exchangeUUID := c.Param("exchangeUUID")
 	if exchangeDetail, err := controller.participantAppService.GetFATEExchangeDetail(exchangeUUID); err != nil {
@@ -799,14 +822,15 @@ func (controller *FederationController) getFATEExchange(c *gin.Context) {
 }
 
 // getFATECluster returns detailed information of a FATE cluster
-// @Summary  Get specific info of FATE cluster
-// @Tags     Federation
-// @Produce  json
-// @Param    uuid  path      string                                           true  "federation UUID"
-// @Success  200   {object}  GeneralResponse{data=service.FATEClusterDetail}  "Success"
-// @Failure  401   {object}  GeneralResponse                                  "Unauthorized operation"
-// @Failure  500   {object}  GeneralResponse{code=int}                        "Internal server error"
-// @Router   /federation/fate/{uuid}/cluster/{clusterUUID} [get]
+//
+// @Summary Get specific info of FATE cluster
+// @Tags    Federation
+// @Produce json
+// @Param   uuid path     string                                          true "federation UUID"
+// @Success 200  {object} GeneralResponse{data=service.FATEClusterDetail} "Success"
+// @Failure 401  {object} GeneralResponse                                 "Unauthorized operation"
+// @Failure 500  {object} GeneralResponse{code=int}                       "Internal server error"
+// @Router  /federation/fate/{uuid}/cluster/{clusterUUID} [get]
 func (controller *FederationController) getFATECluster(c *gin.Context) {
 	clusterUUID := c.Param("clusterUUID")
 	if clusterDetail, err := controller.participantAppService.GetFATEClusterDetail(clusterUUID); err != nil {
@@ -819,6 +843,134 @@ func (controller *FederationController) getFATECluster(c *gin.Context) {
 		resp := &GeneralResponse{
 			Code: constants.RespNoErr,
 			Data: clusterDetail,
+		}
+		c.JSON(http.StatusOK, resp)
+	}
+}
+
+// getFATEExchangeUpgrade returns a FATE exchange upgradeable information
+//
+// @Summary Get specific info of FATE exchange
+// @Tags    Federation
+// @Produce json
+// @Param   uuid         path     string                                                   true "federation UUID"
+// @Param   exchangeUUID path     string                                                   true "exchange UUID"
+// @Success 200          {object} GeneralResponse{data=service.FATEClusterUpgradeableInfo} "Success"
+// @Failure 401          {object} GeneralResponse                                          "Unauthorized operation"
+// @Failure 500          {object} GeneralResponse{code=int}                                "Internal server error"
+// @Router  /federation/fate/{uuid}/exchange/{exchangeUUID}/upgrade [get]
+func (controller *FederationController) getFATEExchangeUpgrade(c *gin.Context) {
+	exchangeUUID := c.Param("exchangeUUID")
+	if FATEExchangeUpgradeDetail, err := controller.participantAppService.GetFATEExchangeUpgrade(exchangeUUID); err != nil {
+		resp := &GeneralResponse{
+			Code:    constants.RespInternalErr,
+			Message: err.Error(),
+		}
+		c.JSON(http.StatusInternalServerError, resp)
+	} else {
+		resp := &GeneralResponse{
+			Code: constants.RespNoErr,
+			Data: FATEExchangeUpgradeDetail,
+		}
+		c.JSON(http.StatusOK, resp)
+	}
+}
+
+// getFATEClusterUpgrade returns a FATE cluster upgradeable information
+//
+// @Summary Get the upgradeable information of the FATE cluster
+// @Tags    Federation
+// @Produce json
+// @Param   uuid        path     string                                                   true "federation UUID"
+// @Param   clusterUUID path     string                                                   true "cluster UUID"
+// @Success 200         {object} GeneralResponse{data=service.FATEClusterUpgradeableInfo} "Success"
+// @Failure 401         {object} GeneralResponse                                          "Unauthorized operation"
+// @Failure 500         {object} GeneralResponse{code=int}                                "Internal server error"
+// @Router  /federation/fate/{uuid}/cluster/{clusterUUID}/upgrade [get]
+func (controller *FederationController) getFATEClusterUpgrade(c *gin.Context) {
+	clusterUUID := c.Param("clusterUUID")
+	if FATEClusterUpgradeDetail, err := controller.participantAppService.GetFATEClusterUpgrade(clusterUUID); err != nil {
+		resp := &GeneralResponse{
+			Code:    constants.RespInternalErr,
+			Message: err.Error(),
+		}
+		c.JSON(http.StatusInternalServerError, resp)
+	} else {
+		resp := &GeneralResponse{
+			Code: constants.RespNoErr,
+			Data: FATEClusterUpgradeDetail,
+		}
+		c.JSON(http.StatusOK, resp)
+	}
+}
+
+// upgradeFATEExchange upgrade the FATE exchange
+//
+// @Summary Upgrade the FATE exchange
+// @Tags    Federation
+// @Produce json
+// @Param   uuid           path     string                    true "federation UUID"
+// @Param   exchangeUUID   path     string                    true "exchange UUID"
+// @Param   upgradeVersion query    string                    true "upgrade version"
+// @Success 200            {object} GeneralResponse           "Success, the data field is the created exchange's uuid"
+// @Failure 401            {object} GeneralResponse           "Unauthorized operation"
+// @Failure 500            {object} GeneralResponse{code=int} "Internal server error"
+// @Router  /federation/fate/{uuid}/exchange/{exchangeUUID}/upgrade [post]
+func (controller *FederationController) upgradeFATEExchange(c *gin.Context) {
+	if exchangeUUID, err := func() (string, error) {
+		req := &domainService.ParticipantFATEExchangeUpgradeRequest{
+			ExchangeUUID:   c.Param("exchangeUUID"),
+			FederationUUID: c.Param("uuid"),
+			UpgradeVersion: c.Query("upgradeVersion"),
+		}
+		log.Debug().Interface("req", req).Msg("Get request info")
+		return controller.participantAppService.UpgradeFATEExchange(req)
+	}(); err != nil {
+		resp := &GeneralResponse{
+			Code:    constants.RespInternalErr,
+			Message: err.Error(),
+		}
+		c.JSON(http.StatusInternalServerError, resp)
+	} else {
+		resp := &GeneralResponse{
+			Code: constants.RespNoErr,
+			Data: exchangeUUID,
+		}
+		c.JSON(http.StatusOK, resp)
+	}
+}
+
+// createFATEExchange upgrade the FATE cluster
+//
+// @Summary Upgrade the FATE cluster
+// @Tags    Federation
+// @Produce json
+// @Param   uuid           path     string                    true "federation UUID"
+// @Param   clusterUUID    path     string                    true "cluster UUID"
+// @Param   upgradeVersion query    string                    true "upgrade version"
+// @Success 200            {object} GeneralResponse           "Success, the data field is the upgrade cluster's uuid"
+// @Failure 401            {object} GeneralResponse           "Unauthorized operation"
+// @Failure 500            {object} GeneralResponse{code=int} "Internal server error"
+// @Router  /federation/fate/{uuid}/cluster/{clusterUUID}/upgrade [post]
+func (controller *FederationController) upgradeFATECluster(c *gin.Context) {
+	if exchangeUUID, err := func() (string, error) {
+		req := &domainService.ParticipantFATEClusterUpgradeRequest{
+			ClusterUUID:    c.Param("clusterUUID"),
+			FederationUUID: c.Param("uuid"),
+			UpgradeVersion: c.Query("upgradeVersion"),
+		}
+		log.Debug().Interface("req", req).Msg("Get request info")
+		return controller.participantAppService.UpgradeFATECluster(req)
+	}(); err != nil {
+		resp := &GeneralResponse{
+			Code:    constants.RespInternalErr,
+			Message: err.Error(),
+		}
+		c.JSON(http.StatusInternalServerError, resp)
+	} else {
+		resp := &GeneralResponse{
+			Code: constants.RespNoErr,
+			Data: exchangeUUID,
 		}
 		c.JSON(http.StatusOK, resp)
 	}

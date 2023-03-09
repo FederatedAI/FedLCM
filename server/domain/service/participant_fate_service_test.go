@@ -70,7 +70,7 @@ func TestCreateExchange_PosWithNewCert(t *testing.T) {
 
 	exchange, wg, err := service.CreateExchange(&ParticipantFATEExchangeCreationRequest{
 		ParticipantFATEExchangeYAMLCreationRequest: ParticipantFATEExchangeYAMLCreationRequest{
-			ChartUUID:   "242bf84c-548c-43d4-9f34-15f6d4dc0f33", // from the chart test repo
+			ChartUUID:   "49fdaa3d-d5ad-4218-87cc-d1f023384729", // from the chart test repo
 			Name:        "test-exchange",
 			Namespace:   "test-ns",
 			ServiceType: entity.ParticipantDefaultServiceTypeLoadBalancer,
@@ -79,10 +79,10 @@ func TestCreateExchange_PosWithNewCert(t *testing.T) {
 			Description:  "",
 			EndpointUUID: "",
 			DeploymentYAML: `chartName: fate-exchange
-chartVersion: v1.9.1-fedlcm-v0.2.0
+chartVersion: v1.10.0-fedlcm-v0.3.0
 fmlManagerServer:
   image: federatedai/fml-manager-server
-  imageTag: v0.2.0
+  imageTag: v0.3.0
   type: NodePort
 modules:
 - trafficServer
@@ -305,7 +305,7 @@ func TestParticipantFATEService_GetClusterDeploymentYAML(t *testing.T) {
 			args: args{
 				req: &ParticipantFATEClusterYAMLCreationRequest{
 					ParticipantFATEExchangeYAMLCreationRequest: ParticipantFATEExchangeYAMLCreationRequest{
-						ChartUUID:   "8d1b15c1-cc7e-460b-8563-fa732457a049", // from the chart test repo
+						ChartUUID:   "c5380b96-6a9f-4c3e-8991-1ddc73b5813d", // from the chart test repo
 						Name:        "test-fate",
 						Namespace:   "test-fate-ns",
 						ServiceType: entity.ParticipantDefaultServiceTypeNodePort,
@@ -353,7 +353,7 @@ func Test_getPulsarInformationFromYAML(t *testing.T) {
 			args: args{
 				yamlStr: `algorithm: Basic
 chartName: fate
-chartVersion: v1.9.0
+chartVersion: v1.10.0
 client:
   accessMode: ReadWriteOnce
   existingClaim: ""

@@ -48,13 +48,13 @@ import (
 var FRONTEND_DIR = getFrontendDir()
 
 // main starts the API server
-// @title site portal API service
-// @version v1
-// @description backend APIs of site portal service
-// @termsOfService http://swagger.io/terms/
-// @contact.name FedLCM team
-// @BasePath /api/v1
-// @in header
+//	@title			site portal API service
+//	@version		v1
+//	@description	backend APIs of site portal service
+//	@termsOfService	http://swagger.io/terms/
+//	@contact.name	FedLCM team
+//	@BasePath		/api/v1
+//	@in				header
 func main() {
 	viper.AutomaticEnv()
 	replacer := strings.NewReplacer(".", "_")

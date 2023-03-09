@@ -54,13 +54,13 @@ func (controller *SiteController) Route(r *gin.RouterGroup) {
 }
 
 // getSite returns the site data
-// @Summary Return site data
-// @Tags Site
-// @Produce json
-// @Success 200 {object} GeneralResponse{data=entity.Site} "Success"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /site [get]
+//	@Summary	Return site data
+//	@Tags		Site
+//	@Produce	json
+//	@Success	200	{object}	GeneralResponse{data=entity.Site}	"Success"
+//	@Failure	401	{object}	GeneralResponse						"Unauthorized operation"
+//	@Failure	500	{object}	GeneralResponse{code=int}			"Internal server error"
+//	@Router		/site [get]
 func (controller *SiteController) getSite(c *gin.Context) {
 	site, err := controller.siteAppService.GetSite()
 	if err != nil {
@@ -81,14 +81,14 @@ func (controller *SiteController) getSite(c *gin.Context) {
 }
 
 // putSite update site related information
-// @Summary Update site information
-// @Tags Site
-// @Produce json
-// @Param site body entity.Site true "The site information, some info like id, UUID, connected status cannot be changed"
-// @Success 200 {object} GeneralResponse "Success"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /site [put]
+//	@Summary	Update site information
+//	@Tags		Site
+//	@Produce	json
+//	@Param		site	body		entity.Site					true	"The site information, some info like id, UUID, connected status cannot be changed"
+//	@Success	200		{object}	GeneralResponse				"Success"
+//	@Failure	401		{object}	GeneralResponse				"Unauthorized operation"
+//	@Failure	500		{object}	GeneralResponse{code=int}	"Internal server error"
+//	@Router		/site [put]
 func (controller *SiteController) putSite(c *gin.Context) {
 	if err := func() error {
 		updatedSiteInfo := &entity.Site{}
@@ -111,14 +111,14 @@ func (controller *SiteController) putSite(c *gin.Context) {
 }
 
 // connectFATEFlow test connection to fate flow
-// @Summary Test site connection to fate flow service
-// @Tags Site
-// @Produce json
-// @Param connectInfo body service.FATEFlowConnectionInfo true "The fate flow connection info"
-// @Success 200 {object} GeneralResponse "Success"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /site/fateflow/connect [post]
+//	@Summary	Test site connection to fate flow service
+//	@Tags		Site
+//	@Produce	json
+//	@Param		connectInfo	body		service.FATEFlowConnectionInfo	true	"The fate flow connection info"
+//	@Success	200			{object}	GeneralResponse					"Success"
+//	@Failure	401			{object}	GeneralResponse					"Unauthorized operation"
+//	@Failure	500			{object}	GeneralResponse{code=int}		"Internal server error"
+//	@Router		/site/fateflow/connect [post]
 func (controller *SiteController) connectFATEFlow(c *gin.Context) {
 	if err := func() error {
 		connectionInfo := &service.FATEFlowConnectionInfo{}
@@ -141,14 +141,14 @@ func (controller *SiteController) connectFATEFlow(c *gin.Context) {
 }
 
 // connectKubeflow test connection to Kubeflow
-// @Summary Test site connection to Kubeflow, including MinIO and KFServing
-// @Tags Site
-// @Produce json
-// @Param config body valueobject.KubeflowConfig true "The Kubeflow config info"
-// @Success 200 {object} GeneralResponse "Success"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /site/kubeflow/connect [post]
+//	@Summary	Test site connection to Kubeflow, including MinIO and KFServing
+//	@Tags		Site
+//	@Produce	json
+//	@Param		config	body		valueobject.KubeflowConfig	true	"The Kubeflow config info"
+//	@Success	200		{object}	GeneralResponse				"Success"
+//	@Failure	401		{object}	GeneralResponse				"Unauthorized operation"
+//	@Failure	500		{object}	GeneralResponse{code=int}	"Internal server error"
+//	@Router		/site/kubeflow/connect [post]
 func (controller *SiteController) connectKubeflow(c *gin.Context) {
 	if err := func() error {
 		connectionInfo := &valueobject.KubeflowConfig{}
@@ -171,14 +171,14 @@ func (controller *SiteController) connectKubeflow(c *gin.Context) {
 }
 
 // connectFMLManager registers the current site to fml manager
-// @Summary Connect to fml manager and register itself
-// @Tags Site
-// @Produce json
-// @Param connectInfo body service.FMLManagerConnectionInfo true "The FML Manager endpoint"
-// @Success 200 {object} GeneralResponse "Success"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /site/fmlmanager/connect [post]
+//	@Summary	Connect to fml manager and register itself
+//	@Tags		Site
+//	@Produce	json
+//	@Param		connectInfo	body		service.FMLManagerConnectionInfo	true	"The FML Manager endpoint"
+//	@Success	200			{object}	GeneralResponse						"Success"
+//	@Failure	401			{object}	GeneralResponse						"Unauthorized operation"
+//	@Failure	500			{object}	GeneralResponse{code=int}			"Internal server error"
+//	@Router		/site/fmlmanager/connect [post]
 func (controller *SiteController) connectFMLManager(c *gin.Context) {
 	if err := func() error {
 		connectionInfo := &service.FMLManagerConnectionInfo{}
@@ -201,13 +201,13 @@ func (controller *SiteController) connectFMLManager(c *gin.Context) {
 }
 
 // unregisterSite unregisters the current site from fml manager
-// @Summary Unregister from the fml manager
-// @Tags Site
-// @Produce json
-// @Success 200 {object} GeneralResponse "Success"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /site/fmlmanager/unregister [post]
+//	@Summary	Unregister from the fml manager
+//	@Tags		Site
+//	@Produce	json
+//	@Success	200	{object}	GeneralResponse				"Success"
+//	@Failure	401	{object}	GeneralResponse				"Unauthorized operation"
+//	@Failure	500	{object}	GeneralResponse{code=int}	"Internal server error"
+//	@Router		/site/fmlmanager/unregister [post]
 func (controller *SiteController) unregisterSite(c *gin.Context) {
 	if err := func() error {
 		return controller.siteAppService.UnregisterFromFMLManager()

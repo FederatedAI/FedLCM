@@ -24,6 +24,8 @@ type ChartRepository interface {
 	DeleteByUUID(string) error
 	// GetByUUID returns an *entity.Chart of the specified uuid
 	GetByUUID(string) (interface{}, error)
+	// GetByNameAndNamespace returns an *entity.Chart of the specified name and version
+	GetByNameAndVersion(string, string) (interface{}, error)
 	// ListByType takes an entity.ChartType and returns []entity.Chart that is for the specified type
 	ListByType(interface{}) (interface{}, error)
 }
