@@ -2074,7 +2074,7 @@
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/service.FATEClusterUpgradeableVersionList"
+                                            "$ref": "#/definitions/service.FATEClusterUpgradeableInfo"
                                         }
                                     }
                                 }
@@ -2336,7 +2336,7 @@
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/service.FATEClusterUpgradeableVersionList"
+                                            "$ref": "#/definitions/service.FATEClusterUpgradeableInfo"
                                         }
                                     }
                                 }
@@ -4597,17 +4597,23 @@
                 },
                 "uuid": {
                     "type": "string"
+                },
+                "version": {
+                    "type": "string"
                 }
             }
         },
-        "service.FATEClusterUpgradeableVersionList": {
+        "service.FATEClusterUpgradeableInfo": {
             "type": "object",
             "properties": {
-                "upgradeable_version_list": {
+                "FATEClusterUpgradeableVersionList": {
                     "type": "array",
                     "items": {
                         "type": "string"
                     }
+                },
+                "version": {
+                    "type": "string"
                 }
             }
         },
@@ -4675,6 +4681,9 @@
                     "type": "boolean"
                 },
                 "uuid": {
+                    "type": "string"
+                },
+                "version": {
                     "type": "string"
                 }
             }
@@ -5268,6 +5277,9 @@
                     "type": "boolean"
                 },
                 "uuid": {
+                    "type": "string"
+                },
+                "version": {
                     "type": "string"
                 }
             }

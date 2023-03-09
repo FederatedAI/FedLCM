@@ -2082,7 +2082,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/service.FATEClusterUpgradeableVersionList"
+                                            "$ref": "#/definitions/service.FATEClusterUpgradeableInfo"
                                         }
                                     }
                                 }
@@ -2344,7 +2344,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/service.FATEClusterUpgradeableVersionList"
+                                            "$ref": "#/definitions/service.FATEClusterUpgradeableInfo"
                                         }
                                     }
                                 }
@@ -4605,17 +4605,23 @@ const docTemplate = `{
                 },
                 "uuid": {
                     "type": "string"
+                },
+                "version": {
+                    "type": "string"
                 }
             }
         },
-        "service.FATEClusterUpgradeableVersionList": {
+        "service.FATEClusterUpgradeableInfo": {
             "type": "object",
             "properties": {
-                "upgradeable_version_list": {
+                "FATEClusterUpgradeableVersionList": {
                     "type": "array",
                     "items": {
                         "type": "string"
                     }
+                },
+                "version": {
+                    "type": "string"
                 }
             }
         },
@@ -4683,6 +4689,9 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "uuid": {
+                    "type": "string"
+                },
+                "version": {
                     "type": "string"
                 }
             }
@@ -5276,6 +5285,9 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "uuid": {
+                    "type": "string"
+                },
+                "version": {
                     "type": "string"
                 }
             }

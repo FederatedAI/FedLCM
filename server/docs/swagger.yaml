@@ -378,13 +378,17 @@ definitions:
         type: boolean
       uuid:
         type: string
+      version:
+        type: string
     type: object
-  service.FATEClusterUpgradeableVersionList:
+  service.FATEClusterUpgradeableInfo:
     properties:
-      upgradeable_version_list:
+      FATEClusterUpgradeableVersionList:
         items:
           type: string
         type: array
+      version:
+        type: string
     type: object
   service.FATEExchangeDetail:
     properties:
@@ -429,6 +433,8 @@ definitions:
       upgradeable:
         type: boolean
       uuid:
+        type: string
+      version:
         type: string
     type: object
   service.FederationFATECreationRequest:
@@ -820,6 +826,8 @@ definitions:
       upgradeable:
         type: boolean
       uuid:
+        type: string
+      version:
         type: string
     type: object
   service.ParticipantOpenFLDirectorCreationRequest:
@@ -2018,7 +2026,7 @@ paths:
             - $ref: '#/definitions/api.GeneralResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/service.FATEClusterUpgradeableVersionList'
+                  $ref: '#/definitions/service.FATEClusterUpgradeableInfo'
               type: object
         "401":
           description: Unauthorized operation
@@ -2174,7 +2182,7 @@ paths:
             - $ref: '#/definitions/api.GeneralResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/service.FATEClusterUpgradeableVersionList'
+                  $ref: '#/definitions/service.FATEClusterUpgradeableInfo'
               type: object
         "401":
           description: Unauthorized operation

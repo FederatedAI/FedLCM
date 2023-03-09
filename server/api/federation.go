@@ -853,11 +853,11 @@ func (controller *FederationController) getFATECluster(c *gin.Context) {
 // @Summary Get specific info of FATE exchange
 // @Tags    Federation
 // @Produce json
-// @Param   uuid         path     string                                                          true "federation UUID"
-// @Param   exchangeUUID path     string                                                          true "exchange UUID"
+// @Param   uuid         path     string                                                   true "federation UUID"
+// @Param   exchangeUUID path     string                                                   true "exchange UUID"
 // @Success 200          {object} GeneralResponse{data=service.FATEClusterUpgradeableInfo} "Success"
-// @Failure 401          {object} GeneralResponse                                                 "Unauthorized operation"
-// @Failure 500          {object} GeneralResponse{code=int}                                       "Internal server error"
+// @Failure 401          {object} GeneralResponse                                          "Unauthorized operation"
+// @Failure 500          {object} GeneralResponse{code=int}                                "Internal server error"
 // @Router  /federation/fate/{uuid}/exchange/{exchangeUUID}/upgrade [get]
 func (controller *FederationController) getFATEExchangeUpgrade(c *gin.Context) {
 	exchangeUUID := c.Param("exchangeUUID")
@@ -881,11 +881,11 @@ func (controller *FederationController) getFATEExchangeUpgrade(c *gin.Context) {
 // @Summary Get the upgradeable information of the FATE cluster
 // @Tags    Federation
 // @Produce json
-// @Param   uuid        path     string                                                          true "federation UUID"
-// @Param   clusterUUID path     string                                                          true "cluster UUID"
+// @Param   uuid        path     string                                                   true "federation UUID"
+// @Param   clusterUUID path     string                                                   true "cluster UUID"
 // @Success 200         {object} GeneralResponse{data=service.FATEClusterUpgradeableInfo} "Success"
-// @Failure 401         {object} GeneralResponse                                                 "Unauthorized operation"
-// @Failure 500         {object} GeneralResponse{code=int}                                       "Internal server error"
+// @Failure 401         {object} GeneralResponse                                          "Unauthorized operation"
+// @Failure 500         {object} GeneralResponse{code=int}                                "Internal server error"
 // @Router  /federation/fate/{uuid}/cluster/{clusterUUID}/upgrade [get]
 func (controller *FederationController) getFATEClusterUpgrade(c *gin.Context) {
 	clusterUUID := c.Param("clusterUUID")
