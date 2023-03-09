@@ -53,22 +53,17 @@ func (s *ParticipantFATEService) UpgradeExchange(req *ParticipantFATEExchangeUpg
 		return nil, nil, err
 	}
 
-	instance, err := s.ChartRepo.GetByUUID(exchange.ChartUUID)
-	if err != nil {
-		return nil, nil, errors.Wrapf(err, "faile to get chart")
-	}
-	chart := instance.(*entity.Chart)
-	if chart.Type != entity.ChartTypeFATEExchange {
-		return nil, nil, errors.Errorf("chart %s is not for FATE exchange deployment", chart.UUID)
-	}
+	ClusterChartVersion := utils.GetChartVersionFromDeploymentYAML(exchange.DeploymentYAML)
+	ClusterChartName := utils.GetChartNameFromDeploymentYAML(exchange.DeploymentYAML)
+
 	// checkUpgradeable
-	if utils.CompareVersion(chart.Version, req.UpgradeVersion) >= 0 {
-		return nil, nil, errors.Errorf("the version passed in cannot be upgraded, currentVersion %s, upgradeVersion: %s", chart.Version, req.UpgradeVersion)
+	if utils.CompareVersion(ClusterChartVersion, req.UpgradeVersion) >= 0 {
+		return nil, nil, errors.Errorf("the version passed in cannot be upgraded, currentVersion %s, upgradeVersion: %s", ClusterChartVersion, req.UpgradeVersion)
 	}
 
-	instance, err = s.ChartRepo.GetByNameAndVersion(chart.ChartName, req.UpgradeVersion)
+	instance, err := s.ChartRepo.GetByNameAndVersion(ClusterChartName, req.UpgradeVersion)
 	if err != nil {
-		log.Err(err).Strs("chartName and version", []string{chart.ChartName, req.UpgradeVersion}).Msg("GetByNameAndVersion err")
+		log.Err(err).Strs("chartName and version", []string{ClusterChartName, req.UpgradeVersion}).Msg("GetByNameAndVersion err")
 		return nil, nil, errors.Wrapf(err, "faile to get chart")
 	}
 	upgradeChart := instance.(*entity.Chart)
@@ -205,27 +200,22 @@ func (s *ParticipantFATEService) UpgradeCluster(req *ParticipantFATEClusterUpgra
 		return nil, nil, err
 	}
 
-	instance, err = s.ChartRepo.GetByUUID(cluster.ChartUUID)
-	if err != nil {
-		return nil, nil, errors.Wrapf(err, "faile to get chart")
-	}
-	chart := instance.(*entity.Chart)
-	if chart.Type != entity.ChartTypeFATECluster {
-		return nil, nil, errors.Errorf("chart %s is not for FATE cluster deployment", chart.UUID)
-	}
+	ClusterChartVersion := utils.GetChartVersionFromDeploymentYAML(cluster.DeploymentYAML)
+	ClusterChartName := utils.GetChartNameFromDeploymentYAML(cluster.DeploymentYAML)
+
 	// checkUpgradeable
-	if utils.CompareVersion(chart.Version, req.UpgradeVersion) >= 0 {
-		return nil, nil, errors.Errorf("the version passed in cannot be upgraded, currentVersion %s, upgradeVersion: %s", chart.Version, req.UpgradeVersion)
+	if utils.CompareVersion(ClusterChartVersion, req.UpgradeVersion) >= 0 {
+		return nil, nil, errors.Errorf("the version passed in cannot be upgraded, currentVersion %s, upgradeVersion: %s", ClusterChartVersion, req.UpgradeVersion)
 	}
 
-	instance, err = s.ChartRepo.GetByNameAndVersion(chart.ChartName, req.UpgradeVersion)
+	instance, err = s.ChartRepo.GetByNameAndVersion(ClusterChartName, req.UpgradeVersion)
 	if err != nil {
-		log.Err(err).Strs("chartName and version", []string{chart.ChartName, req.UpgradeVersion}).Msg("GetByNameAndVersion err")
+		log.Err(err).Strs("chartName and version", []string{ClusterChartName, req.UpgradeVersion}).Msg("GetByNameAndVersion err")
 		return nil, nil, errors.Wrapf(err, "faile to get chart")
 	}
 	upgradeChart := instance.(*entity.Chart)
 	if upgradeChart.Type != entity.ChartTypeFATECluster {
-		return nil, nil, errors.Errorf("chart %s is not for FATE cluster deployment", upgradeChart.UUID)
+		return nil, nil, errors.Errorf("chart %s is not for FATE deployment", upgradeChart.UUID)
 	}
 
 	var m map[string]interface{}
@@ -241,7 +231,7 @@ func (s *ParticipantFATEService) UpgradeCluster(req *ParticipantFATEClusterUpgra
 		return nil, nil, errors.Wrapf(err, "failed to get final yaml content")
 	}
 	cluster.DeploymentYAML = string(finalYAMLBytes)
-	log.Debug().Str("exchange.DeploymentYAML", exchange.DeploymentYAML).Msg("show DeploymentYAML")
+	log.Debug().Str("cluster.DeploymentYAML", cluster.DeploymentYAML).Msg("show DeploymentYAML")
 
 	cluster.Status = entity.ParticipantFATEStatusUpgrading
 

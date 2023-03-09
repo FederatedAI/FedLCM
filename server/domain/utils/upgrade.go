@@ -1,6 +1,13 @@
 package utils
 
-import "strings"
+import (
+	"fmt"
+	"strings"
+
+	"github.com/pkg/errors"
+	"github.com/rs/zerolog/log"
+	"gopkg.in/yaml.v2"
+)
 
 // Upgradeable If the versionlist contains a version number higher than version, then return true
 func Upgradeable(version string, versionlist []string) bool {
@@ -55,4 +62,26 @@ func CompareVersion(version1, version2 string) int {
 // - v1.10.0-fedlcm-v0.3.0 & v1.10.0 is false
 func typeVersion(version1, version2 string) bool {
 	return len(strings.Split(version1, "-fedlcm-")) == len(strings.Split(version2, "-fedlcm-"))
+}
+
+func GetChartVersionFromDeploymentYAML(deploymentYAML string) string {
+	var m map[string]interface{}
+	err := yaml.Unmarshal([]byte(deploymentYAML), &m)
+	if err != nil {
+		log.Warn().AnErr("UnmarshalError", errors.Wrapf(err, "failed to unmarshal deployment yaml")).Msg("GetChartVersionFromDeploymentYAML")
+		return ""
+	}
+
+	return fmt.Sprint(m["chartVersion"])
+}
+
+func GetChartNameFromDeploymentYAML(deploymentYAML string) string {
+	var m map[string]interface{}
+	err := yaml.Unmarshal([]byte(deploymentYAML), &m)
+	if err != nil {
+		log.Warn().AnErr("UnmarshalError", errors.Wrapf(err, "failed to unmarshal deployment yaml")).Msg("GetChartVersionFromDeploymentYAML")
+		return ""
+	}
+
+	return fmt.Sprint(m["chartName"])
 }
