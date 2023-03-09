@@ -28,7 +28,7 @@
               <button class="btn" (click)="openDeleteConfrimModal()">
                 <cds-icon shape="trash"></cds-icon> {{'CommonlyUse.delete'|translate}}
               </button>
-              <button *ngIf="exchangeDetail.upgradeable"  class="btn" (click)="toUpgrade(exchangeDetail, 'Exchange')">
+              <button *ngIf="exchangeDetail.upgradeable" class="btn" (click)="toUpgrade(exchangeDetail, 'Exchange')">
                 <cds-icon shape="upload"></cds-icon> {{'CommonlyUse.upgrade'|translate}}
               </button>
             </div>
@@ -54,6 +54,10 @@
                 <li *ngIf="isManagedExchange">
                   <span><b>{{'NewCluster.namespace'|translate}}:</b></span>
                   <span>{{exchangeDetail?.namespace}}</span>
+                </li>
+                <li>
+                  <span><b>{{'CommonlyUse.version'|translate}}:</b></span>
+                  <span>{{exchangeDetail.version}}</span>
                 </li>
                 <li>
                   <span><b>{{'CommonlyUse.status'|translate}}:</b></span>

@@ -182,7 +182,7 @@ export class FedDetailFateComponent implements OnInit {
 
   //createClusterDisabled is to disabled the 'new cluster' button when there is no active exchange in the current federation
   get createClusterDisabled() {
-    if (this.exchange && this.exchange.status === 1) {
+    if (this.exchange && (this.exchange.status === 1 || this.exchange.status === 6)) {
       return false
     }
     return true
