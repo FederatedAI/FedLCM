@@ -17,7 +17,7 @@
             {{'FederationDetail.currentVersion' | translate}}: &nbsp;&nbsp;{{version}}
           </h4>
           <clr-select-container class="no-warp">
-            <label>{{'CommonlyUse.version'| translate}}</label>
+            <label>{{'FederationDetail.upgradeVersion'| translate}}</label>
             <select clrSelect name="version" formControlName="version" required>
               <option *ngFor="let version of upgradeVersionList" [value]="version">{{version}}</option>
             </select>
