@@ -113,7 +113,9 @@
     "expirationDate": "到期时间",
     "filter": "筛选",
     "requirements": "(可选) requirements.txt 文件",
-    "editorModeHelperMessage":"点击文本区域进入编辑器模式"
+    "editorModeHelperMessage":"点击文本区域进入编辑器模式",
+    "upgrade": "升级",
+    "Upgrade": "升级"
   },
   "EndpointMg": {
     "name": "服务端点",
@@ -212,7 +214,9 @@
     "noexchange": "没有Exchange, 请添加一个",
     "noactiveexchange": "你应该有一个活动的Exchange来创建群集",
     "accessInfo": "公开服务",
-    "forceRemove": "强制移除"
+    "forceRemove": "强制移除",
+    "currentVersion": "当前版本",
+    "upgradeVersion": "升级版本"
   },
   "NewCluster": {
     "name": "创建Cluster",

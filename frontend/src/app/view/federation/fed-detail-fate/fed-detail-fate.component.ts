@@ -182,9 +182,15 @@ export class FedDetailFateComponent implements OnInit {
 
   //createClusterDisabled is to disabled the 'new cluster' button when there is no active exchange in the current federation
   get createClusterDisabled() {
-    if (this.exchange && this.exchange.status === 1) {
+    if (this.exchange && (this.exchange.status === 1 || this.exchange.status === 6)) {
       return false
     }
     return true
   }
+
+  // Exchange and cluster jump to the upgrade page through toUpgrade
+  toUpgrade(item: {uuid: string, name: string, version: string}, type: string) {
+    this.router.navigate(['/federation', 'fate', this.uuid, 'detail', item.uuid, item.version, type+'-'+item.name, 'upgrade'])
+  }
+
 }
