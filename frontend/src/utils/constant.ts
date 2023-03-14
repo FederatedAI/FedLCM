@@ -32,7 +32,8 @@ export const ParticipantFATEStatus:ConstantModel = {
   Installing: 2,
   Removing: 3,
   Reconfiguring: 4,
-  Failed: 5
+  Failed: 5,
+  Upgrading: 6
 }
 export const ParticipantFATEType :ConstantModel = {
   Unknown: 0,
