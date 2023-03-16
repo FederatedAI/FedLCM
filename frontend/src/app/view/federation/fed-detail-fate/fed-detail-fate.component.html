@@ -144,8 +144,16 @@
       </thead>
       <tbody *ngIf="clusterlist && clusterlist.length > 0">
         <tr *ngFor="let cluster of clusterlist">
-          <td class="left" (click)="toDetail('cluster', cluster.uuid, cluster)"><a
-              href="javascript:void(0)">{{cluster.name}}</a></td>
+          <td class="left"  (click)="toDetail('cluster', cluster.uuid, cluster)">
+            <a *ngIf="!cluster.flag" href="javascript:void(0)"></a>
+            <span *ngIf="cluster.flag" style="color: hsl(9, 92%, 50%);">
+              {{cluster.name}}
+            </span>
+            <a href="..." *ngIf="cluster.flag" role="tooltip" aria-haspopup="true" class="tooltip tooltip-md">
+              <cds-icon style="color: hsl(9, 92%, 50%);" shape="warning-standard"></cds-icon>
+              <span class="tooltip-content">{{'FederationDetail.versionWarn'| translate}}</span>
+            </a>
+          </td>
           <td>{{cluster.description}}</td>
           <td>{{cluster.created_at | dateFormat}}</td>
           <td>

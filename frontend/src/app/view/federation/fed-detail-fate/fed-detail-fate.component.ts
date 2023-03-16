@@ -69,6 +69,8 @@ export class FedDetailFateComponent implements OnInit {
         this.clusterlist = this.participantList.clusters || [];
         this.exchange = this.participantList.exchange;
         if (this.exchange) {
+          const exchangeVersion = this.exchange.version.split('-')[0] || ''        
+
           for (const key in this.exchange.access_info) {
             const obj: any = {
               name: key,
@@ -83,6 +85,12 @@ export class FedDetailFateComponent implements OnInit {
           }
           this.clusterlist.forEach(cluster => {
             cluster.clusterList = []
+            const clusterVersion = cluster.version.split('-')[0]
+            if (clusterVersion !== exchangeVersion) {
+              cluster.flag = true
+            } else {
+              cluster.flag = false
+            }
             for (const key in cluster.access_info) {
               const obj: any = {
                 name: key,
