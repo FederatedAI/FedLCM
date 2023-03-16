@@ -216,7 +216,8 @@
     "accessInfo": "Exposed Services",
     "forceRemove": "Force remove",
     "currentVersion": "Current Version",
-    "upgradeVersion": "Updated Version"
+    "upgradeVersion": "Updated Version",
+    "versionWarn": "The versions of Cluster and Exchange are inconsistent and may not be compatible."
   },
   "NewCluster": {
     "name": "Create a New Cluster",
