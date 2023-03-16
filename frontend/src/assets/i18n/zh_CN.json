@@ -216,7 +216,8 @@
     "accessInfo": "公开服务",
     "forceRemove": "强制移除",
     "currentVersion": "当前版本",
-    "upgradeVersion": "升级版本"
+    "upgradeVersion": "升级版本",
+    "versionWarn": "Cluster和Exchange 版本不一致，可能不兼容。"
   },
   "NewCluster": {
     "name": "创建Cluster",
