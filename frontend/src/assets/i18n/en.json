@@ -113,7 +113,9 @@
     "expirationDate": "Expiration Date",
     "filter": "Filter",
     "requirements": "(Optional) requirements.txt",
-    "editorModeHelperMessage":"Click text area to enter editor mode"
+    "editorModeHelperMessage":"Click text area to enter editor mode",
+    "upgrade": "upgrade",
+    "Upgrade": "Upgrade"
   },
   "EndpointMg": {
     "name": "Endpoint",
@@ -212,7 +214,10 @@
     "noexchange": "No exchange, please add one.",
     "noactiveexchange": "You should have an active exchange to create cluster.",
     "accessInfo": "Exposed Services",
-    "forceRemove": "Force remove"
+    "forceRemove": "Force remove",
+    "currentVersion": "Current Version",
+    "upgradeVersion": "Updated Version",
+    "versionWarn": "The versions of Cluster and Exchange are inconsistent and may not be compatible."
   },
   "NewCluster": {
     "name": "Create a New Cluster",
