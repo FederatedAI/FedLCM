@@ -374,7 +374,20 @@ definitions:
         type: integer
       type:
         type: integer
+      upgradeable:
+        type: boolean
       uuid:
+        type: string
+      version:
+        type: string
+    type: object
+  service.FATEClusterUpgradeableInfo:
+    properties:
+      FATEClusterUpgradeableVersionList:
+        items:
+          type: string
+        type: array
+      version:
         type: string
     type: object
   service.FATEExchangeDetail:
@@ -417,7 +430,11 @@ definitions:
         type: integer
       type:
         type: integer
+      upgradeable:
+        type: boolean
       uuid:
+        type: string
+      version:
         type: string
     type: object
   service.FederationFATECreationRequest:
@@ -806,7 +823,11 @@ definitions:
         type: integer
       type:
         type: integer
+      upgradeable:
+        type: boolean
       uuid:
+        type: string
+      version:
         type: string
     type: object
   service.ParticipantOpenFLDirectorCreationRequest:
@@ -1982,6 +2003,87 @@ paths:
       summary: Get specific info of FATE cluster
       tags:
       - Federation
+  /federation/fate/{uuid}/cluster/{clusterUUID}/upgrade:
+    get:
+      parameters:
+      - description: federation UUID
+        in: path
+        name: uuid
+        required: true
+        type: string
+      - description: cluster UUID
+        in: path
+        name: clusterUUID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/service.FATEClusterUpgradeableInfo'
+              type: object
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Get the upgradeable information of the FATE cluster
+      tags:
+      - Federation
+    post:
+      parameters:
+      - description: federation UUID
+        in: path
+        name: uuid
+        required: true
+        type: string
+      - description: cluster UUID
+        in: path
+        name: clusterUUID
+        required: true
+        type: string
+      - description: upgrade version
+        in: query
+        name: upgradeVersion
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success, the data field is the upgrade cluster's uuid
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Upgrade the FATE cluster
+      tags:
+      - Federation
   /federation/fate/{uuid}/exchange/{exchangeUUID}:
     delete:
       parameters:
@@ -2055,6 +2157,87 @@ paths:
                   type: integer
               type: object
       summary: Get specific info of FATE Exchange
+      tags:
+      - Federation
+  /federation/fate/{uuid}/exchange/{exchangeUUID}/upgrade:
+    get:
+      parameters:
+      - description: federation UUID
+        in: path
+        name: uuid
+        required: true
+        type: string
+      - description: exchange UUID
+        in: path
+        name: exchangeUUID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/service.FATEClusterUpgradeableInfo'
+              type: object
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Get specific info of FATE exchange
+      tags:
+      - Federation
+    post:
+      parameters:
+      - description: federation UUID
+        in: path
+        name: uuid
+        required: true
+        type: string
+      - description: exchange UUID
+        in: path
+        name: exchangeUUID
+        required: true
+        type: string
+      - description: upgrade version
+        in: query
+        name: upgradeVersion
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success, the data field is the created exchange's uuid
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "401":
+          description: Unauthorized operation
+          schema:
+            $ref: '#/definitions/api.GeneralResponse'
+        "500":
+          description: Internal server error
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.GeneralResponse'
+            - properties:
+                code:
+                  type: integer
+              type: object
+      summary: Upgrade the FATE exchange
       tags:
       - Federation
   /federation/fate/{uuid}/participant:

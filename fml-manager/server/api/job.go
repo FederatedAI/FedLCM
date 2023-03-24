@@ -61,14 +61,14 @@ func (controller *JobController) Route(r *gin.RouterGroup) {
 }
 
 // handleJobCreation process a job creation request
-// @Summary Process job creation
-// @Tags Job
-// @Produce json
-// @Param project body service.JobRemoteJobCreationRequest true "job creation request"
-// @Success 200 {object} GeneralResponse{} "Success"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /job/create [post]
+//	@Summary	Process job creation
+//	@Tags		Job
+//	@Produce	json
+//	@Param		project	body		service.JobRemoteJobCreationRequest	true	"job creation request"
+//	@Success	200		{object}	GeneralResponse{}					"Success"
+//	@Failure	401		{object}	GeneralResponse						"Unauthorized operation"
+//	@Failure	500		{object}	GeneralResponse{code=int}			"Internal server error"
+//	@Router		/job/create [post]
 func (controller *JobController) handleJobCreation(c *gin.Context) {
 	if err := func() error {
 		creationRequest := &service.JobRemoteJobCreationRequest{}
@@ -91,15 +91,15 @@ func (controller *JobController) handleJobCreation(c *gin.Context) {
 }
 
 // handleJobResponse process a job approval response
-// @Summary Process job response
-// @Tags Job
-// @Produce json
-// @Param uuid path string true "Job UUID"
-// @Param project body service.JobApprovalContext true "job approval response"
-// @Success 200 {object} GeneralResponse{} "Success"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /job/{uuid}/response [post]
+//	@Summary	Process job response
+//	@Tags		Job
+//	@Produce	json
+//	@Param		uuid	path		string						true	"Job UUID"
+//	@Param		project	body		service.JobApprovalContext	true	"job approval response"
+//	@Success	200		{object}	GeneralResponse{}			"Success"
+//	@Failure	401		{object}	GeneralResponse				"Unauthorized operation"
+//	@Failure	500		{object}	GeneralResponse{code=int}	"Internal server error"
+//	@Router		/job/{uuid}/response [post]
 func (controller *JobController) handleJobResponse(c *gin.Context) {
 	if err := func() error {
 		jobUUID := c.Param("uuid")
@@ -123,15 +123,15 @@ func (controller *JobController) handleJobResponse(c *gin.Context) {
 }
 
 // handleJobStatusUpdate process a job status update request
-// @Summary Process job status update
-// @Tags Job
-// @Produce json
-// @Param uuid path string true "Job UUID"
-// @Param project body service.JobStatusUpdateContext true "job status"
-// @Success 200 {object} GeneralResponse{} "Success"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /job/{uuid}/status [post]
+//	@Summary	Process job status update
+//	@Tags		Job
+//	@Produce	json
+//	@Param		uuid	path		string							true	"Job UUID"
+//	@Param		project	body		service.JobStatusUpdateContext	true	"job status"
+//	@Success	200		{object}	GeneralResponse{}				"Success"
+//	@Failure	401		{object}	GeneralResponse					"Unauthorized operation"
+//	@Failure	500		{object}	GeneralResponse{code=int}		"Internal server error"
+//	@Router		/job/{uuid}/status [post]
 func (controller *JobController) handleJobStatusUpdate(c *gin.Context) {
 	if err := func() error {
 		jobUUID := c.Param("uuid")

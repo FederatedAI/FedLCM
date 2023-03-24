@@ -95,7 +95,7 @@ func (r *ParticipantFATERepo) UpdateDeploymentYAMLByUUID(instance interface{}) e
 func (r *ParticipantFATERepo) UpdateInfoByUUID(instance interface{}) error {
 	participant := instance.(*entity.ParticipantFATE)
 	return db.Where("uuid = ?", participant.UUID).
-		Select("cluster_uuid", "status", "access_info", "cert_config", "extra_attribute", "ingress_info", "job_uuid").
+		Select("cluster_uuid", "status", "access_info", "cert_config", "extra_attribute", "ingress_info", "job_uuid", "deployment_yaml", "chart_uuid").
 		Updates(participant).Error
 }
 
