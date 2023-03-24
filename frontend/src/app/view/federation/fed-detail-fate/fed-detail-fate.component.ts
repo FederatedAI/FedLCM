@@ -68,8 +68,9 @@ export class FedDetailFateComponent implements OnInit {
         this.participantList = data.data;
         this.clusterlist = this.participantList.clusters || [];
         this.exchange = this.participantList.exchange;
+        this.exchangeInfoList = []
         if (this.exchange) {
-          const exchangeVersion = this.exchange.version.split('-')[0] || ''        
+          const exchangeVersion = this.exchange.version?.split('-')[0] || ''        
 
           for (const key in this.exchange.access_info) {
             const obj: any = {
