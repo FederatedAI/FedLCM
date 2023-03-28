@@ -50,7 +50,7 @@ export class CreateOpenflComponent implements OnInit {
       {
         name: 'sample',
         value: '',
-        type: ['number-list']
+        type: ['require']
       },
       {
         name: 'envoyYaml',
