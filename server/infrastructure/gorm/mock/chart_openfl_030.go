@@ -1,0 +1,78 @@
+// Copyright 2022 VMware, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package mock
+
+import "encoding/base64"
+
+var (
+	FedLCMOpenFLDirector030ChartArchiveContent = getFedLCMOpenFLDirector030ChartArchiveContent()
+
+	FedLCMOpenFLEnvoy030ChartArchiveContent = getFedLCMOpenFLEnvoy030ChartArchiveContent()
+)
+
+func getFedLCMOpenFLDirector030ChartArchiveContent() []byte {
+	base64Content := `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`
+	content, _ := base64.StdEncoding.DecodeString(base64Content)
+	return content
+}
+
+func getFedLCMOpenFLEnvoy030ChartArchiveContent() []byte {
+	base64Content := `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`
+	content, _ := base64.StdEncoding.DecodeString(base64Content)
+	return content
+}
+
+const (
+	DefaultEnvoyConfig = `
+shard_descriptor:
+  template: dummy_shard_descriptor.FedLCMDummyShardDescriptor`
+)
+
+var DefaultEnvoyPythonConfig = map[string]string{"dummy_shard_descriptor.py": `
+from typing import Iterable
+from typing import List
+import logging
+
+from openfl.interface.interactive_api.shard_descriptor import DummyShardDescriptor
+
+logger = logging.getLogger(__name__)
+
+class FedLCMDummyShardDescriptor(DummyShardDescriptor):
+    """Dummy shard descriptor class."""
+
+    def __init__(self) -> None:
+        """Initialize DummyShardDescriptor."""
+        super().__init__(['1'], ['1'], 128)
+
+    @property
+    def sample_shape(self) -> List[str]:
+        """Return the sample shape info."""
+        return ['1']
+
+    @property
+    def target_shape(self) -> List[str]:
+        """Return the target shape info."""
+        return ['1']
+
+    @property
+    def dataset_description(self) -> str:
+        logger.info(
+            f'Sample shape: {self.sample_shape}, '
+            f'target shape: {self.target_shape}'
+        )
+        """Return the dataset description."""
+        return 'This is dummy data shard descriptor provided by FedLCM project. You should implement your own data ' \
+               'loader to load your local data for each Envoy.'
+`}

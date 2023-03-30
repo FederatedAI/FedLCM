@@ -150,7 +150,7 @@ class FedLCMDummyShardDescriptor(DummyShardDescriptor):
       f'target shape: {self.target_shape}'
     )
     """Return the dataset description."""
-    return 'This is dummy data shard descriptor provided by FedLCM project. You should implement your own data '
+    return 'This is dummy data shard descriptor provided by FedLCM project. You should implement your own data ' \
            'loader to load your local data for each Envoy.'
 ```
 

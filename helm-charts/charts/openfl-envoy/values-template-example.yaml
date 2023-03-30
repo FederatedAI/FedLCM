@@ -1,7 +1,7 @@
 name: envoy-1
 namespace: openfl-envoy-1
 chartName: openfl-envoy
-chartVersion: v0.1.0
+chartVersion: v0.3.0
 registry: "federatedai"
 pullPolicy: IfNotPresent
 imagePullSecrets:
@@ -13,7 +13,7 @@ modules:
 
 #envoy:
 #  image: fedlcm-openfl
-#  imageTag: v0.1.0
+#  imageTag: v0.3.0
 #  directorFqdn: director.openfl.example.com
 #  directorIp: 192.168.1.1.
 #  directorPort: 50051
