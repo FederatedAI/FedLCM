@@ -355,6 +355,12 @@ func (app *ParticipantApp) getFATEClusterUpgradeableVersionList(ClusterUUID stri
 		return "", nil, err
 	}
 	participant := participantInstance.(*entity.ParticipantFATE)
+
+	//Check whether it is a cluster managed by fedlcm, a cluster not managed by fedlcm cannot be upgraded
+	if !participant.IsManaged {
+		return "", nil, errors.New("The cluster not managed by FedLCM cannot be upgraded.")
+	}
+
 	instance, err := app.ChartRepo.GetByUUID(participant.ChartUUID)
 	if err != nil {
 		ClusterChartVersion = utils.GetChartVersionFromDeploymentYAML(participant.DeploymentYAML)

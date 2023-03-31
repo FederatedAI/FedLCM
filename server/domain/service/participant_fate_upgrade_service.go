@@ -49,6 +49,11 @@ func (s *ParticipantFATEService) UpgradeExchange(req *ParticipantFATEExchangeUpg
 	}
 	exchange := participantInstance.(*entity.ParticipantFATE)
 
+	//Check whether it is a cluster managed by fedlcm, a cluster not managed by fedlcm cannot be upgraded
+	if !exchange.IsManaged {
+		return nil, nil, errors.New("The cluster not managed by FedLCM cannot be upgraded.")
+	}
+
 	if err := s.EndpointService.TestKubeFATE(exchange.EndpointUUID); err != nil {
 		return nil, nil, err
 	}
@@ -195,6 +200,11 @@ func (s *ParticipantFATEService) UpgradeCluster(req *ParticipantFATEClusterUpgra
 		return nil, nil, err
 	}
 	cluster := participantInstance.(*entity.ParticipantFATE)
+
+	//Check whether it is a cluster managed by fedlcm, a cluster not managed by fedlcm cannot be upgraded
+	if !exchange.IsManaged {
+		return nil, nil, errors.New("The cluster not managed by FedLCM cannot be upgraded.")
+	}
 
 	if err := s.EndpointService.TestKubeFATE(cluster.EndpointUUID); err != nil {
 		return nil, nil, err
