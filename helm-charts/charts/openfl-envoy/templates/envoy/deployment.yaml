@@ -1,4 +1,4 @@
-# Copyright 2022 VMware, Inc.
+# Copyright 2022-2023 VMware, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -41,7 +41,9 @@ spec:
               value: {{ .Values.modules.envoy.directorFqdn }}
             - name: DIRECTOR_PORT
               value: "{{ .Values.modules.envoy.directorPort }}"
-            - name: AGG_PORT
+            - name: OVERRIDE_AGG_ADDR
+              value: {{ .Values.modules.envoy.directorFqdn }}
+            - name: OVERRIDE_AGG_PORT
               value: "{{ .Values.modules.envoy.aggPort }}"
           image: {{ with .Values.image.registry }}{{ printf "%s/" . }}{{ end }}{{ .Values.modules.envoy.image | default "fedlcm-openfl" }}:{{ .Values.modules.envoy.imageTag | default "latest"}}
           imagePullPolicy: {{ .Values.image.pullPolicy }}

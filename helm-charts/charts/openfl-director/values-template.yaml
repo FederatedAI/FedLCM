@@ -36,6 +36,7 @@ modules:
   director:
     {{- with .director }}
     image: {{ .image }}
+    imageTag: {{ .imageTag }}
     sampleShape: "{{ .sampleShape }}"
     targetShape: "{{ .targetShape }}"
     envoyHealthCheckPeriod: {{ .envoyHealthCheckPeriod | default "60"}}
@@ -59,6 +60,7 @@ modules:
   notebook:
     {{- with .notebook}}
     image: {{ .image }}
+    imageTag: {{ .imageTag }}
     password: {{ .password }}
     {{- with .nodeSelector }}
     nodeSelector:
