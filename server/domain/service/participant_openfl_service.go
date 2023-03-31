@@ -1,4 +1,4 @@
-// Copyright 2022 VMware, Inc.
+// Copyright 2022-2023 VMware, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@ import (
 	"encoding/hex"
 	"encoding/pem"
 	"fmt"
-	"github.com/rs/zerolog/log"
 	"math/rand"
 	"net/url"
 	"strings"
@@ -39,7 +38,9 @@ import (
 	"github.com/Masterminds/sprig/v3"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 	uuid "github.com/satori/go.uuid"
+	"github.com/spf13/viper"
 	corev1 "k8s.io/api/core/v1"
 	apierr "k8s.io/apimachinery/pkg/api/errors"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -800,6 +801,11 @@ func (s *ParticipantOpenFLService) GetOpenFLEnvoyYAML(req *ParticipantOpenFLEnvo
 		data.EnvoyConfig = req.ConfigYAML
 	} else if federation.UseCustomizedShardDescriptor {
 		data.EnvoyConfig = federation.ShardDescriptorConfig.EnvoyConfigYaml
+	}
+
+	if registryOverride := viper.GetString("lifecyclemanager.openfl.envoy.registry.override"); registryOverride != "" {
+		data.UseRegistry = true
+		data.Registry = registryOverride
 	}
 
 	t, err := template.New("openfl-envoy").Funcs(sprig.TxtFuncMap()).Parse(chart.InitialYamlTemplate)
