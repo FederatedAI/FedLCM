@@ -1,6 +1,6 @@
 # Managing OpenFL Federations
 
-This document provides an end-to-end guide to set up an OpenFL federation using FedLCM service. Currently, director-based mode is supported.
+This document provides an end-to-end guide to set up an OpenFL v1.5 federation using FedLCM service. Currently, director-based mode is supported.
 The overall deployment architecture is in below diagram:
 
 <div style="text-align:center">
@@ -12,7 +12,8 @@ The high-level steps are
 1. FedLCM deploys the KubeFATE service into a central K8s cluster and use this KubeFATE service to deploy OpenFL director component, which includes a director service and a Jupyter Lab service.
 2. On each device/node/machine that will do the actual FML training using their local data, a device-agent program is launched to register this device/node/machine to FedLCM. The registration information contains a KubeConfig file so the FedLCM can further operate the K8s cluster on the device/node/machine.
 3. FedLCM deploys the KubeFATE service and the OpenFL envoy components onto the device/node/machine's K8s cluster.
-4. the envoy is configured with the address of the director service, so it will register to the director service upon started.
+4. The envoy is configured with the address of the director service, so it will register to the director service upon started.
+5. Users can use the deployed Jupyter Lab service to work with the OpenFL federation to run FL experiments.
 
 > Currently the core images for FedLCM's OpenFL federations are not made public yet, please talk with the maintainer for the access details.
 
@@ -150,7 +151,7 @@ class FedLCMDummyShardDescriptor(DummyShardDescriptor):
       f'target shape: {self.target_shape}'
     )
     """Return the dataset description."""
-    return 'This is dummy data shard descriptor provided by FedLCM project. You should implement your own data '
+    return 'This is dummy data shard descriptor provided by FedLCM project. You should implement your own data ' \
            'loader to load your local data for each Envoy.'
 ```
 
@@ -186,59 +187,37 @@ You can click into the director details page and keep refreshing it. If things w
 Now, we can open up the deployed Jupyter Lab system by clicking the Jupyter Notebook link, input the password we just configured and open a notebook we want to use, or create a new notebook where we can write our own code.
 
 * For this example we use the `interactive_api/Tensorflow_MNIST/workspace/Tensorflow_MNIST.ipynb` notebook.
-* If the federation is configured with the default Unbounded Shard Descriptor, you can use `interactive_api/Tensorflow_MNIST_With_Dummy_Envoy_Shard_FedLCM/Tensorflow_MNIST_With_Dummy_Envoy_Shard_FedLCM.ipynb` as an example on how to put real data reading logic in the `DataInterface`.
+* If the federation is configured with the default Unbounded Shard Descriptor, you can use [Tensorflow_MNIST_With_Dummy_Envoy_Shard_FedLCM.ipynb](#link-to-be-added) as an example on how to put real data reading logic in the `DataInterface`. Just upload this file to the Jupyter Lab instance and follow the guide there.
 
 The content in the notebook is from OpenFL's [official repo](https://github.com/intel/openfl/tree/develop/openfl-tutorials). We assume you have basic knowledge on how to use the OpenFL sdk to work with the director API.
 
-For the `federation` creation part, most of the examples are using below code:
+For the `federation` creation part, to connect to the director from the deployed Jupyter Lab instance, use the following code:
 
 ```python
 # Create a federation
 from openfl.interface.interactive_api.federation import Federation
 
-# please use the same identificator that was used in signed certificate
 client_id = 'api'
-cert_dir = 'cert'
-director_node_fqdn = 'localhost'
-director_port=50051
-# 1) Run with API layer - Director mTLS 
-# If the user wants to enable mTLS their must provide CA root chain, and signed key pair to the federation interface
-# cert_chain = f'{cert_dir}/root_ca.crt'
-# api_certificate = f'{cert_dir}/{client_id}.crt'
-# api_private_key = f'{cert_dir}/{client_id}.key'
+director_node_fqdn = 'director'
+director_port = 50051
+cert_chain = '/openfl/workspace/cert/root_ca.crt'
+api_cert = '/openfl/workspace/cert/notebook.crt'
+api_private_key = '/openfl/workspace/cert/priv.key'
 
-# federation = Federation(
-#     client_id=client_id,
-#     director_node_fqdn=director_node_fqdn,
-#     director_port=director_port,
-#     cert_chain=cert_chain,
-#     api_cert=api_certificate,
-#     api_private_key=api_private_key
-# )
-
-# --------------------------------------------------------------------------------------------------------------------
-
-# 2) Run with TLS disabled (trusted environment)
-# Federation can also determine local fqdn automatically
 federation = Federation(
-    client_id=client_id,
-    director_node_fqdn=director_node_fqdn,
-    director_port=director_port, 
-    tls=False
+  client_id=client_id,
+  director_node_fqdn=director_node_fqdn,
+  director_port=director_port,
+  cert_chain=cert_chain,
+  api_cert=api_cert,
+  api_private_key=api_private_key
 )
 ```
 
-But we actually don't need that to be this complicated, since we have internally configured the SDK to work with the deployed director by default.
-So to create a federation that represent the director, use below code is sufficient:
-
-```python
-# Create a federation
-from openfl.interface.interactive_api.federation import Federation
-
-federation = Federation()
-```
+The certificates, keys, director listening port and other settings are pre-configured by FedLCM so we can use them as shown above.
 
 And if we call the federation's `get_shard_registry()` API, we will notice the returned data is an empty dict. It is expected as current there is no "client (envoy)" created yet.
+
 We can move on now.
 
 ## Register Device/Node/Machine to the Federation
@@ -380,3 +359,4 @@ Now, we have finished the whole process of installing FedLCM to deploying OpenFL
 * If there are errors when running experiment in the envoy side, the experiment may become "never finished". This is OpenFL's own issue. Currently, the workaround is restart the director and envoy.
 * There is no "unregister" support in OpenFL yet so if we delete an envoy, it may still show in the director's `federation.get_shard_registry()` API. But its status is offline so director won't send future experiment to this removed envoy.
 * For the KubeConfig used in the infrastructure, We haven't tested what are exactly the minimal requirement permissions.
+* To facilitate the envoy's container image registry configuration, we can set the `LIFECYCLEMANAGER_OPENFL_ENVOY_REGISTRY_OVERRIDE` environment variable for FedLCM service, which will take precedence of the registry url configured in the `extra-config` file used by the device agent.

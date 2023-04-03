@@ -1,4 +1,4 @@
-# Copyright 2022 VMware, Inc.
+# Copyright 2022-2023 VMware, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -41,6 +41,9 @@ spec:
               mkdir -p workspace/logs
               cd workspace
               fx director start --director-config-path director_config.yaml --root-cert-path cert/root_ca.crt --private-key-path cert/priv.key --public-cert-path cert/director.crt
+          env:
+            - name: OVERRIDE_AGG_PORT
+              value: "50052"
           image: {{ with .Values.image.registry }}{{ printf "%s/" . }}{{ end }}{{ .Values.modules.director.image | default "fedlcm-openfl" }}:{{ .Values.modules.director.imageTag | default "latest"}}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           name: director

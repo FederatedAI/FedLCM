@@ -38,7 +38,7 @@ spec:
             - /bin/bash
             - -c
             - |
-              jupyter lab --notebook-dir /usr/local/lib/python3.8/dist-packages/openfl-tutorials --allow-root --ip=0.0.0.0 --NotebookApp.token='' --NotebookApp.password={{ .Values.modules.notebook.password }}
+              jupyter lab --notebook-dir /openfl/openfl-tutorials --allow-root --ip=0.0.0.0 --NotebookApp.token='' --NotebookApp.password={{ .Values.modules.notebook.password }}
           image: {{ with .Values.image.registry }}{{ printf "%s/" . }}{{ end }}{{ .Values.modules.notebook.image | default "fedlcm-openfl" }}:{{ .Values.modules.notebook.imageTag | default "latest"}}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           name: notebook

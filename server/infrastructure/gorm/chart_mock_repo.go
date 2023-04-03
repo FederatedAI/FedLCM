@@ -5160,23 +5160,23 @@ externalMysqlPassword: {{ .externalMysqlPassword }}
 				UpdatedAt: time.Now(),
 			},
 			UUID:        "516a10e2-0b96-417c-812b-ee45ed197e81",
-			Name:        "chart for FedLCM private OpenFL Director v0.1.0",
-			Description: "This chart is for deploying FedLCM's OpenFL director v0.1.0 services, based from OpenFL 1.3 release",
+			Name:        "chart for FedLCM private OpenFL Director v0.3.0",
+			Description: "This chart is for deploying FedLCM's OpenFL director v0.3.0 services, based from OpenFL 1.5 release",
 			Type:        entity.ChartTypeOpenFLDirector,
 			ChartName:   "openfl-director",
-			Version:     "v0.1.0",
-			AppVersion:  "openfl-director-v0.1.0",
+			Version:     "v0.3.0",
+			AppVersion:  "openfl-director-v1.5",
 			Chart: `apiVersion: v1
-appVersion: "openfl-director-v0.1.0"
+appVersion: "openfl-director-v1.5"
 description: A Helm chart for openfl director, based on official OpenFL container image
 name: openfl-director
-version: v0.1.0
+version: v0.3.0
 sources:
-  - https://github.com/FederatedAI/KubeFATE.git`,
+  - https://github.com/securefederatedai/openfl`,
 			InitialYamlTemplate: `name: {{.Name}}
 namespace: {{.Namespace}}
 chartName: openfl-director
-chartVersion: v0.1.0
+chartVersion: v0.3.0
 {{- if .UseRegistry}}
 registry: {{.Registry}}
 {{- end }}
@@ -5201,7 +5201,7 @@ ingress:
 
 director:
   image: fedlcm-openfl
-  imageTag: v0.1.0
+  imageTag: v0.3.0
   type: {{.ServiceType}}
   sampleShape: "{{.SampleShape}}"
   targetShape: "{{.TargetShape}}"
@@ -5214,7 +5214,7 @@ director:
 
 notebook:
   image: fedlcm-openfl
-  imageTag: v0.1.0
+  imageTag: v0.3.0
   type: {{.ServiceType}}
   password: {{.JupyterPassword}}
 #  nodeSelector:
@@ -5242,7 +5242,7 @@ ingress:
 modules:
   director:
     image: fedlcm-openfl
-    imageTag: v0.1.0
+    imageTag: v0.3.0
     sampleShape: "['1']"
     targetShape: "['1']"
     envoyHealthCheckPeriod: 60
@@ -5255,7 +5255,7 @@ modules:
 
   notebook:
     image: fedlcm-openfl
-    imageTag: v0.1.0
+    imageTag: v0.3.0
     # password:
     # nodeSelector:
     # tolerations:
@@ -5341,7 +5341,7 @@ modules:
     nodePort: {{ .nodePort }}
     loadBalancerIP: {{ .loadBalancerIP }}
     {{- end }}`,
-			ArchiveContent: mock.FedLCMOpenFLDirector010ChartArchiveContent,
+			ArchiveContent: mock.FedLCMOpenFLDirector030ChartArchiveContent,
 			Private:        true,
 		},
 		"c62b27a6-bf0f-4515-840a-2554ed63aa56": {
@@ -5351,23 +5351,23 @@ modules:
 				UpdatedAt: time.Now(),
 			},
 			UUID:        "c62b27a6-bf0f-4515-840a-2554ed63aa56",
-			Name:        "chart for FedLCM private OpenFL Envoy v0.1.0",
-			Description: "This chart is for deploying OpenFL envoy built for FedLCM, based from OpenFL 1.3 release",
+			Name:        "chart for FedLCM private OpenFL Envoy v0.3.0",
+			Description: "This chart is for deploying OpenFL envoy built for FedLCM, based from OpenFL 1.5 release",
 			Type:        entity.ChartTypeOpenFLEnvoy,
 			ChartName:   "openfl-envoy",
-			Version:     "v0.1.0",
-			AppVersion:  "openfl-envoy-v0.1.0",
+			Version:     "v0.3.0",
+			AppVersion:  "openfl-envoy-v1.5",
 			Chart: `apiVersion: v1
-appVersion: "openfl-envoy-v0.1.0"
+appVersion: "openfl-envoy-v1.5"
 description: A Helm chart for openfl envoy
 name: openfl-envoy
-version: v0.1.0
+version: v0.3.0
 sources:
   - https://github.com/FederatedAI/KubeFATE.git`,
 			InitialYamlTemplate: `name: {{.Name}}
 namespace: {{.Namespace}}
 chartName: openfl-envoy
-chartVersion: v0.1.0
+chartVersion: v0.3.0
 {{- if .UseRegistry}}
 registry: {{.Registry}}
 {{- end }}
@@ -5382,7 +5382,7 @@ modules:
 
 envoy:
   image: fedlcm-openfl
-  imageTag: v0.1.0
+  imageTag: v0.3.0
   directorFqdn: {{.DirectorFQDN}}
   directorIp: {{.DirectorIP}}
   directorPort: {{.DirectorPort}}
@@ -5406,7 +5406,7 @@ podSecurityPolicy:
 modules:
   envoy:
     image: fedlcm-openfl
-    imageTag: v0.1.0
+    imageTag: v0.3.0
     directorFqdn: director
     directorIp: 192.168.1.1
     directorPort: 50051
@@ -5454,7 +5454,7 @@ modules:
 {{ toYaml . | indent 6 }}
     {{- end }}
     {{- end }}`,
-			ArchiveContent: mock.FedLCMOpenFLEnvoy010ChartArchiveContent,
+			ArchiveContent: mock.FedLCMOpenFLEnvoy030ChartArchiveContent,
 			Private:        true,
 		},
 	}

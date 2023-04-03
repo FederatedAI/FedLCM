@@ -18,7 +18,7 @@ ingress:
 modules:
   director:
     image: fedlcm-openfl
-    imageTag: v0.1.0
+    imageTag: v0.3.0
     sampleShape: "['1']"
     targetShape: "['1']"
     envoyHealthCheckPeriod: 60
@@ -31,7 +31,7 @@ modules:
 
   notebook:
     image: fedlcm-openfl
-    imageTag: v0.1.0
+    imageTag: v0.3.0
     # password:
     # nodeSelector:
     # tolerations:
