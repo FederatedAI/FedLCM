@@ -187,9 +187,9 @@ You can click into the director details page and keep refreshing it. If things w
 Now, we can open up the deployed Jupyter Lab system by clicking the Jupyter Notebook link, input the password we just configured and open a notebook we want to use, or create a new notebook where we can write our own code.
 
 * For this example we use the `interactive_api/Tensorflow_MNIST/workspace/Tensorflow_MNIST.ipynb` notebook.
-* If the federation is configured with the default Unbounded Shard Descriptor, you can use [Tensorflow_MNIST_With_Dummy_Envoy_Shard_FedLCM.ipynb](#link-to-be-added) as an example on how to put real data reading logic in the `DataInterface`. Just upload this file to the Jupyter Lab instance and follow the guide there.
+* If the federation is configured with the default Unbounded Shard Descriptor, you can use [Tensorflow_MNIST_With_Dummy_Envoy_Shard_FedLCM.ipynb](./examples/Tensorflow_MNIST_With_Dummy_Envoy_Shard_FedLCM/Tensorflow_MNIST_With_Dummy_Envoy_Shard_FedLCM.ipynb) as an example on how to put real data reading logic in the `DataInterface`. Just upload this file to the Jupyter Lab instance and follow the guide there.
 
-The content in the notebook is from OpenFL's [official repo](https://github.com/intel/openfl/tree/develop/openfl-tutorials). We assume you have basic knowledge on how to use the OpenFL sdk to work with the director API.
+The existing content in the notebook service is from OpenFL's [official repo](https://github.com/intel/openfl/tree/develop/openfl-tutorials). We assume you have basic knowledge on how to use the OpenFL sdk to work with the director API.
 
 For the `federation` creation part, to connect to the director from the deployed Jupyter Lab instance, use the following code:
 
@@ -360,3 +360,63 @@ Now, we have finished the whole process of installing FedLCM to deploying OpenFL
 * There is no "unregister" support in OpenFL yet so if we delete an envoy, it may still show in the director's `federation.get_shard_registry()` API. But its status is offline so director won't send future experiment to this removed envoy.
 * For the KubeConfig used in the infrastructure, We haven't tested what are exactly the minimal requirement permissions.
 * To facilitate the envoy's container image registry configuration, we can set the `LIFECYCLEMANAGER_OPENFL_ENVOY_REGISTRY_OVERRIDE` environment variable for FedLCM service, which will take precedence of the registry url configured in the `extra-config` file used by the device agent.
+
+### Preparing the fedlcm-openfl Image Locally & Using You Own Registry
+The Director, Envoy and Jupyter Lab container deployed by FedLCM all use a same container image. This image is built using OpenFL's official dockerfile but with small modifications. Here is how to build this image locally and use your own image registry:
+
+1. Checkout OpenFL's v1.5 release code
+```bash
+git clone -b v1.5 https://github.com/securefederatedai/openfl.git
+cd openfl
+```
+
+2. Run the following command to add the modification
+```bash
+patch -p1 <<EOF
+--- a/openfl/federated/plan/plan.py
++++ b/openfl/federated/plan/plan.py
+@@ -2,6 +2,8 @@
+ # SPDX-License-Identifier: Apache-2.0
+
+ """Plan module."""
++import os
++
+ from hashlib import sha384
+ from importlib import import_module
+ from logging import getLogger
+@@ -245,6 +247,16 @@ class Plan:
+         self.rounds_to_train = self.config['aggregator'][SETTINGS][
+             'rounds_to_train']
+
++        override_agg_addr = os.environ.get('OVERRIDE_AGG_ADDR')
++        if override_agg_addr is not None:
++            self.config['network'][SETTINGS]['agg_addr'] = override_agg_addr
++            Plan.logger.info(f'override agg_addr with {override_agg_addr}')
++
++        override_agg_port = os.environ.get('OVERRIDE_AGG_PORT')
++        if override_agg_port is not None:
++            self.config['network'][SETTINGS]['agg_port'] = override_agg_port
++            Plan.logger.info(f'override agg_port with {override_agg_port}')
++
+         if self.config['network'][SETTINGS]['agg_addr'] == AUTO:
+             self.config['network'][SETTINGS]['agg_addr'] = getfqdn_env()
+
+EOF
+```
+
+3. Build the container image using OpenFL's Dockerfile and push it
+```bash
+docker build -t <your registry url>/fedlcm-openfl:v0.3.0 -f openfl-docker/Dockerfile.base .
+docker push <your registry url>/fedlcm-openfl:v0.3.0 
+```
+
+For example, assuming we want to use my dockerhub account "foobar", then the command would look like:
+```bash
+docker build -t foobar/fedlcm-openfl:v0.3.0 -f openfl-docker/Dockerfile.base .
+docker push foobar/fedlcm-openfl:v0.3.0
+```
+
+4. When deploying directors, we need to set the registry url to `foobar`.
+5. When registering envoys, we need to configure the registry in `--extra-config` or set the `LIFECYCLEMANAGER_OPENFL_ENVOY_REGISTRY_OVERRIDE` environment variable of FedLCM service to `foobar`.
+
+With the above steps, we will be using our locally built image from our own container image registry.
