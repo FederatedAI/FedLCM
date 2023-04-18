@@ -522,8 +522,8 @@ export class EndpointNewComponent implements OnInit {
   isCreateEndpointSubmit = false;
   //createEndpoint is to submit 'create endpoint' request
   createEndpoint() {
-    // this.isCreateEndpointFailed = false;
-    // this.isCreateEndpointSubmit = true;
+    this.isCreateEndpointFailed = false;
+    this.isCreateEndpointSubmit = true;
     if (this.form.valid) {
       const endpointConfig: any = {
         description: this.form.get('install')?.get('description')?.value,
