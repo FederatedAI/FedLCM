@@ -286,8 +286,9 @@ export class EndpointNewComponent implements OnInit {
       lineWrapping: true,
       tabSize: 2,
     })
-    this.codeMirror.on('change', (cm: any) => {
+    this.codeMirror.on('change', (cm: any) => {      
       this.codeMirror.save()
+      this.form.get('install')?.get('yaml')?.setValue(cm.getValue())
     })
     this.hasYAMLTextAreaDOM = true
   }
@@ -521,8 +522,8 @@ export class EndpointNewComponent implements OnInit {
   isCreateEndpointSubmit = false;
   //createEndpoint is to submit 'create endpoint' request
   createEndpoint() {
-    this.isCreateEndpointFailed = false;
-    this.isCreateEndpointSubmit = true;
+    // this.isCreateEndpointFailed = false;
+    // this.isCreateEndpointSubmit = true;
     if (this.form.valid) {
       const endpointConfig: any = {
         description: this.form.get('install')?.get('description')?.value,
@@ -533,6 +534,7 @@ export class EndpointNewComponent implements OnInit {
         type: this.form.get('endpoint')?.get('endpoint_type')?.value,
         ingress_controller_service_mode: Number(this.form.get('install')?.get('ingress_controller_service_mode')?.value),
       }
+      
       if (this.form.get('endpoint')?.get('endpoint_namespace')?.value) {
         endpointConfig.namespace = this.form.get('endpoint')?.get('endpoint_namespace')?.value
       }
