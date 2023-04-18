@@ -288,6 +288,7 @@ export class EndpointNewComponent implements OnInit {
     })
     this.codeMirror.on('change', (cm: any) => {
       this.codeMirror.save()
+      this.form.get('install')?.get('yaml')?.setValue(cm.getValue())
     })
     this.hasYAMLTextAreaDOM = true
   }
