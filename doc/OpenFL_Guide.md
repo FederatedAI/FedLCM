@@ -60,12 +60,12 @@ With the service running and CA configured, we can start create the OpenFL feder
 ### Add Kubernetes Infrastructure
 
 Kubernetes clusters are considered as Infrastructures in the FedLCM service. All the other installation are performed on these K8s clusters. To deploy the director, one must firstly add the target K8s into the system.
-Go to the "Infrastructure" section and click the "NEW" button. What needs to be filled is the KubeConfig content that FedLCM will use to connect the K8s cluster.
+Go to the "Infrastructure" section and click the "NEW" button. What needs to be filled is the kubeconfig content that FedLCM will use to connect the K8s cluster.
 
-**Even though for FATE we can support namespace-wide admin, the user configured in the KubeConfig for OpenFL should have the privilege to create all core K8s resource including namespace, deployment, configmap, role, secret, etc. We haven't tested the exact rules. If not sure, use the cluster-admin ClusterRole**
+**By default, FedLCM expects the kubeconfig to have cluster-admin permission to operate the cluster. An alternative is using namespace wide admin permission. To use this less privileged config, enable the "Limited to certain namespaces" option and input the namespace(s) this kubeconfig can only use**
 
 <div style="text-align:center">
-<img src="images/fedlcm-new-infra.jpg"  alt="" width="1000"/>
+<img src="images/fedlcm-new-infra.png"  alt="" width="1000"/>
 </div>
 
 Click "TEST" to make sure the cluster is available. And "SUBMIT" to save the new infrastructure.
@@ -75,7 +75,7 @@ The "FATE Registry Configuration" section is for FATE usage and not for OpenFL, 
 ### Install KubeFATE Endpoint
 
 In the "Endpoint" section, we can install KubeFATE service onto the K8s infrastructure. And later it can be used to deploy OpenFL components.
-To add a new KubeFATE endpoint, select the infrastructure and the system will try to find if there is already a KubeFATE service running.
+To add a new KubeFATE endpoint, select the infrastructure (and the namespace if the kubeconfig has less privilege) and then system will try to find if there is already a KubeFATE service running.
 If yes, the system will add the KubeFATE into its database directly. If no, the system will provide an installation step as shown below:
 
 <div style="text-align:center">
@@ -168,6 +168,7 @@ After the federation is created, we can create the director. Click "NEW" under t
 
 Several things to note:
 * Try to give a unique name and namespace for the director as it may cause some issue if the name and namespace conflicts with existing ones in the cluster.
+* If the selected endpoint and infrastructure is using less privileged kubeconfig, the namespace is predefined and cannot be changed.
 * It is suggested to choose "Install certificates for me" in the Certificate section. Only select "I will manually install certificates" if you want to import your own certificate instead of using the CA to create a new one. Refer to the OpenFL helm chart guide on how to import existing one.
 * Choose "NodePort" if your cluster doesn't have any controller that can handle `LoadBalancer` type of service.
 * If your cluster doesn't enable [Pod Security Policies](https://kubernetes.io/docs/concepts/security/pod-security-policy/), you don't have to enable it in the "Pod Security Policy Configuration".
@@ -270,6 +271,7 @@ chartUUID: "type: string, default: <the default chart uuid in FedLCM>"
 labels: "type: map, default:<nil>, the labels for the envoy will be a merge from this field and labels of the token"
 skipCommonPythonFiles: "type: bool, default: false, if true, the python shard descriptor files configured in the federation will not be used, and user will need to manually import the python files."
 enablePSP: "type: bool, default: false, if true, the deployd envoy pod will have PSP associated"
+lessPrivileged: "type: bool, default: false, if ture, all the components will be installed in one namespace. Make sure the namespace already exists and the kubeconfig has the permission to operate in this namespace"
 registryConfig:
   useRegistry: "type: bool, default false"
   registry: "type: string, default <empty string>, if set, the image will be <registry>/fedlcm-openfl:v0.1.0"
@@ -281,6 +283,8 @@ registryConfig:
 ```
 
 > The registryConfig will affect both KubeFATE and OpenFL related images. Make sure you have all the images in your customized registry.
+
+**If the kubeconfig used for Envoy registration only has namespace wide admin permissions, we must specify the namespace and set `lessPrivileged` to true in the extra-config file**
 
 ### Start Registration and Envoy Deployment 
 
@@ -358,7 +362,6 @@ Now, we have finished the whole process of installing FedLCM to deploying OpenFL
 ## Caveats
 * If there are errors when running experiment in the envoy side, the experiment may become "never finished". This is OpenFL's own issue. Currently, the workaround is restart the director and envoy.
 * There is no "unregister" support in OpenFL yet so if we delete an envoy, it may still show in the director's `federation.get_shard_registry()` API. But its status is offline so director won't send future experiment to this removed envoy.
-* For the KubeConfig used in the infrastructure, We haven't tested what are exactly the minimal requirement permissions.
 * To facilitate the envoy's container image registry configuration, we can set the `LIFECYCLEMANAGER_OPENFL_ENVOY_REGISTRY_OVERRIDE` environment variable for FedLCM service, which will take precedence of the registry url configured in the `extra-config` file used by the device agent.
 
 ### Preparing the fedlcm-openfl Image Locally & Using You Own Registry
