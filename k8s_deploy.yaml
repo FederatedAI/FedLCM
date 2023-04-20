@@ -118,6 +118,7 @@ spec:
           volumeMounts:
             - name: postgres-volume
               mountPath: /var/lib/postgresql/data
+              subPath: data
           env:
             - name: POSTGRES_USER
               value: "lifecycle_manager"
@@ -153,7 +154,7 @@ spec:
 #     - ReadWriteOnce
 #   resources:
 #     requests:
-#       storage: 5Gi  
+#       storage: 5Gi
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -201,8 +202,8 @@ spec:
             - mountPath: /home/step
               name: stepca-volume
             - mountPath: /entrypoint.sh
-              subPath: entrypoint.sh
               name: stepca-entrypoint
+              subPath: entrypoint.sh
         - name: server
           image: federatedai/fedlcm-server:v0.3.0
           imagePullPolicy: IfNotPresent
@@ -270,7 +271,7 @@ spec:
 #     - ReadWriteOnce
 #   resources:
 #     requests:
-#       storage: 5Gi 
+#       storage: 5Gi
 ---
 apiVersion: v1
 kind: Service
