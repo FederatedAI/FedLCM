@@ -97,6 +97,7 @@ type ParticipantOpenFLEnvoyRegistrationRequest struct {
 	SkipCommonPythonFiles bool                           `json:"skip_common_python_files"`
 	RegistryConfig        valueobject.KubeRegistryConfig `json:"registry_config"`
 	EnablePSP             bool                           `json:"enable_psp"`
+	LessPrivileged        bool                           `json:"less_privileged"`
 
 	// internal
 	federation   *entity.FederationOpenFL
@@ -627,6 +628,10 @@ func (s *ParticipantOpenFLService) HandleRegistrationRequest(req *ParticipantOpe
 		return nil, errors.Errorf("chart %s is not for OpenFL envoy deployment", req.chart.UUID)
 	}
 
+	if req.Namespace == "" {
+		req.Namespace = fmt.Sprintf("%s-envoy", toDeploymentName(req.federation.Name))
+	}
+
 	infraProvider, err := s.configEnvoyInfra(req)
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to prepare the envoy infra provider")
@@ -646,16 +651,16 @@ func (s *ParticipantOpenFLService) HandleRegistrationRequest(req *ParticipantOpe
 	}
 	//TODO: check if same name envoy exists in the same infra
 
-	if req.Namespace == "" {
-		req.Namespace = fmt.Sprintf("%s-envoy", toDeploymentName(req.federation.Name))
-	}
-	K8sClient, err := kubernetes.NewKubernetesClient("", infraProvider.Config.KubeConfigContent, infraProvider.Config.IsInCluster)
-	if err != nil {
-		return nil, err
-	}
-	_, err = K8sClient.GetClientSet().CoreV1().Namespaces().Get(context.TODO(), req.Namespace, v1.GetOptions{})
-	if err == nil {
-		return nil, errors.Errorf("namespace %s exists. cannot override", req.Namespace)
+	// When using less privileged permission, the namespace should be created before-hard
+	if !req.LessPrivileged {
+		K8sClient, err := kubernetes.NewKubernetesClient("", infraProvider.Config.KubeConfigContent, infraProvider.Config.IsInCluster)
+		if err != nil {
+			return nil, err
+		}
+		_, err = K8sClient.GetClientSet().CoreV1().Namespaces().Get(context.TODO(), req.Namespace, v1.GetOptions{})
+		if err == nil {
+			return nil, errors.Errorf("namespace %s exists. cannot override", req.Namespace)
+		}
 	}
 
 	deploymentYAML, err := s.GetOpenFLEnvoyYAML(req)
@@ -717,8 +722,11 @@ func (s *ParticipantOpenFLService) HandleRegistrationRequest(req *ParticipantOpe
 		req.operationLog = &operationLog
 		operationLog.Info().Msgf("creating envoy %s with UUID %s", req.Name, envoy.UUID)
 		if err := func() (err error) {
-			// TODO: check the namespace passed here
-			endpointUUID, err := s.EndpointService.ensureEndpointExist(infraProvider.UUID, "", req.RegistryConfig)
+			kfNamespace := ""
+			if req.LessPrivileged {
+				kfNamespace = req.Namespace
+			}
+			endpointUUID, err := s.EndpointService.ensureEndpointExist(infraProvider.UUID, kfNamespace, req.RegistryConfig)
 			if err != nil {
 				return err
 			}
@@ -830,7 +838,7 @@ func (s *ParticipantOpenFLService) RemoveEnvoy(uuid string, force bool) error {
 	}
 
 	if !force && envoy.Status != entity.ParticipantOpenFLStatusActive {
-		return errors.Errorf("director cannot be removed when in status: %v", envoy.Status)
+		return errors.Errorf("envoy cannot be removed when in status: %v", envoy.Status)
 	}
 
 	envoy.Status = entity.ParticipantOpenFLStatusRemoving
@@ -943,6 +951,9 @@ func (s *ParticipantOpenFLService) configEnvoyInfra(req *ParticipantOpenFLEnvoyR
 	kubeconfig := valueobject.KubeConfig{
 		KubeConfigContent: req.KubeConfig,
 	}
+	if req.LessPrivileged {
+		kubeconfig.NamespacesList = []string{req.Namespace}
+	}
 	if err := kubeconfig.Validate(); err != nil {
 		return nil, err
 	}
@@ -965,6 +976,9 @@ func (s *ParticipantOpenFLService) configEnvoyInfra(req *ParticipantOpenFLEnvoyR
 		},
 		Config: kubeconfig,
 		Repo:   s.InfraRepo,
+	}
+	if req.LessPrivileged {
+		infraProvider.Name = infraProvider.Name + "-" + req.Namespace
 	}
 
 	if err := s.InfraRepo.ProviderExists(infraProvider); err == nil {

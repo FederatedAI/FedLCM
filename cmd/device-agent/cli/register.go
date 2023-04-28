@@ -38,6 +38,7 @@ type envoyRegistrationConfig struct {
 	Labels                valueobject.Labels             `json:"labels"`
 	SkipCommonPythonFiles bool                           `json:"skip_common_python_files" yaml:"skipCommonPythonFiles"`
 	EnablePSP             bool                           `json:"enable_psp" yaml:"enablePSP"`
+	LessPrivileged        bool                           `json:"less_privileged" yaml:"lessPrivileged"`
 	RegistryConfig        valueobject.KubeRegistryConfig `json:"registry_config" yaml:"registryConfig"`
 }
 
