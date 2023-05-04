@@ -34,6 +34,9 @@ export class ClusterNewComponent implements OnInit {
         name: [''],
         description: [''],
         clusterType: [''],
+        enableTemplate: [false],
+        federationName: [''],
+        clusterName: ['']
       }),
       external: this.formBuilder.group(
         ValidatorGroup([
@@ -86,14 +89,14 @@ export class ClusterNewComponent implements OnInit {
         cert: ['use'],
         site_portal_client_cert_mode: ['1'],
         site_portal_client_cert_uuid: [''],
-        site_portal_client_cert_mode_radio: {value: 'new'},
+        site_portal_client_cert_mode_radio: {value: true},
 
         site_portal_server_cert_mode: ['1'],
         site_portal_server_cert_uuid: [''],
-        site_portal_server_cert_mode_radio: {value: 'new'},
+        site_portal_server_cert_mode_radio: {value: true},
         pulsar_server_cert_info: ['1'],
         pulsar_server_cert_uuid: [''],
-        pulsar_server_cert_info_radio: {value: 'new'},
+        pulsar_server_cert_info_radio: [true],
       }),
       serviceType: this.formBuilder.group({
         serviceType: [null],
@@ -241,7 +244,6 @@ export class ClusterNewComponent implements OnInit {
           value: ''
         }
       ])),
-
       yaml: this.formBuilder.group({
         yaml: [''],
       })
@@ -253,6 +255,7 @@ export class ClusterNewComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.getFedList()
   }
 
   //support to create two type of exchange: create a new one or add an cluster
@@ -1075,6 +1078,88 @@ export class ClusterNewComponent implements OnInit {
   onChange_external_spark(data: Boolean, type: 'spark' | 'hdfs' | 'pulsar') {
 
   }
+
+
+  // Whether to enable template selection
+  get templateListFlag() {
+    return this.form.controls['info'].get('enableTemplate')?.value
+  }
+  fedList!:any 
+  clusterList!: any
+  fedUUID = ''
+  templateFedLoading = false
+  templateClusterLoading = false
+  templateErrorFlag = false
+  // This method is used to get the list of existing fed
+  getFedList() {
+    this.templateFedLoading = true
+    this.templateErrorFlag = false
+    this.fedservice.getFedList()
+    .subscribe((data: any) => {
+      this.fedList = data.data.filter((fed: {type: string}) => fed.type === 'FATE')
+      this.templateFedLoading = false
+    },
+    err => {
+      if (err.error.message) this.errorMessage = err.error.message
+      this.templateFedLoading = false
+      this.templateErrorFlag = true
+    });
+  }
+
+  // This method gets the following cluster list according to the currently selected fed
+  getFedClusterAll(fed_uuid: string) {
+    this.fedUUID = fed_uuid
+    this.templateClusterLoading = true
+    this.templateErrorFlag = false
+    this.fedservice.getFedParticipantList(fed_uuid)
+    .subscribe((data: any) => {
+      this.clusterList = data.data.clusters || [];
+      this.templateClusterLoading = false
+    },
+    err => {
+      if (err.error.message) this.errorMessage = err.error.message
+      this.templateClusterLoading = false
+      this.templateErrorFlag = true
+    }
+    );
+  }
+  // This method obtains details based on the currently selected cluster and fills in the form
+  getClusterDetail(cluster_uuid: string) {
+    this.fedservice.getClusterInfo(this.fedUUID, cluster_uuid).subscribe(
+      data => {
+        const detailInfo = data.data
+        if (detailInfo) {
+          // set form
+          this.form.controls['info'].get('description')?.setValue(detailInfo.description)
+
+          this.form.controls['external'].get('pulsarHost')?.setValue(detailInfo.access_info?.['pulsar-public-tls']?.host)
+          this.form.controls['external'].get('pulsarPort')?.setValue(detailInfo.access_info?.['pulsar-public-tls']?.port)
+          this.form.controls['external'].get('nginxHost')?.setValue(detailInfo.access_info?.nginx?.host)
+          this.form.controls['external'].get('nginxPort')?.setValue(detailInfo.access_info?.nginx?.port)
+
+          this.form.controls['endpoint'].get('endpoint_uuid')?.setValue(detailInfo.endpoint_uuid)
+          const endpoint = this.endpointlist.filter((ep: any) => ep.uuid === detailInfo.endpoint_uuid)
+          if (endpoint[0]) this.selectedEndpoint = endpoint[0]
+          
+          this.form.controls['chart'].get('chart_uuid')?.setValue(detailInfo.chart_uuid)
+          this.form.controls['namespace'].get('namespace')?.setValue(detailInfo.chart_uuid)
+          this.form.controls['certificate'].get('site_portal_client_cert_mode')?.setValue(detailInfo.site_portal_client_cert_info?.binding_mode)
+          this.form.controls['certificate'].get('site_portal_client_cert_uuid')?.setValue(detailInfo.site_portal_client_cert_info?.uuid)
+          this.form.controls['certificate'].get('site_portal_server_cert_mode')?.setValue(detailInfo.site_portal_server_cert_info?.binding_mode)
+          this.form.controls['certificate'].get('site_portal_server_cert_uuid')?.setValue(detailInfo.site_portal_server_cert_info?.uuid)
+          this.form.controls['certificate'].get('pulsar_server_cert_info')?.setValue(detailInfo.pulsar_server_cert_info?.binding_mode)
+          this.form.controls['certificate'].get('pulsar_server_cert_uuid')?.setValue(detailInfo.pulsar_server_cert_info?.uuid)
+          this.form.controls['serviceType'].get('serviceType')?.setValue(detailInfo.type)
+        }
+        
+      },
+      err => {
+        if (err.error.message) this.errorMessage = err.error.message
+        this.templateErrorFlag = true
+      }
+    )
+  }
+
 
 }
 

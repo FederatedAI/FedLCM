@@ -270,7 +270,8 @@
     "pulsarMngPort": "Manager Port",
     "pulsarPort": "Port",
     "sslPort": "SSL Port",
-    "coresPerNode": "Cores Per Node"
+    "coresPerNode": "Cores Per Node",
+    "chooseTemplate": "Enable select an existing template"
   },
   "ExchangeNew": {
     "name": "Create a New Exchange",
