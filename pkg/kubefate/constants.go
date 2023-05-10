@@ -96,6 +96,8 @@ rules:
   resources:
   - deployments
   - statefulsets
+  - deployments/status
+  - statefulsets/status
   verbs:
   - get
   - list
@@ -117,21 +119,10 @@ rules:
 - apiGroups:
   - networking.istio.io
   resources:
-  - gateway
-  - virtualservice
+  - gateways
+  - virtualservices
   verbs:
   - get
-  - create
-  - delete
-  - update
-  - patch
-- apiGroups:
-  - policy
-  resources:
-  - podsecuritypolicies
-  verbs:
-  - get
-  - use
   - create
   - delete
   - update
@@ -147,6 +138,17 @@ rules:
   - delete
   - update
   - patch
+- apiGroups:
+    - batch
+  resources:
+    - jobs
+  verbs:
+    - get
+    - list
+    - create
+    - delete
+    - update
+    - patch
 {{- else }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1

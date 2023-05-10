@@ -99,6 +99,7 @@ type ParticipantFATEClusterYAMLCreationRequest struct {
 	PartyID           int    `json:"party_id"`
 	EnablePersistence bool   `json:"enable_persistence"`
 	StorageClass      string `json:"storage_class"`
+	FATEFlowGPUNum    int    `json:"fateflow_gpu_num"`
 	ExternalSpark     ExternalSpark
 	ExternalHDFS      ExternalHDFS
 	ExternalPulsar    ExternalPulsar
@@ -256,6 +257,8 @@ func (s *ParticipantFATEService) GetClusterDeploymentYAML(req *ParticipantFATECl
 		SitePortalTLSCommonName            string
 		EnablePersistence                  bool
 		StorageClass                       string
+		FATEFlowGPUEnabled                 bool
+		FATEFlowGPUNum                     int
 		EnablePSP                          bool
 		EnableExternalSpark                bool
 		ExternalSparkCoresPerNode          int
@@ -288,6 +291,8 @@ func (s *ParticipantFATEService) GetClusterDeploymentYAML(req *ParticipantFATECl
 		SitePortalTLSCommonName:            fmt.Sprintf("site-%d.server.%s", req.PartyID, federation.Domain),
 		EnablePersistence:                  req.EnablePersistence,
 		StorageClass:                       req.StorageClass,
+		FATEFlowGPUEnabled:                 req.FATEFlowGPUNum > 0,
+		FATEFlowGPUNum:                     req.FATEFlowGPUNum,
 		EnablePSP:                          req.EnablePSP,
 		EnableExternalSpark:                req.ExternalSpark.Enable,
 		ExternalSparkCoresPerNode:          req.ExternalSpark.Cores_per_node,

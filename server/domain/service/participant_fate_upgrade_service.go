@@ -88,6 +88,7 @@ func (s *ParticipantFATEService) UpgradeExchange(req *ParticipantFATEExchangeUpg
 	if err != nil {
 		return nil, nil, errors.Wrapf(err, "failed to get final yaml content")
 	}
+	previousDeploymentYAML := exchange.DeploymentYAML
 	exchange.DeploymentYAML = string(finalYAMLBytes)
 	log.Debug().Str("exchange.DeploymentYAML", exchange.DeploymentYAML).Msg("show DeploymentYAML")
 
@@ -142,8 +143,6 @@ func (s *ParticipantFATEService) UpgradeExchange(req *ParticipantFATEExchangeUpg
 			if err != nil {
 				return errors.Wrapf(err, "fail to get cluster uuid")
 			}
-			exchange.ClusterUUID = clusterUUID
-			exchange.ChartUUID = upgradeChart.UUID
 			if err := s.ParticipantFATERepo.UpdateInfoByUUID(exchange); err != nil {
 				return errors.Wrap(err, "failed to update exchange cluster uuid")
 			}
@@ -156,6 +155,8 @@ func (s *ParticipantFATEService) UpgradeExchange(req *ParticipantFATEExchangeUpg
 			if job.Status != modules.JobStatusSuccess {
 				return errors.Errorf("job is %s, job info: %v", job.Status.String(), job)
 			}
+			exchange.ClusterUUID = clusterUUID
+			exchange.ChartUUID = upgradeChart.UUID
 			operationLog.Info().Msgf("kubefate job succeeded")
 
 			exchange.Status = entity.ParticipantFATEStatusActive
@@ -165,13 +166,15 @@ func (s *ParticipantFATEService) UpgradeExchange(req *ParticipantFATEExchangeUpg
 			return s.ParticipantFATERepo.UpdateInfoByUUID(exchange)
 		}(); err != nil {
 			operationLog.Error().Msgf(errors.Wrapf(err, "failed to upgrade FATE exchange").Error())
-			exchange.Status = entity.ParticipantFATEStatusFailed
-			if updateErr := s.ParticipantFATERepo.UpdateStatusByUUID(exchange); updateErr != nil {
-				operationLog.Error().Msgf(errors.Wrapf(updateErr, "failed to update FATE exchange status").Error())
+			// we still mark the exchange to be active as kubefate can roll back the failed upgrade
+			exchange.Status = entity.ParticipantFATEStatusActive
+			exchange.DeploymentYAML = previousDeploymentYAML
+			if updateErr := s.ParticipantFATERepo.UpdateInfoByUUID(exchange); updateErr != nil {
+				operationLog.Error().Msgf(errors.Wrapf(updateErr, "failed to update FATE exchange info").Error())
 			}
 			return
 		}
-		operationLog.Info().Msgf("FATE exchange %s(%s) deployed", exchange.Name, exchange.UUID)
+		operationLog.Info().Msgf("FATE exchange %s(%s) upgraded", exchange.Name, exchange.UUID)
 	}()
 
 	return exchange, wg, nil
@@ -240,6 +243,7 @@ func (s *ParticipantFATEService) UpgradeCluster(req *ParticipantFATEClusterUpgra
 	if err != nil {
 		return nil, nil, errors.Wrapf(err, "failed to get final yaml content")
 	}
+	previousDeploymentYAML := cluster.DeploymentYAML
 	cluster.DeploymentYAML = string(finalYAMLBytes)
 	log.Debug().Str("cluster.DeploymentYAML", cluster.DeploymentYAML).Msg("show DeploymentYAML")
 
@@ -293,8 +297,6 @@ func (s *ParticipantFATEService) UpgradeCluster(req *ParticipantFATEClusterUpgra
 			if err != nil {
 				return errors.Wrapf(err, "fail to get cluster uuid")
 			}
-			cluster.ClusterUUID = clusterUUID
-			cluster.ChartUUID = upgradeChart.UUID
 			if err := s.ParticipantFATERepo.UpdateInfoByUUID(cluster); err != nil {
 				return errors.Wrap(err, "failed to update cluster uuid")
 			}
@@ -308,6 +310,8 @@ func (s *ParticipantFATEService) UpgradeCluster(req *ParticipantFATEClusterUpgra
 				return errors.Errorf("job is %s, job info: %v", job.Status.String(), job)
 			}
 
+			cluster.ClusterUUID = clusterUUID
+			cluster.ChartUUID = upgradeChart.UUID
 			operationLog.Info().Msgf("kubefate job succeeded")
 
 			cluster.Status = entity.ParticipantFATEStatusActive
@@ -326,13 +330,15 @@ func (s *ParticipantFATEService) UpgradeCluster(req *ParticipantFATEClusterUpgra
 			return nil
 		}(); err != nil {
 			operationLog.Error().Msgf(errors.Wrap(err, "failed to upgrade FATE cluster").Error())
-			cluster.Status = entity.ParticipantFATEStatusFailed
-			if updateErr := s.ParticipantFATERepo.UpdateStatusByUUID(cluster); updateErr != nil {
-				operationLog.Error().Msgf(errors.Wrap(err, "failed to update FATE cluster status").Error())
+			// we still mark the cluster to be active as kubefate can roll back the failed upgrade
+			cluster.Status = entity.ParticipantFATEStatusActive
+			cluster.DeploymentYAML = previousDeploymentYAML
+			if updateErr := s.ParticipantFATERepo.UpdateInfoByUUID(cluster); updateErr != nil {
+				operationLog.Error().Msgf(errors.Wrap(err, "failed to update FATE cluster info").Error())
 			}
 			return
 		}
-		operationLog.Info().Msgf("FATE cluster %s(%s) deployed", cluster.Name, cluster.UUID)
+		operationLog.Info().Msgf("FATE cluster %s(%s) upgraded", cluster.Name, cluster.UUID)
 	}()
 	return cluster, wg, nil
 }

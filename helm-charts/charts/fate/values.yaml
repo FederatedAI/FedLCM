@@ -2,7 +2,7 @@
 image:
   registry: federatedai
   isThridParty:
-  tag: 1.10.0-release
+  tag: 1.11.1-release
   pullPolicy: IfNotPresent
   imagePullSecrets: 
 #  - name: 
@@ -18,7 +18,7 @@ federation: Eggroll
 storage: Eggroll
 # Algorithm: Basic, NN
 algorithm: Basic
-# Device: CPU, IPCL
+# Device: CPU, IPCL, GPU
 device: IPCL
 
 istio:
@@ -64,12 +64,12 @@ ingress:
       path: /
     tls: []
   frontend:
-    # annotations: 
+    # annotations:
     hosts:
     - name:  frontend.example.com
       path: /
     tls: []
-    
+
 exchange:
   partyIp: 192.168.1.1
   partyPort: 30001
@@ -222,7 +222,7 @@ modules:
         memory: "4Gi"
 
 
-  mysql: 
+  mysql:
     include: true
     type: ClusterIP
     nodeSelector:
@@ -382,7 +382,7 @@ modules:
     # tolerations:
     # affinity:
     type: ClusterIP
-    # nodePort: 
+    # nodePort:
     # loadBalancerIP:
     user: site_portal
     password: site_portal
@@ -392,7 +392,7 @@ modules:
     storageClass: ""
     accessMode: ReadWriteOnce
     size: 1Gi
-  
+
   frontend:
     include: false
     image: federatedai/site-portal-frontend
@@ -401,10 +401,10 @@ modules:
     # tolerations:
     # affinity:
     type: ClusterIP
-    
-    # nodePort: 
+
+    # nodePort:
     # loadBalancerIP:
-    
+
   sitePortalServer:
     include: false
     image: site-portal-server
@@ -413,7 +413,7 @@ modules:
     # tolerations:
     # affinity:
     type: ClusterIP
-    # nodePort: 
+    # nodePort:
     # loadBalancerIP:
     existingClaim: ""
     storageClass: "sitePortalServer"

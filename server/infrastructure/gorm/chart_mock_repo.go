@@ -1,4 +1,4 @@
-// Copyright 2022 VMware, Inc.
+// Copyright 2022-2023 VMware, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -86,28 +86,28 @@ func (r *ChartMockRepo) ListByType(instance interface{}) (interface{}, error) {
 
 var (
 	chartMap = map[string]entity.Chart{
-		"4ad46829-a827-4632-b169-c8675360321e": {
+		"19c7c751-0de0-4780-95d6-e152440ab287": {
 			Model: gorm.Model{
 				ID:        1,
 				CreatedAt: time.Now(),
 				UpdatedAt: time.Now(),
 			},
-			UUID:        "4ad46829-a827-4632-b169-c8675360321e",
-			Name:        "chart for FATE exchange v1.10.0",
-			Description: "This chart is for deploying FATE exchange v1.10.0",
+			UUID:        "19c7c751-0de0-4780-95d6-e152440ab287",
+			Name:        "chart for FATE exchange v1.11.1",
+			Description: "This chart is for deploying FATE exchange v1.11.1",
 			Type:        entity.ChartTypeFATEExchange,
 			ChartName:   "fate-exchange",
-			Version:     "v1.10.0",
-			AppVersion:  "v1.10.0",
+			Version:     "v1.11.1",
+			AppVersion:  "v1.11.1",
 			Chart: `apiVersion: v1
-appVersion: v1.10.0
+appVersion: v1.11.1
 description: A Helm chart for fate exchange
 name: fate-exchange
-version: v1.10.0`,
+version: v1.11.1`,
 			InitialYamlTemplate: `name: {{.Name}}
 namespace: {{.Namespace}}
 chartName: fate-exchange
-chartVersion: v1.10.0
+chartVersion: v1.11.1
 partyId: 0
 {{- if .UseRegistry}}
 registry: {{.Registry}}
@@ -151,7 +151,7 @@ partyName: fate-exchange
 image:
   registry: federatedai
   isThridParty:
-  tag: 1.10.0-release
+  tag: 1.11.1-release
   pullPolicy: IfNotPresent
   imagePullSecrets: 
 #  - name: 
@@ -176,7 +176,7 @@ modules:
     ip: rollsite
     type: ClusterIP
     nodePort: 30001
-    loadBalancerIP: 
+    loadBalancerIP:
     enableTLS: false
     nodeSelector:
     tolerations:
@@ -349,24 +349,24 @@ modules:
 			ArchiveContent: nil,
 			Private:        false,
 		},
-		"7a51112a-b0ad-4c26-b2c0-1e6f7eca6073": {
+		"d81d2b48-930d-4c5e-b522-322b93e8ef39": {
 			Model: gorm.Model{
 				ID:        2,
 				CreatedAt: time.Now(),
 				UpdatedAt: time.Now(),
 			},
-			UUID:        "7a51112a-b0ad-4c26-b2c0-1e6f7eca6073",
-			Name:        "chart for FATE cluster v1.10.0",
-			Description: "This is chart for installing FATE cluster v1.10.0",
+			UUID:        "d81d2b48-930d-4c5e-b522-322b93e8ef39",
+			Name:        "chart for FATE cluster v1.11.1",
+			Description: "This is chart for installing FATE cluster v1.11.1",
 			Type:        entity.ChartTypeFATECluster,
 			ChartName:   "fate",
-			Version:     "v1.10.0",
-			AppVersion:  "v1.10.0",
+			Version:     "v1.11.1",
+			AppVersion:  "v1.11.1",
 			Chart: `apiVersion: v1
-appVersion: v1.10.0
+appVersion: v1.11.1
 description: A Helm chart for fate-training
 name: fate
-version: v1.10.0
+version: v1.11.1
 home: https://fate.fedai.org
 icon: https://aisp-1251170195.cos.ap-hongkong.myqcloud.com/wp-content/uploads/sites/12/2019/09/logo.png
 sources:
@@ -375,7 +375,7 @@ sources:
 			InitialYamlTemplate: `name: {{.Name}}
 namespace: {{.Namespace}}
 chartName: fate
-chartVersion: v1.10.0
+chartVersion: v1.11.1
 {{- if .UseRegistry}}
 registry: {{.Registry}}
 {{- end }}
@@ -409,8 +409,13 @@ modules:
 computing: Spark
 federation: Pulsar
 storage: HDFS
+{{- if .FATEFlowGPUEnabled }}
+algorithm: NN
+device: GPU
+{{- else }}
 algorithm: Basic
 device: CPU
+{{- end }}
 
 skippedKeys:
 - route_table
@@ -451,6 +456,17 @@ python:
   accessMode: ReadWriteOnce
   # dependent_distribution: false
   size: 10Gi
+  {{- if .FATEFlowGPUEnabled }}
+  resources:
+    requests:
+      nvidia.com/gpu: {{.FATEFlowGPUNum}}
+      # cpu: "2"
+      # memory: "4Gi"
+    limits:
+      nvidia.com/gpu: {{.FATEFlowGPUNum}}
+      # cpu: "4"
+      # memory: "8Gi"
+  {{- else }}
   # resources:
     # requests:
       # cpu: "2"
@@ -458,6 +474,7 @@ python:
     # limits:
       # cpu: "4"
       # memory: "8Gi"
+  {{- end }}
   {{- if .EnableExternalSpark }}
   spark: 
     cores_per_node: {{.ExternalSparkCoresPerNode}}
@@ -558,7 +575,7 @@ mysql:
 spark:
   master:
     # image: "federatedai/spark-master"
-    # imageTag: "1.10.0-release"
+    # imageTag: "1.11.1-release"
     replicas: 1
     # resources:
       # requests:
@@ -573,7 +590,7 @@ spark:
     # type: ClusterIP
   worker:
     # image: "federatedai/spark-worker"
-    # imageTag: "1.10.0-release"
+    # imageTag: "1.11.1-release"
     replicas: 2
     # resources:
       # requests:
@@ -664,7 +681,7 @@ pulsar:
 			Values: `image:
   registry: federatedai
   isThridParty:
-  tag: 1.10.0-release
+  tag: 1.11.1-release
   pullPolicy: IfNotPresent
   imagePullSecrets: 
 #  - name: 
@@ -680,7 +697,7 @@ federation: Eggroll
 storage: Eggroll
 # Algorithm: Basic, NN
 algorithm: Basic
-# Device: CPU, IPCL
+# Device: CPU, IPCL, GPU
 device: IPCL
 
 istio:
@@ -829,7 +846,7 @@ modules:
       mng_port: 8080      
       topic_ttl: 3
       cluster: standalone
-      tenant: fl-tenant  
+      tenant: fl-tenant
     nginx:
       host: nginx
       http_port: 9300
@@ -912,6 +929,9 @@ modules:
     type: ClusterIP
     username: admin
     password: admin
+    nodeSelector:
+    tolerations:
+    affinity:
 
   spark:
     include: true
@@ -1681,7 +1701,7 @@ modules:
     accessMode: {{ .accessMode  | default "ReadWriteOnce"  }}
     size: {{ .size | default "1Gi" }}
     {{- end }}
-     
+
 externalMysqlIp: {{ .externalMysqlIp }}
 externalMysqlPort: {{ .externalMysqlPort }}
 externalMysqlDatabase: {{ .externalMysqlDatabase }}
@@ -1690,28 +1710,28 @@ externalMysqlPassword: {{ .externalMysqlPassword }}`,
 			ArchiveContent: nil,
 			Private:        false,
 		},
-		"2c8f974d-b822-4719-bcaf-f1ef608c4923": {
+		"9dff91c4-2566-4c24-a0dc-631fa8808378": {
 			Model: gorm.Model{
 				ID:        3,
 				CreatedAt: time.Now(),
 				UpdatedAt: time.Now(),
 			},
-			UUID:        "2c8f974d-b822-4719-bcaf-f1ef608c4923",
-			Name:        "chart for FATE exchange v1.9.2",
-			Description: "This chart is for deploying FATE exchange v1.9.2",
+			UUID:        "9dff91c4-2566-4c24-a0dc-631fa8808378",
+			Name:        "chart for FATE exchange v1.10.0",
+			Description: "This chart is for deploying FATE exchange v1.10.0",
 			Type:        entity.ChartTypeFATEExchange,
 			ChartName:   "fate-exchange",
-			Version:     "v1.9.2",
-			AppVersion:  "v1.9.2",
+			Version:     "v1.10.0",
+			AppVersion:  "v1.10.0",
 			Chart: `apiVersion: v1
-appVersion: v1.9.2
+appVersion: v1.10.0
 description: A Helm chart for fate exchange
 name: fate-exchange
-version: v1.9.2`,
+version: v1.10.0`,
 			InitialYamlTemplate: `name: {{.Name}}
 namespace: {{.Namespace}}
 chartName: fate-exchange
-chartVersion: v1.9.2
+chartVersion: v1.10.0
 partyId: 0
 {{- if .UseRegistry}}
 registry: {{.Registry}}
@@ -1755,7 +1775,7 @@ partyName: fate-exchange
 image:
   registry: federatedai
   isThridParty:
-  tag: 1.9.0-release
+  tag: 1.10.0-release
   pullPolicy: IfNotPresent
   imagePullSecrets: 
 #  - name: 
@@ -1780,7 +1800,8 @@ modules:
     ip: rollsite
     type: ClusterIP
     nodePort: 30001
-    loadBalancerIP: 
+    loadBalancerIP:
+    enableTLS: false
     nodeSelector:
     tolerations:
     affinity:
@@ -1842,7 +1863,6 @@ partyName: {{ .name }}
 image:
   registry: {{ .registry | default "federatedai" }}
   isThridParty: {{ empty .registry | ternary  "false" "true" }}
-  tag: {{ .imageTag | default "1.9.0-release" }}
   pullPolicy: {{ .pullPolicy | default "IfNotPresent" }}
   {{- with .imagePullSecrets }}
   imagePullSecrets:
@@ -1888,6 +1908,7 @@ modules:
 {{ toYaml . | indent 6 }}
     {{- end }}
     type: {{ .type }}
+    enableTLS: {{ .enableTLS | default false }}
     nodePort: {{ .nodePort }}
     partyList:
     {{- range .partyList }}
@@ -1949,24 +1970,24 @@ modules:
 			ArchiveContent: nil,
 			Private:        false,
 		},
-		"c32411c7-3744-46ee-bb74-046d99ce3385": {
+		"7a1e3009-ce43-47b5-9ce9-a5256c399151": {
 			Model: gorm.Model{
 				ID:        4,
 				CreatedAt: time.Now(),
 				UpdatedAt: time.Now(),
 			},
-			UUID:        "c32411c7-3744-46ee-bb74-046d99ce3385",
-			Name:        "chart for FATE cluster v1.9.2",
-			Description: "This is chart for installing FATE cluster v1.9.2",
+			UUID:        "7a1e3009-ce43-47b5-9ce9-a5256c399151",
+			Name:        "chart for FATE cluster v1.10.0",
+			Description: "This is chart for installing FATE cluster v1.10.0",
 			Type:        entity.ChartTypeFATECluster,
 			ChartName:   "fate",
-			Version:     "v1.9.2",
-			AppVersion:  "v1.9.2",
+			Version:     "v1.10.0",
+			AppVersion:  "v1.10.0",
 			Chart: `apiVersion: v1
-appVersion: v1.9.2
+appVersion: v1.10.0
 description: A Helm chart for fate-training
 name: fate
-version: v1.9.2
+version: v1.10.0
 home: https://fate.fedai.org
 icon: https://aisp-1251170195.cos.ap-hongkong.myqcloud.com/wp-content/uploads/sites/12/2019/09/logo.png
 sources:
@@ -1975,11 +1996,11 @@ sources:
 			InitialYamlTemplate: `name: {{.Name}}
 namespace: {{.Namespace}}
 chartName: fate
-chartVersion: v1.9.2
-partyId: {{.PartyID}}
+chartVersion: v1.10.0
 {{- if .UseRegistry}}
 registry: {{.Registry}}
 {{- end }}
+partyId: {{.PartyID}}
 persistence: {{ .EnablePersistence }}
 # pullPolicy:
 podSecurityPolicy:
@@ -1988,24 +2009,32 @@ podSecurityPolicy:
 imagePullSecrets:
   - name: {{.ImagePullSecretsName}}
 {{- end }}
-
-# ingressClassName: nginx
+ingressClassName: nginx
 
 modules:
   - mysql
   - python
   - fateboard
   - client
+  {{- if not .EnableExternalSpark }}
   - spark
+  {{- end }}
+  {{- if not .EnableExternalHDFS }}
   - hdfs
-  - nginx
+  {{- end }}
+  {{- if not .EnableExternalPulsar }}
   - pulsar
+  {{- end }}
+  - nginx
 
 computing: Spark
 federation: Pulsar
 storage: HDFS
 algorithm: Basic
 device: CPU
+
+skippedKeys:
+- route_table
 
 ingress:
   fateboard:
@@ -2014,49 +2043,35 @@ ingress:
   client:
     hosts:
     - name: {{.Name}}.notebook.{{.Domain}}
+  {{- if not .EnableExternalSpark }}
   spark:
     hosts:
     - name: {{.Name}}.spark.{{.Domain}}
+  {{- end }}
+  {{- if not .EnableExternalPulsar }}
   pulsar:
     hosts:
     - name: {{.Name}}.pulsar.{{.Domain}}
+  {{- end }}
 
-nginx:
-  type: {{.ServiceType}}
-  exchange:
-    ip: {{.ExchangeNginxHost}}
-    httpPort: {{.ExchangeNginxPort}}
-  # nodeSelector:
-  # tolerations:
-  # affinity:
-  # loadBalancerIP:
-  # httpNodePort: 30093
-  # grpcNodePort: 30098
-
-pulsar:
-  publicLB:
-    enabled: true
-  env:
-    - name: PULSAR_MEM
-      value: "-Xms4g -Xmx4g -XX:MaxDirectMemorySize=8g"
-  confs:
-      brokerDeleteInactiveTopicsFrequencySeconds: 60
-      backlogQuotaDefaultLimitGB: 10
-  exchange:
-    ip: {{.ExchangeATSHost}}
-    port: {{.ExchangeATSPort}}
-    domain: {{.Domain}}
-  size: 1Gi
-  storageClass: {{ .StorageClass }}
-  existingClaim: ""
-  accessMode: ReadWriteOnce
-  # nodeSelector:
-  # tolerations:
-  # affinity:
+python:
   # type: ClusterIP
-  # httpNodePort: 30094
-  # httpsNodePort: 30099
+  # replicas: 1
+  # httpNodePort: 
+  # grpcNodePort: 
   # loadBalancerIP:
+  # serviceAccountName: ""
+  # nodeSelector:
+  # tolerations:
+  # affinity:
+  # failedTaskAutoRetryTimes:
+  # failedTaskAutoRetryDelay:
+  # logLevel: INFO
+  existingClaim: ""
+  storageClass: {{ .StorageClass }}
+  accessMode: ReadWriteOnce
+  # dependent_distribution: false
+  size: 10Gi
   # resources:
     # requests:
       # cpu: "2"
@@ -2064,13 +2079,93 @@ pulsar:
     # limits:
       # cpu: "4"
       # memory: "8Gi"
+  {{- if .EnableExternalSpark }}
+  spark: 
+    cores_per_node: {{.ExternalSparkCoresPerNode}}
+    nodes: {{.ExternalSparkNode}}
+    master: {{.ExternalSparkMaster}}
+    driverHost: {{.ExternalSparkDriverHost}}
+    driverHostType: {{.ExternalSparkDriverHostType}}
+    portMaxRetries: {{.ExternalSparkPortMaxRetries}}
+    driverStartPort: {{.ExternalSparkDriverStartPort}}
+    blockManagerStartPort: {{.ExternalSparkBlockManagerStartPort}}
+    pysparkPython: {{.ExternalSparkPysparkPython}}
+  {{- else }}
+  spark: 
+    cores_per_node: 20
+    nodes: 2
+    master: spark://spark-master:7077
+    driverHost:
+    driverHostType:
+    portMaxRetries:
+    driverStartPort:
+    blockManagerStartPort:
+    pysparkPython:
+  {{- end }}
+  {{- if .EnableExternalHDFS }}
+  hdfs:
+    name_node: {{.ExternalHDFSNamenode}}
+    path_prefix: {{.ExternalHDFSPathPrefix}}
+  {{- else }}
+  hdfs:
+    name_node: hdfs://namenode:9000
+    path_prefix:
+  {{- end }}
+  {{- if .EnableExternalPulsar }}
+  pulsar:
+    host: {{.ExternalPulsarHost}}
+    mng_port: {{.ExternalPulsarMngPort}}
+    port: {{.ExternalPulsarPort}}
+    ssl_port: {{.ExternalPulsarSSLPort}}
+    topic_ttl: 3
+    cluster: standalone
+    tenant: fl-tenant
+  {{- else }}
+  pulsar:
+    host: pulsar
+    mng_port: 8080
+    port: 6650
+    topic_ttl: 3
+    cluster: standalone
+    tenant: fl-tenant
+  {{- end }}
+  nginx:
+    host: nginx
+    http_port: 9300
+    grpc_port: 9310
+  # hive:
+  #   host: 127.0.0.1
+  #   port: 10000
+  #   auth_mechanism:
+  #   username:
+  #   password:
+
+fateboard: 
+  type: ClusterIP
+  username: admin
+  password: admin
+#   nodeSelector:
+#   tolerations:
+#   affinity:
+
+client:
+# nodeSelector:
+# tolerations:
+# affinity:
+  subPath: "client"
+  existingClaim: ""
+  storageClass: {{ .StorageClass }}
+  accessMode: ReadWriteOnce
+  size: 1Gi
+# notebook_hashed_password: ""
+
 
 mysql:
+  subPath: "mysql"
   size: 1Gi
   storageClass: {{ .StorageClass }}
   existingClaim: ""
   accessMode: ReadWriteOnce
-  subPath: "mysql"
   # nodeSelector:
   # tolerations:
   # affinity:
@@ -2080,90 +2175,26 @@ mysql:
   # user: fate
   # password: fate_dev
 
-python:
-  size: 10Gi
-  storageClass: {{ .StorageClass }}
-  existingClaim: ""
-  accessMode: ReadWriteOnce
-  # httpNodePort:
-  # grpcNodePort:
-  # loadBalancerIP:
-  # serviceAccountName: ""
-  # nodeSelector:
-  # tolerations:
-  # affinity:
-  # resources:
-    # requests:
-      # cpu: "2"
-      # memory: "4Gi"
-    # limits:
-      # cpu: "4"
-      # memory: "8Gi"
-  # logLevel: INFO
-  # spark: 
-    # cores_per_node: 20
-    # nodes: 2
-    # master: spark://spark-master:7077
-    # driverHost: 
-    # driverHostType: 
-    # portMaxRetries: 
-    # driverStartPort: 
-    # blockManagerStartPort: 
-    # pysparkPython: 
-  # hdfs:
-    # name_node: hdfs://namenode:9000
-    # path_prefix:
-  # pulsar:
-    # host: pulsar
-    # mng_port: 8080
-    # port: 6650
-  # nginx:
-    # host: nginx
-    # http_port: 9300
-    # grpc_port: 9310
-
-client:
-  size: 1Gi
-  storageClass: {{ .StorageClass }}
-  existingClaim: ""
-  accessMode: ReadWriteOnce
-  subPath: "client"
-  # nodeSelector:
-  # tolerations:
-  # affinity:
-
-hdfs:
-  namenode:
-    storageClass: {{ .StorageClass }}
-    size: 3Gi
-    existingClaim: ""
-    accessMode: ReadWriteOnce
-    # nodeSelector:
-    # tolerations:
-    # affinity:
-    # type: ClusterIP
-    # nodePort: 30900
-  datanode:
-    size: 10Gi
-    storageClass: {{ .StorageClass }}
-    existingClaim: ""
-    accessMode: ReadWriteOnce
-    # replicas: 3
-    # nodeSelector:
-    # tolerations:
-    # affinity:
-    # type: ClusterIP
-
+{{- if not .EnableExternalSpark }}
 spark:
-  # master:
-    # replicas: 1
+  master:
+    # image: "federatedai/spark-master"
+    # imageTag: "1.10.0-release"
+    replicas: 1
     # resources:
+      # requests:
+        # cpu: "1"
+        # memory: "2Gi"
+      # limits:
+        # cpu: "1"
+        # memory: "2Gi"
     # nodeSelector:
     # tolerations:
     # affinity:
     # type: ClusterIP
-    # nodePort: 30977
   worker:
+    # image: "federatedai/spark-worker"
+    # imageTag: "1.10.0-release"
     replicas: 2
     # resources:
       # requests:
@@ -2176,11 +2207,85 @@ spark:
     # tolerations:
     # affinity:
     # type: ClusterIP
-`,
+{{- end }}
+{{- if not .EnableExternalHDFS }}
+hdfs:
+  namenode:
+    existingClaim: ""
+    accessMode: ReadWriteOnce
+    size: 1Gi
+    storageClass: {{ .StorageClass }}
+    # nodeSelector:
+    # tolerations:
+    # affinity:
+    # type: ClusterIP
+    # nodePort: 30900
+  datanode:
+    existingClaim: ""
+    accessMode: ReadWriteOnce
+    size: 1Gi
+    storageClass: {{ .StorageClass }}
+    # nodeSelector:
+    # tolerations:
+    # affinity:
+    # type: ClusterIP
+{{- end }}
+nginx:
+  type: {{.ServiceType}}
+  exchange:
+    ip: {{.ExchangeNginxHost}}
+    httpPort: {{.ExchangeNginxPort}}
+  # nodeSelector:
+  # tolerations:
+  # affinity:
+  # loadBalancerIP:
+  # httpNodePort:
+  # grpcNodePort:
+
+{{- if not .EnableExternalPulsar }}
+pulsar:
+  existingClaim: ""
+  accessMode: ReadWriteOnce
+  size: 1Gi
+  storageClass: {{ .StorageClass }}
+  publicLB:
+    enabled: true
+# env:
+#   - name: PULSAR_MEM
+#     value: "-Xms4g -Xmx4g -XX:MaxDirectMemorySize=8g"
+# confs:
+#     brokerDeleteInactiveTopicsFrequencySeconds: 60
+#     backlogQuotaDefaultLimitGB: 10
+#  
+# resources:
+#   requests:
+#     cpu: "2"
+#     memory: "4Gi"
+#   limits:
+#     cpu: "4"
+#     memory: "8Gi" 
+  exchange:
+    ip: {{.ExchangeATSHost}}
+    port: {{.ExchangeATSPort}}
+    domain: {{.Domain}}
+  # nodeSelector:
+  # tolerations:
+  # affinity:
+  # type: ClusterIP
+  # httpNodePort: 
+  # httpsNodePort: 
+  # loadBalancerIP:
+{{- else }}
+pulsar:
+  exchange:
+    ip: {{.ExchangeATSHost}}
+    port: {{.ExchangeATSPort}}
+    domain: {{.Domain}}
+{{- end }}`,
 			Values: `image:
   registry: federatedai
   isThridParty:
-  tag: 1.9.0-release
+  tag: 1.10.0-release
   pullPolicy: IfNotPresent
   imagePullSecrets: 
 #  - name: 
@@ -2298,6 +2403,7 @@ modules:
     affinity:
   python: 
     include: true
+    replicas: 1
     type: ClusterIP
     httpNodePort: 30097
     grpcNodePort: 30092
@@ -2306,9 +2412,12 @@ modules:
     nodeSelector:
     tolerations:
     affinity:
+    failedTaskAutoRetryTimes:
+    failedTaskAutoRetryDelay:
     logLevel: INFO
     # subPath: ""
     existingClaim:
+    dependent_distribution: false
     claimName: python-data
     storageClass:
     accessMode: ReadWriteOnce
@@ -2337,12 +2446,21 @@ modules:
       password: fate
     pulsar:
       host: pulsar
-      mng_port: 8080
       port: 6650
+      mng_port: 8080      
+      topic_ttl: 3
+      cluster: standalone
+      tenant: fl-tenant      
     nginx:
       host: nginx
       http_port: 9300
       grpc_port: 9310
+    hive:
+      host:
+      port:
+      auth_mechanism:
+      username:
+      password:
   client:
     include: true
     ip: client
@@ -2355,6 +2473,7 @@ modules:
     storageClass:
     accessMode: ReadWriteOnce
     size: 1Gi
+    notebook_hashed_password: 
   clustermanager: 
     include: true
     ip: clustermanager
@@ -2379,19 +2498,6 @@ modules:
         cpu: "2"
         memory: "4Gi"
 
-  client: 
-    include: true
-    ip: client
-    type: ClusterIP
-    nodeSelector:
-    tolerations:
-    affinity:
-    subPath: "client"
-    existingClaim:
-    storageClass:
-    accessMode: ReadWriteOnce
-    size: 1Gi
-
   mysql: 
     include: true
     type: ClusterIP
@@ -2409,6 +2515,7 @@ modules:
     storageClass:
     accessMode: ReadWriteOnce
     size: 1Gi
+
   serving:
     ip: 192.168.9.1
     port: 30095
@@ -2416,12 +2523,18 @@ modules:
     zookeeper:
       hosts:
         - serving-zookeeper.fate-serving-9999:2181
-      use_acl: false
+    use_acl: false
+    user: fate
+    password: fate
+
   fateboard:
     include: true
     type: ClusterIP
     username: admin
     password: admin
+    nodeSelector:
+    tolerations:
+    affinity:
 
   spark:
     include: true
@@ -2760,6 +2873,7 @@ modules:
   python: 
     include: {{ has "python" .modules }}
     {{- with .python }}
+    replicas: {{ .replicas | default 1 }}
     {{- with .resources }}
     resources:
 {{ toYaml . | indent 6 }}
@@ -2769,6 +2883,7 @@ modules:
     httpNodePort: {{ .httpNodePort }}
     grpcNodePort: {{ .grpcNodePort }}
     loadBalancerIP: {{ .loadBalancerIP }}
+    dependent_distribution: {{ .dependent_distribution }}
     serviceAccountName: {{ .serviceAccountName }}
     {{- with .nodeSelector }}
     nodeSelector: 
@@ -2782,6 +2897,8 @@ modules:
     affinity:
 {{ toYaml . | indent 6 }}
     {{- end }}
+    failedTaskAutoRetryTimes: {{ .failedTaskAutoRetryTimes | default 5 }}
+    failedTaskAutoRetryDelay: {{ .failedTaskAutoRetryDelay | default 60 }}
     existingClaim: {{ .existingClaim  }}
     claimName: {{ .claimName | default "python-data" }}
     storageClass: {{ .storageClass | default "python" }}
@@ -2807,6 +2924,9 @@ modules:
       host: {{ .host }}
       mng_port: {{ .mng_port }}
       port: {{ .port }}
+      topic_ttl: {{ .topic_ttl }}
+      cluster: {{ .cluster }}
+      tenant: {{ .tenant }}      
     {{- end }}
     {{- with .rabbitmq }}
     rabbitmq:
@@ -2821,6 +2941,14 @@ modules:
       host: {{ .host }}
       http_port: {{ .http_port }}
       grpc_port: {{ .grpc_port }}
+    {{- end }}
+    {{- with .hive }}
+    hive:
+      host: {{ .host }}
+      port: {{ .port }}
+      auth_mechanism: {{ .auth_mechanism }}
+      username: {{ .username }}
+      password: {{ .password }}
     {{- end }}
     {{- end }}
 
@@ -2856,7 +2984,8 @@ modules:
     sessionProcessorsPerNode: {{ .sessionProcessorsPerNode }}
     replicas: {{ .replicas | default 2 }}
     subPath: {{ .subPath }}
-    storageClass: {{ .storageClass  | default "client" }}
+    storageClass: {{ .storageClass  | default "nodemanager" }}
+    existingClaim: {{ .existingClaim }}
     accessMode: {{ .accessMode  | default "ReadWriteOnce" }}
     size: {{ .size  | default "1Gi" }}
     {{- with .nodeSelector }}
@@ -2898,6 +3027,7 @@ modules:
     affinity:
 {{ toYaml . | indent 6 }}
     {{- end }}
+    notebook_hashed_password: {{ .notebook_hashed_password | default "" }}
     {{- end }}
 
 
@@ -2945,6 +3075,18 @@ modules:
     type: {{ .type }}
     username: {{ .username }}
     password: {{ .password }}
+    {{- with .nodeSelector }}
+    nodeSelector:
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    {{- with .tolerations }}
+    tolerations:
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    {{- with .affinity }}
+    affinity:
+{{ toYaml . | indent 6 }}
+    {{- end }}
     {{- end}}
 
   spark:
@@ -3171,28 +3313,28 @@ externalMysqlPassword: {{ .externalMysqlPassword }}`,
 			ArchiveContent: nil,
 			Private:        false,
 		},
-		"49fdaa3d-d5ad-4218-87cc-d1f023384729": {
+		"fd30a219-c9d2-4f6a-9146-f06c05a666f2": {
 			Model: gorm.Model{
 				ID:        5,
 				CreatedAt: time.Now(),
 				UpdatedAt: time.Now(),
 			},
-			UUID:        "49fdaa3d-d5ad-4218-87cc-d1f023384729",
-			Name:        "chart for FATE exchange v1.10.0 with fml-manager service v0.3.0",
-			Description: "This chart is for deploying FATE exchange v1.10.0 with fml-manager v0.3.0",
+			UUID:        "fd30a219-c9d2-4f6a-9146-f06c05a666f2",
+			Name:        "chart for FATE exchange v1.11.1 with fml-manager service v0.3.0",
+			Description: "This chart is for deploying FATE exchange v1.11.1 with fml-manager v0.3.0",
 			Type:        entity.ChartTypeFATEExchange,
 			ChartName:   "fate-exchange",
-			Version:     "v1.10.0-fedlcm-v0.3.0",
-			AppVersion:  "exchangev1.10.0 & fedlcmv0.3.0",
+			Version:     "v1.11.1-fedlcm-v0.3.0",
+			AppVersion:  "exchangev1.11.1 & fedlcmv0.3.0",
 			Chart: `apiVersion: v1
-appVersion: "exchangev1.10.0 & fedlcmv0.3.0"
+appVersion: "exchangev1.11.1 & fedlcmv0.3.0"
 description: A Helm chart for fate exchange and fml-manager
 name: fate-exchange
-version: v1.10.0-fedlcm-v0.3.0`,
+version: v1.11.1-fedlcm-v0.3.0`,
 			InitialYamlTemplate: `name: {{.Name}}
 namespace: {{.Namespace}}
 chartName: fate-exchange
-chartVersion: v1.10.0-fedlcm-v0.3.0
+chartVersion: v1.11.1-fedlcm-v0.3.0
 partyId: 0
 {{- if .UseRegistry}}
 registry: {{.Registry}}
@@ -3271,7 +3413,7 @@ partyName: fate-exchange
 image:
   registry: federatedai
   isThridParty:
-  tag: 1.10.0-release
+  tag: 1.11.1-release
   pullPolicy: IfNotPresent
   imagePullSecrets:
 #  - name:
@@ -3379,7 +3521,7 @@ modules:
     # tolerations:
     # affinity:
     type: ClusterIP
-    # nodePort: 
+    # nodePort:
     # loadBalancerIP: 192.168.0.1
     postgresHost: postgres
     postgresPort: 5432
@@ -3568,28 +3710,28 @@ modules:
     caCert: {{ .caCert | default "/var/lib/fml_manager/cert/ca.crt" }}
     tlsEnabled: {{ .tlsEnabled | default "true" }}
     {{- end }}`,
-			ArchiveContent: mock.FATEExchange1100WithManagerChartArchiveContent,
+			ArchiveContent: mock.FATEExchange_1_11_1_WithManagerChartArchiveContent,
 			Private:        true,
 		},
-		"c5380b96-6a9f-4c3e-8991-1ddc73b5813d": {
+		"73acbbc0-4cdf-46bf-b48f-25fe1e03b91f": {
 			Model: gorm.Model{
 				ID:        6,
 				CreatedAt: time.Now(),
 				UpdatedAt: time.Now(),
 			},
-			UUID:           "c5380b96-6a9f-4c3e-8991-1ddc73b5813d",
-			Name:           "chart for FATE cluster v1.10.0 with site-portal v0.3.0",
-			Description:    "This is chart for installing FATE cluster v1.10.0 with site-portal v0.3.0",
+			UUID:           "73acbbc0-4cdf-46bf-b48f-25fe1e03b91f",
+			Name:           "chart for FATE cluster v1.11.1 with site-portal v0.3.0",
+			Description:    "This is chart for installing FATE cluster v1.11.1 with site-portal v0.3.0",
 			Type:           entity.ChartTypeFATECluster,
 			ChartName:      "fate",
-			Version:        "v1.10.0-fedlcm-v0.3.0",
-			AppVersion:     "fatev1.10.0+fedlcmv0.3.0",
-			ArchiveContent: mock.FATE1100WithPortalChartArchiveContent,
+			Version:        "v1.11.1-fedlcm-v0.3.0",
+			AppVersion:     "fatev1.11.1+fedlcmv0.3.0",
+			ArchiveContent: mock.FATE_1_11_1_WithPortalChartArchiveContent,
 			Chart: `apiVersion: v1
-appVersion: "fatev1.10.0+fedlcmv0.3.0"
+appVersion: "fatev1.11.1+fedlcmv0.3.0"
 description: Helm chart for FATE and site-portal in FedLCM
 name: fate
-version: v1.10.0-fedlcm-v0.3.0
+version: v1.11.1-fedlcm-v0.3.0
 home: https://fate.fedai.org
 icon: https://aisp-1251170195.cos.ap-hongkong.myqcloud.com/wp-content/uploads/sites/12/2019/09/logo.png
 sources:
@@ -3598,7 +3740,7 @@ sources:
 			InitialYamlTemplate: `name: {{.Name}}
 namespace: {{.Namespace}}
 chartName: fate
-chartVersion: v1.10.0-fedlcm-v0.3.0
+chartVersion: v1.11.1-fedlcm-v0.3.0
 {{- if .UseRegistry}}
 registry: {{.Registry}}
 {{- end }}
@@ -3635,8 +3777,13 @@ modules:
 computing: Spark
 federation: Pulsar
 storage: HDFS
+{{- if .FATEFlowGPUEnabled }}
+algorithm: NN
+device: GPU
+{{- else }}
 algorithm: Basic
 device: CPU
+{{- end }}
 
 skippedKeys:
 - route_table
@@ -3684,6 +3831,17 @@ python:
   accessMode: ReadWriteOnce
   # dependent_distribution: false
   size: 10Gi
+  {{- if .FATEFlowGPUEnabled }}
+  resources:
+    requests:
+      nvidia.com/gpu: {{.FATEFlowGPUNum}}
+      # cpu: "2"
+      # memory: "4Gi"
+    limits:
+      nvidia.com/gpu: {{.FATEFlowGPUNum}}
+      # cpu: "4"
+      # memory: "8Gi"
+  {{- else }}
   # resources:
     # requests:
       # cpu: "2"
@@ -3691,6 +3849,7 @@ python:
     # limits:
       # cpu: "4"
       # memory: "8Gi"
+  {{- end }}
   {{- if .EnableExternalSpark }}
   spark: 
     cores_per_node: {{.ExternalSparkCoresPerNode}}
@@ -3791,7 +3950,7 @@ mysql:
 spark:
   master:
     # image: "federatedai/spark-master"
-    # imageTag: "1.10.0-release"
+    # imageTag: "1.11.1-release"
     replicas: 1
     # resources:
       # requests:
@@ -3806,7 +3965,7 @@ spark:
     # type: ClusterIP
   worker:
     # image: "federatedai/spark-worker"
-    # imageTag: "1.10.0-release"
+    # imageTag: "1.11.1-release"
     replicas: 2
     # resources:
       # requests:
@@ -3949,7 +4108,7 @@ sitePortalServer:
 image:
   registry: federatedai
   isThridParty:
-  tag: 1.10.0-release
+  tag: 1.11.1-release
   pullPolicy: IfNotPresent
   imagePullSecrets: 
 #  - name: 
@@ -3965,7 +4124,7 @@ federation: Eggroll
 storage: Eggroll
 # Algorithm: Basic, NN
 algorithm: Basic
-# Device: CPU, IPCL
+# Device: CPU, IPCL, GPU
 device: IPCL
 
 istio:
@@ -4011,12 +4170,12 @@ ingress:
       path: /
     tls: []
   frontend:
-    # annotations: 
+    # annotations:
     hosts:
     - name:  frontend.example.com
       path: /
     tls: []
-    
+
 exchange:
   partyIp: 192.168.1.1
   partyPort: 30001
@@ -4120,7 +4279,7 @@ modules:
       mng_port: 8080      
       topic_ttl: 3
       cluster: standalone
-      tenant: fl-tenant  
+      tenant: fl-tenant      
     nginx:
       host: nginx
       http_port: 9300
@@ -4144,7 +4303,7 @@ modules:
     accessMode: ReadWriteOnce
     size: 1Gi
     notebook_hashed_password: 
-  clustermanager:
+  clustermanager: 
     include: true
     ip: clustermanager
     type: ClusterIP
@@ -4169,7 +4328,7 @@ modules:
         memory: "4Gi"
 
 
-  mysql: 
+  mysql:
     include: true
     type: ClusterIP
     nodeSelector:
@@ -4203,6 +4362,9 @@ modules:
     type: ClusterIP
     username: admin
     password: admin
+    nodeSelector:
+    tolerations:
+    affinity:
 
   spark:
     include: true
@@ -4326,7 +4488,7 @@ modules:
     # tolerations:
     # affinity:
     type: ClusterIP
-    # nodePort: 
+    # nodePort:
     # loadBalancerIP:
     user: site_portal
     password: site_portal
@@ -4336,7 +4498,7 @@ modules:
     storageClass: ""
     accessMode: ReadWriteOnce
     size: 1Gi
-  
+
   frontend:
     include: false
     image: federatedai/site-portal-frontend
@@ -4345,10 +4507,10 @@ modules:
     # tolerations:
     # affinity:
     type: ClusterIP
-    
-    # nodePort: 
+
+    # nodePort:
     # loadBalancerIP:
-    
+
   sitePortalServer:
     include: false
     image: site-portal-server
@@ -4357,7 +4519,7 @@ modules:
     # tolerations:
     # affinity:
     type: ClusterIP
-    # nodePort: 
+    # nodePort:
     # loadBalancerIP:
     existingClaim: ""
     storageClass: "sitePortalServer"

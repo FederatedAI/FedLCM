@@ -1,7 +1,7 @@
 name: site-portal-9999
 namespace: site-portal-9999
 chartName: fate
-chartVersion: v1.10.0-fedlcm-v0.3.0
+chartVersion: v1.11.1-fedlcm-v0.3.0
 partyId: 9999
 registry: ""
 pullPolicy:
@@ -34,7 +34,7 @@ federation: Pulsar
 storage: HDFS
 # Algorithm: [Basic, NN]
 algorithm: Basic
-# Device: [IPCL, CPU]
+# Device: [IPCL, CPU, GPU]
 device: CPU
 
 skippedKeys:
@@ -62,11 +62,11 @@ skippedKeys:
   # pulsar:
     # hosts:
     # - name: party9999.pulsar.example.com
-  # frontend: 
+  # frontend:
     # hosts:
     # - name: party9999.frontend.example.com
-  
-# rollsite: 
+
+# rollsite:
   # type: NodePort
   # nodePort: 30091
   # loadBalancerIP:
@@ -276,7 +276,7 @@ skippedKeys:
 # spark:
   # master:
     # Image: "federatedai/spark-master"
-    # ImageTag: "1.10.0-release"
+    # ImageTag: "1.11.1-release"
     # replicas: 1
     # resources:
       # requests:
@@ -292,7 +292,7 @@ skippedKeys:
     # nodePort: 30977
   # worker:
     # Image: "federatedai/spark-worker"
-    # ImageTag: "1.10.0-release"
+    # ImageTag: "1.11.1-release"
     # replicas: 2
     # resources:
       # requests:
@@ -431,7 +431,7 @@ skippedKeys:
 #   storageClass: ""
 #   accessMode: ReadWriteOnce
 #   size: 1Gi
-  
+
 # frontend:
 #   image: federatedai/site-portal-frontend
 #   imageTag: v0.3.0
@@ -439,7 +439,7 @@ skippedKeys:
 #   tolerations:
 #   affinity:
 #   type: ClusterIP
-#   nodePort: 
+#   nodePort:
 #   loadBalancerIP:
 
 # sitePortalServer:

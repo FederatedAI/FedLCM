@@ -70,7 +70,7 @@ func TestCreateExchange_PosWithNewCert(t *testing.T) {
 
 	exchange, wg, err := service.CreateExchange(&ParticipantFATEExchangeCreationRequest{
 		ParticipantFATEExchangeYAMLCreationRequest: ParticipantFATEExchangeYAMLCreationRequest{
-			ChartUUID:   "49fdaa3d-d5ad-4218-87cc-d1f023384729", // from the chart test repo
+			ChartUUID:   "fd30a219-c9d2-4f6a-9146-f06c05a666f2", // from the chart test repo
 			Name:        "test-exchange",
 			Namespace:   "test-ns",
 			ServiceType: entity.ParticipantDefaultServiceTypeLoadBalancer,
@@ -226,7 +226,7 @@ func TestParticipantFATEService_GetClusterDeploymentYAML(t *testing.T) {
 			args: args{
 				req: &ParticipantFATEClusterYAMLCreationRequest{
 					ParticipantFATEExchangeYAMLCreationRequest: ParticipantFATEExchangeYAMLCreationRequest{
-						ChartUUID:   "7a51112a-b0ad-4c26-b2c0-1e6f7eca6073", // from the chart test repo
+						ChartUUID:   "d81d2b48-930d-4c5e-b522-322b93e8ef39", // from the chart test repo
 						Name:        "test-fate",
 						Namespace:   "test-fate-ns",
 						ServiceType: entity.ParticipantDefaultServiceTypeNodePort,
@@ -235,6 +235,7 @@ func TestParticipantFATEService_GetClusterDeploymentYAML(t *testing.T) {
 					PartyID:           8888,
 					EnablePersistence: false,
 					StorageClass:      "",
+					FATEFlowGPUNum:    0,
 					ExternalSpark: ExternalSpark{
 						Enable:                true,
 						Cores_per_node:        8,
@@ -305,7 +306,7 @@ func TestParticipantFATEService_GetClusterDeploymentYAML(t *testing.T) {
 			args: args{
 				req: &ParticipantFATEClusterYAMLCreationRequest{
 					ParticipantFATEExchangeYAMLCreationRequest: ParticipantFATEExchangeYAMLCreationRequest{
-						ChartUUID:   "c5380b96-6a9f-4c3e-8991-1ddc73b5813d", // from the chart test repo
+						ChartUUID:   "73acbbc0-4cdf-46bf-b48f-25fe1e03b91f", // from the chart test repo
 						Name:        "test-fate",
 						Namespace:   "test-fate-ns",
 						ServiceType: entity.ParticipantDefaultServiceTypeNodePort,
@@ -314,6 +315,7 @@ func TestParticipantFATEService_GetClusterDeploymentYAML(t *testing.T) {
 					PartyID:           7777,
 					EnablePersistence: false,
 					StorageClass:      "",
+					FATEFlowGPUNum:    0,
 					ExternalSpark:     ExternalSpark{},
 					ExternalHDFS:      ExternalHDFS{},
 					ExternalPulsar:    ExternalPulsar{},
