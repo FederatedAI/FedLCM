@@ -21,6 +21,7 @@ import (
 	"github.com/FederatedAI/FedLCM/server/domain/repo"
 	"github.com/FederatedAI/FedLCM/server/domain/service"
 	"github.com/FederatedAI/FedLCM/server/domain/utils"
+	"github.com/hashicorp/go-version"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
 )
@@ -376,6 +377,14 @@ func (app *ParticipantApp) getFATEClusterUpgradeableVersionList(ClusterUUID stri
 	}
 	if ClusterChartName == "fate" {
 		ChartType = entity.ChartTypeFATECluster
+
+		// TODO: this is a temp solution to prevent upgrading from 1.8 and lower versions as the yaml content has
+		//       changed drastically since. Supporting upgrading these old versions would need further workflow.
+		minUpgradeableVersion, _ := version.NewVersion("1.9.0")
+		currentVersion, _ := version.NewVersion(ClusterChartVersion)
+		if currentVersion.LessThan(minUpgradeableVersion) {
+			return ClusterChartVersion, nil, errors.Errorf("cluster version %s is too old to be upgrade by FedLCM", currentVersion)
+		}
 	}
 
 	var domainChartList []entity.Chart
