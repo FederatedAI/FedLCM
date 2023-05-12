@@ -270,7 +270,10 @@
     "pulsarMngPort": "Manager Port",
     "pulsarPort": "Port",
     "sslPort": "SSL Port",
-    "coresPerNode": "Cores Per Node"
+    "coresPerNode": "Cores Per Node",
+    "deviceConfiguration": "Device Configuration",
+    "enableGPU": "Enabled GPU Support for FATE-Flow (FATE 1.11 and Later) ",
+    "gpuNumber": "Number of GPU"
   },
   "ExchangeNew": {
     "name": "Create a New Exchange",
