@@ -700,6 +700,8 @@ definitions:
         $ref: '#/definitions/service.ExternalPulsar'
       externalSpark:
         $ref: '#/definitions/service.ExternalSpark'
+      fateflow_gpu_num:
+        type: integer
       federation_uuid:
         type: string
       name:
@@ -876,6 +878,8 @@ definitions:
         type: string
       labels:
         $ref: '#/definitions/valueobject.Labels'
+      less_privileged:
+        type: boolean
       name:
         description: optional
         type: string
@@ -2427,6 +2431,11 @@ paths:
         name: enable_psp
         required: true
         type: boolean
+      - description: number of gpu to assign to fateflow pod, default 0
+        in: query
+        name: fateflow_gpu_num
+        required: true
+        type: integer
       produces:
       - application/json
       responses:

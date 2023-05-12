@@ -494,6 +494,7 @@ func (controller *FederationController) deleteFATEExchange(c *gin.Context) {
 // @Param   enable_persistence                   query    bool                         true  "choose if use the persistent volume"
 // @Param   storage_class                        query    string                       true  "provide the name of StorageClass"
 // @Param   enable_psp                           query    bool                         true  "choose if enable the podSecurityPolicy"
+// @Param   fateflow_gpu_num                     query    int                          true  "number of gpu to assign to fateflow pod, default 0"
 // @Success 200                                  {object} GeneralResponse{data=string} "Success, the data field is the yaml content"
 // @Failure 401                                  {object} GeneralResponse              "Unauthorized operation"
 // @Failure 500                                  {object} GeneralResponse{code=int}    "Internal server error"
