@@ -270,7 +270,10 @@
     "pulsarMngPort": "管理端口",
     "pulsarPort": "端口",
     "sslPort": "SSL 端口",
-    "coresPerNode": "单个节点核心数"
+    "coresPerNode": "单个节点核心数",
+    "deviceConfiguration": "设备配置",
+    "enableGPU": "为FATE-Flow启用GPU支持(FATE版本需不低于1.11）",
+    "gpuNumber": "GPU数量"
   },
   "ExchangeNew": {
     "name": "创建Exchange",

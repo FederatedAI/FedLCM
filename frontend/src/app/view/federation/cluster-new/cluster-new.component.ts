@@ -112,6 +112,18 @@ export class ClusterNewComponent implements OnInit {
           },
         ])
       ),
+      deviceConfiguration:this.formBuilder.group(ValidatorGroup([
+        {
+          name: 'enableGPU',
+          type: ['notRequired'],
+          value: false
+        },
+        {
+          name: 'gpuNumber',
+          type: ['number'],
+          value: 1
+        },
+      ])),
       registry: this.formBuilder.group(
         ValidatorGroup([
           {
@@ -280,6 +292,14 @@ export class ClusterNewComponent implements OnInit {
     } else {
       return false
     }
+  }
+  // deviceConfiguration_disabled returns true when the input provided for adding external spark is invalid
+  get deviceConfiguration_disabled () {
+    let result = false
+    if (this.form.get('deviceConfiguration')?.get('enableGPU')?.value) {
+      this.form.get('deviceConfiguration')?.get('gpuNumber')?.value > 0 ? result = false : result = true
+    }
+    return result
   }
 
   // external_spark_disabled returns true when the input provided for adding external spark is invalid
@@ -811,6 +831,8 @@ export class ClusterNewComponent implements OnInit {
     const spark = this.form.get('externalSpark')?.get('enable_external_spark')?.value
     const hdfs = this.form.get('externalSpark')?.get('enable_external_hdfs')?.value
     const pulsar = this.form.get('externalSpark')?.get('enable_external_pulsar')?.value
+    const gpu = this.form.get('deviceConfiguration')?.get('enableGPU')?.value
+
     const {sparkValuess, hdfsValues, pulsarValues} = this.extractSparkHandler(true)
     // Build the passed query parameter list
     const queryList: any = [
@@ -888,6 +910,17 @@ export class ClusterNewComponent implements OnInit {
     if (pulsar) {
       pulsarValues.forEach(item => {
         queryList.push(item)
+      })
+    }
+    if (gpu) {
+      queryList.push({
+        key: 'fateflow_gpu_num',
+        value : this.form.get('deviceConfiguration')?.get('gpuNumber')?.value ? this.form.get('deviceConfiguration')?.get('gpuNumber')?.value : 1
+      })
+    } else {
+      queryList.push({
+        key: 'fateflow_gpu_num',
+        value : 0
       })
     }
 
@@ -1022,7 +1055,11 @@ export class ClusterNewComponent implements OnInit {
         binding_mode: Number(this.form.controls['certificate'].get('site_portal_server_cert_mode')?.value),
         common_name: "",
         uuid: this.form.controls['certificate'].get('site_portal_server_cert_uuid')?.value
-      }
+      },
+      fateflow_gpu_num: 0
+    }
+    if (this.form.get('deviceConfiguration')?.get('enableGPU')?.value) {
+      clusterInfo.fateflow_gpu_num = this.form.get('deviceConfiguration')?.get('gpuNumber')?.value ? this.form.get('deviceConfiguration')?.get('gpuNumber')?.value : 1
     }
 
 
@@ -1076,5 +1113,15 @@ export class ClusterNewComponent implements OnInit {
 
   }
 
+  // gpuActions user increase or decrease the number of gpu
+  gpuActions(num: number) {
+    let value = this.form.get('deviceConfiguration')?.get('gpuNumber')?.value
+    value +=num    
+    if (value <= 1) {
+      this.form.get('deviceConfiguration')?.get('gpuNumber')?.setValue(1)
+    } else {
+      this.form.get('deviceConfiguration')?.get('gpuNumber')?.setValue(value)
+    }
+  }
 }
 

@@ -9,6 +9,7 @@
     <clr-stepper-panel formGroupName="info">
       <clr-step-title>{{'NewCluster.basicInformation'| translate}}</clr-step-title>
       <clr-step-description></clr-step-description>
+
       <clr-step-content *clrIfExpanded>
         <clr-radio-container clrInline class="no-warp">
           <label>{{'CommonlyUse.type'| translate}}</label>
@@ -325,6 +326,37 @@
         </clr-step-content>
         <button clrStepButton="next" [disabled]="persistence_disabled">{{'CommonlyUse.next' | translate}}</button>
       </clr-stepper-panel>
+
+      <!-- Step gpu -->
+      <clr-stepper-panel formGroupName="deviceConfiguration">
+        <clr-step-title>{{'NewCluster.deviceConfiguration'|translate}}</clr-step-title>
+        <clr-step-description></clr-step-description>
+        <clr-step-content *clrIfExpanded>
+          <ul class="list gpu-list">
+            <clr-toggle-container clrInline class="no-warp no-warp2">
+              <label>{{'NewCluster.enableGPU'|translate}}:</label>
+              <clr-toggle-wrapper>
+                <input type="checkbox" clrToggle name="enableGPU" value="enablePersistence"
+                  formControlName="enableGPU" />
+              </clr-toggle-wrapper>
+            </clr-toggle-container>
+            <div class="gpu-number-warp" *ngIf="form.get('deviceConfiguration')?.get('enableGPU')?.value">
+              <label>{{'NewCluster.gpuNumber'|translate}}:</label>
+              <div class="gpu-number">    
+                <button type="button" (click)="gpuActions(-1)" class="minus">
+                  <cds-icon shape="minus"></cds-icon>
+                </button>
+                <input name="gpuNumber" formControlName="gpuNumber" type="number" >
+                <button type="button" class="plus" (click)="gpuActions(1)">
+                  <cds-icon shape="plus" ></cds-icon>
+                </button>
+              </div>
+            </div>
+          </ul>
+        </clr-step-content>
+        <button clrStepButton="next" [disabled]="deviceConfiguration_disabled">{{'CommonlyUse.next' | translate}}</button>
+      </clr-stepper-panel>
+
 
       <!-- Step 10 -->
       <clr-stepper-panel formGroupName="registry">

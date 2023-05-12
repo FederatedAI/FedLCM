@@ -84,5 +84,56 @@ clr-stepper-panel{
                 align-items: center;
             }
         }
+        .gpu-list {
+            display: flex;
+            .gpu-number-warp {
+                display: flex;
+                align-items: center;
+                margin-top: 24px;
+                label {
+                    display: block;
+                    color: #454545;
+                    font-size: .65rem;
+                    font-weight: 600;
+                    font-weight: var(--clr-forms-label-font-weight, 600);
+                    line-height: .9rem;
+                    margin-right: 10px;
+                }
+                .gpu-number {
+                    display: flex;
+                    button {
+                        outline: none;
+                        color: #0072A3;
+                        border: 1px solid #0072A3;
+                        width: 25px;
+                        height: 25px;
+                        background-color: transparent;
+                        cursor: pointer;
+                        cds-icon{
+                            position: relative;
+                            left: -2px;
+                            top: -2px;
+                        }
+                        &.minus{
+                            border-top-left-radius: 3px;
+                            border-bottom-left-radius: 3px;
+                        }
+                        &.plus {
+                            border-top-right-radius: 3px;
+                            border-bottom-right-radius: 3px;
+                        }
+                    }
+                    input {
+                        width: 40px;
+                        height: 25px;
+                        outline: none;
+                        border: none;
+                        border-top: 1px solid #0072A3;
+                        border-bottom: 1px solid #0072A3;
+                        text-align: center;
+                    }
+                }
+            }
+        }
     }
 }
