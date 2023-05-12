@@ -1643,6 +1643,13 @@ const docTemplate = `{
                         "name": "enable_psp",
                         "in": "query",
                         "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "number of gpu to assign to fateflow pod, default 0",
+                        "name": "fateflow_gpu_num",
+                        "in": "query",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -5098,6 +5105,9 @@ const docTemplate = `{
                 "externalSpark": {
                     "$ref": "#/definitions/service.ExternalSpark"
                 },
+                "fateflow_gpu_num": {
+                    "type": "integer"
+                },
                 "federation_uuid": {
                     "type": "string"
                 },
@@ -5358,6 +5368,9 @@ const docTemplate = `{
                 },
                 "labels": {
                     "$ref": "#/definitions/valueobject.Labels"
+                },
+                "less_privileged": {
+                    "type": "boolean"
                 },
                 "name": {
                     "description": "optional",
