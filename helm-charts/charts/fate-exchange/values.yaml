@@ -4,10 +4,10 @@ partyName: fate-exchange
 image:
   registry: federatedai
   isThridParty:
-  tag: 1.10.0-release
+  tag: 1.11.1-release
   pullPolicy: IfNotPresent
   imagePullSecrets:
-#  - name: 
+#  - name:
 
 podSecurityPolicy:
   enabled: false
@@ -112,7 +112,7 @@ modules:
     # tolerations:
     # affinity:
     type: ClusterIP
-    # nodePort: 
+    # nodePort:
     # loadBalancerIP: 192.168.0.1
     postgresHost: postgres
     postgresPort: 5432

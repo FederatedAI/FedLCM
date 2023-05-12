@@ -1,7 +1,7 @@
 name: fml-manager
 namespace: fml-manager
 chartName: fate-exchange
-chartVersion: v1.10.0-fedlcm-v0.3.0
+chartVersion: v1.11.1-fedlcm-v0.3.0
 partyId: 0
 registry: ""
 pullPolicy: 

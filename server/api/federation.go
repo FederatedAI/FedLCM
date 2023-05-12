@@ -511,7 +511,10 @@ func (controller *FederationController) getFATEClusterDeploymentYAML(c *gin.Cont
 		if err != nil {
 			return "", err
 		}
-
+		fateflowGPUNum, err := strconv.Atoi(c.DefaultQuery("fateflow_gpu_num", "0"))
+		if err != nil {
+			return "", errors.New("invalid fateflow gpu parameter")
+		}
 		serviceType, err := strconv.Atoi(c.DefaultQuery("service_type", "1"))
 		if err != nil {
 			return "", errors.New("invalid service type parameter")
@@ -617,6 +620,7 @@ func (controller *FederationController) getFATEClusterDeploymentYAML(c *gin.Cont
 			PartyID:           partyID,
 			EnablePersistence: enablePersistence,
 			StorageClass:      storageClass,
+			FATEFlowGPUNum:    fateflowGPUNum,
 			ExternalSpark: domainService.ExternalSpark{
 				Enable:                enableExternalSpark,
 				Cores_per_node:        externalSparkCoresPerNode,
