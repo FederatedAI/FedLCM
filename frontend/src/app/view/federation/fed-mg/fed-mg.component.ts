@@ -96,11 +96,11 @@ export class FedMgComponent implements OnInit {
         this.federationList = data.data;
         this.isPageLoading = false;
       },
-        err => {
-          if (err.error.message) this.errorMessage = err.error.message
-          this.isShowFedFailed = true
-          this.isPageLoading = false
-        });
+      err => {
+        if (err.error.message) this.errorMessage = err.error.message
+        this.isShowFedFailed = true
+        this.isPageLoading = false
+      });
   }
 
   isCreatedSubmit = false;

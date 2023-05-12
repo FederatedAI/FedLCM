@@ -270,7 +270,8 @@
     "pulsarMngPort": "管理端口",
     "pulsarPort": "端口",
     "sslPort": "SSL 端口",
-    "coresPerNode": "单个节点核心数"
+    "coresPerNode": "单个节点核心数",
+    "chooseTemplate": "启用选择现有模板"
   },
   "ExchangeNew": {
     "name": "创建Exchange",

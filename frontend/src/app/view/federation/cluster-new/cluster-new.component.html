@@ -21,6 +21,50 @@
             <label>{{'NewCluster.import'|translate}}</label>
           </clr-radio-wrapper>
         </clr-radio-container>
+
+        <!-- Whether to choose an existing template -->
+        <clr-toggle-container class="no-warp" clrInline *ngIf="isNewCluster">
+          <label>{{'NewCluster.chooseTemplate' | translate}}</label>
+          <clr-toggle-wrapper>
+            <input type="checkbox" clrToggle name="enableTemplate" formControlName="enableTemplate" [value]="false" />
+          </clr-toggle-wrapper>
+        </clr-toggle-container>
+
+        <div class="template-list" *ngIf="templateListFlag">
+          <div class="fed-select">
+            <clr-select-container class="no-warp">
+              <label>{{'CertificateDetail.federationName'| translate}}</label>
+              <select clrSelect name="federationName" formControlName="federationName"
+                (ngModelChange)="getFedClusterAll($event)">
+                <option *ngFor="let fed of fedList" value="{{fed.uuid}}">{{fed.name}}</option>
+              </select>
+            </clr-select-container>
+            <span *ngIf="templateFedLoading" class="spinner spinner-inline">
+              Loading...
+            </span>
+          </div>
+          <div class="fed-select">
+            <clr-select-container class="no-warp">
+              <label>{{'FederationDetail.clusterName'| translate}}</label>
+              <select clrSelect name="clusterName" formControlName="clusterName"
+                (ngModelChange)="getClusterDetail($event)">
+                <option *ngFor="let cluster of clusterList" value="{{cluster.uuid}}">{{cluster.name}}</option>
+              </select>
+            </clr-select-container>
+            <span *ngIf="templateClusterLoading" class="spinner spinner-inline">
+              Loading...
+            </span>
+          </div>
+          <clr-alert [clrAlertClosable]='false' clrAlertType="danger"
+          *ngIf="templateErrorFlag">
+          <clr-alert-item>
+            {{errorMessage}}
+          </clr-alert-item>
+        </clr-alert>
+
+        </div>
+
+
         <clr-input-container class="no-warp">
           <label>{{'CommonlyUse.name'| translate}}</label>
           <input clrInput formControlName="name" required (ngModelChange)="selectChange($event)" />
@@ -231,12 +275,12 @@
             <clr-radio-container clrInline class="no-warp">
               <label>{{'NewCluster.server'|translate}}: </label>
               <clr-radio-wrapper>
-                <input type="radio" value='new' clrRadio name="pulsar_server_cert_info_radio" formControlName="pulsar_server_cert_info_radio"
+                <input type="radio" [value]='true' clrRadio name="pulsar_server_cert_info_radio" formControlName="pulsar_server_cert_info_radio"
                    >
                 <label>{{'NewCluster.addNew'|translate}}</label>
               </clr-radio-wrapper>
               <clr-radio-wrapper>
-                <input type="radio" clrRadio name="pulsar_server_cert_info_radio"  disabled  value=2 />
+                <input type="radio" clrRadio name="pulsar_server_cert_info_radio"  disabled  [value]='2' />
                 <label>{{'NewCluster.useExist'|translate}}</label>
               </clr-radio-wrapper>
             </clr-radio-container>
@@ -281,12 +325,12 @@
           <clr-radio-container clrInline class="no-warp">
             <label>{{'ExchangeNew.serviceType'|translate}}: </label>
             <clr-radio-wrapper>
-              <input type="radio" clrRadio name="serviceType" formControlName="serviceType" required value=1
+              <input type="radio" clrRadio name="serviceType" formControlName="serviceType" [value]='1'
                 (ngModelChange)="selectChange($event)" />
               <label>{{'ExchangeNew.loadBalancer'|translate}}</label>
             </clr-radio-wrapper>
             <clr-radio-wrapper>
-              <input type="radio" clrRadio name="serviceType" formControlName="serviceType" required value=2
+              <input type="radio" clrRadio name="serviceType" formControlName="serviceType" [value]='2'
                 (ngModelChange)="selectChange($event)" />
               <label>{{'ExchangeNew.nodePort'|translate}}</label>
             </clr-radio-wrapper>
