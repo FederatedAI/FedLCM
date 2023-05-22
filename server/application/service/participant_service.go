@@ -20,7 +20,10 @@ import (
 	"github.com/FederatedAI/FedLCM/server/domain/entity"
 	"github.com/FederatedAI/FedLCM/server/domain/repo"
 	"github.com/FederatedAI/FedLCM/server/domain/service"
+	"github.com/FederatedAI/FedLCM/server/domain/utils"
+	"github.com/hashicorp/go-version"
 	"github.com/pkg/errors"
+	"github.com/rs/zerolog/log"
 )
 
 // ParticipantApp provide functions to manage the participants
@@ -53,9 +56,11 @@ type ParticipantFATEListItem struct {
 	InfraProviderName string                                 `json:"infra_provider_name"`
 	InfraProviderUUID string                                 `json:"infra_provider_uuid"`
 	ChartUUID         string                                 `json:"chart_uuid"`
+	Version           string                                 `json:"version"`
 	Namespace         string                                 `json:"namespace"`
 	PartyID           int                                    `json:"party_id"`
 	ClusterUUID       string                                 `json:"cluster_uuid"`
+	Upgradeable       bool                                   `json:"upgradeable"`
 	Status            entity.ParticipantFATEStatus           `json:"status"`
 	AccessInfo        entity.ParticipantFATEModulesAccessMap `json:"access_info"`
 	IsManaged         bool                                   `json:"is_managed"`
@@ -84,6 +89,13 @@ type FATEClusterDetail struct {
 	PulsarServerCertInfo     entity.ParticipantComponentCertInfo `json:"pulsar_server_cert_info"`
 	SitePortalServerCertInfo entity.ParticipantComponentCertInfo `json:"site_portal_server_cert_info"`
 	SitePortalClientCertInfo entity.ParticipantComponentCertInfo `json:"site_portal_client_cert_info"`
+}
+
+type FATEClusterUpgradeableVersionList []string
+
+type FATEClusterUpgradeableInfo struct {
+	FATEClusterVersion                string `json:"version"`
+	FATEClusterUpgradeableVersionList `json:"upgradeable_version_list"`
 }
 
 // CheckFATPartyID returns error if the current party id is taken in the specified federation
@@ -193,10 +205,12 @@ func (app *ParticipantApp) GetFATEParticipantList(federationUUID string) (*Parti
 			InfraProviderName: "Unknown",
 			InfraProviderUUID: "Unknown",
 			ChartUUID:         domainParticipant.ChartUUID,
+			Version:           utils.GetChartVersionFromDeploymentYAML(domainParticipant.DeploymentYAML),
 			Namespace:         domainParticipant.Namespace,
 			PartyID:           domainParticipant.PartyID,
 			ClusterUUID:       domainParticipant.ClusterUUID,
 			Status:            domainParticipant.Status,
+			Upgradeable:       app.checkFATEClusterUpgrade(domainParticipant.UUID) && domainParticipant.Status == entity.ParticipantFATEStatusActive,
 			AccessInfo:        domainParticipant.AccessInfo,
 			IsManaged:         domainParticipant.IsManaged,
 		}
@@ -237,9 +251,11 @@ func (app *ParticipantApp) GetFATEExchangeDetail(uuid string) (*FATEExchangeDeta
 			InfraProviderName: "Unknown",
 			InfraProviderUUID: "Unknown",
 			ChartUUID:         participant.ChartUUID,
+			Version:           utils.GetChartVersionFromDeploymentYAML(participant.DeploymentYAML),
 			Namespace:         participant.Namespace,
 			PartyID:           participant.PartyID,
 			ClusterUUID:       participant.ClusterUUID,
+			Upgradeable:       app.checkFATEClusterUpgrade(participant.UUID) && participant.Status == entity.ParticipantFATEStatusActive,
 			Status:            participant.Status,
 			AccessInfo:        participant.AccessInfo,
 			IsManaged:         participant.IsManaged,
@@ -280,9 +296,11 @@ func (app *ParticipantApp) GetFATEClusterDetail(uuid string) (*FATEClusterDetail
 			InfraProviderName: "Unknown",
 			InfraProviderUUID: "Unknown",
 			ChartUUID:         participant.ChartUUID,
+			Version:           utils.GetChartVersionFromDeploymentYAML(participant.DeploymentYAML),
 			Namespace:         participant.Namespace,
 			PartyID:           participant.PartyID,
 			ClusterUUID:       participant.ClusterUUID,
+			Upgradeable:       app.checkFATEClusterUpgrade(participant.UUID) && participant.Status == entity.ParticipantFATEStatusActive,
 			Status:            participant.Status,
 			AccessInfo:        participant.AccessInfo,
 			IsManaged:         participant.IsManaged,
@@ -304,4 +322,115 @@ func (app *ParticipantApp) GetFATEClusterDetail(uuid string) (*FATEClusterDetail
 		}
 	}
 	return participantDetail, nil
+}
+
+// checkFATEClusterUpgrade If the type chart corresponding to chartuuid can be upgraded, return true
+// Under what circumstances can it be upgraded: the chartlist contains charts of a higher version of the same type
+func (app *ParticipantApp) checkFATEClusterUpgrade(CLusterUUID string) bool {
+	FATEClusterVersion, UpgradeableVersionList, err := app.getFATEClusterUpgradeableVersionList(CLusterUUID)
+	if err != nil {
+		return false
+	}
+	return utils.Upgradeable(FATEClusterVersion, UpgradeableVersionList)
+}
+
+func (app *ParticipantApp) GetFATEExchangeUpgrade(ExchangeUUID string) (*FATEClusterUpgradeableInfo, error) {
+	FATEExchangeVersion, UpgradeableVersionList, err := app.getFATEClusterUpgradeableVersionList(ExchangeUUID)
+	if err != nil {
+		log.Err(err).Msg("GetFATEExchangeUpgrade error")
+		return nil, err
+	}
+
+	return &FATEClusterUpgradeableInfo{
+		FATEClusterVersion:                FATEExchangeVersion,
+		FATEClusterUpgradeableVersionList: UpgradeableVersionList,
+	}, nil
+}
+
+func (app *ParticipantApp) getFATEClusterUpgradeableVersionList(ClusterUUID string) (string, []string, error) {
+	var versionlist []string
+	var ClusterChartVersion, ClusterChartName string
+	var ChartType entity.ChartType
+	participantInstance, err := app.ParticipantFATERepo.GetByUUID(ClusterUUID)
+	if err != nil {
+		return "", nil, err
+	}
+	participant := participantInstance.(*entity.ParticipantFATE)
+
+	//Check whether it is a cluster managed by fedlcm, a cluster not managed by fedlcm cannot be upgraded
+	if !participant.IsManaged {
+		return "", nil, errors.New("The cluster not managed by FedLCM cannot be upgraded.")
+	}
+
+	instance, err := app.ChartRepo.GetByUUID(participant.ChartUUID)
+	if err != nil {
+		ClusterChartVersion = utils.GetChartVersionFromDeploymentYAML(participant.DeploymentYAML)
+		ClusterChartName = utils.GetChartNameFromDeploymentYAML(participant.DeploymentYAML)
+	} else {
+		Chart := instance.(*entity.Chart)
+		ClusterChartVersion = Chart.Version
+		ClusterChartName = Chart.ChartName
+	}
+
+	if ClusterChartName == "fate-exchange" {
+		ChartType = entity.ChartTypeFATEExchange
+	}
+	if ClusterChartName == "fate" {
+		ChartType = entity.ChartTypeFATECluster
+
+		// TODO: this is a temp solution to prevent upgrading from 1.8 and lower versions as the yaml content has
+		//       changed drastically since. Supporting upgrading these old versions would need further workflow.
+		minUpgradeableVersion, _ := version.NewVersion("1.9.0")
+		currentVersion, _ := version.NewVersion(ClusterChartVersion)
+		if currentVersion.LessThan(minUpgradeableVersion) {
+			return ClusterChartVersion, nil, errors.Errorf("cluster version %s is too old to be upgrade by FedLCM", currentVersion)
+		}
+	}
+
+	var domainChartList []entity.Chart
+	if ChartType == entity.ChartTypeUnknown {
+		instanceList, err := app.ChartRepo.List()
+		if err != nil {
+			return "", nil, err
+		}
+		domainChartList = instanceList.([]entity.Chart)
+	} else {
+		instanceList, err := app.ChartRepo.ListByType(ChartType)
+		if err != nil {
+			return "", nil, err
+		}
+		domainChartList = instanceList.([]entity.Chart)
+	}
+	for _, domainChart := range domainChartList {
+		versionlist = append(versionlist, domainChart.Version)
+	}
+	return ClusterChartVersion, utils.Upgradeablelist(ClusterChartVersion, versionlist), nil
+}
+
+func (app *ParticipantApp) GetFATEClusterUpgrade(ClisterUUID string) (*FATEClusterUpgradeableInfo, error) {
+	FATEClusterVersion, UpgradeableVersionList, err := app.getFATEClusterUpgradeableVersionList(ClisterUUID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &FATEClusterUpgradeableInfo{
+		FATEClusterVersion:                FATEClusterVersion,
+		FATEClusterUpgradeableVersionList: UpgradeableVersionList,
+	}, nil
+}
+
+func (app *ParticipantApp) UpgradeFATEExchange(req *service.ParticipantFATEExchangeUpgradeRequest) (string, error) {
+	exchange, _, err := app.getFATEDomainService().UpgradeExchange(req)
+	if err != nil {
+		return "", err
+	}
+	return exchange.UUID, err
+}
+
+func (app *ParticipantApp) UpgradeFATECluster(req *service.ParticipantFATEClusterUpgradeRequest) (string, error) {
+	cluster, _, err := app.getFATEDomainService().UpgradeCluster(req)
+	if err != nil {
+		return "", err
+	}
+	return cluster.UUID, err
 }

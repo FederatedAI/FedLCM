@@ -10,10 +10,10 @@
 // limitations under the License.
 
 import { Component } from '@angular/core';
-import { addTextIcon, ClarityIcons, userIcon, vmBugIcon, alignBottomIcon, barsIcon, certificateIcon, cogIcon, nodeGroupIcon, organizationIcon, usersIcon, hostGroupIcon, trashIcon, checkCircleIcon, angleIcon, plusCircleIcon, clusterIcon, routerIcon, cloudTrafficIcon, nvmeIcon, refreshIcon, worldIcon, detailsIcon, popOutIcon, timesCircleIcon, searchIcon, recycleIcon, nodesIcon, infoCircleIcon } from '@cds/core/icon';
+import { addTextIcon, ClarityIcons, userIcon, vmBugIcon, alignBottomIcon, barsIcon, certificateIcon, cogIcon, nodeGroupIcon, organizationIcon, usersIcon, hostGroupIcon, trashIcon, checkCircleIcon, angleIcon, plusCircleIcon, clusterIcon, routerIcon, cloudTrafficIcon, nvmeIcon, refreshIcon, worldIcon, detailsIcon, popOutIcon, timesCircleIcon, searchIcon, recycleIcon, nodesIcon, infoCircleIcon, uploadIcon, warningStandardIcon, minusCircleIcon, minusIcon, plusIcon} from '@cds/core/icon';
 import { thinClientIcon } from '@cds/core/icon/shapes/thin-client';
 import { updateIcon } from '@cds/core/icon/shapes/update';
-ClarityIcons.addIcons(addTextIcon, vmBugIcon, userIcon, alignBottomIcon, cogIcon, certificateIcon, organizationIcon, barsIcon, nodeGroupIcon, usersIcon, hostGroupIcon, trashIcon, checkCircleIcon, angleIcon, plusCircleIcon, clusterIcon, routerIcon, cloudTrafficIcon, nvmeIcon, updateIcon, refreshIcon, worldIcon, detailsIcon, popOutIcon, timesCircleIcon, searchIcon, recycleIcon, nodesIcon, thinClientIcon,infoCircleIcon);
+ClarityIcons.addIcons(addTextIcon, vmBugIcon, userIcon, alignBottomIcon, cogIcon, certificateIcon, organizationIcon, barsIcon, nodeGroupIcon, usersIcon, hostGroupIcon, trashIcon, checkCircleIcon, angleIcon, plusCircleIcon, clusterIcon, routerIcon, cloudTrafficIcon, nvmeIcon, updateIcon, refreshIcon, worldIcon, detailsIcon, popOutIcon, timesCircleIcon, searchIcon, recycleIcon, nodesIcon, thinClientIcon,infoCircleIcon, uploadIcon, warningStandardIcon, minusCircleIcon, minusIcon, plusIcon);
 
 @Component({
   selector: 'app-root',

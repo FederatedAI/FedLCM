@@ -62,16 +62,16 @@ func (controller *LocalDataController) Route(r *gin.RouterGroup) {
 }
 
 // upload uploads a local csv data
-// @Summary Upload a local csv data
-// @Tags LocalData
-// @Produce json
-// @Param file        formData file true "The csv file"
-// @Param name        formData string true "Data name"
-// @Param description formData string true "Data description"
-// @Success 200 {object} GeneralResponse{} "Success, the data field is the data UUID"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /data [post]
+//	@Summary	Upload a local csv data
+//	@Tags		LocalData
+//	@Produce	json
+//	@Param		file		formData	file						true	"The csv file"
+//	@Param		name		formData	string						true	"Data name"
+//	@Param		description	formData	string						true	"Data description"
+//	@Success	200			{object}	GeneralResponse{}			"Success, the data field is the data UUID"
+//	@Failure	401			{object}	GeneralResponse				"Unauthorized operation"
+//	@Failure	500			{object}	GeneralResponse{code=int}	"Internal server error"
+//	@Router		/data [post]
 func (controller *LocalDataController) upload(c *gin.Context) {
 	if uuid, err := func() (string, error) {
 		f, err := c.FormFile("file")
@@ -100,13 +100,13 @@ func (controller *LocalDataController) upload(c *gin.Context) {
 }
 
 // list returns all data records
-// @Summary List all data records
-// @Tags LocalData
-// @Produce json
-// @Success 200 {object} GeneralResponse{data=[]service.LocalDataListItem} "Success"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /data [get]
+//	@Summary	List all data records
+//	@Tags		LocalData
+//	@Produce	json
+//	@Success	200	{object}	GeneralResponse{data=[]service.LocalDataListItem}	"Success"
+//	@Failure	401	{object}	GeneralResponse										"Unauthorized operation"
+//	@Failure	500	{object}	GeneralResponse{code=int}							"Internal server error"
+//	@Router		/data [get]
 func (controller *LocalDataController) list(c *gin.Context) {
 	if dataList, err := controller.localDataApp.List(); err != nil {
 		resp := &GeneralResponse{
@@ -124,14 +124,14 @@ func (controller *LocalDataController) list(c *gin.Context) {
 }
 
 // get returns detailed information of a data record
-// @Summary Get data record's detailed info
-// @Tags LocalData
-// @Produce json
-// @Param uuid path string true "Data UUID"
-// @Success 200 {object} GeneralResponse{data=service.LocalDataDetail} "Success"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /data/{uuid} [get]
+//	@Summary	Get data record's detailed info
+//	@Tags		LocalData
+//	@Produce	json
+//	@Param		uuid	path		string											true	"Data UUID"
+//	@Success	200		{object}	GeneralResponse{data=service.LocalDataDetail}	"Success"
+//	@Failure	401		{object}	GeneralResponse									"Unauthorized operation"
+//	@Failure	500		{object}	GeneralResponse{code=int}						"Internal server error"
+//	@Router		/data/{uuid} [get]
 func (controller *LocalDataController) get(c *gin.Context) {
 	uuid := c.Param("uuid")
 	if dataDetail, err := controller.localDataApp.Get(uuid); err != nil {
@@ -150,13 +150,13 @@ func (controller *LocalDataController) get(c *gin.Context) {
 }
 
 // download returns the original csv data file
-// @Summary Download data file
-// @Tags LocalData
-// @Produce json
-// @Param uuid path string true "Data UUID"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /data/{uuid}/file [get]
+//	@Summary	Download data file
+//	@Tags		LocalData
+//	@Produce	json
+//	@Param		uuid	path		string						true	"Data UUID"
+//	@Failure	401		{object}	GeneralResponse				"Unauthorized operation"
+//	@Failure	500		{object}	GeneralResponse{code=int}	"Internal server error"
+//	@Router		/data/{uuid}/file [get]
 func (controller *LocalDataController) download(c *gin.Context) {
 	uuid := c.Param("uuid")
 	if path, err := controller.localDataApp.GetFilePath(uuid); err != nil {
@@ -181,14 +181,14 @@ func (controller *LocalDataController) download(c *gin.Context) {
 }
 
 // delete removes the data
-// @Summary Delete the data file, both the local copy and the FATE table
-// @Tags LocalData
-// @Produce json
-// @Param uuid path string true "Data UUID"
-// @Success 200 {object} GeneralResponse "Success"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /data/{uuid} [delete]
+//	@Summary	Delete the data file, both the local copy and the FATE table
+//	@Tags		LocalData
+//	@Produce	json
+//	@Param		uuid	path		string						true	"Data UUID"
+//	@Success	200		{object}	GeneralResponse				"Success"
+//	@Failure	401		{object}	GeneralResponse				"Unauthorized operation"
+//	@Failure	500		{object}	GeneralResponse{code=int}	"Internal server error"
+//	@Router		/data/{uuid} [delete]
 func (controller *LocalDataController) delete(c *gin.Context) {
 	uuid := c.Param("uuid")
 	if err := controller.localDataApp.DeleteData(uuid); err != nil {
@@ -206,15 +206,15 @@ func (controller *LocalDataController) delete(c *gin.Context) {
 }
 
 // putIdMetaInfo update data record ID meta info
-// @Summary Update data record's ID meta info
-// @Tags LocalData
-// @Produce json
-// @Param info body service.LocalDataIDMetaInfoUpdateRequest true "The meta info"
-// @Param uuid path string true "Data UUID"
-// @Success 200 {object} GeneralResponse "Success"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /data/{uuid}/idmetainfo [put]
+//	@Summary	Update data record's ID meta info
+//	@Tags		LocalData
+//	@Produce	json
+//	@Param		info	body		service.LocalDataIDMetaInfoUpdateRequest	true	"The meta info"
+//	@Param		uuid	path		string										true	"Data UUID"
+//	@Success	200		{object}	GeneralResponse								"Success"
+//	@Failure	401		{object}	GeneralResponse								"Unauthorized operation"
+//	@Failure	500		{object}	GeneralResponse{code=int}					"Internal server error"
+//	@Router		/data/{uuid}/idmetainfo [put]
 func (controller *LocalDataController) putIdMetaInfo(c *gin.Context) {
 	if err := func() error {
 		uuid := c.Param("uuid")
@@ -241,14 +241,14 @@ func (controller *LocalDataController) putIdMetaInfo(c *gin.Context) {
 }
 
 // getColumns returns a list of the data's headers
-// @Summary Get data headers
-// @Tags LocalData
-// @Produce json
-// @Param uuid path string true "Data UUID"
-// @Success 200 {object} GeneralResponse{data=[]string} "Success"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /data/{uuid}/columns [get]
+//	@Summary	Get data headers
+//	@Tags		LocalData
+//	@Produce	json
+//	@Param		uuid	path		string							true	"Data UUID"
+//	@Success	200		{object}	GeneralResponse{data=[]string}	"Success"
+//	@Failure	401		{object}	GeneralResponse					"Unauthorized operation"
+//	@Failure	500		{object}	GeneralResponse{code=int}		"Internal server error"
+//	@Router		/data/{uuid}/columns [get]
 func (controller *LocalDataController) getColumns(c *gin.Context) {
 	uuid := c.Param("uuid")
 	if columns, err := controller.localDataApp.GetColumns(uuid); err != nil {
@@ -267,14 +267,14 @@ func (controller *LocalDataController) getColumns(c *gin.Context) {
 }
 
 // associate creates a local data item with existing flow data table
-// @Summary Associate flow data table to a local data
-// @Tags LocalData
-// @Produce json
-// @Param project body service.LocalDataAssociateRequest true "Local data association request"
-// @Success 200 {object} GeneralResponse{} "Success, the data field is the data UUID"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /data/associate [post]
+//	@Summary	Associate flow data table to a local data
+//	@Tags		LocalData
+//	@Produce	json
+//	@Param		project	body		service.LocalDataAssociateRequest	true	"Local data association request"
+//	@Success	200		{object}	GeneralResponse{}					"Success, the data field is the data UUID"
+//	@Failure	401		{object}	GeneralResponse						"Unauthorized operation"
+//	@Failure	500		{object}	GeneralResponse{code=int}			"Internal server error"
+//	@Router		/data/associate [post]
 func (controller *LocalDataController) associate(c *gin.Context) {
 	if uuid, err := func() (string, error) {
 		request := &service.LocalDataAssociateRequest{}

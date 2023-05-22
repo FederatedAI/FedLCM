@@ -43,13 +43,13 @@ import (
 )
 
 // main starts the API server
-// @title fml manager API service
-// @version v1
-// @description backend APIs of fml manager service
-// @termsOfService http://swagger.io/terms/
-// @contact.name FedLCM team
-// @BasePath /api/v1
-// @in header
+//	@title			fml manager API service
+//	@version		v1
+//	@description	backend APIs of fml manager service
+//	@termsOfService	http://swagger.io/terms/
+//	@contact.name	FedLCM team
+//	@BasePath		/api/v1
+//	@in				header
 func main() {
 	viper.AutomaticEnv()
 	replacer := strings.NewReplacer(".", "_")

@@ -317,6 +317,16 @@ export class DirectorNewComponent implements OnInit {
     return this.codeMirror && !this.hasYAMLTextAreaDOM && this.form.controls['yaml'].get('yaml')?.value
   }
   
+  // set Namespace Disabled 
+  get setNamespaceDisabled() {
+    if (this.selectedEndpoint && this.selectedEndpoint.namespace) {
+      this.form.get('namespace')?.get('namespace')?.setValue(this.selectedEndpoint.namespace)
+      return true
+    } else {
+      return false
+    }
+  }
+
   //reset form when selection change
   onSelectEndpoint() {
     if (this.selectedEndpoint) {

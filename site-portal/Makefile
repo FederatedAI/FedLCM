@@ -1,7 +1,7 @@
 .PHONY: all clean format swag swag-bin server-unittest server frontend run
 
 RELEASE_VERSION ?= ${shell git describe --tags}
-TAG ?= v0.2.0
+TAG ?= v0.3.0
 
 SERVER_NAME ?= federatedai/site-portal-server
 SERVER_IMG ?= ${SERVER_NAME}:${TAG}

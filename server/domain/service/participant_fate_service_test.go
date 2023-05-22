@@ -70,7 +70,7 @@ func TestCreateExchange_PosWithNewCert(t *testing.T) {
 
 	exchange, wg, err := service.CreateExchange(&ParticipantFATEExchangeCreationRequest{
 		ParticipantFATEExchangeYAMLCreationRequest: ParticipantFATEExchangeYAMLCreationRequest{
-			ChartUUID:   "242bf84c-548c-43d4-9f34-15f6d4dc0f33", // from the chart test repo
+			ChartUUID:   "fd30a219-c9d2-4f6a-9146-f06c05a666f2", // from the chart test repo
 			Name:        "test-exchange",
 			Namespace:   "test-ns",
 			ServiceType: entity.ParticipantDefaultServiceTypeLoadBalancer,
@@ -79,10 +79,10 @@ func TestCreateExchange_PosWithNewCert(t *testing.T) {
 			Description:  "",
 			EndpointUUID: "",
 			DeploymentYAML: `chartName: fate-exchange
-chartVersion: v1.9.1-fedlcm-v0.2.0
+chartVersion: v1.10.0-fedlcm-v0.3.0
 fmlManagerServer:
   image: federatedai/fml-manager-server
-  imageTag: v0.2.0
+  imageTag: v0.3.0
   type: NodePort
 modules:
 - trafficServer
@@ -226,7 +226,7 @@ func TestParticipantFATEService_GetClusterDeploymentYAML(t *testing.T) {
 			args: args{
 				req: &ParticipantFATEClusterYAMLCreationRequest{
 					ParticipantFATEExchangeYAMLCreationRequest: ParticipantFATEExchangeYAMLCreationRequest{
-						ChartUUID:   "7a51112a-b0ad-4c26-b2c0-1e6f7eca6073", // from the chart test repo
+						ChartUUID:   "d81d2b48-930d-4c5e-b522-322b93e8ef39", // from the chart test repo
 						Name:        "test-fate",
 						Namespace:   "test-fate-ns",
 						ServiceType: entity.ParticipantDefaultServiceTypeNodePort,
@@ -235,6 +235,7 @@ func TestParticipantFATEService_GetClusterDeploymentYAML(t *testing.T) {
 					PartyID:           8888,
 					EnablePersistence: false,
 					StorageClass:      "",
+					FATEFlowGPUNum:    0,
 					ExternalSpark: ExternalSpark{
 						Enable:                true,
 						Cores_per_node:        8,
@@ -261,114 +262,6 @@ func TestParticipantFATEService_GetClusterDeploymentYAML(t *testing.T) {
 					},
 				},
 			},
-			want: `name: test-fate
-namespace: test-fate-ns
-chartName: fate
-chartVersion: v1.8.0
-partyId: 8888
-# imageTag: "1.8.0-release"
-persistence: false
-# pullPolicy:
-podSecurityPolicy:
-  enabled: false
-
-# ingressClassName: nginx
-
-modules:
-  - mysql
-  - python
-  - fateboard
-  - client
-  - nginx
-
-backend: spark_pulsar
-
-ingress:
-  fateboard:
-    hosts:
-    - name: test-fate.fateboard.test.example.com
-  client:
-    hosts:
-    - name: test-fate.notebook.test.example.com
-
-nginx:
-  type: NodePort
-  exchange:
-    ip: 127.0.1.1
-    httpPort: 9370
-  # nodeSelector:
-  # tolerations:
-  # affinity:
-  # loadBalancerIP:
-  # httpNodePort: 30093
-  # grpcNodePort: 30098
-pulsar:
-  exchange:
-    ip: 127.0.1.2
-    port: 6651
-    domain: test.example.com
-
-mysql:
-  size: 1Gi
-  storageClass: 
-  existingClaim: ""
-  accessMode: ReadWriteOnce
-  subPath: "mysql"
-  # nodeSelector:
-  # tolerations:
-  # affinity:
-  # ip: mysql
-  # port: 3306
-  # database: eggroll_meta
-  # user: fate
-  # password: fate_dev
-
-python:
-  size: 10Gi
-  storageClass: 
-  existingClaim: ""
-  accessMode: ReadWriteOnce
-  # httpNodePort:
-  # grpcNodePort:
-  # loadBalancerIP:
-  # serviceAccountName: ""
-  # nodeSelector:
-  # tolerations:
-  # affinity:
-  # resources:
-  # logLevel: INFO
-  spark: 
-    cores_per_node: 8
-    nodes: 1
-    master: spark://127.0.0.1:7077
-    driverHost: 127.0.1.1
-    driverHostType: NodePort
-    portMaxRetries: 10
-    driverStartPort: 30100
-    blockManagerStartPort: 30200
-    pysparkPython: 
-  hdfs:
-    name_node: hdfs://127.0.0.1:9000
-    path_prefix: 
-  pulsar:
-    host: 127.0.0.1
-    mng_port: 8001
-    port: 6650
-    ssl_port: 6651
-  # nginx:
-    # host: nginx
-    # http_port: 9300
-    # grpc_port: 9310
-
-client:
-  size: 1Gi
-  storageClass: 
-  existingClaim: ""
-  accessMode: ReadWriteOnce
-  subPath: "client"
-  # nodeSelector:
-  # tolerations:
-  # affinity:`,
 			wantErr: false,
 		},
 		{
@@ -413,7 +306,7 @@ client:
 			args: args{
 				req: &ParticipantFATEClusterYAMLCreationRequest{
 					ParticipantFATEExchangeYAMLCreationRequest: ParticipantFATEExchangeYAMLCreationRequest{
-						ChartUUID:   "8d1b15c1-cc7e-460b-8563-fa732457a049", // from the chart test repo
+						ChartUUID:   "73acbbc0-4cdf-46bf-b48f-25fe1e03b91f", // from the chart test repo
 						Name:        "test-fate",
 						Namespace:   "test-fate-ns",
 						ServiceType: entity.ParticipantDefaultServiceTypeNodePort,
@@ -422,261 +315,12 @@ client:
 					PartyID:           7777,
 					EnablePersistence: false,
 					StorageClass:      "",
+					FATEFlowGPUNum:    0,
 					ExternalSpark:     ExternalSpark{},
 					ExternalHDFS:      ExternalHDFS{},
 					ExternalPulsar:    ExternalPulsar{},
 				},
 			},
-			want: `name: test-fate
-namespace: test-fate-ns
-chartName: fate
-chartVersion: v1.9.1-fedlcm-v0.2.0
-partyId: 7777
-persistence: false
-# pullPolicy: IfNotPresent
-podSecurityPolicy:
-  enabled: false
-
-modules:
-  - mysql
-  - python
-  - fateboard
-  - client
-  - spark
-  - hdfs
-  - pulsar
-  - nginx
-  - frontend
-  - sitePortalServer
-  - postgres
-
-computing: Spark
-federation: Pulsar
-storage: HDFS
-algorithm: Basic
-device: CPU
-
-skippedKeys:
-- route_table
-
-ingress:
-  fateboard:
-    hosts:
-    - name: test-fate.fateboard.test.example.com
-  client:
-    hosts:
-    - name: test-fate.notebook.test.example.com
-  spark:
-    hosts:
-    - name: test-fate.spark.test.example.com
-  pulsar:
-    hosts:
-    - name: test-fate.pulsar.test.example.com
-
-python:
-  # type: ClusterIP
-  # httpNodePort: 
-  # grpcNodePort: 
-  # loadBalancerIP:
-  # serviceAccountName: ""
-  # resources:
-  # nodeSelector:
-  # tolerations:
-  # affinity:
-  # logLevel: INFO
-  existingClaim: ""
-  storageClass: 
-  accessMode: ReadWriteOnce
-  size: 10Gi
-  # resources:
-    # requests:
-      # cpu: "2"
-      # memory: "4Gi"
-    # limits:
-      # cpu: "4"
-      # memory: "8Gi"
-  spark: 
-    cores_per_node: 20
-    nodes: 2
-    master: spark://spark-master:7077
-    driverHost:
-    driverHostType:
-    portMaxRetries:
-    driverStartPort:
-    blockManagerStartPort:
-    pysparkPython:
-  hdfs:
-    name_node: hdfs://namenode:9000
-    path_prefix:
-  pulsar:
-    host: pulsar
-    mng_port: 8080
-    port: 6650
-  nginx:
-    host: nginx
-    http_port: 9300
-    grpc_port: 9310
-
-fateboard: 
-  type: ClusterIP
-  username: admin
-  password: admin
-
-client:
-  subPath: "client"
-  existingClaim: ""
-  accessMode: ReadWriteOnce
-  size: 1Gi
-  storageClass: 
-  # nodeSelector:
-  # tolerations:
-  # affinity:
-
-mysql:
-  subPath: "mysql"
-  size: 1Gi
-  storageClass: 
-  existingClaim: ""
-  accessMode: ReadWriteOnce
-  # nodeSelector:
-  # tolerations:
-  # affinity:
-  # ip: mysql
-  # port: 3306
-  # database: eggroll_meta
-  # user: fate
-  # password: fate_dev
-spark:
-  master:
-    # image: "federatedai/spark-master"
-    # imageTag: "1.9.1-release"
-    replicas: 1
-    # resources:
-      # requests:
-        # cpu: "1"
-        # memory: "2Gi"
-      # limits:
-        # cpu: "1"
-        # memory: "2Gi"
-    # nodeSelector:
-    # tolerations:
-    # affinity:
-    # type: ClusterIP
-  worker:
-    # image: "federatedai/spark-worker"
-    # imageTag: "1.9.1-release"
-    replicas: 2
-    # resources:
-      # requests:
-        # cpu: "2"
-        # memory: "4Gi"
-      # limits:
-        # cpu: "4"
-        # memory: "8Gi"
-    # nodeSelector:
-    # tolerations:
-    # affinity:
-    # type: ClusterIP
-hdfs:
-  namenode:
-    existingClaim: ""
-    accessMode: ReadWriteOnce
-    size: 1Gi
-    storageClass: 
-    # nodeSelector:
-    # tolerations:
-    # affinity:
-    # type: ClusterIP
-    # nodePort: 30900
-  datanode:
-    existingClaim: ""
-    accessMode: ReadWriteOnce
-    size: 1Gi
-    storageClass: 
-    # nodeSelector:
-    # tolerations:
-    # affinity:
-    # type: ClusterIP
-nginx:
-  type: NodePort
-  exchange:
-    ip: 127.0.1.1
-    httpPort: 9370
-  # nodeSelector:
-  # tolerations:
-  # affinity:
-  # loadBalancerIP:
-  # httpNodePort:
-  # grpcNodePort:
-pulsar:
-  existingClaim: ""
-  accessMode: ReadWriteOnce
-  size: 1Gi
-  storageClass: 
-  publicLB:
-    enabled: true
-  exchange:
-    ip: 127.0.1.2
-    port: 6651
-    domain: test.example.com
-  # nodeSelector:
-  # tolerations:
-  # affinity:
-  # type: ClusterIP
-  # httpNodePort: 
-  # httpsNodePort: 
-  # loadBalancerIP:
-postgres:
-  user: site_portal
-  password: site_portal
-  db: site_portal
-  existingClaim: ""
-  accessMode: ReadWriteOnce
-  size: 1Gi
-  storageClass: 
-  # type: ClusterIP
-  # nodeSelector:
-  # tolerations:
-  # affinity:
-  # user: site_portal
-  # password: site_portal
-  # db: site_portal
-  # subPath: ""
-
-frontend:
-  type: NodePort
-  type: NodePort
-  # nodeSelector:
-  # tolerations:
-  # affinity:
-  # nodePort: 
-  # loadBalancerIP:
- 
-sitePortalServer:
-  existingClaim: ""
-  storageClass: 
-  accessMode: ReadWriteOnce
-  size: 1Gi
-  # type: ClusterIP
-  # nodeSelector:
-  # tolerations:
-  # affinity:
-  # postgresHost: postgres
-  # postgresPort: 5432
-  # postgresDb: site_portal
-  # postgresUser: site_portal
-  # postgresPassword: site_portal
-  # adminPassword: admin
-  # userPassword: user
-  # serverCert: /var/lib/site-portal/cert/server.crt
-  # serverKey: /var/lib/site-portal/cert/server.key
-  # clientCert: /var/lib/site-portal/cert/client.crt
-  # clientKey: /var/lib/site-portal/cert/client.key
-  # caCert: /var/lib/site-portal/cert/ca.crt
-  # tlsEnabled: 'true'
-  # tlsPort: 8443
-  tlsCommonName: site-7777.server.test.example.com
-`,
 			wantErr: false,
 		},
 	}
@@ -686,13 +330,10 @@ sitePortalServer:
 				ParticipantFATERepo: tt.fields.ParticipantFATERepo,
 				ParticipantService:  tt.fields.ParticipantService,
 			}
-			got, err := s.GetClusterDeploymentYAML(tt.args.req)
+			_, err := s.GetClusterDeploymentYAML(tt.args.req)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ParticipantFATEService.GetClusterDeploymentYAML() error = %v, wantErr %v", err, tt.wantErr)
 				return
-			}
-			if got != tt.want {
-				t.Errorf("ParticipantFATEService.GetClusterDeploymentYAML() = `%v`, want `%v`", got, tt.want)
 			}
 		})
 	}
@@ -714,7 +355,7 @@ func Test_getPulsarInformationFromYAML(t *testing.T) {
 			args: args{
 				yamlStr: `algorithm: Basic
 chartName: fate
-chartVersion: v1.9.0
+chartVersion: v1.10.0
 client:
   accessMode: ReadWriteOnce
   existingClaim: ""

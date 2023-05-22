@@ -45,6 +45,7 @@
           <clr-dg-column [clrDgField]="'name'">{{'CommonlyUse.name'| translate}}</clr-dg-column>
           <clr-dg-column>{{'CommonlyUse.description'| translate}}</clr-dg-column>
           <clr-dg-column>{{'CommonlyUse.type'| translate}}</clr-dg-column>
+          <clr-dg-column>{{'NewCluster.namespace'| translate}}</clr-dg-column>
           <clr-dg-column>{{'CommonlyUse.creationTime'| translate}}</clr-dg-column>
           <clr-dg-column>{{'EndpointMg.infraName'|translate}}</clr-dg-column>
           <clr-dg-column>{{'EndpointMg.endpointURL'|translate}}</clr-dg-column>
@@ -53,6 +54,7 @@
             <clr-dg-cell>{{endpoint?.name}}</clr-dg-cell>
             <clr-dg-cell>{{endpoint?.description}}</clr-dg-cell>
             <clr-dg-cell>{{endpoint?.type}}</clr-dg-cell>
+            <clr-dg-cell>{{endpoint?.namespace}}</clr-dg-cell>
             <clr-dg-cell>{{endpoint?.created_at | date : "medium"}}</clr-dg-cell>
             <clr-dg-cell>{{endpoint?.infra_provider_name}}</clr-dg-cell>
             <clr-dg-cell>{{endpoint?.kubefate_host}}</clr-dg-cell>
@@ -91,6 +93,8 @@
         <clr-input-container class="no-warp">
           <label>{{'NewCluster.namespace'|translate}}</label>
           <input clrInput Placeholder="Default: fate-exchange" formControlName="namespace"
+            [disabled]="setNamespaceDisabled"
+            [class]="{disabled: setNamespaceDisabled}"
             (ngModelChange)="selectChange($event)" />
         </clr-input-container>
         <button clrStepButton="next">{{'CommonlyUse.next'| translate}}</button>

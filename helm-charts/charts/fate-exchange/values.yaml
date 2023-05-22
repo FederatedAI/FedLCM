@@ -4,13 +4,10 @@ partyName: fate-exchange
 image:
   registry: federatedai
   isThridParty:
-  tag: 1.9.1-release
+  tag: 1.11.1-release
   pullPolicy: IfNotPresent
-  imagePullSecrets: 
-#  - name: 
-  
-partyId: 9999
-partyName: fate-9999
+  imagePullSecrets:
+#  - name:
 
 podSecurityPolicy:
   enabled: false
@@ -110,12 +107,12 @@ modules:
   fmlManagerServer:
     include: true
     image: federatedai/fml-manager-server
-    imageTag: v0.2.0
+    imageTag: v0.3.0
     # nodeSelector:
     # tolerations:
     # affinity:
     type: ClusterIP
-    # nodePort: 
+    # nodePort:
     # loadBalancerIP: 192.168.0.1
     postgresHost: postgres
     postgresPort: 5432

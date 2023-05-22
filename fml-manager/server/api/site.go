@@ -53,12 +53,12 @@ func (controller *SiteController) Route(r *gin.RouterGroup) {
 }
 
 // getSite returns the sites list
-// @Summary Return sites list
-// @Tags Site
-// @Produce json
-// @Success 200 {object} GeneralResponse{data=[]entity.Site} "Success"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /site [get]
+//	@Summary	Return sites list
+//	@Tags		Site
+//	@Produce	json
+//	@Success	200	{object}	GeneralResponse{data=[]entity.Site}	"Success"
+//	@Failure	500	{object}	GeneralResponse{code=int}			"Internal server error"
+//	@Router		/site [get]
 func (controller *SiteController) getSite(c *gin.Context) {
 	siteList, err := controller.siteAppService.GetSiteList()
 	if err != nil {
@@ -79,13 +79,13 @@ func (controller *SiteController) getSite(c *gin.Context) {
 }
 
 // postSite creates or updates site information
-// @Summary Create or update site info
-// @Tags Site
-// @Produce json
-// @Param site body entity.Site true "The site information"
-// @Success 200 {object} GeneralResponse "Success"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /site [post]
+//	@Summary	Create or update site info
+//	@Tags		Site
+//	@Produce	json
+//	@Param		site	body		entity.Site					true	"The site information"
+//	@Success	200		{object}	GeneralResponse				"Success"
+//	@Failure	500		{object}	GeneralResponse{code=int}	"Internal server error"
+//	@Router		/site [post]
 func (controller *SiteController) postSite(c *gin.Context) {
 	if err := func() error {
 		updatedSiteInfo := &entity.Site{}
@@ -108,13 +108,13 @@ func (controller *SiteController) postSite(c *gin.Context) {
 }
 
 // deleteSite removes a site
-// @Summary Remove a site, all related projects will be impacted
-// @Tags Site
-// @Produce json
-// @Param uuid path string true "The site UUID"
-// @Success 200 {object} GeneralResponse "Success"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /site/{uuid} [delete]
+//	@Summary	Remove a site, all related projects will be impacted
+//	@Tags		Site
+//	@Produce	json
+//	@Param		uuid	path		string						true	"The site UUID"
+//	@Success	200		{object}	GeneralResponse				"Success"
+//	@Failure	500		{object}	GeneralResponse{code=int}	"Internal server error"
+//	@Router		/site/{uuid} [delete]
 func (controller *SiteController) deleteSite(c *gin.Context) {
 	if err := func() error {
 		siteUUID := c.Param("uuid")

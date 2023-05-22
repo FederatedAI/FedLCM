@@ -1,0 +1,87 @@
+package utils
+
+import (
+	"fmt"
+	"strings"
+
+	"github.com/pkg/errors"
+	"github.com/rs/zerolog/log"
+	"gopkg.in/yaml.v2"
+)
+
+// Upgradeable If the versionlist contains a version number higher than version, then return true
+func Upgradeable(version string, versionlist []string) bool {
+	upgradeablelist := Upgradeablelist(version, versionlist)
+	return len(upgradeablelist) > 0
+}
+
+// Upgradeablelist If the versionlist contains a version number higher than version, then return the upgradeable list
+func Upgradeablelist(version string, versionlist []string) []string {
+	upgradeablelist := make([]string, 0)
+
+	for _, item := range versionlist {
+		if CompareVersion(item, version) > 0 && typeVersion(item, version) {
+			upgradeablelist = append(upgradeablelist, item)
+		}
+	}
+	return upgradeablelist
+}
+
+// CompareVersion compare version1 and version2
+// If version1 is larger, return 1
+// If version2 is larger, return -1
+// otherwise return 0
+func CompareVersion(version1, version2 string) int {
+	n, m := len(version1), len(version2)
+	i, j := 0, 0
+	for i < n || j < m {
+		x := 0
+		for ; i < n && version1[i] != '.'; i++ {
+			x = x*10 + int(version1[i]-'0')
+		}
+		i++
+		y := 0
+		for ; j < m && version2[j] != '.'; j++ {
+			y = y*10 + int(version2[j]-'0')
+		}
+		j++
+		if x > y {
+			return 1
+		}
+		if x < y {
+			return -1
+		}
+	}
+	return 0
+}
+
+// typeVersion Determine whether version1 and version2 are of the same type.
+// Examples:
+// - v1.10.0 & v1.9.1 is true
+// - v1.10.0-fedlcm-v0.3.0 & v1.9.1-fedlcm-v0.2.0 is true
+// - v1.10.0-fedlcm-v0.3.0 & v1.10.0 is false
+func typeVersion(version1, version2 string) bool {
+	return len(strings.Split(version1, "-fedlcm-")) == len(strings.Split(version2, "-fedlcm-"))
+}
+
+func GetChartVersionFromDeploymentYAML(deploymentYAML string) string {
+	var m map[string]interface{}
+	err := yaml.Unmarshal([]byte(deploymentYAML), &m)
+	if err != nil {
+		log.Warn().AnErr("UnmarshalError", errors.Wrapf(err, "failed to unmarshal deployment yaml")).Msg("GetChartVersionFromDeploymentYAML")
+		return ""
+	}
+
+	return fmt.Sprint(m["chartVersion"])
+}
+
+func GetChartNameFromDeploymentYAML(deploymentYAML string) string {
+	var m map[string]interface{}
+	err := yaml.Unmarshal([]byte(deploymentYAML), &m)
+	if err != nil {
+		log.Warn().AnErr("UnmarshalError", errors.Wrapf(err, "failed to unmarshal deployment yaml")).Msg("GetChartVersionFromDeploymentYAML")
+		return ""
+	}
+
+	return fmt.Sprint(m["chartName"])
+}

@@ -39,13 +39,14 @@ import (
 )
 
 // main starts the API server
-// @title           lifecycle manager API service
-// @version         v1
-// @description     backend APIs of lifecycle manager service
-// @termsOfService  http://swagger.io/terms/
-// @contact.name    FedLCM team
-// @BasePath        /api/v1
-// @in              header
+//
+// @title          lifecycle manager API service
+// @version        v1
+// @description    backend APIs of lifecycle manager service
+// @termsOfService http://swagger.io/terms/
+// @contact.name   FedLCM team
+// @BasePath       /api/v1
+// @in             header
 func main() {
 	viper.AutomaticEnv()
 	replacer := strings.NewReplacer(".", "_")

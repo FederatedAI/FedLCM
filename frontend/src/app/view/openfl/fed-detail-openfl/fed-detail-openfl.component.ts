@@ -175,6 +175,7 @@ export class FedDetailOpneFLComponent implements OnInit {
         this.director = data.data.director
         this.envoylist = data.data.envoy
         this.storageDataList = data.data.envoy
+        this.directorAccessInfoList = []
         if (this.director) {
           for (const key in this.director.access_info) {
             const obj: any = {

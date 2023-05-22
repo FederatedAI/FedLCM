@@ -68,7 +68,10 @@ export class FedDetailFateComponent implements OnInit {
         this.participantList = data.data;
         this.clusterlist = this.participantList.clusters || [];
         this.exchange = this.participantList.exchange;
+        this.exchangeInfoList = []
         if (this.exchange) {
+          const exchangeVersion = this.exchange.version.split('-')[0] || ''        
+
           for (const key in this.exchange.access_info) {
             const obj: any = {
               name: key,
@@ -83,6 +86,12 @@ export class FedDetailFateComponent implements OnInit {
           }
           this.clusterlist.forEach(cluster => {
             cluster.clusterList = []
+            const clusterVersion = cluster.version.split('-')[0]
+            if (clusterVersion !== exchangeVersion) {
+              cluster.flag = true
+            } else {
+              cluster.flag = false
+            }
             for (const key in cluster.access_info) {
               const obj: any = {
                 name: key,
@@ -182,9 +191,15 @@ export class FedDetailFateComponent implements OnInit {
 
   //createClusterDisabled is to disabled the 'new cluster' button when there is no active exchange in the current federation
   get createClusterDisabled() {
-    if (this.exchange && this.exchange.status === 1) {
+    if (this.exchange && (this.exchange.status === 1 || this.exchange.status === 6)) {
       return false
     }
     return true
   }
+
+  // Exchange and cluster jump to the upgrade page through toUpgrade
+  toUpgrade(item: {uuid: string, name: string, version: string}, type: string) {
+    this.router.navigate(['/federation', 'fate', this.uuid, 'detail', item.uuid, item.version, type+'-'+item.name, 'upgrade'])
+  }
+
 }

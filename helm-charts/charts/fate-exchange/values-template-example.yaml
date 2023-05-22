@@ -1,9 +1,10 @@
 name: fate-exchange
 namespace: fate-exchange
 chartName: fate-exchange
-chartVersion: v1.9.1-fedlcm-v0.2.0
-partyId: 0
+chartVersion: v1.11.1-fedlcm-v0.3.0
+partyId: 1
 registry: ""
+pullPolicy:
 imagePullSecrets: 
 - name: myregistrykey
 persistence: false
@@ -18,7 +19,7 @@ modules:
   - postgres
   - fmlManagerServer
 
-# rollsite: 
+# rollsite:
 #   type: NodePort
 #   nodePort: 30001
 #   loadBalancerIP: 192.168.0.1
@@ -39,7 +40,7 @@ modules:
 #   type: NodePort
 #   nodePort: 30007
 #   loadBalancerIP: 192.168.0.1
-#   route_table: 
+#   route_table:
 #     sni:
 #     - fqdn: 10000.fate.org
 #       tunnelRoute: 192.168.0.2:30109
@@ -55,22 +56,22 @@ modules:
 #   httpNodePort: 30003
 #   grpcNodePort: 30008
 #   loadBalancerIP: 192.168.0.1
-#   route_table: 
-#     9999: 
-#       proxy: 
-#         - host: 192.168.9.1 
+#   route_table:
+#     9999:
+#       proxy:
+#         - host: 192.168.9.1
 #           http_port: 30093
-#           grpc_port: 30098 
-#       fateflow: 
+#           grpc_port: 30098
+#       fateflow:
 #         - host: 192.168.9.1
 #           http_port: 30097
 #           grpc_port: 30092
-#     10000: 
-#       proxy: 
-#         - host: 192.168.10.1 
+#     10000:
+#       proxy:
+#         - host: 192.168.10.1
 #           http_port: 30103
-#           grpc_port: 30108 
-#       fateflow: 
+#           grpc_port: 30108
+#       fateflow:
 #         - host: 192.168.10.1
 #           http_port: 30107
 #           grpc_port: 30102
@@ -93,7 +94,7 @@ modules:
   # tolerations:
   # affinity:
   # type: NodePort
-  # nodePort: 
+  # nodePort:
   # loadBalancerIP: 192.168.0.1
   # postgresHost: postgres
   # postgresPort: 5432

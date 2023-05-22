@@ -67,13 +67,13 @@ func (controller *ModelController) Route(r *gin.RouterGroup) {
 }
 
 // list returns a list of models
-// @Summary Get model list
-// @Tags Model
-// @Produce json
-// @Success 200 {object} GeneralResponse{data=[]service.ModelListItem} "Success"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /model [get]
+//	@Summary	Get model list
+//	@Tags		Model
+//	@Produce	json
+//	@Success	200	{object}	GeneralResponse{data=[]service.ModelListItem}	"Success"
+//	@Failure	401	{object}	GeneralResponse									"Unauthorized operation"
+//	@Failure	500	{object}	GeneralResponse{code=int}						"Internal server error"
+//	@Router		/model [get]
 func (controller *ModelController) list(c *gin.Context) {
 	if data, err := func() ([]service.ModelListItem, error) {
 		return controller.modelApp.List("")
@@ -93,14 +93,14 @@ func (controller *ModelController) list(c *gin.Context) {
 }
 
 // get returns detailed information of a model
-// @Summary Get model's detailed info
-// @Tags Model
-// @Produce json
-// @Param uuid path string true "Model UUID"
-// @Success 200 {object} GeneralResponse{data=service.ModelDetail} "Success"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /model/{uuid} [get]
+//	@Summary	Get model's detailed info
+//	@Tags		Model
+//	@Produce	json
+//	@Param		uuid	path		string										true	"Model UUID"
+//	@Success	200		{object}	GeneralResponse{data=service.ModelDetail}	"Success"
+//	@Failure	401		{object}	GeneralResponse								"Unauthorized operation"
+//	@Failure	500		{object}	GeneralResponse{code=int}					"Internal server error"
+//	@Router		/model/{uuid} [get]
 func (controller *ModelController) get(c *gin.Context) {
 	if data, err := func() (*service.ModelDetail, error) {
 		modelUUID := c.Param("uuid")
@@ -121,14 +121,14 @@ func (controller *ModelController) get(c *gin.Context) {
 }
 
 // delete deletes the specified model
-// @Summary Delete the model
-// @Tags Model
-// @Produce json
-// @Param uuid path string true "Model UUID"
-// @Success 200 {object} GeneralResponse "Success"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /model/{uuid} [delete]
+//	@Summary	Delete the model
+//	@Tags		Model
+//	@Produce	json
+//	@Param		uuid	path		string						true	"Model UUID"
+//	@Success	200		{object}	GeneralResponse				"Success"
+//	@Failure	401		{object}	GeneralResponse				"Unauthorized operation"
+//	@Failure	500		{object}	GeneralResponse{code=int}	"Internal server error"
+//	@Router		/model/{uuid} [delete]
 func (controller *ModelController) delete(c *gin.Context) {
 	modelUUID := c.Param("uuid")
 	if err := controller.modelApp.Delete(modelUUID); err != nil {
@@ -146,14 +146,14 @@ func (controller *ModelController) delete(c *gin.Context) {
 }
 
 // create process model creation event
-// @Summary Handle model creation event, called by the job context only
-// @Tags Model
-// @Produce json
-// @Param request body service.ModelCreationRequest true "Creation Request"
-// @Success 200 {object} GeneralResponse{} "Success"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /model/internal/event/create [post]
+//	@Summary	Handle model creation event, called by the job context only
+//	@Tags		Model
+//	@Produce	json
+//	@Param		request	body		service.ModelCreationRequest	true	"Creation Request"
+//	@Success	200		{object}	GeneralResponse{}				"Success"
+//	@Failure	401		{object}	GeneralResponse					"Unauthorized operation"
+//	@Failure	500		{object}	GeneralResponse{code=int}		"Internal server error"
+//	@Router		/model/internal/event/create [post]
 func (controller *ModelController) create(c *gin.Context) {
 	if err := func() error {
 		request := &service.ModelCreationRequest{}
@@ -176,15 +176,15 @@ func (controller *ModelController) create(c *gin.Context) {
 }
 
 // deployModel publish the model to online serving system
-// @Summary Publish model to online serving system
-// @Tags Model
-// @Produce json
-// @Param uuid path string true "Model UUID"
-// @Param request body service.ModelDeploymentRequest true "Creation Request"
-// @Success 200 {object} GeneralResponse{data=entity.ModelDeployment} "Success"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /model/{uuid}/publish [post]
+//	@Summary	Publish model to online serving system
+//	@Tags		Model
+//	@Produce	json
+//	@Param		uuid	path		string											true	"Model UUID"
+//	@Param		request	body		service.ModelDeploymentRequest					true	"Creation Request"
+//	@Success	200		{object}	GeneralResponse{data=entity.ModelDeployment}	"Success"
+//	@Failure	401		{object}	GeneralResponse									"Unauthorized operation"
+//	@Failure	500		{object}	GeneralResponse{code=int}						"Internal server error"
+//	@Router		/model/{uuid}/publish [post]
 func (controller *ModelController) deployModel(c *gin.Context) {
 	if deployment, err := func() (*entity.ModelDeployment, error) {
 		modelUUID := c.Param("uuid")
@@ -210,14 +210,14 @@ func (controller *ModelController) deployModel(c *gin.Context) {
 }
 
 // getSupportedDeployments returns list of the deployment type this model can use
-// @Summary Get list of deployment types (KFServing, FATE-Serving, etc.) this model can use
-// @Tags Model
-// @Produce json
-// @Param uuid path string true "Model UUID"
-// @Success 200 {object} GeneralResponse{data=[]entity.ModelDeploymentType} "Success"
-// @Failure 401 {object} GeneralResponse "Unauthorized operation"
-// @Failure 500 {object} GeneralResponse{code=int} "Internal server error"
-// @Router /model/{uuid}/supportedDeploymentTypes [get]
+//	@Summary	Get list of deployment types (KFServing, FATE-Serving, etc.) this model can use
+//	@Tags		Model
+//	@Produce	json
+//	@Param		uuid	path		string												true	"Model UUID"
+//	@Success	200		{object}	GeneralResponse{data=[]entity.ModelDeploymentType}	"Success"
+//	@Failure	401		{object}	GeneralResponse										"Unauthorized operation"
+//	@Failure	500		{object}	GeneralResponse{code=int}							"Internal server error"
+//	@Router		/model/{uuid}/supportedDeploymentTypes [get]
 func (controller *ModelController) getSupportedDeployments(c *gin.Context) {
 	if types, err := func() ([]entity.ModelDeploymentType, error) {
 		modelUUID := c.Param("uuid")

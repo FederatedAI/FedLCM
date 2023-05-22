@@ -63,6 +63,7 @@
           <th *ngIf="exchange?.is_managed"><span>{{'EndpointMg.name'|translate}}</span></th>
           <th *ngIf="exchange?.is_managed"><span>{{'InfraProvider.name'|translate}}</span></th>
           <th *ngIf="exchange?.is_managed"><span>{{'NewCluster.namespace'| translate}}</span></th>
+          <th><span>{{'CommonlyUse.version'| translate}}</span></th>
           <th><span>{{'CommonlyUse.status'|translate}}</span></th>
           <th><span>{{'CommonlyUse.action'|translate}}</span></th>
         </tr>
@@ -99,13 +100,19 @@
           <td *ngIf="exchange?.is_managed">{{exchange.endpoint_name}}</td>
           <td *ngIf="exchange?.is_managed">{{exchange.infra_provider_name}}</td>
           <td *ngIf="exchange?.is_managed">{{exchange.namespace}}</td>
+          <td>{{exchange.version}}</td>
           <td><span class="label" [class.label-info]="exchange.status===2" [class.label-success]="exchange.status===1"
               [class.label-danger]="exchange.status===5"
               [class.label-warning]="exchange.status===3||exchange.status===4">{{constantGather('participantFATEstatus',
               exchange.status).name | translate}}</span></td>
-          <td><a href="javascript:void(0)"
-              (click)="openDeleteConfrimModal('exchange',exchange.uuid)">{{'CommonlyUse.delete'|translate}}</a></td>
-        </tr>
+          <td>
+            <a href="javascript:void(0)"
+            (click)="openDeleteConfrimModal('exchange',exchange.uuid)">{{'CommonlyUse.delete'|translate}}</a>
+            &nbsp;
+            <a *ngIf="exchange.upgradeable" href="javascript:void(0)"
+            (click)="toUpgrade(exchange, 'Exchange')">{{'CommonlyUse.Upgrade'|translate}}</a>
+          </td>
+          </tr>
       </tbody>
     </table>
     <br>
@@ -129,6 +136,7 @@
           <th><span>{{'EndpointMg.name'|translate}}</span></th>
           <th><span>{{'InfraProvider.name'|translate}}</span></th>
           <th><span>{{'NewCluster.namespace'| translate}}</span></th>
+          <th><span>{{'CommonlyUse.version'| translate}}</span></th>
           <th><span>{{'FederationDetail.partyId'|translate}}</span></th>
           <th><span>{{'CommonlyUse.status'|translate}}</span></th>
           <th><span>{{'CommonlyUse.action'|translate}}</span></th>
@@ -136,8 +144,18 @@
       </thead>
       <tbody *ngIf="clusterlist && clusterlist.length > 0">
         <tr *ngFor="let cluster of clusterlist">
-          <td class="left" (click)="toDetail('cluster', cluster.uuid, cluster)"><a
-              href="javascript:void(0)">{{cluster.name}}</a></td>
+          <td class="left"  (click)="toDetail('cluster', cluster.uuid, cluster)">
+            <a *ngIf="!cluster.flag" href="javascript:void(0)">
+              {{cluster.name}}
+            </a>
+            <span *ngIf="cluster.flag" style="color: hsl(9, 92%, 50%);">
+              {{cluster.name}}
+            </span>
+            <a href="..." *ngIf="cluster.flag" role="tooltip" aria-haspopup="true" class="tooltip tooltip-md">
+              <cds-icon style="color: hsl(9, 92%, 50%);" shape="warning-standard"></cds-icon>
+              <span class="tooltip-content">{{'FederationDetail.versionWarn'| translate}}</span>
+            </a>
+          </td>
           <td>{{cluster.description}}</td>
           <td>{{cluster.created_at | dateFormat}}</td>
           <td>
@@ -168,13 +186,19 @@
           <td>{{cluster.endpoint_name}}</td>
           <td>{{cluster.infra_provider_name}}</td>
           <td>{{cluster.namespace}}</td>
+          <td>{{cluster.version}}</td>
           <td>{{cluster.party_id}}</td>
           <td><span class="label" [class.label-info]="cluster.status===2" [class.label-success]="cluster.status===1"
               [class.label-danger]="cluster.status===5"
               [class.label-warning]="cluster.status===3||cluster.status===4">{{constantGather('participantFATEstatus',
               cluster.status).name | translate}}</span></td>
           <td><a href="javascript:void(0)"
-              (click)="openDeleteConfrimModal('cluster',cluster.uuid)">{{'CommonlyUse.delete'|translate}}</a></td>
+              (click)="openDeleteConfrimModal('cluster',cluster.uuid)">{{'CommonlyUse.delete'|translate}}</a>
+              &nbsp;
+              <a *ngIf="cluster.upgradeable" href="javascript:void(0)"
+              (click)="toUpgrade(cluster, 'Cluster')">{{'CommonlyUse.Upgrade'|translate}}</a>
+    
+          </td>
         </tr>
       </tbody>
       <tbody *ngIf="!clusterlist || clusterlist.length < 1">

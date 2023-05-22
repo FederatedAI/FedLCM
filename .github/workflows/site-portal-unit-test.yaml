@@ -1,0 +1,26 @@
+name: Site-Portal server unit test
+
+on:  
+  pull_request:
+    paths:
+    - ".github/workflows/site-portal-unit-test.yaml"
+    - "site-portal/server/**"
+
+jobs:
+  Unit-test:
+    name: Unit Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup
+        uses: actions/setup-go@v1
+        with:
+          go-version: 1.19
+          id: go
+          
+      - name: Code
+        uses: actions/checkout@main
+        
+      - name: Unit Test
+        run: |
+          cd site-portal
+          make server-unittest

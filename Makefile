@@ -1,7 +1,7 @@
 .PHONY: all clean format swag swag-bin server-unittest server frontend run upgrade openfl-device-agent release
 
 RELEASE_VERSION ?= ${shell git describe --tags}
-TAG ?= v0.2.0
+TAG ?= v0.3.0
 
 SERVER_NAME ?= federatedai/fedlcm-server
 SERVER_IMG ?= ${SERVER_NAME}:${TAG}
@@ -78,7 +78,7 @@ ifeq (, $(shell which swag))
 	SWAG_BIN_TMP_DIR=$$(mktemp -d) ;\
 	cd $$SWAG_BIN_TMP_DIR ;\
 	go mod init tmp ;\
-	go get -u github.com/swaggo/swag/cmd/swag ;\
+	go install github.com/swaggo/swag/cmd/swag@v1.8.7 ;\
 	rm -rf $$SWAG_BIN_TMP_DIR ;\
 	}
 SWAG_BIN=$(GOBIN)/swag

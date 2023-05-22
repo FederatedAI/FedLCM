@@ -1643,6 +1643,13 @@ const docTemplate = `{
                         "name": "enable_psp",
                         "in": "query",
                         "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "number of gpu to assign to fateflow pod, default 0",
+                        "name": "fateflow_gpu_num",
+                        "in": "query",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -2045,6 +2052,141 @@ const docTemplate = `{
                 }
             }
         },
+        "/federation/fate/{uuid}/cluster/{clusterUUID}/upgrade": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Federation"
+                ],
+                "summary": "Get the upgradeable information of the FATE cluster",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "federation UUID",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "cluster UUID",
+                        "name": "clusterUUID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/service.FATEClusterUpgradeableInfo"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized operation",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Federation"
+                ],
+                "summary": "Upgrade the FATE cluster",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "federation UUID",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "cluster UUID",
+                        "name": "clusterUUID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "upgrade version",
+                        "name": "upgradeVersion",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success, the data field is the upgrade cluster's uuid",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized operation",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/federation/fate/{uuid}/exchange/{exchangeUUID}": {
             "get": {
                 "produces": [
@@ -2141,6 +2283,141 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized operation",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/federation/fate/{uuid}/exchange/{exchangeUUID}/upgrade": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Federation"
+                ],
+                "summary": "Get specific info of FATE exchange",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "federation UUID",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "exchange UUID",
+                        "name": "exchangeUUID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/service.FATEClusterUpgradeableInfo"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized operation",
+                        "schema": {
+                            "$ref": "#/definitions/api.GeneralResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.GeneralResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Federation"
+                ],
+                "summary": "Upgrade the FATE exchange",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "federation UUID",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "exchange UUID",
+                        "name": "exchangeUUID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "upgrade version",
+                        "name": "upgradeVersion",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success, the data field is the created exchange's uuid",
                         "schema": {
                             "$ref": "#/definitions/api.GeneralResponse"
                         }
@@ -4330,7 +4607,27 @@ const docTemplate = `{
                 "type": {
                     "type": "integer"
                 },
+                "upgradeable": {
+                    "type": "boolean"
+                },
                 "uuid": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "string"
+                }
+            }
+        },
+        "service.FATEClusterUpgradeableInfo": {
+            "type": "object",
+            "properties": {
+                "FATEClusterUpgradeableVersionList": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "version": {
                     "type": "string"
                 }
             }
@@ -4395,7 +4692,13 @@ const docTemplate = `{
                 "type": {
                     "type": "integer"
                 },
+                "upgradeable": {
+                    "type": "boolean"
+                },
                 "uuid": {
+                    "type": "string"
+                },
+                "version": {
                     "type": "string"
                 }
             }
@@ -4802,6 +5105,9 @@ const docTemplate = `{
                 "externalSpark": {
                     "$ref": "#/definitions/service.ExternalSpark"
                 },
+                "fateflow_gpu_num": {
+                    "type": "integer"
+                },
                 "federation_uuid": {
                     "type": "string"
                 },
@@ -4985,7 +5291,13 @@ const docTemplate = `{
                 "type": {
                     "type": "integer"
                 },
+                "upgradeable": {
+                    "type": "boolean"
+                },
                 "uuid": {
+                    "type": "string"
+                },
+                "version": {
                     "type": "string"
                 }
             }
@@ -5056,6 +5368,9 @@ const docTemplate = `{
                 },
                 "labels": {
                     "$ref": "#/definitions/valueobject.Labels"
+                },
+                "less_privileged": {
+                    "type": "boolean"
                 },
                 "name": {
                     "description": "optional",

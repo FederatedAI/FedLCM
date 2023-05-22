@@ -103,4 +103,12 @@ export class FedService {
   createExternalCluster(fed_uuid:string, externalCluster:any): Observable<any> {
     return this.http.post('/federation/fate/'+ fed_uuid +'/cluster/external', externalCluster);
   }
+
+  getExchangeClusterUpgradeVersionList(fed_uuid:string, upgrade_uuid: string, type: 'cluster' | 'exchange') {
+    return this.http.get<any>(`/federation/fate/${fed_uuid}/${type}/${upgrade_uuid}/upgrade`)
+  }
+
+  upgradeExchangeCluster(fed_uuid:string, upgrade_uuid: string, type: 'cluster' | 'exchange', data: {upgradeVersion: string}) {
+    return this.http.post(`/federation/fate/${fed_uuid}/${type}/${upgrade_uuid}/upgrade?upgradeVersion=${data.upgradeVersion}`, {});
+  }
 }

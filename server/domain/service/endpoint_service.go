@@ -588,16 +588,22 @@ func (s *EndpointService) ensureEndpointExist(infraUUID string, namespace string
 	if err != nil {
 		return "", err
 	}
+
+	endpointName := fmt.Sprintf("kubefate-%s", u.Hostname())
+	if namespace != "" {
+		endpointName += "-" + namespace
+	}
+	endpointName = toDeploymentName(endpointName)
 	yaml := ""
 	if install {
-		yaml, err = s.GetDeploymentYAML(namespace, "admin", "admin", "kubefate.net", registryConfig)
+		yaml, err = s.GetDeploymentYAML(namespace, "admin", "admin", endpointName+".kubefate.net", registryConfig)
 		if err != nil {
 			return "", err
 		}
 	}
 	endpointUUID, err := s.CreateKubeFATEEndpoint(infraUUID, namespace,
-		fmt.Sprintf("kubefate-%s", u.Hostname()),
-		fmt.Sprintf("Automatically added KubeFATE on Kubernetes %s.", u.Hostname()),
+		endpointName,
+		fmt.Sprintf("Automatically added KubeFATE on Infra %s.", provider.Name),
 		yaml,
 		install,
 		entity.EndpointKubeFATEIngressControllerServiceModeModeNonexistent)
